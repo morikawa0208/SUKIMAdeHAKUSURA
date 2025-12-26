@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Chain Puzzle RPG - Stock System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Anta&family=Noto+Sans+JP:wght@400;900&display=swap');
+
+        body {
+            background-color: #020617;
+            color: #f1f5f9;
+            font-family: 'Noto Sans JP', sans-serif;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+
+        .anta { font-family: 'Anta', sans-serif; }
+
+        /* レーンエリア */
+        .lane-container {
+            display: flex;
+            gap: 8px;
+            padding: 12px;
+            height: 100px;
+            background: rgba(15, 23, 42, 0.8);
+            border-top: 2px solid #1e293b;
+            border-bottom: 2px solid #1e293b;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .lane-container::-webkit-scrollbar { display: none; }
+
+        /* 保留エリア */
+        .stock-area {
+            height: 90px;
+            width: 90px;
+            margin: 0 auto;
+            border: 2px dashed #334155;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(30, 41, 59, 0.3);
+            position: relative;
+        }
+
+        .skill-block {
+            min-width: 60px;
+            height: 75px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-weight: 900;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 0 rgba(0,0,0,0.3);
+        }
+
+        .skill-block:active { transform: scale(0.95) translateY(2px); box-shadow: none; }
+
+        .type-red { background: linear-gradient(135deg, #ef4444, #991b1b); border: 2px solid #f87171; }
+        .type-blue { background: linear-gradient(135deg, #3b82f6, #1e3a8a); border: 2px solid #60a5fa; }
+        .type-green { background: linear-gradient(135deg, #10b981, #064e3b); border: 2px solid #34d399; }
+
+        .chain-badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: #fff;
+            color: #000;
+            font-size: 12px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
+
+        .pop-up {
+            position: absolute;
+            animation: popUp 0.8s ease-out forwards;
+            pointer-events: none;
+            font-weight: 900;
+            z-index: 50;
+        }
+
+        @keyframes popUp {
+            0% { transform: translateY(0); opacity: 0; }
+            20% { opacity: 1; transform: translateY(-20px); }
+            100% { transform: translateY(-80px); opacity: 0; }
+        }
+
+        .shake { animation: shake 0.3s ease-in-out; }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen p-4">
+
+    <!-- Enemy Info -->
+    <div class="mb-4">
+        <div class="flex justify-between items-end mb-1 px-1">
+            <span class="text-xs text-red-500 font-bold anta">BOSS: COLOSSUS</span>
+            <span id="enemy-hp-txt" class="text-sm font-bold anta">4500 / 4500</span>
+        </div>
+        <div class="w-full bg-slate-800 h-3 rounded-full overflow-hidden border border-slate-700">
+            <div id="enemy-hp-bar" class="bg-red-600 h-full w-full transition-all duration-300"></div>
+        </div>
+    </div>
+
+    <!-- Battle Log Area -->
+    <div id="logs" class="flex-grow flex flex-col justify-end text-[10px] gap-1 opacity-40 mb-4 font-mono">
+        <div>-- BATTLE START --</div>
+    </div>
+
+    <!-- Player Status -->
+    <div class="flex justify-between items-end mb-4 px-2">
+        <div class="flex flex-col">
+            <span class="text-[10px] text-blue-400 font-bold">SHIELD</span>
+            <span id="player-shield" class="text-2xl font-black anta">0</span>
+        </div>
+        <div class="text-right">
+            <span class="text-[10px] text-green-400 font-bold">PLAYER HP</span>
+            <div class="w-24 bg-slate-800 h-1.5 rounded-full overflow-hidden mt-1">
+                <div id="player-hp-bar" class="bg-green-500 h-full w-full transition-all"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stock Area (Manual Control) -->
+    <div class="mb-4">
+        <div class="text-[10px] text-slate-500 mb-1 text-center font-bold">STOCK (タップで戻す)</div>
+        <div id="stock-lane" class="stock-area">
+            <!-- Only 1 stored block goes here -->
+        </div>
+    </div>
+
+    <!-- Real-time Lane -->
+    <div class="mb-6">
+        <div class="text-[10px] text-slate-500 mb-1 text-center font-bold">LANE (下にスワイプで保留)</div>
+        <div id="skill-lane" class="lane-container">
+            <!-- Flowing blocks -->
+        </div>
+    </div>
+
+    <!-- Quick Info -->
+    <div class="text-center text-[10px] text-slate-600 animate-pulse">
+        ブロックをタップで発動 / 下にスワイプで保留
+    </div>
+
+    <script>
+        const state = {
+            player: { hp: 100, maxHp: 100, shield: 0 },
+            enemy: { hp: 4500, maxHp: 4500 },
+            lane: [],
+            stock: [],
+            isGameOver: false,
+            lastSpawn: 0,
+            spawnInterval: 1800,
+            types: [
+                { name: '斬', type: 'red', val: 40, desc: 'ATTACK' },
+                { name: '防', type: 'blue', val: 30, desc: 'SHIELD' },
+                { name: '癒', type: 'green', val: 20, desc: 'HEAL' }
+            ]
+        };
+
+        const skillLane = document.getElementById('skill-lane');
+        const stockLane = document.getElementById('stock-lane');
+        const logs = document.getElementById('logs');
+
+        function addLog(msg) {
+            const div = document.createElement('div');
+            div.innerText = `> ${msg}`;
+            logs.appendChild(div);
+            if (logs.childNodes.length > 5) logs.removeChild(logs.firstChild);
+        }
+
+        function popText(text, color, x) {
+            const el = document.createElement('div');
+            el.className = `pop-up ${color} text-2xl`;
+            el.innerText = text;
+            el.style.left = `${x || 50}%`;
+            el.style.top = `20%`;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 800);
+        }
+
+        function spawnBlock() {
+            if (state.lane.length >= 10) return;
+            const proto = state.types[Math.floor(Math.random() * state.types.length)];
+            state.lane.push({ ...proto, id: Math.random() });
+            render();
+        }
+
+        function render() {
+            renderLane();
+            renderStock();
+            updateUI();
+        }
+
+        function renderLane() {
+            skillLane.innerHTML = '';
+            
+            const withChain = state.lane.map((block, i) => {
+                let count = 1;
+                let l = i - 1;
+                while(l >= 0 && state.lane[l].type === block.type) { count++; l--; }
+                let r = i + 1;
+                while(r < state.lane.length && state.lane[r].type === block.type) { count++; r++; }
+                return { ...block, chain: count };
+            });
+
+            withChain.forEach((block, index) => {
+                const div = document.createElement('div');
+                div.className = `skill-block type-${block.type} flex-shrink-0`;
+                div.innerHTML = `<span class="text-[8px] opacity-60">${block.desc}</span><span class="text-xl">${block.name}</span>`;
+                
+                if (block.chain > 1) {
+                    const badge = document.createElement('div');
+                    badge.className = 'chain-badge font-bold';
+                    badge.innerText = block.chain;
+                    div.appendChild(badge);
+                }
+
+                div.onclick = (e) => {
+                    executeChain(index);
+                };
+
+                let startY;
+                div.ontouchstart = (e) => { startY = e.touches[0].clientY; };
+                div.ontouchend = (e) => {
+                    let endY = e.changedTouches[0].clientY;
+                    if (endY - startY > 30) {
+                        moveToStock(index);
+                    }
+                };
+                div.oncontextmenu = (e) => {
+                    e.preventDefault();
+                    moveToStock(index);
+                };
+
+                skillLane.appendChild(div);
+            });
+        }
+
+        function renderStock() {
+            stockLane.innerHTML = '';
+            state.stock.forEach((block, index) => {
+                const div = document.createElement('div');
+                div.className = `skill-block type-${block.type} scale-90 flex-shrink-0`;
+                div.innerHTML = `<span class="text-xl">${block.name}</span>`;
+                div.onclick = () => returnFromStock(index);
+                stockLane.appendChild(div);
+            });
+        }
+
+        function executeChain(index) {
+            const type = state.lane[index].type;
+            let indices = [index];
+            
+            let l = index - 1;
+            while(l >= 0 && state.lane[l].type === type) { indices.push(l); l--; }
+            let r = index + 1;
+            while(r < state.lane.length && state.lane[r].type === type) { indices.push(r); r++; }
+
+            const chainSize = indices.length;
+            const multiplier = [0, 1, 2.8, 7.5, 15, 25][Math.min(chainSize, 5)];
+            const baseVal = state.lane[index].val;
+
+            indices.sort((a,b) => b - a).forEach(i => state.lane.splice(i, 1));
+
+            if (type === 'red') {
+                const d = Math.floor(baseVal * multiplier);
+                state.enemy.hp = Math.max(0, state.enemy.hp - d);
+                popText(`-${d}`, 'text-red-500');
+                addLog(`${chainSize}チェイン：斬撃(${d})`);
+            } else if (type === 'blue') {
+                const s = Math.floor(baseVal * multiplier);
+                state.player.shield += s;
+                popText(`+${s} SHIELD`, 'text-blue-400');
+                addLog(`${chainSize}チェイン：防御(+${s})`);
+            } else if (type === 'green') {
+                const h = Math.floor(baseVal * multiplier);
+                state.player.hp = Math.min(state.player.maxHp, state.player.hp + h);
+                popText(`+${h} HEAL`, 'text-green-400');
+                addLog(`${chainSize}チェイン：回復(+${h})`);
+            }
+
+            render();
+        }
+
+        function moveToStock(index) {
+            // ストック数を1つに制限
+            if (state.stock.length >= 1) {
+                addLog("STOCKがいっぱいです");
+                return;
+            }
+            const block = state.lane.splice(index, 1)[0];
+            state.stock.push(block);
+            render();
+        }
+
+        function returnFromStock(index) {
+            if (state.lane.length >= 10) return;
+            const block = state.stock.splice(index, 1)[0];
+            state.lane.push(block);
+            render();
+        }
+
+        function enemyAction() {
+            if (state.isGameOver) return;
+            const dmg = 12 + Math.floor(state.enemy.hp / 1000) * 2;
+            if (state.player.shield >= dmg) {
+                state.player.shield -= dmg;
+            } else {
+                const r = dmg - state.player.shield;
+                state.player.shield = 0;
+                state.player.hp = Math.max(0, state.player.hp - r);
+                document.body.classList.add('shake');
+                setTimeout(() => document.body.classList.remove('shake'), 300);
+            }
+            updateUI();
+        }
+
+        function updateUI() {
+            document.getElementById('enemy-hp-bar').style.width = `${(state.enemy.hp / state.enemy.maxHp) * 100}%`;
+            document.getElementById('enemy-hp-txt').innerText = `${state.enemy.hp} / ${state.enemy.maxHp}`;
+            document.getElementById('player-hp-bar').style.width = `${(state.player.hp / state.player.maxHp) * 100}%`;
+            document.getElementById('player-shield').innerText = state.player.shield;
+
+            if (state.enemy.hp <= 0 && !state.isGameOver) {
+                state.isGameOver = true;
+                addLog("VICTORY!");
+            }
+            if (state.player.hp <= 0 && !state.isGameOver) {
+                state.isGameOver = true;
+                addLog("DEFEAT...");
+            }
+        }
+
+        let lastEnemyAttack = 0;
+        function gameLoop(time) {
+            if (state.isGameOver) return;
+
+            if (time - state.lastSpawn > state.spawnInterval) {
+                spawnBlock();
+                state.lastSpawn = time;
+            }
+
+            if (time - lastEnemyAttack > 4000) {
+                enemyAction();
+                lastEnemyAttack = time;
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        requestAnimationFrame(gameLoop);
+    </script>
+</body>
+</html>
+
