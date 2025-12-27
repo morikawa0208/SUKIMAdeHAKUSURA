@@ -93,6 +93,11 @@
             background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(127, 29, 29, 0.6));
             border-radius: 8px;
             border: 1px solid rgba(248, 113, 113, 0.6);
+            gap: 4px;
+        }
+
+        .enemy-card.is-front {
+            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.4) inset;
         }
 
         .enemy-name {
@@ -121,6 +126,81 @@
             transition: width 0.2s ease;
         }
 
+        .enemy-action {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 9px;
+            color: #bae6fd;
+            font-weight: 700;
+        }
+
+        .enemy-action-bar {
+            flex: 1;
+            height: 4px;
+            border-radius: 999px;
+            background: rgba(15, 23, 42, 0.8);
+            overflow: hidden;
+        }
+
+        .enemy-action-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #38bdf8, #0ea5e9);
+            transition: width 0.2s ease;
+        }
+
+        .enemy-action.is-idle {
+            opacity: 0.35;
+        }
+
+        .lane-container {
+            display: flex;
+            gap: 8px;
+            padding: clamp(6px, 1.8vw, 12px);
+            height: clamp(70px, 14vh, 110px);
+            background: rgba(15, 23, 42, 0.8);
+            border-top: 2px solid #1e293b;
+            border-bottom: 2px solid #1e293b;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .lane-container::-webkit-scrollbar { display: none; }
+
+        .skill-block {
+            min-width: clamp(48px, 12vw, 60px);
+            height: clamp(60px, 12vh, 75px);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-weight: 900;
+            font-size: clamp(12px, 3vw, 14px);
+            background: linear-gradient(135deg, #0ea5e9, #0369a1);
+            border: 2px solid #38bdf8;
+            color: #e0f2fe;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.35);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .attack-btn:active {
+            transform: translateY(2px);
+            box-shadow: none;
+        }
+
+        .lane-hint {
+            font-size: 10px;
+            color: #94a3b8;
+            text-align: center;
+        }
+
+        #logs {
+            max-height: 24vh;
+            overflow: hidden;
+            font-size: clamp(8px, 1.6vw, 11px);
+        }
+
         .attack-btn {
             min-width: clamp(72px, 20vw, 96px);
             padding: 10px 12px;
@@ -131,7 +211,12 @@
             border: 2px solid #38bdf8;
             color: #e0f2fe;
             box-shadow: 0 4px 0 rgba(0,0,0,0.35);
-            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.2s ease;
+        }
+
+        .attack-btn.is-active {
+            filter: brightness(1.2);
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.7);
         }
 
         .attack-btn:active {
@@ -183,11 +268,16 @@
     </div>
 
     <div class="mb-4">
+        <div class="text-[10px] text-slate-500 mb-1 text-center font-bold">ATTACK LANE (タップで発動)</div>
+        <div id="skill-lane" class="lane-container"></div>
+    </div>
+
+    <div class="mb-4">
         <div class="text-[10px] text-slate-500 mb-2 text-center font-bold">攻撃対象の列を選択</div>
         <div class="flex items-center justify-center gap-3">
-            <button class="attack-btn" data-col="0" type="button">左列 攻撃</button>
-            <button class="attack-btn" data-col="1" type="button">中央 攻撃</button>
-            <button class="attack-btn" data-col="2" type="button">右列 攻撃</button>
+            <button class="attack-btn" data-col="0" type="button">左列</button>
+            <button class="attack-btn" data-col="1" type="button">中央</button>
+            <button class="attack-btn" data-col="2" type="button">右列</button>
         </div>
     </div>
 
@@ -196,12 +286,6 @@
             <div class="flex flex-col">
                 <span class="text-[10px] text-green-400 font-bold">PLAYER HP</span>
                 <span id="player-hp-txt" class="text-2xl font-black anta">100 / 100</span>
-            </div>
-            <div class="text-right">
-                <span class="text-[10px] text-slate-400 font-bold">ENEMY ATTACK</span>
-                <div class="w-24 bg-slate-800 h-1.5 rounded-full overflow-hidden mt-1">
-                    <div id="enemy-attack-bar" class="bg-red-500 h-full w-full transition-all"></div>
-                </div>
             </div>
         </div>
         <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
@@ -220,18 +304,26 @@
         const enemyCols = 3;
 
         const state = {
-            player: { hp: 100, maxHp: 100 },
+            player: { hp: 100, maxHp: 100, shield: 0 },
             columns: [],
+            lane: [],
             isGameOver: false,
-            lastEnemyAttack: 0,
-            enemyAttackInterval: 3200
+            lastFrameTime: 0,
+            spawnInterval: 1800,
+            lastSpawn: 0,
+            selectedColumn: 1,
+            types: [
+                { name: '斬', type: 'red', val: 35, desc: 'ATTACK' },
+                { name: '防', type: 'blue', val: 25, desc: 'SHIELD' },
+                { name: '癒', type: 'green', val: 20, desc: 'HEAL' }
+            ]
         };
 
         const enemyGrid = document.getElementById('enemy-grid');
         const enemyCountText = document.getElementById('enemy-count');
         const playerHpText = document.getElementById('player-hp-txt');
         const playerHpBar = document.getElementById('player-hp-bar');
-        const enemyAttackBar = document.getElementById('enemy-attack-bar');
+        const skillLane = document.getElementById('skill-lane');
         const logs = document.getElementById('logs');
 
         function createEnemy(row, col) {
@@ -240,7 +332,8 @@
                 id: `${row}-${col}-${Math.random()}`,
                 name: `E${row + 1}-${col + 1}`,
                 hp: base,
-                maxHp: base
+                maxHp: base,
+                action: 0
             };
         }
 
@@ -288,7 +381,8 @@
                         cell.innerHTML = '<span>--</span>';
                     } else {
                         const card = document.createElement('div');
-                        card.className = 'enemy-card';
+                        const isFront = row === getFrontEnemyRow(state.columns[col]);
+                        card.className = `enemy-card${isFront ? ' is-front' : ''}`;
                         card.innerHTML = `
                             <div>
                                 <div class="enemy-name">${enemy.name}</div>
@@ -296,6 +390,12 @@
                             </div>
                             <div class="enemy-hp-bar">
                                 <div class="enemy-hp-fill" style="width:${(enemy.hp / enemy.maxHp) * 100}%"></div>
+                            </div>
+                            <div class="enemy-action${isFront ? '' : ' is-idle'}">
+                                <span>行動</span>
+                                <div class="enemy-action-bar">
+                                    <div class="enemy-action-fill" style="width:${Math.min(100, enemy.action * 100)}%"></div>
+                                </div>
                             </div>
                         `;
                         cell.appendChild(card);
@@ -305,8 +405,38 @@
             }
         }
 
+        function renderLane() {
+            skillLane.innerHTML = '';
+
+            const withChain = state.lane.map((block, i) => {
+                let count = 1;
+                let l = i - 1;
+                while (l >= 0 && state.lane[l].type === block.type) { count++; l--; }
+                let r = i + 1;
+                while (r < state.lane.length && state.lane[r].type === block.type) { count++; r++; }
+                return { ...block, chain: count };
+            });
+
+            withChain.forEach((block, index) => {
+                const div = document.createElement('div');
+                div.className = `skill-block type-${block.type} flex-shrink-0`;
+                div.innerHTML = `<span class="text-[8px] opacity-60">${block.desc}</span><span class="text-xl">${block.name}</span>`;
+
+                if (block.chain > 1) {
+                    const badge = document.createElement('div');
+                    badge.className = 'chain-badge font-bold';
+                    badge.innerText = block.chain;
+                    div.appendChild(badge);
+                }
+
+                div.onclick = () => executeChain(index);
+                skillLane.appendChild(div);
+            });
+        }
+
         function render() {
             renderEnemies();
+            renderLane();
             updateUI();
         }
 
@@ -315,6 +445,10 @@
             enemyCountText.innerText = `${remaining} / ${enemyRows * enemyCols}`;
             playerHpText.innerText = `${state.player.hp} / ${state.player.maxHp}`;
             playerHpBar.style.width = `${(state.player.hp / state.player.maxHp) * 100}%`;
+            document.querySelectorAll('.attack-btn').forEach((button) => {
+                const col = Number(button.dataset.col);
+                button.classList.toggle('is-active', col === state.selectedColumn);
+            });
         }
 
         function shiftColumn(colIndex) {
@@ -339,7 +473,7 @@
             return null;
         }
 
-        function attackColumn(colIndex) {
+        function attackColumn(colIndex, damage) {
             if (state.isGameOver) return;
             const column = state.columns[colIndex];
             const targetRow = getFrontEnemyRow(column);
@@ -348,7 +482,6 @@
                 return;
             }
             const enemy = column[targetRow];
-            const damage = 35;
             enemy.hp = Math.max(0, enemy.hp - damage);
             popText(`-${damage}`, 'text-red-400', 50, 30);
             addLog(`列${colIndex + 1}の前列に攻撃！ ${damage}ダメージ`);
@@ -364,14 +497,59 @@
             render();
         }
 
-        function enemyAction() {
+        function spawnBlock() {
+            if (state.lane.length >= 10) return;
+            const proto = state.types[Math.floor(Math.random() * state.types.length)];
+            state.lane.push({ ...proto, id: Math.random() });
+            render();
+        }
+
+        function executeChain(index) {
+            const type = state.lane[index].type;
+            let indices = [index];
+
+            let l = index - 1;
+            while (l >= 0 && state.lane[l].type === type) { indices.push(l); l--; }
+            let r = index + 1;
+            while (r < state.lane.length && state.lane[r].type === type) { indices.push(r); r++; }
+
+            const chainSize = indices.length;
+            const multiplier = [0, 1, 2.4, 5.5, 9.5, 14][Math.min(chainSize, 5)];
+            const baseVal = state.lane[index].val;
+
+            indices.sort((a, b) => b - a).forEach((i) => state.lane.splice(i, 1));
+
+            if (type === 'red') {
+                const damage = Math.floor(baseVal * multiplier);
+                attackColumn(state.selectedColumn, damage);
+            } else if (type === 'blue') {
+                const shield = Math.floor(baseVal * multiplier);
+                state.player.shield += shield;
+                popText(`+${shield} SHIELD`, 'text-blue-300', 50, 30);
+                addLog(`${chainSize}チェイン：防御(+${shield})`);
+            } else if (type === 'green') {
+                const heal = Math.floor(baseVal * multiplier);
+                state.player.hp = Math.min(state.player.maxHp, state.player.hp + heal);
+                popText(`+${heal} HEAL`, 'text-green-300', 50, 30);
+                addLog(`${chainSize}チェイン：回復(+${heal})`);
+            }
+
+            render();
+        }
+
+        function enemyAction(enemy) {
             if (state.isGameOver) return;
-            const frontCount = state.columns.reduce((sum, column) => (
-                sum + (column[enemyRows - 1] ? 1 : 0)
-            ), 0);
-            const damage = 6 + frontCount * 3;
-            state.player.hp = Math.max(0, state.player.hp - damage);
-            addLog(`敵の反撃！ ${damage}ダメージ`);
+            const damage = 7 + Math.floor(enemy.maxHp / 50);
+            let remaining = damage;
+            if (state.player.shield > 0) {
+                const absorbed = Math.min(state.player.shield, remaining);
+                state.player.shield -= absorbed;
+                remaining -= absorbed;
+            }
+            if (remaining > 0) {
+                state.player.hp = Math.max(0, state.player.hp - remaining);
+            }
+            addLog(`${enemy.name}の攻撃！ ${damage}ダメージ`);
             if (state.player.hp === 0) {
                 state.isGameOver = true;
                 addLog('DEFEAT...');
@@ -379,34 +557,46 @@
             render();
         }
 
-        function updateEnemyAttackBar(progress) {
-            enemyAttackBar.style.width = `${Math.min(100, Math.max(0, progress))}%`;
+        function updateEnemyActions(delta) {
+            const actionSpeed = 3200;
+            state.columns.forEach((column) => {
+                const frontRow = getFrontEnemyRow(column);
+                column.forEach((enemy, row) => {
+                    if (!enemy) return;
+                    if (row !== frontRow) return;
+                    enemy.action = Math.min(1, enemy.action + delta / actionSpeed);
+                    if (enemy.action >= 1) {
+                        enemy.action = 0;
+                        enemyAction(enemy);
+                    }
+                });
+            });
         }
 
         function gameLoop(time) {
             if (state.isGameOver) return;
-            const elapsed = time - state.lastEnemyAttack;
-            const ratio = (elapsed / state.enemyAttackInterval) * 100;
-            updateEnemyAttackBar(ratio);
-            if (elapsed > state.enemyAttackInterval) {
-                enemyAction();
-                state.lastEnemyAttack = time;
-                updateEnemyAttackBar(0);
+            if (!state.lastFrameTime) state.lastFrameTime = time;
+            const delta = time - state.lastFrameTime;
+            state.lastFrameTime = time;
+
+            if (time - state.lastSpawn > state.spawnInterval) {
+                spawnBlock();
+                state.lastSpawn = time;
             }
+
+            updateEnemyActions(delta);
             requestAnimationFrame(gameLoop);
         }
 
         document.querySelectorAll('.attack-btn').forEach((button) => {
             button.addEventListener('click', () => {
-                attackColumn(Number(button.dataset.col));
+                state.selectedColumn = Number(button.dataset.col);
+                updateUI();
             });
         });
 
         initEnemies();
-        requestAnimationFrame((time) => {
-            state.lastEnemyAttack = time;
-            requestAnimationFrame(gameLoop);
-        });
+        requestAnimationFrame(gameLoop);
     </script>
 </body>
 </html>
