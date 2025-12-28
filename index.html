@@ -1800,7 +1800,7 @@
           ),
           rgba(15, 23, 42, 0.55);
         padding: 10px;
-        height: 560px;
+        height: 520px;
         overflow: auto;
       }
 
@@ -1869,10 +1869,17 @@
       }
 
       .stat-tree-node.is-major {
-        border-color: rgba(96, 165, 250, 0.6);
+        width: 128px;
+        font-size: 12px;
+        border-color: rgba(148, 197, 255, 0.9);
+        background: linear-gradient(
+          140deg,
+          rgba(30, 64, 175, 0.5),
+          rgba(15, 23, 42, 0.95)
+        );
         box-shadow:
-          0 8px 18px rgba(0, 0, 0, 0.35),
-          0 0 12px rgba(96, 165, 250, 0.2);
+          0 10px 22px rgba(0, 0, 0, 0.45),
+          0 0 18px rgba(96, 165, 250, 0.5);
       }
 
       .stat-tree-node.is-detour {
@@ -3612,29 +3619,38 @@
               "
             >
               <div class="section-title" style="margin: 2px 0 4px">
-                一次ステータス
+                ステータスツリー
               </div>
-              <div style="display: flex; align-items: center; gap: 6px">
-                <div class="inline-buttons">
-                  <div class="pill">能力P: <span id="stat-points"></span></div>
-                </div>
-                <button
-                  id="stat-step"
-                  class="step-button"
-                  aria-label="増減幅を切り替え"
-                >
-                  ±1
-                </button>
-                <button
-                  id="reset-stats"
-                  class="help-icon"
-                  aria-label="ステータスをリセット"
-                >
-                  ↺
-                </button>
+              <div class="inline-buttons">
+                <div class="pill">能力P: <span id="stat-points"></span></div>
               </div>
             </div>
-            <div id="primary-stats" class="primary-grid"></div>
+            <div class="stat-tree-note">
+              起点が上、枝が下に伸びる構成。主要ノードは光彩強調で目立たせています。
+            </div>
+            <div class="stat-tree-legend">
+              <div class="legend-item">
+                <span class="legend-dot sword"></span>剣士
+              </div>
+              <div class="legend-item">
+                <span class="legend-dot mage"></span>魔法
+              </div>
+              <div class="legend-item">
+                <span class="legend-dot holy"></span>聖職
+              </div>
+              <div class="legend-item">
+                <span class="legend-dot vamp"></span>吸血
+              </div>
+              <div class="legend-item">
+                <span class="legend-dot detour"></span>寄り道ノード
+              </div>
+            </div>
+            <div
+              id="stat-tree"
+              class="stat-tree"
+              role="img"
+              aria-label="ステータスツリー"
+            ></div>
           </div>
         </div>
         <div id="player-equipment-view" class="player-modal-page hidden">
@@ -13593,7 +13609,7 @@
             const px =
               (node.x - bounds.minX) * STAT_TREE_UNIT + STAT_TREE_PADDING;
             const py =
-              (bounds.maxY - node.y) * STAT_TREE_UNIT + STAT_TREE_PADDING;
+              (node.y - bounds.minY) * STAT_TREE_UNIT + STAT_TREE_PADDING;
             positionMap.set(node.id, { x: px, y: py });
           });
 
@@ -15962,10 +15978,14 @@ function showDamagePopup(
             `EXP ${displayExp} / ${displayExpToLevel}`;
           document.getElementById("level").textContent = player.level;
           document.getElementById("gold").textContent = formatGold(player.gold);
-          document.getElementById("stat-points").textContent =
-            player.statPoints;
-          document.getElementById("skill-points-skill").textContent =
-            player.skillPoints;
+          const statPointsLabel = document.getElementById("stat-points");
+          if (statPointsLabel) {
+            statPointsLabel.textContent = player.statPoints;
+          }
+          const skillPointsLabel = document.getElementById("skill-points-skill");
+          if (skillPointsLabel) {
+            skillPointsLabel.textContent = player.skillPoints;
+          }
           updateHpBar(displayHp, displayMaxHp, displayBarrier);
           updateBars("mp-bar", displayMp, displayMaxMp, "mp");
           updateBars("exp-bar", displayExp, displayExpToLevel, "exp");
@@ -17982,6 +18002,7 @@ function showDamagePopup(
 
         function renderPrimaryStats() {
           const container = document.getElementById("primary-stats");
+          if (!container) return;
           container.innerHTML = "";
           const step = getAdjustStep();
 
@@ -22535,7 +22556,7 @@ function showDamagePopup(
         codexCloseButton?.addEventListener("click", closeCodexModal);
         codexDetailCloseButton?.addEventListener("click", closeCodexDetail);
 
-        statStepButton.addEventListener("click", () => {
+        statStepButton?.addEventListener("click", () => {
           currentStepIndex = (currentStepIndex + 1) % stepOptions.length;
           updateStepButton();
           renderPrimaryStats();
@@ -22564,7 +22585,7 @@ function showDamagePopup(
           }
         });
 
-        resetButton.addEventListener("click", () => {
+        resetButton?.addEventListener("click", () => {
           pendingResetSpent = Object.values(player.allocations).reduce(
             (a, b) => a + b,
             0,
