@@ -2779,8 +2779,16 @@
       }
 
       .status-tree-node.major circle {
-        r: 18;
-        stroke-width: 2.4;
+        r: 20;
+        stroke-width: 2.6;
+        fill: rgba(250, 204, 21, 0.18);
+        stroke: rgba(250, 204, 21, 0.95);
+        filter: drop-shadow(0 0 10px rgba(250, 204, 21, 0.6));
+      }
+
+      .status-tree-node.major text {
+        fill: #fde68a;
+        font-weight: 800;
       }
 
       .status-tree-node.core circle {
@@ -10630,6 +10638,7 @@
           baseBonus: createEmptyBonus(),
           treeBonus: createEmptyBonus(),
           treePrimaryBonus: createEmptyPrimaryBonus(),
+          treeSpecials: [],
           equipmentBonus: createEmptyBonus(),
           equipmentPrimaryBonus: createEmptyPrimaryBonus(),
           legendaryState: {},
@@ -12806,7 +12815,12 @@
           agi: 2,
           luck: 2,
         };
-        const STATUS_TREE_RADII = { root: 140, trunkStep: 70, branchStep: 70 };
+        const STATUS_TREE_RADII = {
+          root: 140,
+          trunkStep: 70,
+          branchStep: 70,
+          subBranchStep: 46,
+        };
         const STATUS_TREE_START_NODES = ["core"];
         const STATUS_TREE_PRIMARY_LABELS = {
           str: "力",
@@ -12867,6 +12881,75 @@
                     primary: { agi: 2 },
                     secondary: { speed: 3, critRate: 3 },
                     major: true,
+                    specials: [
+                      {
+                        trigger: "hit",
+                        type: "status",
+                        key: "bleed",
+                        chance: 35,
+                        duration: 2,
+                        label: "疾風の裂傷",
+                        text: "通常攻撃命中時、出血(35%/2T)",
+                      },
+                      {
+                        trigger: "crit",
+                        type: "extraDamage",
+                        percent: 25,
+                        label: "疾風の追撃",
+                        text: "クリティカル時に追撃(追加25%)",
+                      },
+                    ],
+                  },
+                ],
+                subBranches: [
+                  {
+                    anchorIndex: 1,
+                    angleOffset: -18,
+                    nodes: [
+                      { label: "影走り", secondary: { speed: 1 } },
+                      { label: "連刃の手並", secondary: { critRate: 1 } },
+                      { label: "微風の間合い", primary: { agi: 1 }, secondary: { evade: 1 } },
+                      {
+                        label: "瞬風結節",
+                        primary: { agi: 1 },
+                        secondary: { speed: 2 },
+                        major: true,
+                        specials: [
+                          {
+                            trigger: "hit",
+                            type: "status",
+                            key: "knockdown",
+                            chance: 20,
+                            duration: 1,
+                            label: "瞬風崩し",
+                            text: "通常攻撃で転倒(20%/1T)",
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  {
+                    anchorIndex: 2,
+                    angleOffset: 22,
+                    nodes: [
+                      { label: "刃の余韻", secondary: { physAtk: 2 } },
+                      { label: "剣速の矜持", secondary: { speed: 1 } },
+                      { label: "連舞調律", primary: { agi: 1 }, secondary: { cooldown: 1 } },
+                      {
+                        label: "刃舞の核心",
+                        secondary: { critRate: 2, speed: 2 },
+                        major: true,
+                        specials: [
+                          {
+                            trigger: "skill",
+                            type: "cooldown",
+                            amount: 1,
+                            label: "刃舞の回転",
+                            text: "スキル命中時、CT-1",
+                          },
+                        ],
+                      },
+                    ],
                   },
                 ],
               },
@@ -12899,6 +12982,75 @@
                     primary: { str: 2 },
                     secondary: { physAtk: 5, critDamage: 4 },
                     major: true,
+                    specials: [
+                      {
+                        trigger: "hit",
+                        type: "status",
+                        key: "physAttackDown",
+                        chance: 35,
+                        duration: 2,
+                        label: "断空の衝撃",
+                        text: "命中時に物理攻撃ダウン(35%/2T)",
+                      },
+                      {
+                        trigger: "crit",
+                        type: "extraDamage",
+                        percent: 35,
+                        label: "天断の追撃",
+                        text: "クリティカル時に追撃(追加35%)",
+                      },
+                    ],
+                  },
+                ],
+                subBranches: [
+                  {
+                    anchorIndex: 1,
+                    angleOffset: -16,
+                    nodes: [
+                      { label: "鋼の握力", primary: { str: 1 } },
+                      { label: "重圧の斬撃", secondary: { physAtk: 2 } },
+                      { label: "骨砕き", secondary: { critDamage: 2 } },
+                      {
+                        label: "崩壊の一太刀",
+                        primary: { str: 1 },
+                        secondary: { physPen: 2 },
+                        major: true,
+                        specials: [
+                          {
+                            trigger: "hit",
+                            type: "status",
+                            key: "knockdown",
+                            chance: 25,
+                            duration: 1,
+                            label: "崩壊打",
+                            text: "通常攻撃で転倒(25%/1T)",
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  {
+                    anchorIndex: 2,
+                    angleOffset: 18,
+                    nodes: [
+                      { label: "重心制御", secondary: { physDef: 2 } },
+                      { label: "天断の構え", primary: { vit: 1 }, secondary: { damageReduction: 1 } },
+                      { label: "圧壊の意志", secondary: { critDamage: 2 } },
+                      {
+                        label: "破城の威圧",
+                        secondary: { physAtk: 3, critDamage: 2 },
+                        major: true,
+                        specials: [
+                          {
+                            trigger: "kill",
+                            type: "heal",
+                            percent: 6,
+                            label: "破城の息吹",
+                            text: "撃破時、HP6%回復",
+                          },
+                        ],
+                      },
+                    ],
                   },
                 ],
               },
@@ -12931,6 +13083,74 @@
                     primary: { vit: 2 },
                     secondary: { block: 4, damageReduction: 4 },
                     major: true,
+                    specials: [
+                      {
+                        trigger: "hit",
+                        type: "status",
+                        key: "physAttackDown",
+                        chance: 25,
+                        duration: 2,
+                        label: "守護の威圧",
+                        text: "命中時に物理攻撃ダウン(25%/2T)",
+                      },
+                      {
+                        trigger: "kill",
+                        type: "cooldown",
+                        amount: 1,
+                        label: "守護の鼓舞",
+                        text: "撃破時、CT-1",
+                      },
+                    ],
+                  },
+                ],
+                subBranches: [
+                  {
+                    anchorIndex: 1,
+                    angleOffset: -18,
+                    nodes: [
+                      { label: "鋼の反射", secondary: { physDef: 2 } },
+                      { label: "逆襲の気迫", secondary: { block: 2 } },
+                      { label: "堅牢の心得", primary: { vit: 1 }, secondary: { damageReduction: 1 } },
+                      {
+                        label: "反撃の中核",
+                        secondary: { physAtk: 2, block: 2 },
+                        major: true,
+                        specials: [
+                          {
+                            trigger: "hit",
+                            type: "status",
+                            key: "knockdown",
+                            chance: 18,
+                            duration: 1,
+                            label: "反撃崩し",
+                            text: "通常攻撃で転倒(18%/1T)",
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  {
+                    anchorIndex: 2,
+                    angleOffset: 20,
+                    nodes: [
+                      { label: "守りの陣", secondary: { barrier: 15 } },
+                      { label: "不屈の盾心", primary: { vit: 1 }, secondary: { damageReduction: 1 } },
+                      { label: "防壁の余波", secondary: { controlResist: 2 } },
+                      {
+                        label: "護衛の要",
+                        secondary: { block: 3, barrier: 20 },
+                        major: true,
+                        specials: [
+                          {
+                            trigger: "kill",
+                            type: "mp",
+                            percent: 6,
+                            label: "護衛の回復",
+                            text: "撃破時、MP6%回復",
+                          },
+                        ],
+                      },
+                    ],
                   },
                 ],
               },
@@ -12981,6 +13201,72 @@
                     primary: { int: 2 },
                     secondary: { cooldown: 3, magAtk: 4 },
                     major: true,
+                    specials: [
+                      {
+                        trigger: "skill",
+                        type: "status",
+                        key: "burn",
+                        chance: 40,
+                        duration: 2,
+                        label: "連鎖焦熱",
+                        text: "スキル命中時、火傷(40%/2T)",
+                      },
+                      {
+                        trigger: "kill",
+                        type: "mp",
+                        percent: 6,
+                        label: "連詠唱の還流",
+                        text: "撃破時、MP6%回復",
+                      },
+                    ],
+                  },
+                ],
+                subBranches: [
+                  {
+                    anchorIndex: 1,
+                    angleOffset: -18,
+                    nodes: [
+                      { label: "詠唱短縮術", secondary: { cooldown: 1 } },
+                      { label: "魔弾増幅", secondary: { magAtk: 2 } },
+                      { label: "魔力節約", secondary: { mp: 20 } },
+                      {
+                        label: "詠唱の結節",
+                        secondary: { cooldown: 2, magAtk: 2 },
+                        major: true,
+                        specials: [
+                          {
+                            trigger: "skill",
+                            type: "cooldown",
+                            amount: 1,
+                            label: "高速詠唱",
+                            text: "スキル命中時、CT-1",
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  {
+                    anchorIndex: 2,
+                    angleOffset: 20,
+                    nodes: [
+                      { label: "魔力集中", primary: { int: 1 } },
+                      { label: "魔弾精度", secondary: { accuracy: 1 } },
+                      { label: "魔力の残響", secondary: { magAtk: 2 } },
+                      {
+                        label: "連射の核",
+                        secondary: { magAtk: 3, critRate: 1 },
+                        major: true,
+                        specials: [
+                          {
+                            trigger: "hit",
+                            type: "extraDamage",
+                            percent: 18,
+                            label: "魔弾追撃",
+                            text: "通常攻撃追撃(追加18%)",
+                          },
+                        ],
+                      },
+                    ],
                   },
                 ],
               },
@@ -13009,6 +13295,73 @@
                     primary: { int: 2 },
                     secondary: { magAtk: 6, critDamage: 4 },
                     major: true,
+                    specials: [
+                      {
+                        trigger: "skill",
+                        type: "status",
+                        key: "curse",
+                        chance: 35,
+                        duration: 2,
+                        label: "終焉の呪い",
+                        text: "スキル命中時、呪い(35%/2T)",
+                      },
+                      {
+                        trigger: "crit",
+                        type: "extraDamage",
+                        percent: 30,
+                        label: "終焉の追撃",
+                        text: "クリティカル時に追撃(追加30%)",
+                      },
+                    ],
+                  },
+                ],
+                subBranches: [
+                  {
+                    anchorIndex: 1,
+                    angleOffset: -16,
+                    nodes: [
+                      { label: "圧縮魔力", secondary: { magAtk: 2 } },
+                      { label: "焦点制御", secondary: { critRate: 1 } },
+                      { label: "穿孔術", secondary: { magPen: 2 } },
+                      {
+                        label: "砲撃結節",
+                        primary: { int: 1 },
+                        secondary: { magAtk: 3 },
+                        major: true,
+                        specials: [
+                          {
+                            trigger: "skill",
+                            type: "extraDamage",
+                            percent: 20,
+                            label: "追加詠唱",
+                            text: "スキル追撃(追加20%)",
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  {
+                    anchorIndex: 2,
+                    angleOffset: 18,
+                    nodes: [
+                      { label: "魔核硬化", secondary: { magDef: 2 } },
+                      { label: "詠唱耐性", secondary: { debuffResist: 2 } },
+                      { label: "余剰魔力", secondary: { mp: 25 } },
+                      {
+                        label: "砲撃の核",
+                        secondary: { magAtk: 3, critDamage: 2 },
+                        major: true,
+                        specials: [
+                          {
+                            trigger: "kill",
+                            type: "mp",
+                            percent: 8,
+                            label: "魔力回収",
+                            text: "撃破時、MP8%回復",
+                          },
+                        ],
+                      },
+                    ],
                   },
                 ],
               },
@@ -13035,6 +13388,74 @@
                     primary: { int: 2 },
                     secondary: { barrier: 40, magDef: 5 },
                     major: true,
+                    specials: [
+                      {
+                        trigger: "kill",
+                        type: "heal",
+                        percent: 6,
+                        label: "星護回復",
+                        text: "撃破時、HP6%回復",
+                      },
+                      {
+                        trigger: "hit",
+                        type: "status",
+                        key: "silence",
+                        chance: 18,
+                        duration: 1,
+                        label: "封魔結界",
+                        text: "通常攻撃で沈黙(18%/1T)",
+                      },
+                    ],
+                  },
+                ],
+                subBranches: [
+                  {
+                    anchorIndex: 1,
+                    angleOffset: -18,
+                    nodes: [
+                      { label: "防護強化", secondary: { barrier: 15 } },
+                      { label: "結界の巡り", secondary: { magDef: 2 } },
+                      { label: "防壁符術", secondary: { controlResist: 2 } },
+                      {
+                        label: "結界核",
+                        secondary: { barrier: 25, magDef: 2 },
+                        major: true,
+                        specials: [
+                          {
+                            trigger: "kill",
+                            type: "cooldown",
+                            amount: 1,
+                            label: "結界循環",
+                            text: "撃破時、CT-1",
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  {
+                    anchorIndex: 2,
+                    angleOffset: 18,
+                    nodes: [
+                      { label: "耐性循環", secondary: { dotResist: 2 } },
+                      { label: "魔力堅牢", secondary: { mp: 20 } },
+                      { label: "精神集中", primary: { int: 1 }, secondary: { debuffResist: 2 } },
+                      {
+                        label: "防衛の要",
+                        secondary: { barrier: 20, magDef: 3 },
+                        major: true,
+                        specials: [
+                          {
+                            trigger: "hit",
+                            type: "status",
+                            key: "curse",
+                            chance: 22,
+                            duration: 2,
+                            label: "護符の呪",
+                            text: "通常攻撃で呪い(22%/2T)",
+                          },
+                        ],
+                      },
+                    ],
                   },
                 ],
               },
@@ -13079,6 +13500,74 @@
                     primary: { vit: 2 },
                     secondary: { barrier: 40, damageReduction: 3 },
                     major: true,
+                    specials: [
+                      {
+                        trigger: "kill",
+                        type: "heal",
+                        percent: 8,
+                        label: "大聖の癒し",
+                        text: "撃破時、HP8%回復",
+                      },
+                      {
+                        trigger: "hit",
+                        type: "status",
+                        key: "physAttackDown",
+                        chance: 25,
+                        duration: 2,
+                        label: "聖護の戒め",
+                        text: "通常攻撃で物理攻撃ダウン(25%/2T)",
+                      },
+                    ],
+                  },
+                ],
+                subBranches: [
+                  {
+                    anchorIndex: 1,
+                    angleOffset: -18,
+                    nodes: [
+                      { label: "祈りのしずく", secondary: { hpRegen: 1 } },
+                      { label: "支援の輪", secondary: { barrier: 15 } },
+                      { label: "守護の響き", secondary: { damageReduction: 1 } },
+                      {
+                        label: "守護祈願",
+                        secondary: { barrier: 20, hpRegen: 1 },
+                        major: true,
+                        specials: [
+                          {
+                            trigger: "kill",
+                            type: "mp",
+                            percent: 6,
+                            label: "祈りの還元",
+                            text: "撃破時、MP6%回復",
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  {
+                    anchorIndex: 2,
+                    angleOffset: 18,
+                    nodes: [
+                      { label: "清めの息吹", secondary: { debuffResist: 2 } },
+                      { label: "護符強化", primary: { vit: 1 }, secondary: { magDef: 2 } },
+                      { label: "祝福の鼓動", secondary: { hp: 20 } },
+                      {
+                        label: "祝福核",
+                        secondary: { barrier: 20, damageReduction: 2 },
+                        major: true,
+                        specials: [
+                          {
+                            trigger: "hit",
+                            type: "status",
+                            key: "sleep",
+                            chance: 18,
+                            duration: 1,
+                            label: "安息の祈り",
+                            text: "通常攻撃で睡眠(18%/1T)",
+                          },
+                        ],
+                      },
+                    ],
                   },
                 ],
               },
@@ -13102,6 +13591,74 @@
                     primary: { int: 2 },
                     secondary: { magAtk: 5, critDamage: 4 },
                     major: true,
+                    specials: [
+                      {
+                        trigger: "skill",
+                        type: "status",
+                        key: "burn",
+                        chance: 35,
+                        duration: 2,
+                        label: "浄化の焔",
+                        text: "スキル命中時、火傷(35%/2T)",
+                      },
+                      {
+                        trigger: "crit",
+                        type: "extraDamage",
+                        percent: 24,
+                        label: "裁きの追撃",
+                        text: "クリティカル時に追撃(追加24%)",
+                      },
+                    ],
+                  },
+                ],
+                subBranches: [
+                  {
+                    anchorIndex: 1,
+                    angleOffset: -18,
+                    nodes: [
+                      { label: "聖なる集中", secondary: { magAtk: 2 } },
+                      { label: "浄化の矢", secondary: { critRate: 1 } },
+                      { label: "裁きの手順", secondary: { magPen: 2 } },
+                      {
+                        label: "聖裁の核",
+                        secondary: { magAtk: 3, critRate: 1 },
+                        major: true,
+                        specials: [
+                          {
+                            trigger: "skill",
+                            type: "cooldown",
+                            amount: 1,
+                            label: "裁きの循環",
+                            text: "スキル命中時、CT-1",
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  {
+                    anchorIndex: 2,
+                    angleOffset: 18,
+                    nodes: [
+                      { label: "敬虔の一撃", secondary: { physAtk: 2 } },
+                      { label: "信仰の光刃", secondary: { magAtk: 2 } },
+                      { label: "神罰の準備", secondary: { critDamage: 2 } },
+                      {
+                        label: "神罰の極核",
+                        secondary: { magAtk: 3, critDamage: 2 },
+                        major: true,
+                        specials: [
+                          {
+                            trigger: "hit",
+                            type: "status",
+                            key: "magAttackDown",
+                            chance: 25,
+                            duration: 2,
+                            label: "神罰の印",
+                            text: "通常攻撃で魔法攻撃ダウン(25%/2T)",
+                          },
+                        ],
+                      },
+                    ],
                   },
                 ],
               },
@@ -13128,6 +13685,72 @@
                     primary: { vit: 1, int: 1 },
                     secondary: { cooldown: 3, hpRegen: 3 },
                     major: true,
+                    specials: [
+                      {
+                        trigger: "kill",
+                        type: "cooldown",
+                        amount: 1,
+                        label: "天恵循環",
+                        text: "撃破時、CT-1",
+                      },
+                      {
+                        trigger: "kill",
+                        type: "heal",
+                        percent: 6,
+                        label: "天恵回復",
+                        text: "撃破時、HP6%回復",
+                      },
+                    ],
+                  },
+                ],
+                subBranches: [
+                  {
+                    anchorIndex: 1,
+                    angleOffset: -18,
+                    nodes: [
+                      { label: "祈りの歩み", secondary: { speed: 1 } },
+                      { label: "啓示の調律", secondary: { cooldown: 1 } },
+                      { label: "祝福の息", secondary: { hpRegen: 1 } },
+                      {
+                        label: "啓示の核",
+                        secondary: { cooldown: 2, hpRegen: 1 },
+                        major: true,
+                        specials: [
+                          {
+                            trigger: "skill",
+                            type: "mp",
+                            percent: 5,
+                            label: "祈りの還流",
+                            text: "スキル命中時、MP5%回復",
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  {
+                    anchorIndex: 2,
+                    angleOffset: 18,
+                    nodes: [
+                      { label: "光輪の刻印", secondary: { block: 2 } },
+                      { label: "祝詞の残響", secondary: { debuffResist: 2 } },
+                      { label: "祈りの防壁", secondary: { barrier: 15 } },
+                      {
+                        label: "光恵の極核",
+                        secondary: { barrier: 20, block: 2 },
+                        major: true,
+                        specials: [
+                          {
+                            trigger: "hit",
+                            type: "status",
+                            key: "silence",
+                            chance: 18,
+                            duration: 1,
+                            label: "光恵封印",
+                            text: "通常攻撃で沈黙(18%/1T)",
+                          },
+                        ],
+                      },
+                    ],
                   },
                 ],
               },
@@ -13169,6 +13792,74 @@
                     primary: { agi: 2 },
                     secondary: { lifeSteal: 4, speed: 3 },
                     major: true,
+                    specials: [
+                      {
+                        trigger: "hit",
+                        type: "status",
+                        key: "bleed",
+                        chance: 30,
+                        duration: 2,
+                        label: "夜宴の裂傷",
+                        text: "通常攻撃で出血(30%/2T)",
+                      },
+                      {
+                        trigger: "kill",
+                        type: "heal",
+                        percent: 7,
+                        label: "夜宴の饗宴",
+                        text: "撃破時、HP7%回復",
+                      },
+                    ],
+                  },
+                ],
+                subBranches: [
+                  {
+                    anchorIndex: 1,
+                    angleOffset: -18,
+                    nodes: [
+                      { label: "影歩き", secondary: { evade: 2 } },
+                      { label: "血刃の舞", secondary: { critRate: 1 } },
+                      { label: "俊敏循環", primary: { agi: 1 }, secondary: { speed: 1 } },
+                      {
+                        label: "影舞の核",
+                        secondary: { lifeSteal: 2, speed: 2 },
+                        major: true,
+                        specials: [
+                          {
+                            trigger: "crit",
+                            type: "extraDamage",
+                            percent: 22,
+                            label: "影刃追撃",
+                            text: "クリティカル時に追撃(追加22%)",
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  {
+                    anchorIndex: 2,
+                    angleOffset: 20,
+                    nodes: [
+                      { label: "血流安定", secondary: { hpRegen: 1 } },
+                      { label: "夜影の調律", secondary: { speed: 1 } },
+                      { label: "牙の矜持", primary: { agi: 1 }, secondary: { critRate: 1 } },
+                      {
+                        label: "夜牙の結節",
+                        secondary: { lifeSteal: 2, critRate: 1 },
+                        major: true,
+                        specials: [
+                          {
+                            trigger: "hit",
+                            type: "status",
+                            key: "poison",
+                            chance: 25,
+                            duration: 2,
+                            label: "夜牙毒",
+                            text: "通常攻撃で毒(25%/2T)",
+                          },
+                        ],
+                      },
+                    ],
                   },
                 ],
               },
@@ -13186,6 +13877,74 @@
                     primary: { str: 2 },
                     secondary: { physAtk: 5, critDamage: 4 },
                     major: true,
+                    specials: [
+                      {
+                        trigger: "skill",
+                        type: "status",
+                        key: "curse",
+                        chance: 30,
+                        duration: 2,
+                        label: "断罪の呪",
+                        text: "スキル命中時、呪い(30%/2T)",
+                      },
+                      {
+                        trigger: "crit",
+                        type: "extraDamage",
+                        percent: 30,
+                        label: "断罪の追撃",
+                        text: "クリティカル時に追撃(追加30%)",
+                      },
+                    ],
+                  },
+                ],
+                subBranches: [
+                  {
+                    anchorIndex: 1,
+                    angleOffset: -18,
+                    nodes: [
+                      { label: "闇の集中", secondary: { magAtk: 2 } },
+                      { label: "血の魔弾", secondary: { physAtk: 2 } },
+                      { label: "深淵の視線", secondary: { critRate: 1 } },
+                      {
+                        label: "深淵の核",
+                        secondary: { physAtk: 3, magAtk: 2 },
+                        major: true,
+                        specials: [
+                          {
+                            trigger: "skill",
+                            type: "cooldown",
+                            amount: 1,
+                            label: "深淵循環",
+                            text: "スキル命中時、CT-1",
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  {
+                    anchorIndex: 2,
+                    angleOffset: 18,
+                    nodes: [
+                      { label: "血の衝動", secondary: { physPen: 2 } },
+                      { label: "黒牙研磨", secondary: { critDamage: 2 } },
+                      { label: "闇撃の姿勢", primary: { str: 1 }, secondary: { physAtk: 2 } },
+                      {
+                        label: "闇撃極核",
+                        secondary: { physAtk: 3, critDamage: 2 },
+                        major: true,
+                        specials: [
+                          {
+                            trigger: "hit",
+                            type: "status",
+                            key: "physAttackDown",
+                            chance: 25,
+                            duration: 2,
+                            label: "闇撃の鈍り",
+                            text: "通常攻撃で物理攻撃ダウン(25%/2T)",
+                          },
+                        ],
+                      },
+                    ],
                   },
                 ],
               },
@@ -13209,6 +13968,74 @@
                     primary: { vit: 2 },
                     secondary: { hp: 40, damageReduction: 4 },
                     major: true,
+                    specials: [
+                      {
+                        trigger: "kill",
+                        type: "heal",
+                        percent: 8,
+                        label: "血盟の回復",
+                        text: "撃破時、HP8%回復",
+                      },
+                      {
+                        trigger: "hit",
+                        type: "status",
+                        key: "poison",
+                        chance: 22,
+                        duration: 2,
+                        label: "血壁の毒",
+                        text: "通常攻撃で毒(22%/2T)",
+                      },
+                    ],
+                  },
+                ],
+                subBranches: [
+                  {
+                    anchorIndex: 1,
+                    angleOffset: -18,
+                    nodes: [
+                      { label: "血の鎧", secondary: { barrier: 15 } },
+                      { label: "再生の鼓動", secondary: { hpRegen: 1 } },
+                      { label: "耐久の血", primary: { vit: 1 }, secondary: { damageReduction: 1 } },
+                      {
+                        label: "血壁の核",
+                        secondary: { barrier: 20, damageReduction: 2 },
+                        major: true,
+                        specials: [
+                          {
+                            trigger: "kill",
+                            type: "mp",
+                            percent: 6,
+                            label: "血壁の還元",
+                            text: "撃破時、MP6%回復",
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  {
+                    anchorIndex: 2,
+                    angleOffset: 18,
+                    nodes: [
+                      { label: "不死の息吹", secondary: { hp: 20 } },
+                      { label: "血の護符", secondary: { debuffResist: 2 } },
+                      { label: "防壁調律", secondary: { controlResist: 2 } },
+                      {
+                        label: "不死の極核",
+                        secondary: { hp: 25, damageReduction: 2 },
+                        major: true,
+                        specials: [
+                          {
+                            trigger: "hit",
+                            type: "status",
+                            key: "sleep",
+                            chance: 16,
+                            duration: 1,
+                            label: "不死の鎮静",
+                            text: "通常攻撃で睡眠(16%/1T)",
+                          },
+                        ],
+                      },
+                    ],
                   },
                 ],
               },
@@ -13269,8 +14096,10 @@
           const nodes = [];
           const links = [];
           const classAnchors = {};
+          const nodeIndex = {};
           const addNode = (node) => {
             nodes.push(node);
+            nodeIndex[node.id] = node;
             return node.id;
           };
           const connect = (from, to) => {
@@ -13332,6 +14161,7 @@
                 trunkIds[Math.max(0, branch.anchorIndex ?? 0)] || rootId;
               const branchAngle = angle + toRad(branch.angleOffset || 0);
               let previous = anchorId;
+              const branchNodeIds = [];
               branch.nodes.forEach((node, index) => {
                 const radius =
                   rootRadius +
@@ -13347,9 +14177,38 @@
                   classKey: def.key,
                   primary: node.primary || {},
                   secondary: node.secondary || {},
+                  specials: node.specials || [],
                 });
                 connect(previous, id);
                 previous = id;
+                branchNodeIds.push(id);
+              });
+              (branch.subBranches || []).forEach((subBranch, subIndex) => {
+                const anchorNodeId =
+                  branchNodeIds[Math.max(0, subBranch.anchorIndex ?? 0)] ||
+                  anchorId;
+                const anchorNode = nodeIndex[anchorNodeId];
+                if (!anchorNode) return;
+                const subAngle =
+                  branchAngle + toRad(subBranch.angleOffset || 0);
+                let prevSub = anchorNodeId;
+                subBranch.nodes.forEach((node, index) => {
+                  const distance = STATUS_TREE_RADII.subBranchStep * (index + 1);
+                  const id = `${def.key}-sub-${branchIndex + 1}-${subIndex + 1}-${index + 1}`;
+                  addNode({
+                    id,
+                    label: node.label,
+                    x: anchorNode.x + Math.cos(subAngle) * distance,
+                    y: anchorNode.y + Math.sin(subAngle) * distance,
+                    type: node.major ? "major" : "branch",
+                    classKey: def.key,
+                    primary: node.primary || {},
+                    secondary: node.secondary || {},
+                    specials: node.specials || [],
+                  });
+                  connect(prevSub, id);
+                  prevSub = id;
+                });
               });
             });
           });
@@ -13512,15 +14371,62 @@
           ensureStatusTreeState();
           const primary = createEmptyPrimaryBonus();
           const secondary = createEmptyBonus();
+          const specials = [];
           player.statusTree.unlocked.forEach((id) => {
             const node = STATUS_TREE_NODE_INDEX[id];
             if (!node) return;
             addPrimaryBonus(primary, node.primary || {});
             addBonus(secondary, node.secondary || {});
+            (node.specials || []).forEach((special) => {
+              specials.push({ ...special, source: node.label });
+            });
           });
           player.treePrimaryBonus = primary;
           player.treeBonus = secondary;
+          player.treeSpecials = specials;
           return { primary, secondary };
+        }
+
+        function getStatusTreeSpecials() {
+          return Array.isArray(player.treeSpecials) ? player.treeSpecials : [];
+        }
+
+        function applyStatusTreeSpecials(trigger, context = {}) {
+          const specials = getStatusTreeSpecials().filter(
+            (special) => special.trigger === trigger,
+          );
+          if (!specials.length) return;
+          specials.forEach((special) => {
+            const label = special.label || special.source || "特殊効果";
+            if (special.type === "status") {
+              const target = context.target;
+              if (!target || target.hp <= 0) return;
+              const applied = applyStatus(target, special.key, {
+                duration: special.duration ?? 2,
+                chance: special.chance ?? 100,
+              });
+              if (applied) {
+                log(`✨ ${label}が発動: ${STATUS_DEFINITIONS[special.key]?.name || special.key}`, "good");
+              }
+            } else if (special.type === "cooldown") {
+              reduceSkillCooldowns(special.amount ?? 1);
+              log(`⏱️ ${label}でCTを短縮`, "info");
+            } else if (special.type === "mp") {
+              restorePlayerMp(special.percent ?? 4);
+            } else if (special.type === "heal") {
+              healPlayerByPercent(special.percent ?? 4);
+            } else if (special.type === "extraDamage") {
+              const target = context.target;
+              if (!target || target.hp <= 0) return;
+              const base = context.damage ?? 0;
+              const extra = Math.max(1, Math.round(base * (special.percent ?? 12) / 100));
+              const dealt = applyDamage(target, extra, {
+                source: "ツリー効果",
+                attacker: player,
+              });
+              log(`💥 ${label}が追加ダメージ (${dealt})`, "player");
+            }
+          });
         }
 
         function isStatusTreeNodeAvailable(id) {
@@ -13594,11 +14500,15 @@
               : "未接続";
           const primaryText = formatPrimaryBonusText(node.primary || {});
           const secondaryText = formatSkillBonusText(node.secondary || {});
+          const specials = (node.specials || [])
+            .map((special) => special.text)
+            .filter(Boolean);
           const effects = [primaryText, secondaryText].filter(Boolean);
           statusTreeDetail.innerHTML = `
             <div class="option-label">${node.label}</div>
             <div class="option-value">${status}</div>
             <div class="option-value">${effects.length ? effects.join(" / ") : "効果なし"}</div>
+            ${specials.length ? `<div class="option-value">特殊: ${specials.join(" / ")}</div>` : ""}
           `;
         }
 
@@ -13664,7 +14574,8 @@
                 "http://www.w3.org/2000/svg",
                 "circle",
               );
-              const radius = node.type === "core" ? 20 : node.type === "major" ? 18 : 14;
+              const radius =
+                node.type === "core" ? 20 : node.type === "major" ? 20 : 14;
               circle.setAttribute("r", radius);
               group.appendChild(circle);
 
@@ -21725,6 +22636,7 @@ function showDamagePopup(
           }
           attemptEnemyDrop(enemy);
           refillPotionsOnKill();
+          applyStatusTreeSpecials("kill", { target: enemy });
           updateUI();
         }
 
@@ -21875,6 +22787,17 @@ function showDamagePopup(
                 attacker: player,
                 isCritical,
               });
+              applyStatusTreeSpecials("hit", {
+                target,
+                damage: dealt,
+                isCritical,
+              });
+              if (isCritical) {
+                applyStatusTreeSpecials("crit", {
+                  target,
+                  damage: dealt,
+                });
+              }
               const extraAttacks = applyLegendaryHitEffects(target, {
                 isSkill: false,
                 isCritical,
@@ -21980,6 +22903,7 @@ function showDamagePopup(
             source: skill.name,
             attacker: player,
           });
+          applyStatusTreeSpecials("skill", { target, damage: dealt });
           applyLegendaryHitEffects(target, { isSkill: true, isCritical: false });
           log(
             `🌀 ${skill.name}${effectLabel}！ ${target.name} に ${dealt} ダメージ`,
@@ -22034,6 +22958,7 @@ function showDamagePopup(
             source: "player",
             attacker: player,
           });
+          applyStatusTreeSpecials("skill", { target, damage: dealt });
           applyLegendaryHitEffects(target, { isSkill: true, isCritical: false });
           log(
             `🌌 パワーストライク！ ${target.name} に ${dealt} ダメージ`,
