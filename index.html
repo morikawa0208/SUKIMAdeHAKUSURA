@@ -12963,8 +12963,8 @@
           {
             key: "warrior",
             label: "戦士",
-            angle: -110,
-            curve: 5.4,
+            angle: -114,
+            curve: 4.8,
             nodes: [
               {
                 id: "warrior1",
@@ -12990,9 +12990,9 @@
               {
                 id: "warrior4",
                 label: "鍛錬",
-                desc: "物理防御+8",
+                desc: "物理防御+10",
                 cost: 1,
-                effects: { secondary: { physDef: 8 } },
+                effects: { secondary: { physDef: 10 } },
               },
               {
                 id: "warrior5",
@@ -13068,13 +13068,168 @@
                   secondary: { physAtk: 40, damageReduction: 4 },
                 },
               },
+              {
+                id: "warrior15",
+                label: "連撃術",
+                desc: "行動速度+3",
+                cost: 1,
+                effects: { secondary: { speed: 3 } },
+              },
+              {
+                id: "warrior16",
+                label: "重撃心得",
+                desc: "物理攻撃+28 / クリダメ+6%",
+                cost: 2,
+                effects: { secondary: { physAtk: 28, critDamage: 6 } },
+              },
+            ],
+            sideBranches: [
+              {
+                startIndex: 3,
+                angleOffset: -34,
+                nodes: [
+                  {
+                    id: "warrior_guard1",
+                    label: "盾技",
+                    desc: "ブロック率+4%",
+                    cost: 1,
+                    effects: { secondary: { block: 4 } },
+                  },
+                  {
+                    id: "warrior_guard2",
+                    label: "守備陣形",
+                    desc: "被ダメ軽減+3%",
+                    cost: 1,
+                    effects: { secondary: { damageReduction: 3 } },
+                  },
+                  {
+                    id: "warrior_guard3",
+                    label: "護身術",
+                    desc: "ターン開始時ガード+1T (特性)",
+                    cost: 2,
+                    tier: "major",
+                    effects: { special: { guardOnStart: 1 } },
+                  },
+                  {
+                    id: "warrior_guard4",
+                    label: "城塞",
+                    desc: "バリア+60",
+                    cost: 2,
+                    effects: { secondary: { barrier: 60 } },
+                  },
+                ],
+              },
+              {
+                startIndex: 6,
+                angleOffset: 26,
+                nodes: [
+                  {
+                    id: "warrior_duelist1",
+                    label: "連続斬",
+                    desc: "攻撃回数+1 (特性)",
+                    cost: 3,
+                    tier: "major",
+                    effects: { special: { attackCountBonus: 1 } },
+                  },
+                  {
+                    id: "warrior_duelist2",
+                    label: "血潮",
+                    desc: "HP吸収+3%",
+                    cost: 1,
+                    effects: { secondary: { lifeSteal: 3 } },
+                  },
+                  {
+                    id: "warrior_duelist3",
+                    label: "剣舞",
+                    desc: "行動速度+3 / クリ率+2%",
+                    cost: 1,
+                    effects: { secondary: { speed: 3, critRate: 2 } },
+                  },
+                  {
+                    id: "warrior_duelist4",
+                    label: "紅蓮撃",
+                    desc: "物理攻撃+30",
+                    cost: 1,
+                    effects: { secondary: { physAtk: 30 } },
+                  },
+                ],
+              },
+              {
+                startIndex: 9,
+                angleOffset: -22,
+                nodes: [
+                  {
+                    id: "warrior_burst1",
+                    label: "破甲",
+                    desc: "物理貫通+8%",
+                    cost: 1,
+                    effects: { secondary: { physPen: 8 } },
+                  },
+                  {
+                    id: "warrior_burst2",
+                    label: "怒気",
+                    desc: "クリダメ+8%",
+                    cost: 1,
+                    effects: { secondary: { critDamage: 8 } },
+                  },
+                  {
+                    id: "warrior_burst3",
+                    label: "猛撃",
+                    desc: "物理攻撃+35",
+                    cost: 1,
+                    effects: { secondary: { physAtk: 35 } },
+                  },
+                  {
+                    id: "warrior_burst4",
+                    label: "剛撃奥義",
+                    desc: "物理攻撃+50 / クリダメ+10%",
+                    cost: 4,
+                    tier: "major",
+                    effects: { secondary: { physAtk: 50, critDamage: 10 } },
+                  },
+                ],
+              },
+              {
+                startIndex: 12,
+                angleOffset: 35,
+                nodes: [
+                  {
+                    id: "warrior_str1",
+                    label: "筋骨",
+                    desc: "力+4",
+                    cost: 1,
+                    effects: { primary: { str: 4 } },
+                  },
+                  {
+                    id: "warrior_str2",
+                    label: "筋力鍛錬",
+                    desc: "物理防御+12",
+                    cost: 1,
+                    effects: { secondary: { physDef: 12 } },
+                  },
+                  {
+                    id: "warrior_str3",
+                    label: "剛体",
+                    desc: "最大HP+80",
+                    cost: 1,
+                    effects: { secondary: { hp: 80 } },
+                  },
+                  {
+                    id: "warrior_str4",
+                    label: "不撓",
+                    desc: "被ダメ軽減+4%",
+                    cost: 2,
+                    effects: { secondary: { damageReduction: 4 } },
+                  },
+                ],
+              },
             ],
           },
           {
             key: "ranger",
             label: "斥候",
             angle: -30,
-            curve: -5.2,
+            curve: -4.8,
             nodes: [
               {
                 id: "ranger1",
@@ -13176,13 +13331,169 @@
                 tier: "major",
                 effects: { secondary: { speed: 5, evade: 8 } },
               },
+              {
+                id: "ranger15",
+                label: "狩猟本能",
+                desc: "敏捷+4",
+                cost: 1,
+                effects: { primary: { agi: 4 } },
+              },
+              {
+                id: "ranger16",
+                label: "俊敏連携",
+                desc: "行動速度+3 / クリ率+2%",
+                cost: 2,
+                effects: { secondary: { speed: 3, critRate: 2 } },
+              },
+            ],
+            sideBranches: [
+              {
+                startIndex: 3,
+                angleOffset: -30,
+                nodes: [
+                  {
+                    id: "ranger_evasion1",
+                    label: "影潜り",
+                    desc: "回避率+7%",
+                    cost: 1,
+                    effects: { secondary: { evade: 7 } },
+                  },
+                  {
+                    id: "ranger_evasion2",
+                    label: "影縫い",
+                    desc: "行動速度+3",
+                    cost: 1,
+                    effects: { secondary: { speed: 3 } },
+                  },
+                  {
+                    id: "ranger_evasion3",
+                    label: "幻影",
+                    desc: "回避率+10% / クリ率+2%",
+                    cost: 3,
+                    tier: "major",
+                    effects: { secondary: { evade: 10, critRate: 2 } },
+                  },
+                  {
+                    id: "ranger_evasion4",
+                    label: "疾走影",
+                    desc: "回避率+6% / CT短縮+2%",
+                    cost: 2,
+                    effects: { secondary: { evade: 6, cooldown: 2 } },
+                  },
+                ],
+              },
+              {
+                startIndex: 6,
+                angleOffset: 28,
+                nodes: [
+                  {
+                    id: "ranger_precision1",
+                    label: "狙撃術",
+                    desc: "クリ率+3% / クリダメ+4%",
+                    cost: 1,
+                    effects: { secondary: { critRate: 3, critDamage: 4 } },
+                  },
+                  {
+                    id: "ranger_precision2",
+                    label: "弱点看破",
+                    desc: "物理貫通+6%",
+                    cost: 1,
+                    effects: { secondary: { physPen: 6 } },
+                  },
+                  {
+                    id: "ranger_precision3",
+                    label: "貫通射",
+                    desc: "物理攻撃+28",
+                    cost: 1,
+                    effects: { secondary: { physAtk: 28 } },
+                  },
+                  {
+                    id: "ranger_precision4",
+                    label: "狩人の眼",
+                    desc: "クリ率+5% / クリダメ+8%",
+                    cost: 4,
+                    tier: "major",
+                    effects: { secondary: { critRate: 5, critDamage: 8 } },
+                  },
+                ],
+              },
+              {
+                startIndex: 9,
+                angleOffset: -18,
+                nodes: [
+                  {
+                    id: "ranger_multi1",
+                    label: "連携術",
+                    desc: "同時攻撃対象+1 (特性)",
+                    cost: 3,
+                    tier: "major",
+                    effects: { special: { attackTargetsBonus: 1 } },
+                  },
+                  {
+                    id: "ranger_multi2",
+                    label: "速射",
+                    desc: "行動速度+4",
+                    cost: 1,
+                    effects: { secondary: { speed: 4 } },
+                  },
+                  {
+                    id: "ranger_multi3",
+                    label: "連射",
+                    desc: "物理攻撃+24",
+                    cost: 1,
+                    effects: { secondary: { physAtk: 24 } },
+                  },
+                  {
+                    id: "ranger_multi4",
+                    label: "狩場連結",
+                    desc: "クリ率+2% / CT短縮+3%",
+                    cost: 2,
+                    effects: { secondary: { critRate: 2, cooldown: 3 } },
+                  },
+                ],
+              },
+              {
+                startIndex: 12,
+                angleOffset: 36,
+                nodes: [
+                  {
+                    id: "ranger_trick1",
+                    label: "罠術",
+                    desc: "CT短縮+4%",
+                    cost: 1,
+                    effects: { secondary: { cooldown: 4 } },
+                  },
+                  {
+                    id: "ranger_trick2",
+                    label: "足止め",
+                    desc: "行動阻害抵抗+5%",
+                    cost: 1,
+                    effects: { secondary: { controlResist: 5 } },
+                  },
+                  {
+                    id: "ranger_trick3",
+                    label: "罠師の才",
+                    desc: "クリ率+2% / 回避率+6%",
+                    cost: 2,
+                    effects: { secondary: { critRate: 2, evade: 6 } },
+                  },
+                  {
+                    id: "ranger_trick4",
+                    label: "狩人の策略",
+                    desc: "クリ率+4% / CT短縮+4%",
+                    cost: 4,
+                    tier: "major",
+                    effects: { secondary: { critRate: 4, cooldown: 4 } },
+                  },
+                ],
+              },
             ],
           },
           {
             key: "cleric",
             label: "聖職",
-            angle: 40,
-            curve: 4.6,
+            angle: 42,
+            curve: 4.4,
             nodes: [
               {
                 id: "cleric1",
@@ -13284,13 +13595,169 @@
                 tier: "major",
                 effects: { secondary: { block: 6, controlResist: 8 } },
               },
+              {
+                id: "cleric15",
+                label: "護りの灯火",
+                desc: "バリア+30",
+                cost: 1,
+                effects: { secondary: { barrier: 30 } },
+              },
+              {
+                id: "cleric16",
+                label: "祝福",
+                desc: "最大HP+70 / HP再生+3",
+                cost: 2,
+                effects: { secondary: { hp: 70, hpRegen: 3 } },
+              },
+            ],
+            sideBranches: [
+              {
+                startIndex: 3,
+                angleOffset: -30,
+                nodes: [
+                  {
+                    id: "cleric_guard1",
+                    label: "護法",
+                    desc: "ターン開始時ガード+1T (特性)",
+                    cost: 2,
+                    tier: "major",
+                    effects: { special: { guardOnStart: 1 } },
+                  },
+                  {
+                    id: "cleric_guard2",
+                    label: "結界術",
+                    desc: "バリア+50",
+                    cost: 1,
+                    effects: { secondary: { barrier: 50 } },
+                  },
+                  {
+                    id: "cleric_guard3",
+                    label: "守護壁",
+                    desc: "被ダメ軽減+4%",
+                    cost: 1,
+                    effects: { secondary: { damageReduction: 4 } },
+                  },
+                  {
+                    id: "cleric_guard4",
+                    label: "不壊",
+                    desc: "ブロック率+6%",
+                    cost: 1,
+                    effects: { secondary: { block: 6 } },
+                  },
+                ],
+              },
+              {
+                startIndex: 6,
+                angleOffset: 24,
+                nodes: [
+                  {
+                    id: "cleric_heal1",
+                    label: "癒しの光",
+                    desc: "ターン開始時HP回復+2% (特性)",
+                    cost: 3,
+                    tier: "major",
+                    effects: { special: { turnStartHealPercent: 2 } },
+                  },
+                  {
+                    id: "cleric_heal2",
+                    label: "再生加護",
+                    desc: "HP再生+5",
+                    cost: 1,
+                    effects: { secondary: { hpRegen: 5 } },
+                  },
+                  {
+                    id: "cleric_heal3",
+                    label: "祈祷強化",
+                    desc: "最大HP+80",
+                    cost: 1,
+                    effects: { secondary: { hp: 80 } },
+                  },
+                  {
+                    id: "cleric_heal4",
+                    label: "安寧",
+                    desc: "弱体化抵抗+8%",
+                    cost: 1,
+                    effects: { secondary: { debuffResist: 8 } },
+                  },
+                ],
+              },
+              {
+                startIndex: 9,
+                angleOffset: -18,
+                nodes: [
+                  {
+                    id: "cleric_tank1",
+                    label: "鉄心",
+                    desc: "被ダメ軽減+4%",
+                    cost: 1,
+                    effects: { secondary: { damageReduction: 4 } },
+                  },
+                  {
+                    id: "cleric_tank2",
+                    label: "耐魔護符",
+                    desc: "魔法防御+14",
+                    cost: 1,
+                    effects: { secondary: { magDef: 14 } },
+                  },
+                  {
+                    id: "cleric_tank3",
+                    label: "堅牢結界",
+                    desc: "バリア+50 / 被ダメ軽減+3%",
+                    cost: 2,
+                    effects: { secondary: { barrier: 50, damageReduction: 3 } },
+                  },
+                  {
+                    id: "cleric_tank4",
+                    label: "守護聖堂",
+                    desc: "被ダメ軽減+6% / ブロック率+6%",
+                    cost: 4,
+                    tier: "major",
+                    effects: { secondary: { damageReduction: 6, block: 6 } },
+                  },
+                ],
+              },
+              {
+                startIndex: 12,
+                angleOffset: 32,
+                nodes: [
+                  {
+                    id: "cleric_support1",
+                    label: "浄化",
+                    desc: "DoT抵抗+10%",
+                    cost: 1,
+                    effects: { secondary: { dotResist: 10 } },
+                  },
+                  {
+                    id: "cleric_support2",
+                    label: "祈りの旋律",
+                    desc: "HP再生+4 / バリア+30",
+                    cost: 2,
+                    effects: { secondary: { hpRegen: 4, barrier: 30 } },
+                  },
+                  {
+                    id: "cleric_support3",
+                    label: "守護の歌",
+                    desc: "弱体化抵抗+10%",
+                    cost: 1,
+                    effects: { secondary: { debuffResist: 10 } },
+                  },
+                  {
+                    id: "cleric_support4",
+                    label: "天恵",
+                    desc: "最大HP+120 / バリア+60",
+                    cost: 4,
+                    tier: "major",
+                    effects: { secondary: { hp: 120, barrier: 60 } },
+                  },
+                ],
+              },
             ],
           },
           {
             key: "mage",
             label: "魔法",
             angle: 120,
-            curve: -4.8,
+            curve: -4.6,
             nodes: [
               {
                 id: "mage1",
@@ -13392,13 +13859,170 @@
                 tier: "major",
                 effects: { secondary: { magAtk: 40, cooldown: 6 } },
               },
+              {
+                id: "mage15",
+                label: "魔導連結",
+                desc: "魔法攻撃+20 / 最大MP+40",
+                cost: 2,
+                effects: { secondary: { magAtk: 20, mp: 40 } },
+              },
+              {
+                id: "mage16",
+                label: "賢者の眼",
+                desc: "魔法貫通+6% / クリ率+2%",
+                cost: 2,
+                effects: { secondary: { magPen: 6, critRate: 2 } },
+              },
+            ],
+            sideBranches: [
+              {
+                startIndex: 3,
+                angleOffset: -30,
+                nodes: [
+                  {
+                    id: "mage_burst1",
+                    label: "魔力集中",
+                    desc: "クリ率+4% / クリダメ+6%",
+                    cost: 2,
+                    effects: { secondary: { critRate: 4, critDamage: 6 } },
+                  },
+                  {
+                    id: "mage_burst2",
+                    label: "魔力共鳴",
+                    desc: "魔法攻撃+30",
+                    cost: 1,
+                    effects: { secondary: { magAtk: 30 } },
+                  },
+                  {
+                    id: "mage_burst3",
+                    label: "爆裂詠唱",
+                    desc: "CT短縮+5%",
+                    cost: 1,
+                    effects: { secondary: { cooldown: 5 } },
+                  },
+                  {
+                    id: "mage_burst4",
+                    label: "秘術増幅",
+                    desc: "魔法攻撃+50 / クリダメ+10%",
+                    cost: 4,
+                    tier: "major",
+                    effects: { secondary: { magAtk: 50, critDamage: 10 } },
+                  },
+                ],
+              },
+              {
+                startIndex: 6,
+                angleOffset: 26,
+                nodes: [
+                  {
+                    id: "mage_mana1",
+                    label: "魔力泉",
+                    desc: "ターン開始時MP+8 (特性)",
+                    cost: 3,
+                    tier: "major",
+                    effects: { special: { turnStartMpRestore: 8 } },
+                  },
+                  {
+                    id: "mage_mana2",
+                    label: "霊薬",
+                    desc: "最大MP+80",
+                    cost: 1,
+                    effects: { secondary: { mp: 80 } },
+                  },
+                  {
+                    id: "mage_mana3",
+                    label: "魔力循環",
+                    desc: "CT短縮+3%",
+                    cost: 1,
+                    effects: { secondary: { cooldown: 3 } },
+                  },
+                  {
+                    id: "mage_mana4",
+                    label: "奥義の泉",
+                    desc: "最大MP+120 / CT短縮+4%",
+                    cost: 4,
+                    tier: "major",
+                    effects: { secondary: { mp: 120, cooldown: 4 } },
+                  },
+                ],
+              },
+              {
+                startIndex: 9,
+                angleOffset: -20,
+                nodes: [
+                  {
+                    id: "mage_chain1",
+                    label: "魔導連撃",
+                    desc: "攻撃回数+1 (特性)",
+                    cost: 3,
+                    tier: "major",
+                    effects: { special: { attackCountBonus: 1 } },
+                  },
+                  {
+                    id: "mage_chain2",
+                    label: "魔導速度",
+                    desc: "CT短縮+4%",
+                    cost: 1,
+                    effects: { secondary: { cooldown: 4 } },
+                  },
+                  {
+                    id: "mage_chain3",
+                    label: "魔弾強化",
+                    desc: "魔法攻撃+24",
+                    cost: 1,
+                    effects: { secondary: { magAtk: 24 } },
+                  },
+                  {
+                    id: "mage_chain4",
+                    label: "連鎖魔術",
+                    desc: "魔法攻撃+30 / クリ率+2%",
+                    cost: 2,
+                    effects: { secondary: { magAtk: 30, critRate: 2 } },
+                  },
+                ],
+              },
+              {
+                startIndex: 12,
+                angleOffset: 34,
+                nodes: [
+                  {
+                    id: "mage_arcane1",
+                    label: "秘術障壁",
+                    desc: "バリア+50",
+                    cost: 1,
+                    effects: { secondary: { barrier: 50 } },
+                  },
+                  {
+                    id: "mage_arcane2",
+                    label: "魔防結界",
+                    desc: "魔法防御+14",
+                    cost: 1,
+                    effects: { secondary: { magDef: 14 } },
+                  },
+                  {
+                    id: "mage_arcane3",
+                    label: "秘奥強化",
+                    desc: "魔法貫通+6%",
+                    cost: 1,
+                    effects: { secondary: { magPen: 6 } },
+                  },
+                  {
+                    id: "mage_arcane4",
+                    label: "深淵の核",
+                    desc: "魔法攻撃+40 / バリア+60",
+                    cost: 4,
+                    tier: "major",
+                    effects: { secondary: { magAtk: 40, barrier: 60 } },
+                  },
+                ],
+              },
             ],
           },
           {
             key: "trickster",
             label: "幸運",
-            angle: 200,
-            curve: 5.5,
+            angle: 202,
+            curve: 5.1,
             nodes: [
               {
                 id: "luck1",
@@ -13500,28 +14124,192 @@
                 tier: "major",
                 effects: { secondary: { critDamage: 12, goldChance: 20 } },
               },
+              {
+                id: "luck15",
+                label: "幸運の星",
+                desc: "運+4 / クリ率+2%",
+                cost: 2,
+                effects: { primary: { luck: 4 }, secondary: { critRate: 2 } },
+              },
+              {
+                id: "luck16",
+                label: "富の導き",
+                desc: "ゴールド率+12% / 称号率+6%",
+                cost: 2,
+                effects: { secondary: { goldChance: 12, titleChance: 6 } },
+              },
+            ],
+            sideBranches: [
+              {
+                startIndex: 3,
+                angleOffset: -30,
+                nodes: [
+                  {
+                    id: "luck_drop1",
+                    label: "拾得術",
+                    desc: "ドロップ率+12%",
+                    cost: 1,
+                    effects: { secondary: { dropRate: 12 } },
+                  },
+                  {
+                    id: "luck_drop2",
+                    label: "宝飾探索",
+                    desc: "レアリティ+6%",
+                    cost: 1,
+                    effects: { secondary: { rarity: 6 } },
+                  },
+                  {
+                    id: "luck_drop3",
+                    label: "宝運の導き",
+                    desc: "ドロップ率+18% / レア率+8%",
+                    cost: 4,
+                    tier: "major",
+                    effects: { secondary: { dropRate: 18, rarity: 8 } },
+                  },
+                  {
+                    id: "luck_drop4",
+                    label: "宝の嗅覚",
+                    desc: "ネームド遭遇率+10%",
+                    cost: 1,
+                    effects: { secondary: { namedRate: 10 } },
+                  },
+                ],
+              },
+              {
+                startIndex: 6,
+                angleOffset: 26,
+                nodes: [
+                  {
+                    id: "luck_gold1",
+                    label: "金貨の導き",
+                    desc: "ゴールド率+16%",
+                    cost: 1,
+                    effects: { secondary: { goldChance: 16 } },
+                  },
+                  {
+                    id: "luck_gold2",
+                    label: "資産運用",
+                    desc: "称号率+8%",
+                    cost: 1,
+                    effects: { secondary: { titleChance: 8 } },
+                  },
+                  {
+                    id: "luck_gold3",
+                    label: "黄金嗅覚",
+                    desc: "ゴールド率+20% / ドロップ率+10%",
+                    cost: 3,
+                    tier: "major",
+                    effects: { secondary: { goldChance: 20, dropRate: 10 } },
+                  },
+                  {
+                    id: "luck_gold4",
+                    label: "富の連鎖",
+                    desc: "ゴールド率+18% / レア率+6%",
+                    cost: 2,
+                    effects: { secondary: { goldChance: 18, rarity: 6 } },
+                  },
+                ],
+              },
+              {
+                startIndex: 9,
+                angleOffset: -18,
+                nodes: [
+                  {
+                    id: "luck_crit1",
+                    label: "致命勝負",
+                    desc: "クリ率+3% / クリダメ+6%",
+                    cost: 2,
+                    effects: { secondary: { critRate: 3, critDamage: 6 } },
+                  },
+                  {
+                    id: "luck_crit2",
+                    label: "幸運の刃",
+                    desc: "クリダメ+10%",
+                    cost: 1,
+                    effects: { secondary: { critDamage: 10 } },
+                  },
+                  {
+                    id: "luck_crit3",
+                    label: "幸運突破",
+                    desc: "クリ率+4% / クリダメ+8%",
+                    cost: 3,
+                    tier: "major",
+                    effects: { secondary: { critRate: 4, critDamage: 8 } },
+                  },
+                  {
+                    id: "luck_crit4",
+                    label: "賭けの妙",
+                    desc: "クリ率+2% / ゴールド率+10%",
+                    cost: 2,
+                    effects: { secondary: { critRate: 2, goldChance: 10 } },
+                  },
+                ],
+              },
+              {
+                startIndex: 12,
+                angleOffset: 34,
+                nodes: [
+                  {
+                    id: "luck_surprise1",
+                    label: "予兆",
+                    desc: "ネームド遭遇率+12%",
+                    cost: 1,
+                    effects: { secondary: { namedRate: 12 } },
+                  },
+                  {
+                    id: "luck_surprise2",
+                    label: "掘り出し物",
+                    desc: "レアリティ+10%",
+                    cost: 1,
+                    effects: { secondary: { rarity: 10 } },
+                  },
+                  {
+                    id: "luck_surprise3",
+                    label: "偏りの極意",
+                    desc: "ドロップ率+16% / ゴールド率+12%",
+                    cost: 3,
+                    tier: "major",
+                    effects: { secondary: { dropRate: 16, goldChance: 12 } },
+                  },
+                  {
+                    id: "luck_surprise4",
+                    label: "財宝の嗅覚",
+                    desc: "称号率+10% / レア率+6%",
+                    cost: 2,
+                    effects: { secondary: { titleChance: 10, rarity: 6 } },
+                  },
+                ],
+              },
             ],
           },
         ];
 
         function buildStatusTreeNodes() {
           const { center, baseRadius, step } = STATUS_TREE_LAYOUT;
-          const nodes = [
-            {
-              id: STATUS_TREE_ROOT_ID,
-              label: "起点",
-              desc: "全ステータス+1",
-              cost: 0,
-              position: { x: center.x, y: center.y },
-              links: [],
-              effects: {
-                primary: { str: 1, int: 1, vit: 1, agi: 1, luck: 1 },
-              },
+          const nodes = [];
+          const nodeMap = new Map();
+          const anchors = {};
+
+          const addNode = (node) => {
+            nodes.push(node);
+            nodeMap.set(node.id, node);
+          };
+
+          addNode({
+            id: STATUS_TREE_ROOT_ID,
+            label: "起点",
+            desc: "全ステータス+1",
+            cost: 0,
+            position: { x: center.x, y: center.y },
+            links: [],
+            effects: {
+              primary: { str: 1, int: 1, vit: 1, agi: 1, luck: 1 },
             },
-          ];
+          });
 
           STATUS_TREE_BRANCHES.forEach((branch) => {
             let prevId = STATUS_TREE_ROOT_ID;
+            anchors[branch.key] = [];
             branch.nodes.forEach((node, index) => {
               const angle =
                 ((branch.angle + branch.curve * index) * Math.PI) / 180;
@@ -13530,20 +14318,48 @@
                 x: Math.round(center.x + Math.cos(angle) * radius),
                 y: Math.round(center.y + Math.sin(angle) * radius),
               };
-              nodes.push({
+              addNode({
                 ...node,
                 position,
                 links: [],
               });
-              const prev = nodes.find((item) => item.id === prevId);
+              const prev = nodeMap.get(prevId);
               if (prev) prev.links.push(node.id);
+              anchors[branch.key][index] = { id: node.id, position, angle };
               prevId = node.id;
             });
           });
+
+          STATUS_TREE_BRANCHES.forEach((branch) => {
+            (branch.sideBranches || []).forEach((side) => {
+              const anchor = anchors[branch.key]?.[side.startIndex];
+              if (!anchor) return;
+              const baseAngle =
+                anchor.angle + ((side.angleOffset || 0) * Math.PI) / 180;
+              const sideStep = side.step ?? step * 0.75;
+              let prevId = anchor.id;
+              side.nodes.forEach((node, index) => {
+                const distance = sideStep * (index + 1);
+                const position = {
+                  x: Math.round(
+                    anchor.position.x + Math.cos(baseAngle) * distance,
+                  ),
+                  y: Math.round(
+                    anchor.position.y + Math.sin(baseAngle) * distance,
+                  ),
+                };
+                addNode({ ...node, position, links: [] });
+                const prev = nodeMap.get(prevId);
+                if (prev) prev.links.push(node.id);
+                prevId = node.id;
+              });
+            });
+          });
+
           STATUS_TREE_JUNCTIONS.forEach((junction) => {
-            nodes.push({ ...junction, links: [...(junction.links || [])] });
+            addNode({ ...junction, links: [...(junction.links || [])] });
             (junction.links || []).forEach((linkId) => {
-              const target = nodes.find((item) => item.id === linkId);
+              const target = nodeMap.get(linkId);
               if (target && !target.links.includes(junction.id)) {
                 target.links.push(junction.id);
               }
@@ -14389,6 +15205,7 @@
           player.equipmentPrimaryPerLevel = equipmentBonuses.primaryPerLevel;
           player.equipmentPrimaryFixed = equipmentBonuses.primaryFixed;
           const statusTreeSpecial = statusTreeBonuses.special || {};
+          player.statusTreeSpecial = statusTreeSpecial;
           player.attackCountBonus =
             (equipmentBonuses.attackCountBonus || 0) +
             (statusTreeSpecial.attackCountBonus || 0);
@@ -15668,6 +16485,32 @@
           }
           if (entity === player) {
             tickSkillCooldowns();
+            const statusTreeSpecial = player.statusTreeSpecial || {};
+            const healPercent = statusTreeSpecial.turnStartHealPercent || 0;
+            if (healPercent > 0 && player.maxHp > 0) {
+              const healAmount = roundBattleValue(
+                player.maxHp * (healPercent / 100),
+              );
+              if (healAmount > 0) {
+                const healed = applyHealing(player, healAmount);
+                if (healed > 0) {
+                  log(`✨ 特性効果でHPを ${healed} 回復`, "good");
+                }
+              }
+            }
+            const mpRestore = statusTreeSpecial.turnStartMpRestore || 0;
+            if (mpRestore > 0 && player.maxMp > 0) {
+              const beforeMp = player.mp;
+              player.mp = Math.min(player.maxMp, player.mp + mpRestore);
+              const gained = player.mp - beforeMp;
+              if (gained > 0) {
+                log(`🔷 特性効果でMPを ${gained} 回復`, "info");
+              }
+            }
+            const guardTurns = statusTreeSpecial.guardOnStart || 0;
+            if (guardTurns > 0) {
+              player.buffs.guard = Math.max(player.buffs.guard || 0, guardTurns);
+            }
           }
           applyLegendaryTurnStartEffects(entity);
           const skipTurn =
@@ -17925,7 +18768,13 @@ function showDamagePopup(
         function calculateStatusTreeBonuses() {
           const primary = createEmptyPrimaryBonus();
           const secondary = createEmptyBonus();
-          const special = { attackCountBonus: 0, attackTargetsBonus: 0 };
+          const special = {
+            attackCountBonus: 0,
+            attackTargetsBonus: 0,
+            guardOnStart: 0,
+            turnStartHealPercent: 0,
+            turnStartMpRestore: 0,
+          };
           const unlockedSet = getStatusTreeUnlockedSet();
           unlockedSet.forEach((id) => {
             const node = STATUS_TREE_NODE_MAP.get(id);
@@ -18004,6 +18853,12 @@ function showDamagePopup(
               list.push(`攻撃回数+${value}`);
             } else if (key === "attackTargetsBonus") {
               list.push(`同時攻撃対象+${value}`);
+            } else if (key === "guardOnStart") {
+              list.push(`ターン開始時ガード+${value}T`);
+            } else if (key === "turnStartHealPercent") {
+              list.push(`ターン開始時HP回復+${value}%`);
+            } else if (key === "turnStartMpRestore") {
+              list.push(`ターン開始時MP+${value}`);
             } else {
               list.push(`${key}+${value}`);
             }
