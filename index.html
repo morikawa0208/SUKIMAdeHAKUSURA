@@ -12249,11 +12249,11 @@
             speed: 10,
           },
           primary: {
-            str: { label: "筋力", base: 3, bonus: 0 },
-            int: { label: "知恵", base: 3, bonus: 0 },
-            vit: { label: "活力", base: 3, bonus: 0 },
-            agi: { label: "技量", base: 3, bonus: 0 },
-            luck: { label: "幸運", base: 3, bonus: 0 },
+            str: { label: "筋力", base: 1, bonus: 0 },
+            int: { label: "知恵", base: 1, bonus: 0 },
+            vit: { label: "活力", base: 1, bonus: 0 },
+            agi: { label: "技量", base: 1, bonus: 0 },
+            luck: { label: "幸運", base: 1, bonus: 0 },
           },
           allocations: {
             str: 0,
@@ -19791,7 +19791,7 @@ function showDamagePopup(
           const rect = svg.getBoundingClientRect();
           const base = passiveTreeViewState.baseViewBox;
           const prevScale = passiveTreeViewState.scale;
-          const nextScale = Math.min(6.8, Math.max(0.35, prevScale * factor));
+          const nextScale = Math.min(6.8, Math.max(0.1, prevScale * factor));
           if (nextScale === prevScale) return;
           const cx = centerX ?? rect.width / 2;
           const cy = centerY ?? rect.height / 2;
