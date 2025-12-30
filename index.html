@@ -11957,110 +11957,8 @@
 
         const toClusterSlug = (key) => key.toLowerCase().replace(/_/g, "-");
 
-        PASSIVE_TREE_CLUSTERS_RAW.forEach((cluster) => {
-          if (!cluster?.position) return;
-          const slug = toClusterSlug(cluster.key);
-          const distance = Math.hypot(cluster.position.x, cluster.position.y);
-          const scale = 1 + distance / 260;
-          const statusValue = Math.max(2, Math.round(2 + scale * 1.6));
-          const hpBonus = Math.round(18 * scale);
-          const category =
-            PASSIVE_CLUSTER_CATEGORY_MAP[cluster.key] || "剣士";
-
-          if (!PASSIVE_TREE_EXTRA_NODE_MAP[cluster.key]) {
-            PASSIVE_TREE_EXTRA_NODE_MAP[cluster.key] = [];
-          }
-
-          const extraNodes = [];
-
-          EXTRA_STATUS_TEMPLATES.forEach((template, index) => {
-            const offset = EXTRA_NODE_OFFSETS[index % EXTRA_NODE_OFFSETS.length];
-            extraNodes.push({
-              id: `${slug}-extra-${template.key}`,
-              name: `${cluster.name}${template.label}`,
-              type: "status",
-              cluster: cluster.key,
-              position: {
-                x: cluster.position.x + offset.x,
-                y: cluster.position.y + offset.y,
-              },
-              description: `${template.label}+${statusValue}`,
-              effects: {
-                primary: { [template.key]: statusValue },
-                bonus: template.key === "vit" ? { hp: hpBonus } : undefined,
-              },
-            });
-          });
-
-          EXTRA_PASSIVE_TEMPLATES.forEach((template, index) => {
-            const offset =
-              EXTRA_NODE_OFFSETS[index + EXTRA_STATUS_TEMPLATES.length];
-            extraNodes.push({
-              id: `${slug}-extra-${template.key}`,
-              name: `${cluster.name}${template.name}`,
-              type: "passive",
-              cluster: cluster.key,
-              position: {
-                x: cluster.position.x + offset.x,
-                y: cluster.position.y + offset.y,
-              },
-              description: template.description,
-              effects: { bonus: template.buildBonus(scale) },
-            });
-          });
-
-          const activeOffset =
-            EXTRA_NODE_OFFSETS[
-              EXTRA_STATUS_TEMPLATES.length + EXTRA_PASSIVE_TEMPLATES.length
-            ];
-          const passiveOffset =
-            EXTRA_NODE_OFFSETS[
-              EXTRA_STATUS_TEMPLATES.length +
-                EXTRA_PASSIVE_TEMPLATES.length +
-                1
-            ];
-
-          extraNodes.push(
-            {
-              id: `${slug}-extra-unlock-active`,
-              name: `${cluster.name}解放(アクティブ)`,
-              type: "skillUnlock",
-              cluster: cluster.key,
-              position: {
-                x: cluster.position.x + activeOffset.x,
-                y: cluster.position.y + activeOffset.y,
-              },
-              description: "アクティブスキルが使用可能になる。",
-              unlocks: { categories: [category], skillTypes: ["active"] },
-            },
-            {
-              id: `${slug}-extra-unlock-passive`,
-              name: `${cluster.name}解放(パッシブ)`,
-              type: "skillUnlock",
-              cluster: cluster.key,
-              position: {
-                x: cluster.position.x + passiveOffset.x,
-                y: cluster.position.y + passiveOffset.y,
-              },
-              description: "パッシブスキルが使用可能になる。",
-              unlocks: { categories: [category], skillTypes: ["passive"] },
-            },
-          );
-
-          extraNodes.forEach((node) => {
-            PASSIVE_TREE_EXTRA_NODES.push(node);
-            PASSIVE_TREE_EXTRA_NODE_MAP[cluster.key].push(node.id);
-          });
-        });
-
-        PASSIVE_TREE_CLUSTERS_RAW.forEach((cluster) => {
-          const extra = PASSIVE_TREE_EXTRA_NODE_MAP[cluster.key];
-          if (extra?.length) {
-            cluster.nodes = [...cluster.nodes, ...extra];
-          }
-        });
-
-        PASSIVE_TREE_NODES_RAW.push(...PASSIVE_TREE_EXTRA_NODES);
+        const ACTIVE_PASSIVE_PAGE_CLUSTERS = {};
+        const JOB_PAGE_LINKS = [];
 
         const SWORDMAN_PAGE_CORE = {
           key: "BLADE_PAGE_CORE",
@@ -12443,7 +12341,323 @@
           },
         ];
 
-        const JOB_PAGE_TEMPLATES = [
+        const swordmanCoreId = `${SWORDMAN_PAGE_CORE.key.toLowerCase()}-core`;
+
+        PASSIVE_TREE_CLUSTERS_RAW.push({
+          key: SWORDMAN_PAGE_CORE.key,
+          name: SWORDMAN_PAGE_CORE.name,
+          description: "剣士の基礎と上下一体の連携軸。",
+          core: swordmanCoreId,
+          position: SWORDMAN_PAGE_CORE.position,
+          nodes: [
+            swordmanCoreId,
+            `${SWORDMAN_PAGE_CORE.key.toLowerCase()}-str`,
+            `${SWORDMAN_PAGE_CORE.key.toLowerCase()}-agi`,
+            `${SWORDMAN_PAGE_CORE.key.toLowerCase()}-vit`,
+            `${SWORDMAN_PAGE_CORE.key.toLowerCase()}-passive`,
+          ],
+        });
+
+        PASSIVE_TREE_NODES_RAW.push(
+          {
+            id: swordmanCoreId,
+            name: "剣士の中核",
+            type: "passive",
+            cluster: SWORDMAN_PAGE_CORE.key,
+            position: SWORDMAN_PAGE_CORE.position,
+            description: "上下の剣筋を繋ぐ基盤。",
+            effects: {
+              bonus: { hp: 28, mp: 12, physAtk: 6, speed: 1 },
+            },
+          },
+          {
+            id: `${SWORDMAN_PAGE_CORE.key.toLowerCase()}-str`,
+            name: "剣士筋力",
+            type: "status",
+            cluster: SWORDMAN_PAGE_CORE.key,
+            position: {
+              x: SWORDMAN_PAGE_CORE.position.x - 90,
+              y: SWORDMAN_PAGE_CORE.position.y - 60,
+            },
+            description: "筋力+2",
+            effects: { primary: { str: 2 } },
+          },
+          {
+            id: `${SWORDMAN_PAGE_CORE.key.toLowerCase()}-agi`,
+            name: "剣士技量",
+            type: "status",
+            cluster: SWORDMAN_PAGE_CORE.key,
+            position: {
+              x: SWORDMAN_PAGE_CORE.position.x + 90,
+              y: SWORDMAN_PAGE_CORE.position.y - 60,
+            },
+            description: "技量+2",
+            effects: { primary: { agi: 2 } },
+          },
+          {
+            id: `${SWORDMAN_PAGE_CORE.key.toLowerCase()}-vit`,
+            name: "剣士活力",
+            type: "status",
+            cluster: SWORDMAN_PAGE_CORE.key,
+            position: {
+              x: SWORDMAN_PAGE_CORE.position.x - 90,
+              y: SWORDMAN_PAGE_CORE.position.y + 60,
+            },
+            description: "活力+2",
+            effects: { primary: { vit: 2 } },
+          },
+          {
+            id: `${SWORDMAN_PAGE_CORE.key.toLowerCase()}-passive`,
+            name: "剣士基礎鍛錬",
+            type: "passive",
+            cluster: SWORDMAN_PAGE_CORE.key,
+            position: {
+              x: SWORDMAN_PAGE_CORE.position.x + 90,
+              y: SWORDMAN_PAGE_CORE.position.y + 60,
+            },
+            description: "剣士の基礎体力と速度を整える。",
+            effects: { bonus: { speed: 1.2, damageReduction: 1 } },
+          },
+        );
+
+        PASSIVE_CLUSTER_CATEGORY_MAP[SWORDMAN_PAGE_CORE.key] = "剣士";
+        ACTIVE_PASSIVE_PAGE_CLUSTERS["剣士"] = ["START", SWORDMAN_PAGE_CORE.key];
+        JOB_PAGE_LINKS.push([PASSIVE_TREE_START_NODE_ID, swordmanCoreId]);
+
+        const swordmanRouteFinals = { upper: [], lower: [] };
+
+        const addSwordmanCluster = (cluster) => {
+          const slug = toClusterSlug(cluster.key);
+          const coreId = `${slug}-core`;
+          const statusId = `${slug}-status`;
+          const skillId = `${slug}-unlock`;
+          const keystoneId = `${slug}-keystone`;
+
+          PASSIVE_TREE_CLUSTERS_RAW.push({
+            key: cluster.key,
+            name: cluster.name,
+            description: cluster.name,
+            core: coreId,
+            position: cluster.position,
+            nodes: [coreId, statusId, skillId, keystoneId],
+          });
+
+          PASSIVE_TREE_NODES_RAW.push(
+            {
+              id: coreId,
+              name: `${cluster.name}の芯`,
+              type: "passive",
+              cluster: cluster.key,
+              position: cluster.position,
+              description: cluster.name,
+              effects: { bonus: cluster.coreBonus },
+            },
+            {
+              id: statusId,
+              name: `${cluster.name}${cluster.status.label}`,
+              type: "status",
+              cluster: cluster.key,
+              position: {
+                x: cluster.position.x - 90,
+                y: cluster.position.y - 60,
+              },
+              description: `${cluster.status.label}+${cluster.status.value}`,
+              effects: { primary: { [cluster.status.key]: cluster.status.value } },
+            },
+            {
+              id: skillId,
+              name: `${cluster.skillUnlock.label}解放`,
+              type: "skillUnlock",
+              cluster: cluster.key,
+              position: {
+                x: cluster.position.x + 90,
+                y: cluster.position.y - 60,
+              },
+              description:
+                cluster.skillUnlock.type === "active"
+                  ? "専用アクティブが使用可能になる。"
+                  : "専用パッシブが使用可能になる。",
+              unlocks: {
+                skills: [cluster.skillUnlock.key],
+                skillTypes: [cluster.skillUnlock.type],
+              },
+            },
+            {
+              id: keystoneId,
+              name: `キーストーン: ${cluster.keystone.name}`,
+              type: "keystone",
+              cluster: cluster.key,
+              position: {
+                x: cluster.position.x,
+                y: cluster.position.y + 110,
+              },
+              description: `${cluster.keystone.pros.join(" / ")} / ${cluster.keystone.cons.join(" / ")}`,
+              keystone: cluster.keystone,
+            },
+          );
+
+          PASSIVE_CLUSTER_CATEGORY_MAP[cluster.key] = "剣士";
+          ACTIVE_PASSIVE_PAGE_CLUSTERS["剣士"].push(cluster.key);
+
+          return { coreId, skillId };
+        };
+
+        SWORDMAN_ROUTE_GROUPS.forEach((group) => {
+          group.routes.forEach((route) => {
+            const clusterIds = route.clusters.map((cluster) =>
+              addSwordmanCluster(cluster),
+            );
+            if (clusterIds.length) {
+              JOB_PAGE_LINKS.push([swordmanCoreId, clusterIds[0].coreId]);
+              for (let i = 0; i < clusterIds.length - 1; i += 1) {
+                JOB_PAGE_LINKS.push([
+                  clusterIds[i].coreId,
+                  clusterIds[i + 1].coreId,
+                ]);
+              }
+              const finalCoreId = clusterIds[clusterIds.length - 1].coreId;
+              swordmanRouteFinals[group.group].push(finalCoreId);
+            }
+          });
+        });
+
+        if (swordmanRouteFinals.upper.length >= 2) {
+          JOB_PAGE_LINKS.push([
+            swordmanRouteFinals.upper[0],
+            swordmanRouteFinals.upper[1],
+          ]);
+        }
+        if (swordmanRouteFinals.upper.length >= 3) {
+          JOB_PAGE_LINKS.push([
+            swordmanRouteFinals.upper[1],
+            swordmanRouteFinals.upper[2],
+          ]);
+        }
+        if (swordmanRouteFinals.lower.length >= 2) {
+          JOB_PAGE_LINKS.push([
+            swordmanRouteFinals.lower[0],
+            swordmanRouteFinals.lower[1],
+          ]);
+        }
+        if (swordmanRouteFinals.lower.length >= 3) {
+          JOB_PAGE_LINKS.push([
+            swordmanRouteFinals.lower[1],
+            swordmanRouteFinals.lower[2],
+          ]);
+        }
+
+        PASSIVE_TREE_CLUSTERS_RAW.forEach((cluster) => {
+          if (!cluster?.position) return;
+          const slug = toClusterSlug(cluster.key);
+          const distance = Math.hypot(cluster.position.x, cluster.position.y);
+          const scale = 1 + distance / 260;
+          const statusValue = Math.max(2, Math.round(2 + scale * 1.6));
+          const hpBonus = Math.round(18 * scale);
+          const category =
+            PASSIVE_CLUSTER_CATEGORY_MAP[cluster.key] || "剣士";
+
+          if (!PASSIVE_TREE_EXTRA_NODE_MAP[cluster.key]) {
+            PASSIVE_TREE_EXTRA_NODE_MAP[cluster.key] = [];
+          }
+
+          const extraNodes = [];
+
+          EXTRA_STATUS_TEMPLATES.forEach((template, index) => {
+            const offset = EXTRA_NODE_OFFSETS[index % EXTRA_NODE_OFFSETS.length];
+            extraNodes.push({
+              id: `${slug}-extra-${template.key}`,
+              name: `${cluster.name}${template.label}`,
+              type: "status",
+              cluster: cluster.key,
+              position: {
+                x: cluster.position.x + offset.x,
+                y: cluster.position.y + offset.y,
+              },
+              description: `${template.label}+${statusValue}`,
+              effects: {
+                primary: { [template.key]: statusValue },
+                bonus: template.key === "vit" ? { hp: hpBonus } : undefined,
+              },
+            });
+          });
+
+          EXTRA_PASSIVE_TEMPLATES.forEach((template, index) => {
+            const offset =
+              EXTRA_NODE_OFFSETS[index + EXTRA_STATUS_TEMPLATES.length];
+            extraNodes.push({
+              id: `${slug}-extra-${template.key}`,
+              name: `${cluster.name}${template.name}`,
+              type: "passive",
+              cluster: cluster.key,
+              position: {
+                x: cluster.position.x + offset.x,
+                y: cluster.position.y + offset.y,
+              },
+              description: template.description,
+              effects: { bonus: template.buildBonus(scale) },
+            });
+          });
+
+          const activeOffset =
+            EXTRA_NODE_OFFSETS[
+              EXTRA_STATUS_TEMPLATES.length + EXTRA_PASSIVE_TEMPLATES.length
+            ];
+          const passiveOffset =
+            EXTRA_NODE_OFFSETS[
+              EXTRA_STATUS_TEMPLATES.length +
+                EXTRA_PASSIVE_TEMPLATES.length +
+                1
+            ];
+
+          extraNodes.push(
+            {
+              id: `${slug}-extra-unlock-active`,
+              name: `${cluster.name}解放(アクティブ)`,
+              type: "skillUnlock",
+              cluster: cluster.key,
+              position: {
+                x: cluster.position.x + activeOffset.x,
+                y: cluster.position.y + activeOffset.y,
+              },
+              description: "アクティブスキルが使用可能になる。",
+              unlocks: { categories: [category], skillTypes: ["active"] },
+            },
+            {
+              id: `${slug}-extra-unlock-passive`,
+              name: `${cluster.name}解放(パッシブ)`,
+              type: "skillUnlock",
+              cluster: cluster.key,
+              position: {
+                x: cluster.position.x + passiveOffset.x,
+                y: cluster.position.y + passiveOffset.y,
+              },
+              description: "パッシブスキルが使用可能になる。",
+              unlocks: { categories: [category], skillTypes: ["passive"] },
+            },
+          );
+
+          extraNodes.forEach((node) => {
+            PASSIVE_TREE_EXTRA_NODES.push(node);
+            PASSIVE_TREE_EXTRA_NODE_MAP[cluster.key].push(node.id);
+          });
+        });
+
+        PASSIVE_TREE_CLUSTERS_RAW.forEach((cluster) => {
+          const extra = PASSIVE_TREE_EXTRA_NODE_MAP[cluster.key];
+          if (extra?.length) {
+            cluster.nodes = [...cluster.nodes, ...extra];
+          }
+        });
+
+        PASSIVE_TREE_NODES_RAW.push(...PASSIVE_TREE_EXTRA_NODES);
+
+        const SWORDMAN_PAGE_CORE = {
+          key: "BLADE_PAGE_CORE",
+          name: "剣士の基盤",
+          position: { x: 0, y: 0 },
+        };
+
+        const SWORDMAN_ROUTE_GROUPS = [
           {
             category: "魔法",
             core: {
@@ -12703,214 +12917,6 @@
             ],
           },
         ];
-
-        const ACTIVE_PASSIVE_PAGE_CLUSTERS = {};
-        const JOB_PAGE_LINKS = [];
-
-        const swordmanCoreId = `${SWORDMAN_PAGE_CORE.key.toLowerCase()}-core`;
-
-        PASSIVE_TREE_CLUSTERS_RAW.push({
-          key: SWORDMAN_PAGE_CORE.key,
-          name: SWORDMAN_PAGE_CORE.name,
-          description: "剣士の基礎と上下一体の連携軸。",
-          core: swordmanCoreId,
-          position: SWORDMAN_PAGE_CORE.position,
-          nodes: [
-            swordmanCoreId,
-            `${SWORDMAN_PAGE_CORE.key.toLowerCase()}-str`,
-            `${SWORDMAN_PAGE_CORE.key.toLowerCase()}-agi`,
-            `${SWORDMAN_PAGE_CORE.key.toLowerCase()}-vit`,
-            `${SWORDMAN_PAGE_CORE.key.toLowerCase()}-passive`,
-          ],
-        });
-
-        PASSIVE_TREE_NODES_RAW.push(
-          {
-            id: swordmanCoreId,
-            name: "剣士の中核",
-            type: "passive",
-            cluster: SWORDMAN_PAGE_CORE.key,
-            position: SWORDMAN_PAGE_CORE.position,
-            description: "上下の剣筋を繋ぐ基盤。",
-            effects: {
-              bonus: { hp: 28, mp: 12, physAtk: 6, speed: 1 },
-            },
-          },
-          {
-            id: `${SWORDMAN_PAGE_CORE.key.toLowerCase()}-str`,
-            name: "剣士筋力",
-            type: "status",
-            cluster: SWORDMAN_PAGE_CORE.key,
-            position: {
-              x: SWORDMAN_PAGE_CORE.position.x - 90,
-              y: SWORDMAN_PAGE_CORE.position.y - 60,
-            },
-            description: "筋力+2",
-            effects: { primary: { str: 2 } },
-          },
-          {
-            id: `${SWORDMAN_PAGE_CORE.key.toLowerCase()}-agi`,
-            name: "剣士技量",
-            type: "status",
-            cluster: SWORDMAN_PAGE_CORE.key,
-            position: {
-              x: SWORDMAN_PAGE_CORE.position.x + 90,
-              y: SWORDMAN_PAGE_CORE.position.y - 60,
-            },
-            description: "技量+2",
-            effects: { primary: { agi: 2 } },
-          },
-          {
-            id: `${SWORDMAN_PAGE_CORE.key.toLowerCase()}-vit`,
-            name: "剣士活力",
-            type: "status",
-            cluster: SWORDMAN_PAGE_CORE.key,
-            position: {
-              x: SWORDMAN_PAGE_CORE.position.x - 90,
-              y: SWORDMAN_PAGE_CORE.position.y + 60,
-            },
-            description: "活力+2",
-            effects: { primary: { vit: 2 } },
-          },
-          {
-            id: `${SWORDMAN_PAGE_CORE.key.toLowerCase()}-passive`,
-            name: "剣士基礎鍛錬",
-            type: "passive",
-            cluster: SWORDMAN_PAGE_CORE.key,
-            position: {
-              x: SWORDMAN_PAGE_CORE.position.x + 90,
-              y: SWORDMAN_PAGE_CORE.position.y + 60,
-            },
-            description: "剣士の基礎体力と速度を整える。",
-            effects: { bonus: { speed: 1.2, damageReduction: 1 } },
-          },
-        );
-
-        PASSIVE_CLUSTER_CATEGORY_MAP[SWORDMAN_PAGE_CORE.key] = "剣士";
-        ACTIVE_PASSIVE_PAGE_CLUSTERS["剣士"] = ["START", SWORDMAN_PAGE_CORE.key];
-        JOB_PAGE_LINKS.push([PASSIVE_TREE_START_NODE_ID, swordmanCoreId]);
-
-        const swordmanRouteFinals = { upper: [], lower: [] };
-
-        const addSwordmanCluster = (cluster) => {
-          const slug = toClusterSlug(cluster.key);
-          const coreId = `${slug}-core`;
-          const statusId = `${slug}-status`;
-          const skillId = `${slug}-unlock`;
-          const keystoneId = `${slug}-keystone`;
-
-          PASSIVE_TREE_CLUSTERS_RAW.push({
-            key: cluster.key,
-            name: cluster.name,
-            description: cluster.name,
-            core: coreId,
-            position: cluster.position,
-            nodes: [coreId, statusId, skillId, keystoneId],
-          });
-
-          PASSIVE_TREE_NODES_RAW.push(
-            {
-              id: coreId,
-              name: `${cluster.name}の芯`,
-              type: "passive",
-              cluster: cluster.key,
-              position: cluster.position,
-              description: cluster.name,
-              effects: { bonus: cluster.coreBonus },
-            },
-            {
-              id: statusId,
-              name: `${cluster.name}${cluster.status.label}`,
-              type: "status",
-              cluster: cluster.key,
-              position: {
-                x: cluster.position.x - 90,
-                y: cluster.position.y - 60,
-              },
-              description: `${cluster.status.label}+${cluster.status.value}`,
-              effects: { primary: { [cluster.status.key]: cluster.status.value } },
-            },
-            {
-              id: skillId,
-              name: `${cluster.skillUnlock.label}解放`,
-              type: "skillUnlock",
-              cluster: cluster.key,
-              position: {
-                x: cluster.position.x + 90,
-                y: cluster.position.y - 60,
-              },
-              description:
-                cluster.skillUnlock.type === "active"
-                  ? "専用アクティブが使用可能になる。"
-                  : "専用パッシブが使用可能になる。",
-              unlocks: {
-                skills: [cluster.skillUnlock.key],
-                skillTypes: [cluster.skillUnlock.type],
-              },
-            },
-            {
-              id: keystoneId,
-              name: `キーストーン: ${cluster.keystone.name}`,
-              type: "keystone",
-              cluster: cluster.key,
-              position: {
-                x: cluster.position.x,
-                y: cluster.position.y + 110,
-              },
-              description: `${cluster.keystone.pros.join(" / ")} / ${cluster.keystone.cons.join(" / ")}`,
-              keystone: cluster.keystone,
-            },
-          );
-
-          PASSIVE_CLUSTER_CATEGORY_MAP[cluster.key] = "剣士";
-          ACTIVE_PASSIVE_PAGE_CLUSTERS["剣士"].push(cluster.key);
-
-          return { coreId, skillId };
-        };
-
-        SWORDMAN_ROUTE_GROUPS.forEach((group) => {
-          group.routes.forEach((route) => {
-            const clusterIds = route.clusters.map((cluster) =>
-              addSwordmanCluster(cluster),
-            );
-            if (clusterIds.length) {
-              JOB_PAGE_LINKS.push([swordmanCoreId, clusterIds[0].coreId]);
-              for (let i = 0; i < clusterIds.length - 1; i += 1) {
-                JOB_PAGE_LINKS.push([
-                  clusterIds[i].coreId,
-                  clusterIds[i + 1].coreId,
-                ]);
-              }
-              const finalCoreId = clusterIds[clusterIds.length - 1].coreId;
-              swordmanRouteFinals[group.group].push(finalCoreId);
-            }
-          });
-        });
-
-        if (swordmanRouteFinals.upper.length >= 2) {
-          JOB_PAGE_LINKS.push([
-            swordmanRouteFinals.upper[0],
-            swordmanRouteFinals.upper[1],
-          ]);
-        }
-        if (swordmanRouteFinals.upper.length >= 3) {
-          JOB_PAGE_LINKS.push([
-            swordmanRouteFinals.upper[1],
-            swordmanRouteFinals.upper[2],
-          ]);
-        }
-        if (swordmanRouteFinals.lower.length >= 2) {
-          JOB_PAGE_LINKS.push([
-            swordmanRouteFinals.lower[0],
-            swordmanRouteFinals.lower[1],
-          ]);
-        }
-        if (swordmanRouteFinals.lower.length >= 3) {
-          JOB_PAGE_LINKS.push([
-            swordmanRouteFinals.lower[1],
-            swordmanRouteFinals.lower[2],
-          ]);
-        }
 
         JOB_PAGE_TEMPLATES.forEach((job) => {
           const coreKey = job.core.key;
