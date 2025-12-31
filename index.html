@@ -3171,16 +3171,17 @@
       .passive-tree-body {
         position: relative;
         display: grid;
-        grid-template-columns: 1fr minmax(210px, 280px);
+        grid-template-rows: auto 1fr;
         height: 100%;
       }
 
       .passive-tree-panel {
-        padding: 14px;
+        padding: 14px 16px;
         display: grid;
         gap: 8px;
         background: rgba(3, 7, 18, 0.92);
-        border-left: 1px solid rgba(255, 255, 255, 0.08);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        max-height: 220px;
         overflow-y: auto;
       }
 
@@ -3234,12 +3235,41 @@
       #canvas-container {
         width: 100%;
         height: 100%;
+        min-height: 520px;
         background:
           radial-gradient(circle at center, #0a1b35 0%, #01040a 100%),
           linear-gradient(var(--line-inactive) 1px, transparent 1px),
           linear-gradient(90deg, var(--line-inactive) 1px, transparent 1px);
         background-size: 100% 100%, 100px 100px, 100px 100px;
         touch-action: none;
+      }
+
+      #canvas-container.tree-bg-sword {
+        background:
+          radial-gradient(circle at center, #0f1d35 0%, #030712 100%),
+          linear-gradient(var(--line-inactive) 1px, transparent 1px),
+          linear-gradient(90deg, var(--line-inactive) 1px, transparent 1px);
+      }
+
+      #canvas-container.tree-bg-mage {
+        background:
+          radial-gradient(circle at center, #1a0f35 0%, #07030f 100%),
+          linear-gradient(var(--line-inactive) 1px, transparent 1px),
+          linear-gradient(90deg, var(--line-inactive) 1px, transparent 1px);
+      }
+
+      #canvas-container.tree-bg-cleric {
+        background:
+          radial-gradient(circle at center, #12301f 0%, #030a06 100%),
+          linear-gradient(var(--line-inactive) 1px, transparent 1px),
+          linear-gradient(90deg, var(--line-inactive) 1px, transparent 1px);
+      }
+
+      #canvas-container.tree-bg-vampire {
+        background:
+          radial-gradient(circle at center, #2b0f17 0%, #0b0307 100%),
+          linear-gradient(var(--line-inactive) 1px, transparent 1px),
+          linear-gradient(90deg, var(--line-inactive) 1px, transparent 1px);
       }
 
       .node {
@@ -3758,6 +3788,12 @@
           </div>
           <div id="passive-tree-tabs" class="passive-tree-tabs"></div>
           <div class="passive-tree-body">
+            <div class="passive-tree-panel" id="passive-tree-panel">
+              <div class="node-title">ノード未選択</div>
+              <div class="node-meta">
+                ツリー上のノードを選ぶと効果が表示されます。
+              </div>
+            </div>
             <div id="canvas-container">
               <svg id="svg-root" width="100%" height="100%">
                 <g id="viewport">
@@ -3765,12 +3801,6 @@
                   <g id="nodes-group"></g>
                 </g>
               </svg>
-            </div>
-            <div class="passive-tree-panel" id="passive-tree-panel">
-              <div class="node-title">ノード未選択</div>
-              <div class="node-meta">
-                ツリー上のノードを選ぶと効果が表示されます。
-              </div>
             </div>
           </div>
         </div>
@@ -12103,7 +12133,7 @@
         let passiveTreeAdjacency = {};
         let selectedPassiveNodeId = null;
         const passiveTreeView = {
-          scale: 0.35,
+          scale: 0.45,
           panX: window.innerWidth / 2,
           panY: window.innerHeight / 2,
         };
@@ -12140,6 +12170,24 @@
             };
             passiveTreeTabs.appendChild(btn);
           });
+        }
+
+        function applyPassiveTreeBackground() {
+          if (!treeCanvasContainer) return;
+          treeCanvasContainer.classList.remove(
+            "tree-bg-sword",
+            "tree-bg-mage",
+            "tree-bg-cleric",
+            "tree-bg-vampire",
+          );
+          const map = {
+            剣士: "tree-bg-sword",
+            魔法: "tree-bg-mage",
+            聖職: "tree-bg-cleric",
+            吸血: "tree-bg-vampire",
+          };
+          const className = map[activePassiveTreeCategory];
+          if (className) treeCanvasContainer.classList.add(className);
         }
 
         function getPassiveNodeTypeLabel(kind, unlockType) {
@@ -12235,6 +12283,7 @@
 
         function renderPassiveTree() {
           if (!treeNodesGroup || !treeLinksGroup) return;
+          applyPassiveTreeBackground();
           const state = getPassiveTreeState(activePassiveTreeCategory);
           passiveTreeNodes = state.nodes;
           passiveTreeLinks = state.links;
@@ -12339,6 +12388,7 @@
             passiveTreeView.panX = treeCanvasContainer.clientWidth / 2;
             passiveTreeView.panY = treeCanvasContainer.clientHeight / 2;
           }
+          applyPassiveTreeBackground();
           renderPassiveTreeTabs();
           renderPassiveTree();
           passiveTreeModal.classList.remove("hidden");
