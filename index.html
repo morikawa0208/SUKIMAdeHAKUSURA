@@ -1344,6 +1344,203 @@
         gap: 4px;
       }
 
+      .tree-modal-content {
+        width: min(820px, 96vw);
+      }
+
+      .tree-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+      }
+
+      .tree-zoom-controls {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+      }
+
+      .tree-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.9fr);
+        gap: 10px;
+      }
+
+      .tree-viewport {
+        position: relative;
+        height: 430px;
+        border-radius: 14px;
+        border: 1px solid rgba(148, 163, 184, 0.25);
+        background:
+          radial-gradient(
+            circle at 20% 20%,
+            rgba(59, 130, 246, 0.12),
+            transparent 45%
+          ),
+          rgba(15, 23, 42, 0.6);
+        overflow: hidden;
+        touch-action: none;
+      }
+
+      .tree-canvas {
+        position: absolute;
+        inset: 0;
+        transform-origin: 0 0;
+      }
+
+      .tree-links {
+        position: absolute;
+        inset: 0;
+        overflow: visible;
+      }
+
+      .tree-nodes {
+        position: absolute;
+        inset: 0;
+      }
+
+      .tree-links line {
+        stroke: rgba(148, 163, 184, 0.4);
+        stroke-width: 2;
+      }
+
+      .tree-links line.unlocked {
+        stroke: rgba(52, 211, 153, 0.8);
+      }
+
+      .tree-node {
+        position: absolute;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        font-size: 10px;
+        text-align: center;
+        padding: 6px;
+        line-height: 1.2;
+        border: 1px solid rgba(148, 163, 184, 0.4);
+        background: rgba(15, 23, 42, 0.92);
+        color: #e2e8f0;
+        cursor: pointer;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.35);
+        transition:
+          transform 0.15s ease,
+          box-shadow 0.2s ease,
+          background 0.2s ease;
+      }
+
+      .tree-node.start {
+        background: linear-gradient(
+          135deg,
+          rgba(52, 211, 153, 0.4),
+          rgba(15, 23, 42, 0.9)
+        );
+        border-color: rgba(52, 211, 153, 0.8);
+        color: #ecfeff;
+        font-weight: 800;
+      }
+
+      .tree-node.normal {
+        border-color: rgba(59, 130, 246, 0.7);
+      }
+
+      .tree-node.keystone {
+        width: 64px;
+        height: 64px;
+        border-color: rgba(251, 191, 36, 0.9);
+        background: linear-gradient(
+          145deg,
+          rgba(234, 179, 8, 0.25),
+          rgba(15, 23, 42, 0.9)
+        );
+        font-weight: 700;
+      }
+
+      .tree-node.active {
+        width: 68px;
+        height: 68px;
+        border-color: rgba(96, 165, 250, 0.95);
+        background: linear-gradient(
+          145deg,
+          rgba(59, 130, 246, 0.25),
+          rgba(15, 23, 42, 0.95)
+        );
+        font-weight: 800;
+      }
+
+      .tree-node.passive {
+        border-color: rgba(168, 85, 247, 0.9);
+        background: linear-gradient(
+          135deg,
+          rgba(168, 85, 247, 0.28),
+          rgba(15, 23, 42, 0.9)
+        );
+        font-weight: 700;
+      }
+
+      .tree-node.locked {
+        opacity: 0.35;
+        filter: grayscale(0.4);
+      }
+
+      .tree-node.unlockable {
+        box-shadow:
+          0 10px 22px rgba(0, 0, 0, 0.4),
+          0 0 18px rgba(96, 165, 250, 0.35);
+        transform: scale(1.02);
+      }
+
+      .tree-node.unlocked {
+        border-width: 2px;
+      }
+
+      .tree-node:hover {
+        transform: scale(1.06);
+      }
+
+      .tree-detail {
+        background: rgba(15, 23, 42, 0.7);
+        border-radius: 12px;
+        border: 1px solid rgba(148, 163, 184, 0.25);
+        padding: 10px;
+        display: grid;
+        gap: 8px;
+        min-height: 430px;
+      }
+
+      .tree-detail-name {
+        font-weight: 800;
+        font-size: 14px;
+      }
+
+      .tree-detail-desc,
+      .tree-detail-bonus {
+        font-size: 12px;
+        color: var(--muted);
+        line-height: 1.4;
+      }
+
+      .tree-detail-action button {
+        width: 100%;
+        margin-top: 6px;
+      }
+
+      .tree-detail-divider {
+        height: 1px;
+        background: rgba(148, 163, 184, 0.2);
+        margin: 6px 0;
+      }
+
+      .tree-hint {
+        margin-top: 8px;
+        text-align: center;
+        font-size: 12px;
+      }
+
       .inventory-row {
         display: flex;
         align-items: center;
@@ -3185,7 +3382,7 @@
 
       <nav class="menu">
         <button id="btn-player-modal">プレイヤー詳細</button>
-        <button id="btn-skill-tree">スキル</button>
+        <button id="btn-skill-tree">ツリー</button>
         <button id="btn-inventory">アイテム</button>
         <button id="btn-codex">図鑑</button>
         <button id="btn-warp">ワープ</button>
@@ -3203,7 +3400,7 @@
         <div class="guidance-body">
           <div class="guidance-title">Lv2到達おめでとう！</div>
           <div class="guidance-text">
-            レベルが上がるとステータスポイント5ポイント、スキルポイント1ポイント付与される。リセットも出来るので色々試してみてください。
+            レベルが上がるとツリーポイントが付与されます。ステータスはツリーから解放していきましょう。
           </div>
           <div class="guidance-actions">
             <button id="level-up-guidance-close" type="button">OK</button>
@@ -3415,25 +3612,7 @@
               <div class="section-title" style="margin: 2px 0 4px">
                 一次ステータス
               </div>
-              <div style="display: flex; align-items: center; gap: 6px">
-                <div class="inline-buttons">
-                  <div class="pill">能力P: <span id="stat-points"></span></div>
-                </div>
-                <button
-                  id="stat-step"
-                  class="step-button"
-                  aria-label="増減幅を切り替え"
-                >
-                  ±1
-                </button>
-                <button
-                  id="reset-stats"
-                  class="help-icon"
-                  aria-label="ステータスをリセット"
-                >
-                  ↺
-                </button>
-              </div>
+              <div class="subtle">ツリー解放で伸びた合計値</div>
             </div>
             <div id="primary-stats" class="primary-grid"></div>
           </div>
@@ -3514,143 +3693,54 @@
       </div>
     </div>
 
-    <div id="reset-modal" class="modal hidden" role="dialog" aria-modal="true">
-      <div class="modal-content">
-        <div class="modal-header">
-          <div class="section-title" style="margin: 0">
-            ステータスをリセット
-          </div>
-          <button id="reset-close" class="modal-close" aria-label="閉じる">
-            ×
-          </button>
-        </div>
-        <div>
-          振り分けたポイント(<span id="reset-spent"></span
-          >P)を戻します。よろしいですか？
-        </div>
-        <div class="modal-actions">
-          <button id="reset-cancel">キャンセル</button>
-          <button id="reset-confirm">リセットする</button>
-        </div>
-      </div>
-    </div>
-
-    <div
-      id="skill-reset-modal"
-      class="modal hidden"
-      role="dialog"
-      aria-modal="true"
-    >
-      <div class="modal-content">
-        <div class="modal-header">
-          <div class="section-title" style="margin: 0">スキルをリセット</div>
-          <button
-            id="skill-reset-close"
-            class="modal-close"
-            aria-label="閉じる"
-          >
-            ×
-          </button>
-        </div>
-        <div>
-          習得したポイント(<span id="skill-reset-spent"></span
-          >P)を戻します。よろしいですか？
-        </div>
-        <div class="modal-actions">
-          <button id="skill-reset-cancel">キャンセル</button>
-          <button id="skill-reset-confirm">リセットする</button>
-        </div>
-      </div>
-    </div>
-
     <div id="skills-modal" class="modal hidden" role="dialog" aria-modal="true">
-      <div class="modal-content">
+      <div class="modal-content tree-modal-content">
         <div class="modal-header">
           <div>
-            <div class="section-title" style="margin: 0">スキル / パーク</div>
-            <div style="font-weight: 700">スキルポイントを消費して強化</div>
+            <div class="section-title" style="margin: 0">
+              ステータスツリー
+            </div>
+            <div style="font-weight: 700">職業別ツリーで能力/スキルを解放</div>
           </div>
           <button id="skills-close" class="modal-close" aria-label="閉じる">
             ×
           </button>
         </div>
-        <div
-          class="inline-buttons"
-          style="margin-bottom: 6px; align-items: center"
-        >
-          <div class="pill">スキルP: <span id="skill-points-skill"></span></div>
-          <button
-            id="skill-step"
-            class="step-button"
-            aria-label="スキル増減幅を切り替え"
-          >
-            ±1
-          </button>
-          <button
-            id="reset-skills"
-            class="help-icon"
-            aria-label="スキルをリセット"
-          >
-            ↺
-          </button>
+        <div class="tree-toolbar">
+          <div class="pill">ツリーP: <span id="tree-points"></span></div>
+          <div id="tree-job-tabs" class="inline-buttons"></div>
+          <div class="tree-zoom-controls">
+            <button id="tree-zoom-out" class="mini-btn" aria-label="縮小">
+              −
+            </button>
+            <button id="tree-zoom-reset" class="mini-btn" aria-label="リセット">
+              100%
+            </button>
+            <button id="tree-zoom-in" class="mini-btn" aria-label="拡大">
+              ＋
+            </button>
+          </div>
         </div>
-        <div
-          class="inline-buttons"
-          style="margin-bottom: 6px; align-items: center"
-        >
-          <button
-            id="skill-summary-toggle"
-            class="mini-btn"
-            aria-pressed="false"
-          >
-            全職業一覧を表示
-          </button>
-        </div>
-        <div
-          class="inline-buttons"
-          id="skill-category-tabs"
-          style="margin-bottom: 4px"
-        ></div>
-        <div
-          class="inline-buttons"
-          id="skill-type-tabs"
-          style="margin-bottom: 6px"
-        ></div>
-        <div id="skill-detail-view">
-          <div
-            id="active-skill-loadout"
-            class="help-panel"
-            style="margin-bottom: 6px"
-          ></div>
-          <div id="skills" style="margin-top: 6px"></div>
-        </div>
-      </div>
-    </div>
-
-    <div
-      id="skill-summary-modal"
-      class="modal hidden"
-      role="dialog"
-      aria-modal="true"
-    >
-      <div class="modal-content">
-        <div class="modal-header">
-          <div>
-            <div class="section-title" style="margin: 0">全職業スキル一覧</div>
-            <div style="font-weight: 700">
-              取得レベルと習得状況をまとめて確認
+        <div class="tree-layout">
+          <div id="tree-viewport" class="tree-viewport" aria-label="ツリー図">
+            <div id="tree-canvas" class="tree-canvas">
+              <svg id="tree-links" class="tree-links"></svg>
+              <div id="tree-nodes" class="tree-nodes"></div>
             </div>
           </div>
-          <button
-            id="skill-summary-close"
-            class="modal-close"
-            aria-label="閉じる"
-          >
-            ×
-          </button>
+          <div class="tree-detail">
+            <div class="section-title" style="margin: 0">ノード詳細</div>
+            <div id="tree-detail-name" class="tree-detail-name"></div>
+            <div id="tree-detail-desc" class="tree-detail-desc"></div>
+            <div id="tree-detail-bonus" class="tree-detail-bonus"></div>
+            <div id="tree-detail-action" class="tree-detail-action"></div>
+            <div class="tree-detail-divider"></div>
+            <div class="section-title" style="margin: 0">アクティブ枠</div>
+            <div id="tree-active-loadout" class="help-panel"></div>
+          </div>
         </div>
-        <div id="skill-summary-body">
-          <div id="skills-summary" style="margin-top: 6px"></div>
+        <div class="help-panel tree-hint">
+          ドラッグで移動 / ホイールやピンチで拡大縮小できます。
         </div>
       </div>
     </div>
@@ -8963,6 +9053,7 @@
             speed: 0,
             critRate: 0,
             critDamage: 0,
+            accuracy: 0,
             evade: 0,
             physPen: 0,
             magPen: 0,
@@ -10471,8 +10562,9 @@
             accessory2: null,
           },
           gold: 0,
-          statPoints: 0,
-          skillPoints: 0,
+          job: "剣士",
+          treePoints: 0,
+          treeUnlocked: {},
           buffs: { guard: 0, haste: 0, focus: 0 },
           resist: { control: 0, dot: 0, debuff: 0 },
           statuses: [],
@@ -12044,6 +12136,330 @@
           },
         ];
 
+        const TREE_POINTS_PER_LEVEL = 1;
+        const TREE_NODE_TYPES = {
+          start: "start",
+          normal: "normal",
+          keystone: "keystone",
+          active: "active",
+          passive: "passive",
+        };
+
+        const TREE_KEYSTONE_TEMPLATES = [
+          {
+            key: "overdrive",
+            name: "オーバードライブ",
+            desc: "終着スキルの威力を大幅に高めるが、CTが伸びる。",
+            bonus: { physAtk: 40, magAtk: 40 },
+            skillMod: { damageMultiplier: 1.22, cooldownDelta: 1 },
+          },
+          {
+            key: "flow",
+            name: "フロー共鳴",
+            desc: "終着スキル使用時にMPを回復する。",
+            bonus: { mp: 60, cooldown: 4 },
+            skillMod: { mpRestore: 4 },
+          },
+          {
+            key: "precision",
+            name: "精密照準",
+            desc: "終着スキルに会心補正と貫通を付与する。",
+            bonus: { critRate: 8, physPen: 6, magPen: 6 },
+            skillMod: { critBonus: 12, pierceBonus: 10 },
+          },
+          {
+            key: "cascade",
+            name: "連鎖衝撃",
+            desc: "終着スキルが確率で追加ヒットし、攻めのビルドに。",
+            bonus: { speed: 6, critDamage: 12 },
+            skillMod: { bonusHitChance: 0.25, bonusHitMultiplier: 0.55 },
+          },
+        ];
+
+        const TREE_PASSIVE_TEMPLATES = [
+          {
+            key: "aftershock",
+            name: "余波拡散",
+            desc: "終着スキルが別対象へ余波ダメージを与える。",
+            skillMod: { splashMultiplier: 0.45 },
+          },
+          {
+            key: "swiftcast",
+            name: "短詠迅速",
+            desc: "終着スキルのCTを短縮し、連発型に。",
+            skillMod: { cooldownDelta: -1 },
+          },
+          {
+            key: "bloodpact",
+            name: "吸魂契約",
+            desc: "終着スキルでHPを回復し持久力を確保。",
+            skillMod: { hpRestoreRate: 0.05 },
+          },
+        ];
+
+        const NORMAL_NODE_TEMPLATES = [
+          {
+            name: "筋力錬成",
+            primary: { str: 20 },
+            secondary: { physAtk: 30 },
+          },
+          {
+            name: "知識研鑽",
+            primary: { int: 20 },
+            secondary: { magAtk: 30 },
+          },
+          {
+            name: "体力鍛錬",
+            primary: { vit: 20 },
+            secondary: { hp: 120 },
+          },
+          {
+            name: "敏捷鍛錬",
+            primary: { agi: 20 },
+            secondary: { speed: 20, critRate: 6 },
+          },
+          {
+            name: "幸運祈願",
+            primary: { luck: 20 },
+            secondary: { dropRate: 12, rarity: 8 },
+          },
+          {
+            name: "防壁強化",
+            primary: { vit: 10, str: 10 },
+            secondary: { physDef: 24, magDef: 24 },
+          },
+          {
+            name: "魔力循環",
+            primary: { int: 10, vit: 10 },
+            secondary: { mp: 80, cooldown: 6 },
+          },
+          {
+            name: "戦術眼",
+            primary: { agi: 10, luck: 10 },
+            secondary: { accuracy: 18, evade: 14 },
+          },
+        ];
+
+        function pickTemplate(list, index) {
+          return list[index % list.length];
+        }
+
+        function buildNormalNode({ id, x, y, template }) {
+          const primaryText = formatPrimaryBonus(template.primary);
+          const secondaryText = formatSecondaryBonus(template.secondary);
+          return {
+            id,
+            type: TREE_NODE_TYPES.normal,
+            x,
+            y,
+            name: template.name,
+            desc: `${primaryText}${secondaryText ? ` / ${secondaryText}` : ""}`,
+            primary: template.primary,
+            secondary: template.secondary,
+          };
+        }
+
+        function formatPrimaryBonus(primary = {}) {
+          return Object.entries(primary)
+            .map(([key, value]) => `${player.primary?.[key]?.label || key}+${value}`)
+            .join(" / ");
+        }
+
+        function formatSecondaryBonus(secondary = {}) {
+          return formatSkillBonusText(secondary);
+        }
+
+        function buildTreeForJob(jobKey) {
+          const activeSkills = SKILL_DEFINITIONS.filter(
+            (skill) => skill.category === jobKey && skill.type === "active",
+          ).map((skill) => skill.key);
+
+          const routeSkillKeys = [
+            activeSkills[0],
+            activeSkills[1] || activeSkills[0],
+            activeSkills[2] || activeSkills[0],
+          ];
+
+          const nodes = [];
+          const edges = [];
+          const nodeMap = {};
+          const addNode = (node) => {
+            nodes.push(node);
+            nodeMap[node.id] = node;
+          };
+          const addEdge = (from, to) => edges.push({ from, to });
+
+          const startNode = {
+            id: "start",
+            type: TREE_NODE_TYPES.start,
+            x: 0,
+            y: 0,
+            name: "起点",
+            desc: "ここからツリーを伸ばしていく。",
+          };
+          addNode(startNode);
+
+          const routeEntries = [
+            { id: "r1-entry", x: 140, y: -70 },
+            { id: "r2-entry", x: -140, y: -70 },
+            { id: "r3-entry", x: 0, y: 160 },
+          ];
+
+          routeEntries.forEach((entry) => {
+            const template = pickTemplate(NORMAL_NODE_TEMPLATES, nodes.length);
+            addNode(buildNormalNode({ id: entry.id, x: entry.x, y: entry.y, template }));
+            addEdge("start", entry.id);
+          });
+          addEdge("r1-entry", "r2-entry");
+          addEdge("r2-entry", "r3-entry");
+          addEdge("r3-entry", "r1-entry");
+
+          const routes = [
+            {
+              key: "r1",
+              anchorId: "r1-entry",
+              points: [
+                { id: "r1-main1", x: 300, y: -140 },
+                { id: "r1-main2", x: 460, y: -220 },
+                { id: "r1-main3", x: 620, y: -300 },
+                { id: "r1-main4", x: 780, y: -380 },
+              ],
+              active: { id: "r1-active", x: 940, y: -460 },
+              clusterVector: { dx: 0, dy: 90 },
+              passive: { id: "r1-passive", x: 560, y: -80 },
+              skillKey: routeSkillKeys[0],
+            },
+            {
+              key: "r2",
+              anchorId: "r2-entry",
+              points: [
+                { id: "r2-main1", x: -300, y: -140 },
+                { id: "r2-main2", x: -460, y: -220 },
+                { id: "r2-main3", x: -620, y: -300 },
+                { id: "r2-main4", x: -780, y: -380 },
+              ],
+              active: { id: "r2-active", x: -940, y: -460 },
+              clusterVector: { dx: 0, dy: 90 },
+              passive: { id: "r2-passive", x: -560, y: -80 },
+              skillKey: routeSkillKeys[1],
+            },
+            {
+              key: "r3",
+              anchorId: "r3-entry",
+              points: [
+                { id: "r3-main1", x: 0, y: 320 },
+                { id: "r3-main2", x: 0, y: 480 },
+                { id: "r3-main3", x: 0, y: 640 },
+                { id: "r3-main4", x: 0, y: 800 },
+              ],
+              active: { id: "r3-active", x: 0, y: 960 },
+              clusterVector: { dx: 120, dy: 0 },
+              passive: { id: "r3-passive", x: 220, y: 520 },
+              skillKey: routeSkillKeys[2],
+            },
+          ];
+
+          routes.forEach((route, routeIndex) => {
+            let prevId = route.anchorId;
+            route.points.forEach((point, idx) => {
+              const template = pickTemplate(
+                NORMAL_NODE_TEMPLATES,
+                idx + routeIndex * 3,
+              );
+              addNode(
+                buildNormalNode({
+                  id: point.id,
+                  x: point.x,
+                  y: point.y,
+                  template,
+                }),
+              );
+              addEdge(prevId, point.id);
+              prevId = point.id;
+            });
+            addNode({
+              id: route.active.id,
+              type: TREE_NODE_TYPES.active,
+              x: route.active.x,
+              y: route.active.y,
+              name: "アクティブ",
+              desc: "ルート終着のアクティブスキルを解放する。",
+              skillKey: route.skillKey,
+            });
+            addEdge(prevId, route.active.id);
+
+            const passiveTemplate = TREE_PASSIVE_TEMPLATES[routeIndex];
+            addNode({
+              id: route.passive.id,
+              type: TREE_NODE_TYPES.passive,
+              x: route.passive.x,
+              y: route.passive.y,
+              name: passiveTemplate.name,
+              desc: passiveTemplate.desc,
+              skillKey: route.skillKey,
+              passiveEffect: passiveTemplate,
+            });
+            addEdge(route.points[1]?.id || prevId, route.passive.id);
+
+            route.points.forEach((point, clusterIndex) => {
+              const clusterBase = {
+                x: point.x,
+                y: point.y,
+              };
+              const vector = route.clusterVector;
+              let previousClusterId = null;
+              for (let i = 0; i < 4; i += 1) {
+                const nodeId = `${route.key}-cluster-${clusterIndex + 1}-${i + 1}`;
+                const isKeystone = i === 3;
+                const template = pickTemplate(
+                  NORMAL_NODE_TEMPLATES,
+                  clusterIndex * 2 + i + routeIndex,
+                );
+                const keystoneTemplate = pickTemplate(
+                  TREE_KEYSTONE_TEMPLATES,
+                  clusterIndex,
+                );
+                const node = isKeystone
+                  ? {
+                      id: nodeId,
+                      type: TREE_NODE_TYPES.keystone,
+                      x: clusterBase.x + vector.dx * (i + 1),
+                      y: clusterBase.y + vector.dy * (i + 1),
+                      name: `${keystoneTemplate.name}`,
+                      desc: keystoneTemplate.desc,
+                      bonus: keystoneTemplate.bonus,
+                      skillKey: route.skillKey,
+                      keystoneEffect: keystoneTemplate,
+                    }
+                  : buildNormalNode({
+                      id: nodeId,
+                      x: clusterBase.x + vector.dx * (i + 1),
+                      y: clusterBase.y + vector.dy * (i + 1),
+                      template,
+                    });
+                addNode(node);
+                if (previousClusterId) {
+                  addEdge(previousClusterId, nodeId);
+                } else {
+                  addEdge(point.id, nodeId);
+                }
+                previousClusterId = nodeId;
+              }
+            });
+          });
+
+          addEdge("r1-active", "r2-active");
+          addEdge("r2-active", "r3-active");
+          addEdge("r3-active", "r1-active");
+
+          return { nodes, edges, nodeMap };
+        }
+
+        const STATUS_TREES = SKILL_CATEGORIES.reduce((acc, jobKey) => {
+          acc[jobKey] = buildTreeForJob(jobKey);
+          return acc;
+        }, {});
+
         applyUnlockPattern(SKILL_DEFINITIONS);
         SKILL_DEFINITIONS.forEach((skill) => {
           skill.thresholds = amplifyThresholdBonuses(skill.thresholds);
@@ -12128,7 +12544,7 @@
           Object.values(skills).forEach((skill) => {
             const level = skill.level ?? 0;
             const reached = [];
-            if (level > 0) {
+            if (level > 0 && skill.type === "passive") {
               if (skill.scaling?.perLevel) {
                 const growthMultiplier = Math.max(
                   1,
@@ -12149,8 +12565,154 @@
             }
             skill.reachedThresholds = reached;
           });
+          player.skillBonus = aggregated;
           player.baseBonus = aggregated;
           return aggregated;
+        }
+
+        function ensureTreeState() {
+          if (!player.treeUnlocked || typeof player.treeUnlocked !== "object") {
+            player.treeUnlocked = {};
+          }
+          SKILL_CATEGORIES.forEach((jobKey) => {
+            const current = player.treeUnlocked[jobKey];
+            if (!Array.isArray(current)) {
+              player.treeUnlocked[jobKey] = ["start"];
+            } else if (!current.includes("start")) {
+              current.push("start");
+            }
+          });
+          if (!SKILL_CATEGORIES.includes(player.job)) {
+            player.job = SKILL_CATEGORIES[0];
+          }
+          if (!Number.isFinite(player.treePoints)) {
+            player.treePoints = Math.max(
+              0,
+              Math.floor(player.level - 1) * TREE_POINTS_PER_LEVEL,
+            );
+          }
+        }
+
+        function createEmptySkillModifier() {
+          return {
+            damageMultiplier: 1,
+            cooldownDelta: 0,
+            mpRestore: 0,
+            hpRestoreRate: 0,
+            splashMultiplier: 0,
+            bonusHitChance: 0,
+            bonusHitMultiplier: 0,
+            critBonus: 0,
+            pierceBonus: 0,
+          };
+        }
+
+        function accumulateSkillModifier(target, mod = {}) {
+          if (!target || !mod) return;
+          if (typeof mod.damageMultiplier === "number") {
+            target.damageMultiplier *= mod.damageMultiplier;
+          }
+          if (typeof mod.cooldownDelta === "number") {
+            target.cooldownDelta += mod.cooldownDelta;
+          }
+          if (typeof mod.mpRestore === "number") {
+            target.mpRestore += mod.mpRestore;
+          }
+          if (typeof mod.hpRestoreRate === "number") {
+            target.hpRestoreRate += mod.hpRestoreRate;
+          }
+          if (typeof mod.splashMultiplier === "number") {
+            target.splashMultiplier += mod.splashMultiplier;
+          }
+          if (typeof mod.bonusHitChance === "number") {
+            target.bonusHitChance += mod.bonusHitChance;
+          }
+          if (typeof mod.bonusHitMultiplier === "number") {
+            target.bonusHitMultiplier += mod.bonusHitMultiplier;
+          }
+          if (typeof mod.critBonus === "number") {
+            target.critBonus += mod.critBonus;
+          }
+          if (typeof mod.pierceBonus === "number") {
+            target.pierceBonus += mod.pierceBonus;
+          }
+        }
+
+        function calculateTreeBonuses(jobKey = player.job) {
+          const tree = STATUS_TREES[jobKey];
+          const unlocked = new Set(player.treeUnlocked?.[jobKey] || []);
+          const primaryBonus = createEmptyPrimaryBonus();
+          const secondaryBonus = createEmptyBonus();
+          const skillModifiers = {};
+          const unlockedActiveSkills = new Set();
+
+          if (tree?.nodes?.length) {
+            tree.nodes.forEach((node) => {
+              if (!unlocked.has(node.id)) return;
+              if (node.primary) {
+                Object.entries(node.primary).forEach(([key, value]) => {
+                  if (typeof value === "number") {
+                    primaryBonus[key] = (primaryBonus[key] ?? 0) + value;
+                  }
+                });
+              }
+              if (node.secondary) {
+                addBonus(secondaryBonus, node.secondary);
+              }
+              if (node.bonus) {
+                addBonus(secondaryBonus, node.bonus);
+              }
+              if (node.type === TREE_NODE_TYPES.active && node.skillKey) {
+                unlockedActiveSkills.add(node.skillKey);
+              }
+              if (node.skillKey && node.passiveEffect?.skillMod) {
+                const entry =
+                  skillModifiers[node.skillKey] || createEmptySkillModifier();
+                accumulateSkillModifier(entry, node.passiveEffect.skillMod);
+                skillModifiers[node.skillKey] = entry;
+              }
+              if (node.skillKey && node.keystoneEffect?.skillMod) {
+                const entry =
+                  skillModifiers[node.skillKey] || createEmptySkillModifier();
+                accumulateSkillModifier(entry, node.keystoneEffect.skillMod);
+                skillModifiers[node.skillKey] = entry;
+              }
+              if (node.type === TREE_NODE_TYPES.active && node.skillKey) {
+                const entry =
+                  skillModifiers[node.skillKey] || createEmptySkillModifier();
+                skillModifiers[node.skillKey] = entry;
+              }
+            });
+          }
+
+          player.treePrimaryBonus = primaryBonus;
+          player.treeBonus = secondaryBonus;
+          player.treeSkillModifiers = skillModifiers;
+
+          Object.values(skills).forEach((skill) => {
+            if (skill.type === "active") {
+              skill.level = unlockedActiveSkills.has(skill.key) ? 1 : 0;
+            } else {
+              skill.level = 0;
+            }
+          });
+        }
+
+        function syncSkillsWithTree() {
+          calculateTreeBonuses();
+          calculateSkillBonuses();
+          player.baseBonus = mergeBonuses(
+            player.skillBonus || createEmptyBonus(),
+            player.treeBonus,
+          );
+          player.activeSkillSlots.forEach((slot) => {
+            if (!slot.skillKey) return;
+            const skill = skills[slot.skillKey];
+            if (!skill || skill.level <= 0) {
+              slot.skillKey = null;
+              slot.cooldownRemaining = 0;
+            }
+          });
         }
 
         function formatSkillBonusText(bonus = {}) {
@@ -12168,6 +12730,8 @@
             magPen: "魔法貫通",
             damageReduction: "被ダメ軽減",
             block: "ブロック",
+            accuracy: "命中率",
+            evade: "回避率",
             controlResist: "行動阻害耐性",
             dotResist: "DoT耐性",
             debuffResist: "弱体耐性",
@@ -12188,6 +12752,8 @@
             "magPen",
             "damageReduction",
             "block",
+            "accuracy",
+            "evade",
             "controlResist",
             "dotResist",
             "debuffResist",
@@ -12619,15 +13185,12 @@
         );
 
         const primaryOrder = ["str", "int", "vit", "agi", "luck"];
-        const stepOptions = [1, 10, 50];
-        let currentStepIndex = 0;
-        const skillStepOptions = [1, 10, 50];
-        let currentSkillStepIndex = 0;
-        let selectedSkillCategory = SKILL_CATEGORIES[0];
-        let selectedSkillType = "active";
-        let skillSummaryVisible = false;
-        let pendingResetSpent = 0;
         let playerModalPage = "status";
+        let selectedTreeJob = player.job;
+        let treeScale = 1;
+        let treeTranslate = { x: 0, y: 0 };
+        let activeTreeNodeId = null;
+        let treeViewInitialized = false;
 
         const displayNumber = (num, { isPercent = false } = {}) => {
           if (isPercent) {
@@ -12822,7 +13385,11 @@
               bonus: player.bonus.evade,
               total: Math.min(120, evadeBase + player.bonus.evade),
             },
-            accuracy: { base: accuracyBase, bonus: 0, total: accuracyBase },
+            accuracy: {
+              base: accuracyBase,
+              bonus: player.bonus.accuracy,
+              total: Math.min(200, accuracyBase + player.bonus.accuracy),
+            },
             physPen: {
               base: physPenBase,
               bonus: player.bonus.physPen,
@@ -13451,12 +14018,15 @@
             equipmentBonuses.primaryPerLevel,
             player.level,
           );
+          const treePrimaryBonus =
+            player.treePrimaryBonus || createEmptyPrimaryBonus();
 
           Object.keys(player.primary).forEach((key) => {
             const baseValue = player.primary[key].base;
             const additive =
               (equipmentBonuses.primary[key] ?? 0) +
-              (perLevelPrimaryBonus[key] ?? 0);
+              (perLevelPrimaryBonus[key] ?? 0) +
+              (treePrimaryBonus[key] ?? 0);
             const fixedValue =
               typeof equipmentBonuses.primaryFixed?.[key] === "number"
                 ? equipmentBonuses.primaryFixed[key]
@@ -14931,7 +15501,6 @@ function showDamagePopup(
         function updateUI(derivedStats = null) {
           const derived = derivedStats || recalcDerivedStats();
           lastDerivedStats = derived;
-          updateStepButton();
           document.getElementById("floor-inline").textContent = game.floor;
           const displayHp = roundBattleValue(player.hp);
           const displayBarrier = Math.max(
@@ -14956,10 +15525,8 @@ function showDamagePopup(
             `EXP ${displayExp} / ${displayExpToLevel}`;
           document.getElementById("level").textContent = player.level;
           document.getElementById("gold").textContent = formatGold(player.gold);
-          document.getElementById("stat-points").textContent =
-            player.statPoints;
-          document.getElementById("skill-points-skill").textContent =
-            player.skillPoints;
+          const treePointsEl = document.getElementById("tree-points");
+          if (treePointsEl) treePointsEl.textContent = player.treePoints;
           updateHpBar(displayHp, displayMaxHp, displayBarrier);
           updateBars("mp-bar", displayMp, displayMaxMp, "mp");
           updateBars("exp-bar", displayExp, displayExpToLevel, "exp");
@@ -14975,7 +15542,9 @@ function showDamagePopup(
           ) {
             renderEquipmentOverview();
           }
-          renderSkills();
+          if (!skillsModal.classList.contains("hidden")) {
+            renderSkillTree();
+          }
           renderStatusList(
             document.getElementById("player-status-list"),
             player,
@@ -15547,13 +16116,16 @@ function showDamagePopup(
           player.level = nextLevel;
           player.exp = 0;
           player.expToLevel = calcExpToNextLevel(nextLevel);
-          player.statPoints = Math.max(0, player.statPoints + delta * 5);
-          player.skillPoints = Math.max(0, player.skillPoints + delta);
+          player.treePoints = Math.max(
+            0,
+            player.treePoints + delta * TREE_POINTS_PER_LEVEL,
+          );
 
+          syncSkillsWithTree();
           const derived = recalcDerivedStats();
           updateUI(derived);
           log(
-            `🔧 Lv${nextLevel} に変更 (能力P${delta >= 0 ? "+" : ""}${delta * 5} / スキルP${delta >= 0 ? "+" : ""}${delta})`,
+            `🔧 Lv${nextLevel} に変更 (ツリーP${delta >= 0 ? "+" : ""}${delta * TREE_POINTS_PER_LEVEL})`,
             "info",
           );
           maybeAutoSave("デバッグ:レベル変更");
@@ -15952,9 +16524,12 @@ function showDamagePopup(
             debugCodexUnlockCheckbox.checked = false;
           restoreUiState(payload.ui);
           mergeSkillsFromSave(payload.skills || {});
+          calculateSkillBonuses();
+          ensureTreeState();
+          selectedTreeJob = player.job;
+          syncSkillsWithTree();
           normalizeOwnedEquipment();
           hydrateCodexFromOwned();
-          calculateSkillBonuses();
           hideEnemyIntroGuidance();
           enemyIntroShown = false;
           const derived = recalcDerivedStats();
@@ -15966,7 +16541,6 @@ function showDamagePopup(
           updateUI(derived);
           renderInventoryFilters();
           renderInventory();
-          renderSkillSummary();
           renderActiveSkillLoadout();
           buildTurnQueue();
           if (!suppressLog) {
@@ -16927,57 +17501,9 @@ function showDamagePopup(
           });
         }
 
-        function adjustPrimary(key, delta) {
-          if (delta === 0) return;
-          if (delta > 0) {
-            const use = Math.min(delta, player.statPoints);
-            if (use <= 0) return;
-            player.statPoints -= use;
-            player.primary[key].base += use;
-            player.allocations[key] += use;
-            log(`能力Pを使用: ${player.primary[key].label} +${use}`, "good");
-          } else {
-            const refundable = player.allocations[key];
-            const giveBack = Math.min(refundable, Math.abs(delta));
-            if (giveBack <= 0) return;
-            player.primary[key].base -= giveBack;
-            player.allocations[key] -= giveBack;
-            player.statPoints += giveBack;
-            log(
-              `能力Pを返却: ${player.primary[key].label} -${giveBack}`,
-              "info",
-            );
-          }
-          updateUI();
-          maybeAutoSave("ステータス調整");
-        }
-
-        function getAdjustStep() {
-          return stepOptions[currentStepIndex];
-        }
-
-        function updateStepButton() {
-          if (!statStepButton) return;
-          const step = getAdjustStep();
-          statStepButton.textContent = `±${step}`;
-          statStepButton.title = `増減幅 ${step}`;
-        }
-
-        function getSkillAdjustStep() {
-          return skillStepOptions[currentSkillStepIndex];
-        }
-
-        function updateSkillStepButton() {
-          if (!skillStepButton) return;
-          const step = getSkillAdjustStep();
-          skillStepButton.textContent = `±${step}`;
-          skillStepButton.title = `スキル増減幅 ${step}`;
-        }
-
         function renderPrimaryStats() {
           const container = document.getElementById("primary-stats");
           container.innerHTML = "";
-          const step = getAdjustStep();
 
           primaryOrder.forEach((key) => {
             const stat = player.primary[key];
@@ -16998,28 +17524,7 @@ function showDamagePopup(
             info.appendChild(label);
             info.appendChild(value);
 
-            const actions = document.createElement("div");
-            actions.className = "primary-actions";
-
-            const inc = document.createElement("button");
-            inc.textContent = `+${step}`;
-            inc.classList.add("mini-btn");
-            inc.disabled = player.statPoints <= 0;
-            inc.title = `${step}ポイント増加`;
-            inc.onclick = () => adjustPrimary(key, step);
-
-            const dec = document.createElement("button");
-            dec.textContent = `-${step}`;
-            dec.classList.add("mini-btn");
-            dec.disabled = player.allocations[key] <= 0;
-            dec.title = `${step}ポイント減少`;
-            dec.onclick = () => adjustPrimary(key, -step);
-
-            actions.appendChild(inc);
-            actions.appendChild(dec);
-
             row.appendChild(info);
-            row.appendChild(actions);
             container.appendChild(row);
           });
         }
@@ -17225,12 +17730,6 @@ function showDamagePopup(
           );
         }
 
-        function isSkillUnlocked(skill) {
-          if (!skill) return false;
-          const required = skill.unlockLevel || 1;
-          return player.level >= required;
-        }
-
         function toggleActiveSkillSlot(skillKey) {
           const skill = skills[skillKey];
           if (!skill || skill.type !== "active") return;
@@ -17273,98 +17772,21 @@ function showDamagePopup(
 
         function getEffectiveSkillCooldown(skill) {
           const derived = lastDerivedStats || recalcDerivedStats();
-          const baseCooldown = Math.max(0, skill?.activation?.cooldown ?? 0);
+          const modifier = getTreeSkillModifier(skill?.key);
+          const baseCooldown = Math.max(
+            0,
+            (skill?.activation?.cooldown ?? 0) + (modifier.cooldownDelta ?? 0),
+          );
           if (baseCooldown <= 0) return 0;
           const reduction = Math.max(0, derived?.cooldown?.total ?? 0);
           const scaled = Math.round(baseCooldown * (1 - reduction / 100));
           return Math.max(1, scaled);
         }
 
-        function renderSkillThresholds(skill, { locked = false } = {}) {
-          const wrapper = document.createElement("div");
-          wrapper.className = "help-panel";
-          const label = document.createElement("div");
-          label.className = "option-label";
-          label.textContent = "閾値効果 (10 / 30 / 50)";
-          wrapper.appendChild(label);
-
-          if (locked) {
-            const row = document.createElement("div");
-            row.className = "option-value";
-            row.textContent = "？？？";
-            wrapper.appendChild(row);
-          } else {
-            (skill.thresholds || []).forEach((threshold) => {
-              const row = document.createElement("div");
-              row.className = "option-value";
-              const reached = (skill.reachedThresholds || []).some(
-                (t) => t.level === threshold.level,
-              );
-              const detail =
-                threshold.effect || formatSkillBonusText(threshold.bonus);
-              row.textContent = `${threshold.level}Lv: ${detail || "効果未設定"}${reached ? " (達成)" : ""}`;
-              if (reached) row.style.color = "#34d399";
-              wrapper.appendChild(row);
-            });
-          }
-
-          return wrapper;
-        }
-
-        function describeSkillScaling(skill, { locked = false } = {}) {
-          if (locked) return "毎Lv: ？？？";
-          if (!skill.scaling?.perLevel) return "毎Lv効果なし";
-          const text = formatSkillBonusText(skill.scaling.perLevel);
-          const boost = Math.max(1, getSkillGrowthMultiplier(skill.level || 1));
-          const boostText = boost > 1 ? ` (成長倍率x${boost.toFixed(2)})` : "";
-          return text ? `毎Lv: ${text}${boostText}` : "毎Lv効果なし";
-        }
-
-        function adjustSkillLevel(key, delta) {
-          const skill = skills[key];
-          if (!skill || delta === 0) return;
-          if (delta > 0) {
-            if (!isSkillUnlocked(skill)) {
-              log(`Lv${skill.unlockLevel}で解放されます`, "warning");
-              return;
-            }
-            const spendable = Math.min(
-              delta,
-              player.skillPoints,
-              skill.max - skill.level,
-            );
-            if (spendable <= 0) return;
-            player.skillPoints -= spendable;
-            skill.level += spendable;
-            log(
-              `スキル『${skill.name}』を強化 (+${spendable}) (${skill.level}/${skill.max})`,
-              "good",
-            );
-          } else {
-            const refundable = Math.min(skill.level, Math.abs(delta));
-            if (refundable <= 0) return;
-            skill.level -= refundable;
-            player.skillPoints += refundable;
-            log(
-              `スキル『${skill.name}』を減少 (-${refundable}) (${skill.level}/${skill.max})`,
-              "info",
-            );
-          }
-          calculateSkillBonuses();
-          const derived = recalcDerivedStats();
-          updateUI(derived);
-          maybeAutoSave(delta > 0 ? "スキルレベルアップ" : "スキル調整");
-        }
-
         function renderActiveSkillLoadout() {
-          const container = document.getElementById("active-skill-loadout");
+          const container = document.getElementById("tree-active-loadout");
           if (!container) return;
           container.innerHTML = "";
-
-          const title = document.createElement("div");
-          title.className = "option-label";
-          title.textContent = `アクティブスキル枠 (${ACTIVE_SKILL_SLOT_LIMIT}枠までセット可)`;
-          container.appendChild(title);
 
           player.activeSkillSlots.forEach((slot, index) => {
             const skill = slot.skillKey ? skills[slot.skillKey] : null;
@@ -17386,253 +17808,346 @@ function showDamagePopup(
             container.appendChild(row);
           });
         }
+        function getTreeSkillModifier(skillKey) {
+          if (!skillKey) return createEmptySkillModifier();
+          return (
+            player.treeSkillModifiers?.[skillKey] || createEmptySkillModifier()
+          );
+        }
 
-        function renderSkillCategoryTabs() {
-          const container = document.getElementById("skill-category-tabs");
+        function buildTreeAdjacency(tree) {
+          const map = {};
+          tree.edges.forEach(({ from, to }) => {
+            if (!map[from]) map[from] = new Set();
+            if (!map[to]) map[to] = new Set();
+            map[from].add(to);
+            map[to].add(from);
+          });
+          return map;
+        }
+
+        function getTreeNodeCost(node) {
+          if (!node) return 1;
+          if (node.type === TREE_NODE_TYPES.keystone) return 2;
+          return 1;
+        }
+
+        function getNodeDisplayName(node) {
+          if (!node) return "";
+          if (node.type === TREE_NODE_TYPES.active) {
+            return skills[node.skillKey]?.name || "アクティブ";
+          }
+          return node.name || "ノード";
+        }
+
+        function getNodeShortLabel(node) {
+          if (!node) return "";
+          if (node.type === TREE_NODE_TYPES.active) {
+            return skills[node.skillKey]?.name?.slice(0, 4) || "ACT";
+          }
+          if (node.type === TREE_NODE_TYPES.passive) {
+            return node.name?.slice(0, 4) || "PAS";
+          }
+          if (node.type === TREE_NODE_TYPES.keystone) {
+            return "KEY";
+          }
+          if (node.type === TREE_NODE_TYPES.start) {
+            return "START";
+          }
+          return node.name?.slice(0, 4) || "+";
+        }
+
+        function buildNodeBonusLines(node) {
+          const lines = [];
+          if (node.primary && Object.keys(node.primary).length) {
+            lines.push(`一次: ${formatPrimaryBonus(node.primary)}`);
+          }
+          const secondary = node.secondary || node.bonus;
+          if (secondary && Object.keys(secondary).length) {
+            const text = formatSecondaryBonus(secondary);
+            if (text) lines.push(`二次: ${text}`);
+          }
+          if (node.type === TREE_NODE_TYPES.active && node.skillKey) {
+            const skill = skills[node.skillKey];
+            if (skill?.activation) {
+              lines.push(
+                `CT: ${skill.activation.cooldown || "--"}T / 消費: MP${skill.activation.mpCost ?? "--"}`,
+              );
+            }
+          }
+          return lines;
+        }
+
+        function isNodeUnlocked(jobKey, nodeId) {
+          return (player.treeUnlocked?.[jobKey] || []).includes(nodeId);
+        }
+
+        function canUnlockNode(jobKey, nodeId) {
+          const tree = STATUS_TREES[jobKey];
+          if (!tree) return false;
+          const node = tree.nodeMap[nodeId];
+          if (!node || node.type === TREE_NODE_TYPES.start) return false;
+          if (isNodeUnlocked(jobKey, nodeId)) return false;
+          const cost = getTreeNodeCost(node);
+          if (player.treePoints < cost) return false;
+          const adjacency = buildTreeAdjacency(tree);
+          const neighbors = adjacency[nodeId];
+          if (!neighbors) return false;
+          return Array.from(neighbors).some((neighbor) =>
+            isNodeUnlocked(jobKey, neighbor),
+          );
+        }
+
+        function unlockTreeNode(jobKey, nodeId) {
+          const tree = STATUS_TREES[jobKey];
+          const node = tree?.nodeMap?.[nodeId];
+          if (!node || !canUnlockNode(jobKey, nodeId)) {
+            log("このノードはまだ解放できません", "warning");
+            return;
+          }
+          const cost = getTreeNodeCost(node);
+          player.treePoints = Math.max(0, player.treePoints - cost);
+          player.treeUnlocked[jobKey] = player.treeUnlocked[jobKey] || [];
+          player.treeUnlocked[jobKey].push(nodeId);
+          syncSkillsWithTree();
+          const derived = recalcDerivedStats();
+          updateUI(derived);
+          renderSkillTree();
+          log(`✨ ${getNodeDisplayName(node)} を解放した`, "good");
+          maybeAutoSave("ツリー解放");
+        }
+
+        function renderTreeJobTabs() {
+          const container = document.getElementById("tree-job-tabs");
           if (!container) return;
           container.innerHTML = "";
-          SKILL_CATEGORIES.forEach((category) => {
+          SKILL_CATEGORIES.forEach((jobKey) => {
             const btn = document.createElement("button");
             btn.type = "button";
             btn.className = "tab-button";
-            const isActive = category === selectedSkillCategory;
+            const isActive = jobKey === selectedTreeJob;
             if (isActive) btn.classList.add("active");
-            btn.textContent = category;
+            btn.textContent = jobKey;
             btn.setAttribute("aria-pressed", isActive ? "true" : "false");
             btn.onclick = () => {
-              selectedSkillCategory = category;
-              renderSkills();
+              selectedTreeJob = jobKey;
+              player.job = jobKey;
+              treeViewInitialized = false;
+              syncSkillsWithTree();
+              const derived = recalcDerivedStats();
+              updateUI(derived);
+              renderSkillTree();
             };
             container.appendChild(btn);
           });
         }
 
-        function renderSkillTypeTabs() {
-          const container = document.getElementById("skill-type-tabs");
-          if (!container) return;
-          container.innerHTML = "";
-          [
-            { key: "active", label: "アクティブ" },
-            { key: "passive", label: "パッシブ" },
-          ].forEach((type) => {
-            const btn = document.createElement("button");
-            btn.type = "button";
-            btn.className = "tab-button";
-            const isActive = type.key === selectedSkillType;
-            if (isActive) btn.classList.add("active");
-            btn.textContent = type.label;
-            btn.setAttribute("aria-pressed", isActive ? "true" : "false");
-            btn.onclick = () => {
-              selectedSkillType = type.key;
-              renderSkills();
-            };
-            container.appendChild(btn);
-          });
-        }
+        function renderTreeDetail(nodeId, jobKey = selectedTreeJob) {
+          const tree = STATUS_TREES[jobKey];
+          if (!tree) return;
+          const node = tree.nodeMap[nodeId];
+          const nameEl = document.getElementById("tree-detail-name");
+          const descEl = document.getElementById("tree-detail-desc");
+          const bonusEl = document.getElementById("tree-detail-bonus");
+          const actionEl = document.getElementById("tree-detail-action");
+          if (!nameEl || !descEl || !bonusEl || !actionEl) return;
+          if (!node) {
+            nameEl.textContent = "ノードを選択";
+            descEl.textContent = "ツリー上のノードをタップして詳細を確認。";
+            bonusEl.textContent = "";
+            actionEl.innerHTML = "";
+            return;
+          }
+          nameEl.textContent = getNodeDisplayName(node);
+          const skillDesc =
+            node.type === TREE_NODE_TYPES.active
+              ? skills[node.skillKey]?.desc
+              : null;
+          descEl.textContent =
+            skillDesc ||
+            node.desc ||
+            "能力を解放するノード。";
+          const bonusLines = buildNodeBonusLines(node);
+          bonusEl.innerHTML = bonusLines
+            .map((line) => `<div>${line}</div>`)
+            .join("");
+          actionEl.innerHTML = "";
 
-        function renderSkillDetailList() {
-          const container = document.getElementById("skills");
-          if (!container) return;
-          container.innerHTML = "";
-          const step = getSkillAdjustStep();
-
-          const section = document.createElement("div");
-          const header = document.createElement("div");
-          header.className = "section-title";
-          const typeLabel =
-            selectedSkillType === "active" ? "アクティブ" : "パッシブ";
-          header.textContent = `${selectedSkillCategory} / ${typeLabel}`;
-          section.appendChild(header);
-
-          const filteredSkills = Object.entries(skills)
-            .filter(
-              ([, skill]) =>
-                skill.category === selectedSkillCategory &&
-                skill.type === selectedSkillType,
-            )
-            .sort((a, b) => (a[1].unlockLevel || 0) - (b[1].unlockLevel || 0));
-
-          filteredSkills.forEach(([key, skill]) => {
-            const locked = !isSkillUnlocked(skill);
-            const row = document.createElement("div");
-            row.className = "card";
-            row.style.marginBottom = "6px";
-
-            const headerRow = document.createElement("div");
-            headerRow.className = "inline-buttons";
-            headerRow.style.justifyContent = "space-between";
-
-            const name = document.createElement("div");
-            name.className = "stat-label inline";
-            name.textContent = `${locked ? "？？？" : skill.name} (${skill.level}/${skill.max})`;
-
-            const meta = document.createElement("div");
-            meta.className = "pill";
-            const unlock = skill.unlockLevel ? `Lv${skill.unlockLevel}` : "Lv1";
-            meta.textContent = `${skill.category} / ${skill.type === "active" ? "アクティブ" : "パッシブ"} / 取得${unlock}`;
-
-            headerRow.appendChild(name);
-            headerRow.appendChild(meta);
-            row.appendChild(headerRow);
-
-            const desc = document.createElement("div");
-            desc.className = "subtle";
-            desc.textContent = locked ? "？？？" : skill.desc;
-            row.appendChild(desc);
-
-            const scaling = document.createElement("div");
-            scaling.className = "subtle";
-            scaling.textContent = describeSkillScaling(skill, { locked });
-            row.appendChild(scaling);
-
-            const currentBonus = document.createElement("div");
-            currentBonus.className = "subtle";
-            currentBonus.textContent = describeSkillBonusAtLevel(
-              skill,
-              skill.level,
-              { locked },
-            );
-            row.appendChild(currentBonus);
-
-            const nextBonus = document.createElement("div");
-            nextBonus.className = "subtle";
-            nextBonus.textContent = describeSkillNextBonus(skill, { locked });
-            row.appendChild(nextBonus);
-
-            if (skill.type === "active") {
-              const activation = document.createElement("div");
-              activation.className = "subtle";
-              const cooldownText = skill.activation?.cooldown
-                ? `${skill.activation.cooldown}T`
-                : "--";
-              const mpCostText =
-                skill.activation?.mpCost != null
-                  ? `MP${skill.activation.mpCost}`
-                  : "MP--";
-              const activationDetail = locked
-                ? "発動: ？？？"
-                : `CT: ${cooldownText} / 消費: ${mpCostText} / 効果: ${skill.activation?.effect || "未設定"}`;
-              activation.textContent = activationDetail;
-              row.appendChild(activation);
-
-              const slotButton = document.createElement("button");
-              slotButton.className = "mini-btn";
-              const assignedIndex = getActiveSkillSlotIndex(key);
-              slotButton.textContent =
+          const isUnlocked = isNodeUnlocked(jobKey, node.id);
+          if (isUnlocked) {
+            const status = document.createElement("div");
+            status.className = "subtle";
+            status.textContent = "状態: 解放済み";
+            actionEl.appendChild(status);
+            if (node.type === TREE_NODE_TYPES.active && node.skillKey) {
+              const btn = document.createElement("button");
+              btn.className = "mini-btn";
+              const assignedIndex = getActiveSkillSlotIndex(node.skillKey);
+              btn.textContent =
                 assignedIndex >= 0
                   ? `スロット${assignedIndex + 1}解除`
                   : "スロットにセット";
-              slotButton.disabled = locked || skill.level <= 0;
-              slotButton.onclick = () => {
-                toggleActiveSkillSlot(key);
-                renderSkills();
+              btn.onclick = () => {
+                toggleActiveSkillSlot(node.skillKey);
+                renderTreeDetail(node.id, jobKey);
+                renderActiveSkillLoadout();
               };
-              row.appendChild(slotButton);
+              actionEl.appendChild(btn);
             }
-
-            row.appendChild(renderSkillThresholds(skill, { locked }));
-
-            const controls = document.createElement("div");
-            controls.className = "inline-buttons";
-            controls.style.marginTop = "6px";
-
-            const downBtn = document.createElement("button");
-            downBtn.className = "mini-btn";
-            downBtn.textContent = `-${step}`;
-            downBtn.disabled = skill.level <= 0;
-            downBtn.onclick = () => adjustSkillLevel(key, -step);
-
-            const upBtn = document.createElement("button");
-            upBtn.className = "mini-btn";
-            upBtn.textContent = `+${step}`;
-            upBtn.disabled =
-              player.skillPoints <= 0 || skill.level >= skill.max || locked;
-            upBtn.onclick = () => adjustSkillLevel(key, step);
-
-            controls.appendChild(downBtn);
-            controls.appendChild(upBtn);
-            row.appendChild(controls);
-
-            section.appendChild(row);
-          });
-
-          if (!filteredSkills.length) {
-            const empty = document.createElement("div");
-            empty.className = "option-value";
-            empty.textContent = "スキルが見つかりません";
-            section.appendChild(empty);
+            return;
           }
 
-          container.appendChild(section);
-        }
-
-        function renderSkillSummary() {
-          const container = document.getElementById("skills-summary");
-          if (!container) return;
-          container.innerHTML = "";
-
-          SKILL_CATEGORIES.forEach((category) => {
-            const card = document.createElement("div");
-            card.className = "card";
-            card.style.marginBottom = "6px";
-
-            const header = document.createElement("div");
-            header.className = "section-title";
-            header.textContent = `${category}スキル一覧`;
-            card.appendChild(header);
-
-            const list = document.createElement("div");
-            list.className = "help-panel";
-            list.style.marginTop = "6px";
-
-            const categorySkills = Object.values(skills)
-              .filter((skill) => skill.category === category)
-              .sort((a, b) => (a.unlockLevel || 0) - (b.unlockLevel || 0));
-
-            categorySkills.forEach((skill) => {
-              const locked = !isSkillUnlocked(skill);
-              const row = document.createElement("div");
-              row.className = "option-value";
-              const typeLabel = skill.type === "active" ? "Act" : "Pas";
-              const unlock = skill.unlockLevel
-                ? `取得Lv${skill.unlockLevel}`
-                : "取得Lv1";
-              const status = locked
-                ? "未解放"
-                : `現在${skill.level}/${skill.max}`;
-              const name = locked ? "？？？" : skill.name;
-              row.textContent = `・${name} (${typeLabel}) / ${unlock} / ${status}`;
-              list.appendChild(row);
-            });
-
-            card.appendChild(list);
-            container.appendChild(card);
-          });
-        }
-
-        function updateSkillSummaryVisibility() {
-          if (skillSummaryModal) {
-            skillSummaryModal.classList.toggle("hidden", !skillSummaryVisible);
+          const canUnlock = canUnlockNode(jobKey, node.id);
+          if (!canUnlock) {
+            const status = document.createElement("div");
+            status.className = "subtle";
+            status.textContent = "状態: 未接続 or ツリーP不足";
+            actionEl.appendChild(status);
+            return;
           }
-          if (skillSummaryToggleButton) {
-            skillSummaryToggleButton.textContent = skillSummaryVisible
-              ? "全職業一覧を閉じる"
-              : "全職業一覧を表示";
-            skillSummaryToggleButton.setAttribute(
-              "aria-pressed",
-              skillSummaryVisible ? "true" : "false",
+
+          const unlockBtn = document.createElement("button");
+          unlockBtn.className = "primary full";
+          unlockBtn.textContent = `解放する (消費${getTreeNodeCost(node)}P)`;
+          unlockBtn.onclick = () => unlockTreeNode(jobKey, node.id);
+          actionEl.appendChild(unlockBtn);
+        }
+
+        function renderSkillTree() {
+          ensureTreeState();
+          renderTreeJobTabs();
+          const tree = STATUS_TREES[selectedTreeJob];
+          const nodesContainer = document.getElementById("tree-nodes");
+          const linksContainer = document.getElementById("tree-links");
+          const canvas = document.getElementById("tree-canvas");
+          if (!tree || !nodesContainer || !linksContainer || !canvas) return;
+
+          const padding = 180;
+          const xs = tree.nodes.map((node) => node.x);
+          const ys = tree.nodes.map((node) => node.y);
+          const minX = Math.min(...xs);
+          const maxX = Math.max(...xs);
+          const minY = Math.min(...ys);
+          const maxY = Math.max(...ys);
+          const offsetX = -minX + padding;
+          const offsetY = -minY + padding;
+          const width = maxX - minX + padding * 2;
+          const height = maxY - minY + padding * 2;
+
+          canvas.style.width = `${width}px`;
+          canvas.style.height = `${height}px`;
+          linksContainer.setAttribute("width", width);
+          linksContainer.setAttribute("height", height);
+          linksContainer.setAttribute("viewBox", `0 0 ${width} ${height}`);
+
+          nodesContainer.innerHTML = "";
+          linksContainer.innerHTML = "";
+
+          const nodeCenters = {};
+          tree.nodes.forEach((node) => {
+            const size =
+              node.type === TREE_NODE_TYPES.active
+                ? 68
+                : node.type === TREE_NODE_TYPES.keystone
+                  ? 64
+                  : 56;
+            const centerX = node.x + offsetX;
+            const centerY = node.y + offsetY;
+            nodeCenters[node.id] = { x: centerX, y: centerY, size };
+          });
+
+          tree.edges.forEach(({ from, to }) => {
+            const fromNode = nodeCenters[from];
+            const toNode = nodeCenters[to];
+            if (!fromNode || !toNode) return;
+            const line = document.createElementNS(
+              "http://www.w3.org/2000/svg",
+              "line",
             );
+            line.setAttribute("x1", fromNode.x);
+            line.setAttribute("y1", fromNode.y);
+            line.setAttribute("x2", toNode.x);
+            line.setAttribute("y2", toNode.y);
+            const bothUnlocked =
+              isNodeUnlocked(selectedTreeJob, from) &&
+              isNodeUnlocked(selectedTreeJob, to);
+            if (bothUnlocked) line.classList.add("unlocked");
+            linksContainer.appendChild(line);
+          });
+
+          tree.nodes.forEach((node) => {
+            const entry = nodeCenters[node.id];
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = `tree-node ${node.type}`;
+            btn.textContent = getNodeShortLabel(node);
+            btn.style.left = `${entry.x - entry.size / 2}px`;
+            btn.style.top = `${entry.y - entry.size / 2}px`;
+            btn.style.width = `${entry.size}px`;
+            btn.style.height = `${entry.size}px`;
+            const unlocked = isNodeUnlocked(selectedTreeJob, node.id);
+            const unlockable =
+              !unlocked && canUnlockNode(selectedTreeJob, node.id);
+            btn.classList.add(unlocked ? "unlocked" : "locked");
+            if (unlockable) btn.classList.add("unlockable");
+            btn.onclick = () => {
+              activeTreeNodeId = node.id;
+              renderTreeDetail(node.id, selectedTreeJob);
+            };
+            nodesContainer.appendChild(btn);
+          });
+
+          if (!activeTreeNodeId || !tree.nodeMap[activeTreeNodeId]) {
+            activeTreeNodeId = "start";
+          }
+          renderTreeDetail(activeTreeNodeId, selectedTreeJob);
+          renderActiveSkillLoadout();
+          if (treeViewport && treeCanvas) {
+            if (!treeViewInitialized) {
+              resetTreeView();
+              treeViewInitialized = true;
+            } else {
+              applyTreeTransform();
+            }
           }
         }
 
-        function renderSkills() {
-          updateSkillStepButton();
-          renderSkillCategoryTabs();
-          renderSkillTypeTabs();
-          renderActiveSkillLoadout();
-          renderSkillDetailList();
-          renderSkillSummary();
-          updateSkillSummaryVisibility();
+        function applyTreeTransform() {
+          if (!treeCanvas) return;
+          treeCanvas.style.transform = `translate(${treeTranslate.x}px, ${treeTranslate.y}px) scale(${treeScale})`;
+          if (treeZoomResetButton) {
+            treeZoomResetButton.textContent = `${Math.round(treeScale * 100)}%`;
+          }
+        }
+
+        function resetTreeView() {
+          if (!treeViewport || !treeCanvas) return;
+          const rect = treeViewport.getBoundingClientRect();
+          const canvasWidth =
+            Number.parseFloat(treeCanvas.style.width) || treeCanvas.offsetWidth;
+          const canvasHeight =
+            Number.parseFloat(treeCanvas.style.height) || treeCanvas.offsetHeight;
+          treeScale = 1;
+          treeTranslate = {
+            x: (rect.width - canvasWidth) / 2,
+            y: (rect.height - canvasHeight) / 2,
+          };
+          applyTreeTransform();
+        }
+
+        function setTreeScale(nextScale, { originX, originY } = {}) {
+          if (!treeViewport) return;
+          const rect = treeViewport.getBoundingClientRect();
+          const clamped = Math.min(1.8, Math.max(0.6, nextScale));
+          const scaleFactor = clamped / treeScale;
+          const anchorX = originX ?? rect.width / 2;
+          const anchorY = originY ?? rect.height / 2;
+          treeTranslate = {
+            x: anchorX - scaleFactor * (anchorX - treeTranslate.x),
+            y: anchorY - scaleFactor * (anchorY - treeTranslate.y),
+          };
+          treeScale = clamped;
+          applyTreeTransform();
         }
 
         function isItemEquipped(item) {
@@ -18530,41 +19045,17 @@ function showDamagePopup(
         );
         const memoModal = document.getElementById("memo-modal");
         const memoCloseButton = document.getElementById("memo-close");
-        const resetModal = document.getElementById("reset-modal");
-        const resetCloseButton = document.getElementById("reset-close");
-        const resetCancelButton = document.getElementById("reset-cancel");
-        const resetConfirmButton = document.getElementById("reset-confirm");
-        const resetSpentLabel = document.getElementById("reset-spent");
-        const resetButton = document.getElementById("reset-stats");
-        const statStepButton = document.getElementById("stat-step");
-        const skillStepButton = document.getElementById("skill-step");
+        const treeViewport = document.getElementById("tree-viewport");
+        const treeCanvas = document.getElementById("tree-canvas");
+        const treeZoomInButton = document.getElementById("tree-zoom-in");
+        const treeZoomOutButton = document.getElementById("tree-zoom-out");
+        const treeZoomResetButton = document.getElementById("tree-zoom-reset");
         const playerModalStatusButton = document.getElementById(
           "player-modal-status-btn",
         );
         const playerModalEquipmentButton = document.getElementById(
           "player-modal-equipment-btn",
         );
-        const skillSummaryToggleButton = document.getElementById(
-          "skill-summary-toggle",
-        );
-        const skillDetailView = document.getElementById("skill-detail-view");
-        const skillSummaryModal = document.getElementById(
-          "skill-summary-modal",
-        );
-        const skillSummaryCloseButton = document.getElementById(
-          "skill-summary-close",
-        );
-        const resetSkillsButton = document.getElementById("reset-skills");
-        const skillResetModal = document.getElementById("skill-reset-modal");
-        const skillResetCloseButton =
-          document.getElementById("skill-reset-close");
-        const skillResetCancelButton =
-          document.getElementById("skill-reset-cancel");
-        const skillResetConfirmButton = document.getElementById(
-          "skill-reset-confirm",
-        );
-        const skillResetSpentLabel =
-          document.getElementById("skill-reset-spent");
         const debugModal = document.getElementById("debug-modal");
         const debugOpenButton = document.getElementById("btn-debug");
         const debugCloseButton = document.getElementById("debug-close");
@@ -19817,36 +20308,6 @@ function showDamagePopup(
           skillInfoModal?.classList.add("hidden");
         }
 
-        function resetSkillBonuses() {
-          calculateSkillBonuses();
-          recalcDerivedStats();
-        }
-
-        function resetSkills() {
-          const spent = Object.values(skills).reduce(
-            (sum, skill) => sum + skill.level,
-            0,
-          );
-          if (spent === 0) {
-            log("リセットするスキルがありません", "info");
-            return;
-          }
-          Object.values(skills).forEach((skill) => {
-            skill.level = 0;
-          });
-          player.activeSkillSlots = Array.from(
-            { length: ACTIVE_SKILL_SLOT_LIMIT },
-            () => ({ skillKey: null, cooldownRemaining: 0 }),
-          );
-          resetSkillBonuses();
-          player.skillPoints += spent;
-          updateUI();
-          renderActiveSkillLoadout();
-          renderSkillSummary();
-          log("スキルをリセットしました", "info");
-          maybeAutoSave("スキルリセット");
-        }
-
         function openPlayerModal() {
           updateUI();
           setPlayerModalPage("status");
@@ -19859,13 +20320,13 @@ function showDamagePopup(
 
         function openSkillsModal() {
           updateUI();
+          selectedTreeJob = player.job;
+          renderSkillTree();
           skillsModal.classList.remove("hidden");
         }
 
         function closeSkillsModal() {
           skillsModal.classList.add("hidden");
-          skillSummaryVisible = false;
-          updateSkillSummaryVisibility();
         }
 
         function openWeaponEnhanceModal(targetItem = null) {
@@ -20873,6 +21334,7 @@ function showDamagePopup(
           const { slot, skill, target, mpCost } = availability;
           consumeMp(mpCost);
           showSkillPopup(getPlayerHpBarContainer(), skill.name, "player");
+          const modifier = getTreeSkillModifier(skill.key);
 
           const hit = attemptHit(player, target);
           const effectLabel = skill.activation?.effect
@@ -20892,7 +21354,15 @@ function showDamagePopup(
 
           const baseDamage = calcDamage(player, target);
           const multiplier = 1.1 + skill.level * 0.02;
-          const dmg = Math.round(baseDamage * multiplier);
+          const critBoost = 1 + (modifier.critBonus || 0) / 100;
+          const pierceBoost = 1 + (modifier.pierceBonus || 0) / 100;
+          const dmg = Math.round(
+            baseDamage *
+              multiplier *
+              (modifier.damageMultiplier || 1) *
+              critBoost *
+              pierceBoost,
+          );
           const dealt = applyDamage(target, dmg, {
             source: skill.name,
             attacker: player,
@@ -20902,6 +21372,65 @@ function showDamagePopup(
             `🌀 ${skill.name}${effectLabel}！ ${target.name} に ${dealt} ダメージ`,
             "player",
           );
+
+          if (modifier.bonusHitChance > 0 && modifier.bonusHitMultiplier > 0) {
+            if (Math.random() < modifier.bonusHitChance) {
+              const extraDmg = Math.round(
+                baseDamage * multiplier * modifier.bonusHitMultiplier,
+              );
+              const extraDealt = applyDamage(target, extraDmg, {
+                source: `${skill.name} (追撃)`,
+                attacker: player,
+              });
+              log(
+                `⚡ ${skill.name}の追撃！ ${target.name} に ${extraDealt} ダメージ`,
+                "good",
+              );
+            }
+          }
+
+          if (modifier.splashMultiplier > 0) {
+            const splashTarget = game.enemies.find(
+              (enemy) => enemy.hp > 0 && enemy !== target,
+            );
+            if (splashTarget) {
+              const splashDmg = Math.round(
+                baseDamage * multiplier * modifier.splashMultiplier,
+              );
+              const splashDealt = applyDamage(splashTarget, splashDmg, {
+                source: `${skill.name} (余波)`,
+                attacker: player,
+              });
+              log(
+                `🌊 余波が${splashTarget.name}に ${splashDealt} ダメージ`,
+                "info",
+              );
+            }
+          }
+
+          if (modifier.mpRestore > 0) {
+            const recovered = Math.min(
+              player.maxMp,
+              player.mp + modifier.mpRestore,
+            );
+            const gained = Math.max(0, recovered - player.mp);
+            if (gained > 0) {
+              player.mp = recovered;
+              log(`🔷 スキルでMPを ${gained} 回復`, "good");
+            }
+          }
+
+          if (modifier.hpRestoreRate > 0) {
+            const healAmount = Math.round(
+              player.maxHp * modifier.hpRestoreRate,
+            );
+            if (healAmount > 0) {
+              const healed = applyHealing(player, healAmount);
+              if (healed > 0) {
+                log(`✨ スキルでHPを ${healed} 回復`, "good");
+              }
+            }
+          }
 
           if (target.hp <= 0) {
             log(`${target.name} を倒した！`, "good");
@@ -21283,10 +21812,9 @@ function showDamagePopup(
           recalcDerivedStats();
           player.hp = player.maxHp;
           player.mp = player.maxMp;
-          player.statPoints += 5;
-          player.skillPoints += 1;
+          player.treePoints += TREE_POINTS_PER_LEVEL;
           log(
-            `⬆️ レベルアップ！ Lv${player.level} 能力P+5 / スキルP+1`,
+            `⬆️ レベルアップ！ Lv${player.level} ツリーP+${TREE_POINTS_PER_LEVEL}`,
             "good",
           );
           triggerLevelUpEffect(player.level);
@@ -21294,22 +21822,6 @@ function showDamagePopup(
             showLevelUpGuidance();
           }
           maybeAutoSave("レベルアップ");
-        }
-
-        function resetAllocations() {
-          const spent = pendingResetSpent;
-          Object.entries(player.allocations).forEach(([key, amount]) => {
-            if (amount > 0) {
-              player.primary[key].base -= amount;
-              player.allocations[key] = 0;
-            }
-          });
-          player.statPoints += spent;
-          recalcDerivedStats();
-          updateUI();
-          log("ステータスをリセットしました", "info");
-          pendingResetSpent = 0;
-          maybeAutoSave("ステータス振り直し");
         }
 
         function retryBossFloor() {
@@ -21525,91 +22037,52 @@ function showDamagePopup(
         codexCloseButton?.addEventListener("click", closeCodexModal);
         codexDetailCloseButton?.addEventListener("click", closeCodexDetail);
 
-        statStepButton.addEventListener("click", () => {
-          currentStepIndex = (currentStepIndex + 1) % stepOptions.length;
-          updateStepButton();
-          renderPrimaryStats();
-        });
+        let treePanActive = false;
+        let treePanStart = { x: 0, y: 0 };
+        let treePanOrigin = { x: 0, y: 0 };
 
-        skillStepButton?.addEventListener("click", () => {
-          currentSkillStepIndex =
-            (currentSkillStepIndex + 1) % skillStepOptions.length;
-          updateSkillStepButton();
-          renderSkills();
-        });
-
-        skillSummaryToggleButton?.addEventListener("click", () => {
-          renderSkillSummary();
-          skillSummaryVisible = !skillSummaryVisible;
-          updateSkillSummaryVisibility();
-        });
-        skillSummaryCloseButton?.addEventListener("click", () => {
-          skillSummaryVisible = false;
-          updateSkillSummaryVisibility();
-        });
-        skillSummaryModal?.addEventListener("click", (e) => {
-          if (e.target === skillSummaryModal) {
-            skillSummaryVisible = false;
-            updateSkillSummaryVisibility();
-          }
-        });
-
-        resetButton.addEventListener("click", () => {
-          pendingResetSpent = Object.values(player.allocations).reduce(
-            (a, b) => a + b,
-            0,
-          );
-          if (pendingResetSpent === 0) {
-            log("リセットするポイントがありません", "info");
-            return;
-          }
-          resetSpentLabel.textContent = pendingResetSpent;
-          resetModal.classList.remove("hidden");
-        });
-        resetCloseButton.addEventListener("click", () =>
-          resetModal.classList.add("hidden"),
+        treeZoomInButton?.addEventListener("click", () =>
+          setTreeScale(treeScale + 0.1),
         );
-        resetCancelButton.addEventListener("click", () =>
-          resetModal.classList.add("hidden"),
+        treeZoomOutButton?.addEventListener("click", () =>
+          setTreeScale(treeScale - 0.1),
         );
-        resetConfirmButton.addEventListener("click", () => {
-          resetModal.classList.add("hidden");
-          resetAllocations();
+        treeZoomResetButton?.addEventListener("click", () => resetTreeView());
+
+        treeViewport?.addEventListener("wheel", (event) => {
+          event.preventDefault();
+          const rect = treeViewport.getBoundingClientRect();
+          const originX = event.clientX - rect.left;
+          const originY = event.clientY - rect.top;
+          const delta = event.deltaY > 0 ? -0.08 : 0.08;
+          setTreeScale(treeScale + delta, { originX, originY });
         });
-        resetModal.addEventListener("click", (e) => {
-          if (e.target === resetModal) resetModal.classList.add("hidden");
+
+        treeViewport?.addEventListener("pointerdown", (event) => {
+          if (event.target.closest(".tree-node")) return;
+          treePanActive = true;
+          treePanStart = { x: event.clientX, y: event.clientY };
+          treePanOrigin = { ...treeTranslate };
+          treeViewport.setPointerCapture(event.pointerId);
+        });
+        treeViewport?.addEventListener("pointermove", (event) => {
+          if (!treePanActive) return;
+          const dx = event.clientX - treePanStart.x;
+          const dy = event.clientY - treePanStart.y;
+          treeTranslate = { x: treePanOrigin.x + dx, y: treePanOrigin.y + dy };
+          applyTreeTransform();
+        });
+        treeViewport?.addEventListener("pointerup", () => {
+          treePanActive = false;
+        });
+        treeViewport?.addEventListener("pointercancel", () => {
+          treePanActive = false;
         });
         potionModal.addEventListener("click", (e) => {
           if (e.target === potionModal) closePotionModal();
         });
         skillInfoModal?.addEventListener("click", (e) => {
           if (e.target === skillInfoModal) closeSkillInfoModal();
-        });
-        resetSkillsButton.addEventListener("click", () => {
-          const spent = Object.values(skills).reduce(
-            (sum, skill) => sum + skill.level,
-            0,
-          );
-          if (spent === 0) {
-            log("リセットするスキルがありません", "info");
-            return;
-          }
-          skillResetSpentLabel.textContent = spent;
-          skillResetModal.classList.remove("hidden");
-        });
-        skillResetCloseButton.addEventListener("click", () =>
-          skillResetModal.classList.add("hidden"),
-        );
-        skillResetCancelButton.addEventListener("click", () =>
-          skillResetModal.classList.add("hidden"),
-        );
-        skillResetConfirmButton.addEventListener("click", () => {
-          skillResetModal.classList.add("hidden");
-          resetSkills();
-        });
-        skillResetModal.addEventListener("click", (e) => {
-          if (e.target === skillResetModal)
-            skillResetModal.classList.add("hidden");
         });
         enemyModal.addEventListener("click", (e) => {
           if (e.target === enemyModal) closeEnemyModal();
@@ -21648,6 +22121,9 @@ function showDamagePopup(
         const loadedFromSave = autoLoadLastActiveSlot();
 
         if (!loadedFromSave) {
+          ensureTreeState();
+          selectedTreeJob = player.job;
+          syncSkillsWithTree();
           const initialDerived = recalcDerivedStats();
           renderSecondaryStats(initialDerived);
           log("=== 挑戦開始 ===", "info");
