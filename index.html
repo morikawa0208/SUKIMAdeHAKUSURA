@@ -204,6 +204,14 @@
                     </button>
                 </div>
                 <div class="grid grid-cols-2 gap-4 text-xs">
+                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>最大HP</span><span id="stat-max-hp">0</span></div>
+                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>HP効率</span><span id="stat-hp-eff">0%</span></div>
+                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>最大MP</span><span id="stat-max-mp">0</span></div>
+                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>MP効率</span><span id="stat-mp-eff">0%</span></div>
+                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>攻撃力</span><span id="stat-atk-flat">0</span></div>
+                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>攻撃効率</span><span id="stat-atk-eff">0%</span></div>
+                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>防御力</span><span id="stat-def-flat">0</span></div>
+                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>防御効率</span><span id="stat-def-eff">0%</span></div>
                     <div class="flex justify-between border-b border-slate-700 pb-1"><span>会心率</span><span id="stat-crit">5%</span></div>
                     <div class="flex justify-between border-b border-slate-700 pb-1"><span>回避率</span><span id="stat-eva">3%</span></div>
                     <div class="flex justify-between border-b border-slate-700 pb-1"><span>吸血率</span><span id="stat-leech">0%</span></div>
@@ -211,10 +219,13 @@
                     <div class="flex justify-between border-b border-slate-700 pb-1"><span>魔法貫通</span><span id="stat-m-pen">0%</span></div>
                     <div class="flex justify-between border-b border-slate-700 pb-1"><span>ドロップ率</span><span id="stat-luck">0%</span></div>
                     <div class="flex justify-between border-b border-slate-700 pb-1"><span>命中率</span><span id="stat-accuracy">95%</span></div>
+                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>HP自動回復</span><span id="stat-hp-regen">0</span></div>
+                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>MP自動回復</span><span id="stat-mp-regen">0</span></div>
                     <div class="flex justify-between border-b border-slate-700 pb-1"><span>会心ダメージ</span><span id="stat-crit-dmg">200%</span></div>
                     <div class="flex justify-between border-b border-slate-700 pb-1"><span>与ダメ増加</span><span id="stat-dmg-boost">0%</span></div>
                     <div class="flex justify-between border-b border-slate-700 pb-1"><span>被ダメ軽減</span><span id="stat-dmg-reduction">0%</span></div>
                     <div class="flex justify-between border-b border-slate-700 pb-1"><span>レアドロ率</span><span id="stat-rare-find">0%</span></div>
+                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>ゴールド増加率</span><span id="stat-gold-boost">0%</span></div>
                 </div>
             </div>
 
@@ -336,6 +347,14 @@
                 <div>
                     <div class="text-[10px] font-black text-slate-400 uppercase">Secondary</div>
                     <ul class="mt-2 space-y-1">
+                        <li>最大HP：HPを固定値で増加。</li>
+                        <li>HP効率：最大HPを%で増加。</li>
+                        <li>最大MP：MPを固定値で増加。</li>
+                        <li>MP効率：最大MPを%で増加。</li>
+                        <li>攻撃力：物理攻撃の固定増加。</li>
+                        <li>攻撃効率：物理攻撃を%で増加。</li>
+                        <li>防御力：防御の固定増加。</li>
+                        <li>防御効率：防御を%で増加。</li>
                         <li>会心率：クリティカルが発生する確率。</li>
                         <li>回避率：敵の攻撃を回避する確率。</li>
                         <li>吸血率：与えたダメージの一部をHP回復。</li>
@@ -343,10 +362,13 @@
                         <li>魔法貫通：敵の防御を無視する割合（魔法系スキル向け）。</li>
                         <li>ドロップ率：戦利品が出る確率の上昇。</li>
                         <li>命中率：攻撃が命中する確率。</li>
+                        <li>HP自動回復：ターン終了時にHPが回復。</li>
+                        <li>MP自動回復：ターン終了時にMPが回復。</li>
                         <li>会心ダメージ：会心時のダメージ倍率。</li>
                         <li>与ダメ増加：通常攻撃・スキル全体の与ダメ補正。</li>
                         <li>被ダメ軽減：敵攻撃の最終ダメージを軽減。</li>
                         <li>レアドロ率：ドロップ品のレア度上昇確率。</li>
+                        <li>ゴールド増加率：獲得ゴールドの増加率。</li>
                     </ul>
                 </div>
             </div>
@@ -374,6 +396,9 @@
                 // Primary Stats
                 str: 10, vit: 5, int: 5, dex: 5,
                 // Secondary Stats (calculated)
+                maxHpFlat: 0, hpEfficiency: 0, maxMpFlat: 0, mpEfficiency: 0,
+                attackFlat: 0, attackEfficiency: 0, defenseFlat: 0, defenseEfficiency: 0,
+                hpRegen: 0, mpRegen: 0, goldBoost: 0,
                 critRate: 5, evasionRate: 3, leechRate: 0, expBoost: 0, mPen: 0, luck: 0, accuracy: 95,
                 critDamage: 200, damageBoost: 0, damageReduction: 0, rareFind: 0,
                 exp: 0, next: 100, sp: 0,
@@ -491,6 +516,28 @@
             renderSkillList();
         }
 
+        function getDerivedStats() {
+            const p = Game.player;
+            const maxHp = Math.max(1, Math.floor((p.maxHp + p.maxHpFlat) * (1 + p.hpEfficiency / 100)));
+            const maxMp = Math.max(0, Math.floor((p.maxMp + p.maxMpFlat) * (1 + p.mpEfficiency / 100)));
+            const atkBase = p.str + (p.weapon?.val || 0) + p.attackFlat;
+            const atk = Math.max(0, Math.floor(atkBase * (1 + p.attackEfficiency / 100)));
+            const defBase = p.vit + (p.armor?.val || 0) + p.defenseFlat;
+            const def = Math.max(0, Math.floor(defBase * (1 + p.defenseEfficiency / 100)));
+            return { maxHp, maxMp, atk, def };
+        }
+
+        function applyAutoRegen() {
+            const p = Game.player;
+            const derived = getDerivedStats();
+            if (p.hpRegen > 0) {
+                p.hp = Math.min(derived.maxHp, p.hp + p.hpRegen);
+            }
+            if (p.mpRegen > 0) {
+                p.mp = Math.min(derived.maxMp, p.mp + p.mpRegen);
+            }
+        }
+
         const infoModal = document.getElementById('status-info-modal');
         const openInfoModal = () => {
             infoModal.classList.remove('hidden');
@@ -598,8 +645,10 @@
                 return;
             }
 
+            const derived = getDerivedStats();
+
             if (currentSkill.hpCost) {
-                const cost = Math.floor(Game.player.maxHp * currentSkill.hpCost);
+                const cost = Math.floor(derived.maxHp * currentSkill.hpCost);
                 Game.player.hp = Math.max(1, Game.player.hp - cost);
             }
 
@@ -607,7 +656,7 @@
 
             if (currentSkill.type === 'heal') {
                 const amt = Math.floor(currentSkill.val + (Game.player.int * 1.2));
-                Game.player.hp = Math.min(Game.player.maxHp, Game.player.hp + amt);
+                Game.player.hp = Math.min(derived.maxHp, Game.player.hp + amt);
                 addLog(`【回復】${amt}HP`, "text-green-500");
                 dmgText(amt, true);
             } else {
@@ -620,7 +669,7 @@
                         continue;
                     }
                     // Base Attack Power Calculation
-                    let atkBase = isMagic ? (Game.player.int * 2) : (Game.player.str + (Game.player.weapon?.val||0));
+                    let atkBase = isMagic ? (Game.player.int * 2) : derived.atk;
                     
                     // Critical Check
                     let isCrit = Math.random() * 100 < Game.player.critRate;
@@ -644,7 +693,7 @@
                     if (Game.player.leechRate > 0) {
                         let l = Math.floor(dmg * (Game.player.leechRate / 100));
                         if (l > 0) {
-                            Game.player.hp = Math.min(Game.player.maxHp, Game.player.hp + l);
+                            Game.player.hp = Math.min(derived.maxHp, Game.player.hp + l);
                         }
                     }
                 }
@@ -659,7 +708,7 @@
 
                 if (currentSkill.mpHeal && totalDamage > 0) {
                     const mHeal = Math.floor(totalDamage * currentSkill.mpHeal);
-                    Game.player.mp = Math.min(Game.player.maxMp, Game.player.mp + mHeal);
+                    Game.player.mp = Math.min(derived.maxMp, Game.player.mp + mHeal);
                 }
                 if (currentSkill.expBonus && totalDamage > 0) {
                     let b = Math.floor(Game.player.next * (currentSkill.expBonus / 100));
@@ -671,6 +720,7 @@
                 setTimeout(()=>document.getElementById('enemy-visual').classList.remove('shake'), 200);
             }
 
+            applyAutoRegen();
             if (Game.enemy.hp <= 0) {
                 victory();
             } else {
@@ -689,7 +739,8 @@
                 return;
             }
 
-            let d = Math.floor(Game.enemy.str * (0.8 + Math.random() * 0.4)) - (Game.player.vit + (Game.player.armor?.val||0));
+            const derived = getDerivedStats();
+            let d = Math.floor(Game.enemy.str * (0.8 + Math.random() * 0.4)) - derived.def;
             // Passive: Armor Boost
             if (Game.player.skills.warrior.passive[4]) d -= Math.floor((Game.player.armor?.val||0) * 0.5);
             
@@ -702,7 +753,7 @@
             
             // Passive: MP Regen
             if (Game.player.skills.mage.passive[2]) {
-                Game.player.mp = Math.min(Game.player.maxMp, Game.player.mp + 5);
+                Game.player.mp = Math.min(derived.maxMp, Game.player.mp + 5);
             }
             
             // Passive: Counter
@@ -714,6 +765,7 @@
                 if (Game.enemy.hp <= 0) victory();
             }
 
+            applyAutoRegen();
             if (Game.player.hp <= 0) die();
             updateUI();
         }
@@ -752,8 +804,9 @@
         }
 
         function revive() {
-            Game.player.hp = Game.player.maxHp;
-            Game.player.mp = Game.player.maxMp;
+            const derived = getDerivedStats();
+            Game.player.hp = derived.maxHp;
+            Game.player.mp = derived.maxMp;
             document.getElementById('death-overlay').style.display = 'none';
             document.getElementById('full-log-container').innerHTML = '';
             addLog("命からがら生還した...", "text-slate-400 italic");
@@ -831,24 +884,28 @@
 
         document.getElementById('rest-btn').onclick = () => {
             if (Game.state !== 'idle') return;
-            Game.player.hp = Game.player.maxHp;
-            Game.player.mp = Game.player.maxMp;
+            const derived = getDerivedStats();
+            Game.player.hp = derived.maxHp;
+            Game.player.mp = derived.maxMp;
             addLog("キャンプで休息。全回復！");
             updateUI();
         };
 
         function updateUI() {
             const p = Game.player;
+            const derived = getDerivedStats();
             document.getElementById('floor-display').innerText = Game.floor;
             document.getElementById('header-lvl').innerText = p.level;
             document.getElementById('header-sp').innerText = p.sp;
             document.getElementById('skill-sp-display').innerText = p.sp;
 
             // Health/Mana/Exp
-            document.getElementById('player-hp-text').innerText = `${p.hp}/${p.maxHp}`;
-            document.getElementById('player-hp-bar').style.width = (p.hp/p.maxHp*100)+'%';
-            document.getElementById('player-mp-text').innerText = `${p.mp}/${p.maxMp}`;
-            document.getElementById('player-mp-bar').style.width = (p.mp/p.maxMp*100)+'%';
+            p.hp = Math.min(p.hp, derived.maxHp);
+            p.mp = Math.min(p.mp, derived.maxMp);
+            document.getElementById('player-hp-text').innerText = `${p.hp}/${derived.maxHp}`;
+            document.getElementById('player-hp-bar').style.width = (p.hp/derived.maxHp*100)+'%';
+            document.getElementById('player-mp-text').innerText = `${p.mp}/${derived.maxMp}`;
+            document.getElementById('player-mp-bar').style.width = (p.mp/derived.maxMp*100)+'%';
             document.getElementById('player-exp-text-battle').innerText = `${p.exp}/${p.next}`;
             document.getElementById('player-exp-bar-battle').style.width = (p.exp/p.next*100)+'%';
 
@@ -891,8 +948,8 @@
 
             // Status Details
             document.getElementById('status-lvl').innerText = p.level;
-            document.getElementById('status-atk').innerText = p.str + (p.weapon?.val||0);
-            document.getElementById('status-def').innerText = p.vit + (p.armor?.val||0);
+            document.getElementById('status-atk').innerText = derived.atk;
+            document.getElementById('status-def').innerText = derived.def;
             document.getElementById('status-int').innerText = p.int;
             document.getElementById('status-dex').innerText = p.dex;
             document.getElementById('status-exp').innerText = p.exp;
@@ -900,6 +957,14 @@
             document.getElementById('status-exp-bar').style.width = (p.exp/p.next*100)+'%';
             
             // Secondary Stats Display
+            document.getElementById('stat-max-hp').innerText = p.maxHpFlat;
+            document.getElementById('stat-hp-eff').innerText = p.hpEfficiency + "%";
+            document.getElementById('stat-max-mp').innerText = p.maxMpFlat;
+            document.getElementById('stat-mp-eff').innerText = p.mpEfficiency + "%";
+            document.getElementById('stat-atk-flat').innerText = p.attackFlat;
+            document.getElementById('stat-atk-eff').innerText = p.attackEfficiency + "%";
+            document.getElementById('stat-def-flat').innerText = p.defenseFlat;
+            document.getElementById('stat-def-eff').innerText = p.defenseEfficiency + "%";
             document.getElementById('stat-crit').innerText = p.critRate + "%";
             document.getElementById('stat-eva').innerText = p.evasionRate + "%";
             document.getElementById('stat-leech').innerText = p.leechRate + "%";
@@ -907,10 +972,13 @@
             document.getElementById('stat-m-pen').innerText = p.mPen + "%";
             document.getElementById('stat-luck').innerText = `${p.luck}%`;
             document.getElementById('stat-accuracy').innerText = `${p.accuracy}%`;
+            document.getElementById('stat-hp-regen').innerText = p.hpRegen;
+            document.getElementById('stat-mp-regen').innerText = p.mpRegen;
             document.getElementById('stat-crit-dmg').innerText = `${p.critDamage}%`;
             document.getElementById('stat-dmg-boost').innerText = `${p.damageBoost}%`;
             document.getElementById('stat-dmg-reduction').innerText = `${p.damageReduction}%`;
             document.getElementById('stat-rare-find').innerText = `${p.rareFind}%`;
+            document.getElementById('stat-gold-boost').innerText = `${p.goldBoost}%`;
 
             document.getElementById('equip-weapon').innerText = p.weapon?.name || "なし";
             document.getElementById('equip-weapon').className = `font-bold truncate text-sm rarity-${p.weapon?.r||'common'}`;
