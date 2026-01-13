@@ -707,6 +707,31 @@
             }
         }
 
+        function applyStatusEffect(target, effectId, stacks = 1, turns = null) {
+            const def = StatusDefs[effectId];
+            if (!def) return;
+            if (!Array.isArray(target.statusEffects)) {
+                target.statusEffects = [];
+            }
+            const duration = turns ?? def.defaultTurns ?? 1;
+            const maxStacks = def.maxStacks ?? stacks;
+            const existing = target.statusEffects.find(effect => effect.id === effectId);
+            if (existing) {
+                if (def.stackable) {
+                    existing.stacks = Math.min(maxStacks, existing.stacks + stacks);
+                } else {
+                    existing.stacks = 1;
+                }
+                existing.turns = Math.max(existing.turns, duration);
+            } else {
+                target.statusEffects.push({
+                    id: effectId,
+                    stacks: def.stackable ? Math.min(maxStacks, stacks) : 1,
+                    turns: duration
+                });
+            }
+        }
+
         const infoModal = document.getElementById('status-info-modal');
         const openInfoModal = () => {
             infoModal.classList.remove('hidden');
@@ -970,6 +995,10 @@
             d = Math.max(1, d);
             Game.player.hp = Math.max(0, Game.player.hp - d);
             addLog(`${Game.enemy.name}：${d}ダメ`, "text-red-400");
+            if (Math.random() < 0.2) {
+                applyStatusEffect(Game.player, 'poison');
+                addLog("毒を受けた！", "text-green-600");
+            }
             
             // Passive: MP Regen
             const mpRegenLevel = getPassiveLevel('mage', 2);
