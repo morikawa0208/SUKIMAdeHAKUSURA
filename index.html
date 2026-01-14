@@ -312,26 +312,29 @@
                     <h2 class="text-xl font-black">スキルツリー</h2>
                     <div class="text-sm font-bold bg-amber-100 text-amber-700 px-3 py-1 rounded-full">SP: <span id="skill-sp-display">0</span></div>
                 </div>
-                <!-- Job Tabs -->
-                <div class="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-                    <button onclick="switchJob('warrior')" id="tab-warrior" class="job-tab px-6 py-2 rounded-full text-xs font-bold bg-slate-100 text-slate-400 transition-all">戦士</button>
-                    <button onclick="switchJob('mage')" id="tab-mage" class="job-tab px-6 py-2 rounded-full text-xs font-bold bg-slate-100 text-slate-400 transition-all">魔術師</button>
-                    <button onclick="switchJob('thief')" id="tab-thief" class="job-tab px-6 py-2 rounded-full text-xs font-bold bg-slate-100 text-slate-400 transition-all">盗賊</button>
-                    <button onclick="switchJob('ranger')" id="tab-ranger" class="job-tab px-6 py-2 rounded-full text-xs font-bold bg-slate-100 text-slate-400 transition-all">レンジャー</button>
-                    <button onclick="switchJob('paladin')" id="tab-paladin" class="job-tab px-6 py-2 rounded-full text-xs font-bold bg-slate-100 text-slate-400 transition-all">聖騎士</button>
-                    <button onclick="switchJob('monk')" id="tab-monk" class="job-tab px-6 py-2 rounded-full text-xs font-bold bg-slate-100 text-slate-400 transition-all">拳闘士</button>
+                <!-- Job Select -->
+                <div class="flex items-center gap-2">
+                    <div class="text-slate-400 text-sm"><i class="fas fa-briefcase"></i></div>
+                    <select id="job-select" onchange="switchJob(this.value)" class="flex-1 border border-slate-200 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 bg-slate-50">
+                        <option value="warrior">戦士</option>
+                        <option value="mage">魔術師</option>
+                        <option value="thief">盗賊</option>
+                        <option value="ranger">レンジャー</option>
+                        <option value="paladin">聖騎士</option>
+                        <option value="monk">拳闘士</option>
+                    </select>
                 </div>
             </div>
             <div class="flex bg-white shrink-0 shadow-sm">
                 <button onclick="switchSkillType('active')" id="tab-active" class="type-tab flex-1 py-3 text-sm text-slate-400 transition-all">アクティブ</button>
                 <button onclick="switchSkillType('passive')" id="tab-passive" class="type-tab flex-1 py-3 text-sm text-slate-400 transition-all">パッシブ</button>
             </div>
-            <div class="p-4 bg-white border-b shrink-0">
-                <div class="flex items-center justify-between mb-2">
-                    <div class="text-sm font-black">アクティブスロット</div>
-                    <div class="text-[10px] text-slate-400">タップでスロット選択</div>
+            <div class="px-4 py-3 bg-white border-b shrink-0">
+                <div class="flex items-center justify-between mb-1">
+                    <div class="text-xs font-black">アクティブスロット</div>
+                    <div class="text-[9px] text-slate-400">タップでスロット選択</div>
                 </div>
-                <div id="skill-slot-settings" class="grid grid-cols-2 gap-2"></div>
+                <div id="skill-slot-settings" class="grid grid-cols-2 gap-1.5"></div>
             </div>
             <div id="skill-list" class="flex-1 overflow-y-auto p-4 space-y-3 pb-8 min-h-0"></div>
         </section>
@@ -1133,8 +1136,10 @@
 
         function switchJob(job) {
             Game.currentJobTab = job;
-            document.querySelectorAll('.job-tab').forEach(el => el.classList.remove('active'));
-            document.getElementById(`tab-${job}`).classList.add('active');
+            const selector = document.getElementById('job-select');
+            if (selector && selector.value !== job) {
+                selector.value = job;
+            }
             renderSkillList();
         }
 
@@ -1818,7 +1823,7 @@
                     wrapper.className = "flex items-center gap-2";
 
                     const slotButton = document.createElement('button');
-                    slotButton.className = `flex-1 text-left px-3 py-2 rounded-xl border text-[11px] font-bold ${
+                    slotButton.className = `flex-1 text-left px-2 py-1.5 rounded-lg border text-[10px] font-bold ${
                         Game.player.skillSlotTarget === idx ? 'border-slate-800 bg-slate-800 text-white' : 'border-slate-200 bg-slate-50 text-slate-500'
                     }`;
                     slotButton.innerHTML = `
@@ -1828,7 +1833,7 @@
                     slotButton.addEventListener('click', () => setSkillSlotTarget(idx));
 
                     const clearButton = document.createElement('button');
-                    clearButton.className = `w-10 h-10 rounded-xl border flex items-center justify-center ${
+                    clearButton.className = `w-8 h-8 rounded-lg border flex items-center justify-center ${
                         skill ? 'border-slate-200 text-slate-500 bg-white' : 'border-slate-100 text-slate-300 bg-slate-50'
                     }`;
                     clearButton.innerHTML = '<i class="fas fa-xmark"></i>';
