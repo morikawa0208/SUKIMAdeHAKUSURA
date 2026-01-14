@@ -755,8 +755,8 @@
         };
 
         const StatusDefs = {
-            poison: { id: 'poison', name: '毒', effectType: 'poison', stackable: true, maxStacks: 5, defaultTurns: 3, icon: 'fa-skull-crossbones', desc: 'ターン開始時にスタック数ぶんのダメージ。' },
-            bleed: { id: 'bleed', name: '出血', effectType: 'bleed', stackable: true, maxStacks: 5, defaultTurns: 3, icon: 'fa-droplet', desc: 'ターン開始時にスタック数ぶんのダメージ。' },
+            poison: { id: 'poison', name: '毒', effectType: 'poison', stackable: true, maxStacks: 5, defaultTurns: 3, icon: 'fa-skull-crossbones', desc: 'ターン開始時に最大HPの3%×スタックのダメージ。' },
+            bleed: { id: 'bleed', name: '出血', effectType: 'bleed', stackable: true, maxStacks: 5, defaultTurns: 3, icon: 'fa-droplet', desc: 'ターン開始時に(固定2+STR×0.3)×スタックのダメージ。' },
             weaken: { id: 'weaken', name: '弱体', effectType: 'weaken', stackable: false, maxStacks: 1, defaultTurns: 2, icon: 'fa-down-long', desc: '与ダメが減少する。' },
             vulnerable: { id: 'vulnerable', name: '脆弱', effectType: 'vulnerable', stackable: false, maxStacks: 1, defaultTurns: 2, icon: 'fa-shield-halved', desc: '被ダメージが増加する状態。' },
             buff: { id: 'buff', name: '強化', effectType: 'buff', stackable: true, maxStacks: 3, defaultTurns: 2, icon: 'fa-arrow-up-long', desc: '与ダメが増加する。' }
@@ -1338,12 +1338,22 @@
             if (!target || !Array.isArray(target.statusEffects)) return;
             target.statusEffects = target.statusEffects.filter(effect => effect.turns > 0);
             if (phase === 'start') {
+                const isPlayer = target === Game.player;
+                const derived = isPlayer ? getDerivedStats() : null;
+                const maxHp = isPlayer ? derived.maxHp : target.maxHp;
+                const strValue = isPlayer ? derived.totals.str : (target.str || 0);
                 target.statusEffects.forEach(effect => {
                     const def = StatusDefs[effect.id];
                     if (!def) return;
-                    if (def.effectType === 'poison' || def.effectType === 'bleed') {
+                    if (def.effectType === 'poison') {
                         const stacks = Math.max(1, effect.stacks || 1);
-                        const dmg = Math.max(1, stacks);
+                        const baseHp = maxHp || target.hp || 0;
+                        const dmg = Math.max(1, Math.floor(baseHp * 0.03 * stacks));
+                        target.hp = Math.max(0, target.hp - dmg);
+                    }
+                    if (def.effectType === 'bleed') {
+                        const stacks = Math.max(1, effect.stacks || 1);
+                        const dmg = Math.max(1, Math.floor((2 + strValue * 0.3) * stacks));
                         target.hp = Math.max(0, target.hp - dmg);
                     }
                 });
