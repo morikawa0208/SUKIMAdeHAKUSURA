@@ -107,7 +107,6 @@
                     <div id="enemy-hp-bar" class="bar-fill hp-fill"></div>
                     <div class="bar-text">HP: <span id="enemy-hp-text">30/30</span></div>
                 </div>
-                <div class="mt-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">状態異常</div>
                 <div id="enemy-status-effects" class="flex flex-wrap justify-center gap-1 mt-1 text-[10px]"></div>
             </div>
                 <div id="damage-layer" class="absolute inset-0 pointer-events-none"></div>
@@ -134,17 +133,11 @@
                         <div class="bar-text">EXP: <span id="player-exp-text-battle">0/100</span></div>
                     </div>
                     <div>
-                        <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest">状態異常</div>
-                        <div id="player-status-effects" class="flex flex-wrap gap-1 mt-1 text-[10px]"></div>
+                        <div id="player-status-effects" class="flex flex-wrap gap-1 mt-1 text-[10px] h-[21.5px]"></div>
                     </div>
-                </div>
-                <div>
-                    <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest">状態異常</div>
-                    <div id="player-status-effects" class="flex flex-wrap gap-1 mt-1 text-[10px]"></div>
                 </div>
 
                 <div class="space-y-2">
-                    <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest">アクティブスロット</div>
                     <div id="battle-skill-slots" class="grid grid-cols-4 gap-2"></div>
                 </div>
                 <button id="action-btn" class="w-full bg-slate-800 text-white font-black py-4 rounded-2xl shadow-lg active:scale-95 transition-transform text-lg flex items-center justify-center gap-2">
@@ -1275,7 +1268,7 @@
                 if (!container) return;
                 container.innerHTML = '';
                 if (!target || !Array.isArray(target.statusEffects) || target.statusEffects.length === 0) {
-                    container.innerHTML = '<span class="text-[10px] text-slate-400">なし</span>';
+                    container.innerHTML = '<span class="text-[10px] text-slate-400"></span>';
                     return;
                 }
                 target.statusEffects.forEach(effect => {
