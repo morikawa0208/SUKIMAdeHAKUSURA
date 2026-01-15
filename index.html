@@ -3147,9 +3147,22 @@
         }
 
         function openNextLoot() {
-            if (Game.state === 'loot') return;
             if (Game.lootQueue.length === 0) return;
-            openLootModal(Game.lootQueue.shift());
+            while (Game.lootQueue.length > 0) {
+                acquireLoot(Game.lootQueue.shift());
+            }
+            updateUI();
+        }
+
+        function acquireLoot(item) {
+            if (!item) return;
+            item.acquiredAt = Game.inventoryCounter++;
+            if (item.type === 'potion') {
+                const derived = syncPotionCapacity(item);
+                item.currentCapacity = derived.maxCapacity;
+            }
+            Game.player.inventory.push(item);
+            addLog(`戦利品を入手: ${item.name}`, `rarity-${item.rarity}`);
         }
 
         function openLootModal(item) {
