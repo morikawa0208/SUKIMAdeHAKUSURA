@@ -1096,6 +1096,11 @@
             renderSaveSlots();
         };
 
+        const triggerAutosave = () => {
+            const slot = getAutosaveSlot();
+            saveToSlot(slot, true);
+        };
+
         const loadFromSlot = (slot) => {
             const raw = localStorage.getItem(getSaveKey(slot));
             if (!raw) {
@@ -2551,11 +2556,13 @@
             if (level <= 0) return;
             Game.player.skillSlots[Game.player.skillSlotTarget] = { job, idx };
             updateUI();
+            triggerAutosave();
         }
 
         function clearSkillSlot(idx) {
             Game.player.skillSlots[idx] = null;
             updateUI();
+            triggerAutosave();
         }
 
         function getDerivedStats() {
@@ -2956,6 +2963,7 @@
             }
             closeEquipSlotModal();
             updateUI();
+            triggerAutosave();
         };
         equipSlotButton1.addEventListener('click', () => equipToSlot(1));
         equipSlotButton2.addEventListener('click', () => equipToSlot(2));
@@ -3039,6 +3047,7 @@
 
             renderSkillList();
             updateUI();
+            triggerAutosave();
         }
 
         function spawn() {
@@ -3149,6 +3158,7 @@
                 spawn();
                 addLog(`B${Game.floor}へ潜入...`);
                 updateUI();
+                triggerAutosave();
                 return;
             }
 
@@ -3415,6 +3425,7 @@
                 if (Math.random() < dropChance) queueLoot(buildPotionLoot());
             }
             openNextLoot();
+            triggerAutosave();
         }
 
         function die() {
@@ -3424,6 +3435,7 @@
             Game.player.exp = Math.max(0, Game.player.exp - lostExp);
             Game.floor = Math.max(1, Game.floor - 20);
             document.getElementById('death-overlay').style.display = 'flex';
+            triggerAutosave();
         }
 
         function revive() {
@@ -3572,6 +3584,7 @@
             if (Game.lootQueue.length > 0) {
                 openNextLoot();
             }
+            triggerAutosave();
         }
 
         function setInventoryFilter(type) {
@@ -3666,10 +3679,12 @@
                 Game.player[slotKey] = item;
                 syncPotionCapacity(item);
                 updateUI();
+                triggerAutosave();
                 return;
             }
             Game.player[item.type] = item;
             updateUI();
+            triggerAutosave();
         }
 
         function deleteItem(idx) {
@@ -3680,6 +3695,7 @@
                 Game.player.gold += price;
             }
             updateUI();
+            triggerAutosave();
         }
 
         function bulkSellByRarity(rarities) {
@@ -3696,6 +3712,7 @@
                 Game.player.gold += totalGold;
             }
             updateUI();
+            triggerAutosave();
         }
 
         document.getElementById('rest-btn').onclick = () => {
