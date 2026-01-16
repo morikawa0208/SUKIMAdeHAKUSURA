@@ -488,6 +488,10 @@
                             <i class="fas fa-filter"></i>
                             <span>取得設定</span>
                         </button>
+                        <button id="bulk-sell-open" class="px-3 py-2 rounded-xl border text-[10px] font-black flex items-center gap-2 bg-slate-50 text-slate-500 border-slate-200">
+                            <i class="fas fa-sack-dollar"></i>
+                            <span>一括売却</span>
+                        </button>
                     </div>
                 </div>
                 <div class="grid grid-cols-3 gap-2 text-[10px] font-bold">
@@ -804,6 +808,55 @@
         </div>
     </div>
 
+    <!-- BULK SELL MODAL -->
+    <div id="bulk-sell-modal" class="fixed inset-0 bg-slate-900/80 z-[106] hidden items-center justify-center p-6 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-sm rounded-[2rem] overflow-hidden shadow-2xl p-6 border-b-8 border-amber-100">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-black text-lg text-slate-800 flex items-center gap-2">
+                    <i class="fas fa-sack-dollar text-amber-500"></i> 一括売却
+                </h3>
+                <button id="bulk-sell-close" class="text-slate-400 hover:text-slate-700 text-lg"><i class="fas fa-xmark"></i></button>
+            </div>
+            <p class="text-xs text-slate-500 mb-4">売りたいレア度を複数選択して、一括で売却します。</p>
+            <div class="space-y-2 text-sm">
+                <label class="flex items-center justify-between bg-slate-50 border border-slate-100 rounded-xl px-3 py-2">
+                    <span class="flex items-center gap-2 font-bold rarity-normal">
+                        <input type="checkbox" class="bulk-sell-checkbox accent-amber-500" data-rarity="normal">
+                        ノーマル
+                    </span>
+                </label>
+                <label class="flex items-center justify-between bg-slate-50 border border-slate-100 rounded-xl px-3 py-2">
+                    <span class="flex items-center gap-2 font-bold rarity-magic">
+                        <input type="checkbox" class="bulk-sell-checkbox accent-amber-500" data-rarity="magic">
+                        マジック
+                    </span>
+                </label>
+                <label class="flex items-center justify-between bg-slate-50 border border-slate-100 rounded-xl px-3 py-2">
+                    <span class="flex items-center gap-2 font-bold rarity-rare">
+                        <input type="checkbox" class="bulk-sell-checkbox accent-amber-500" data-rarity="rare">
+                        レア
+                    </span>
+                </label>
+                <label class="flex items-center justify-between bg-slate-50 border border-slate-100 rounded-xl px-3 py-2">
+                    <span class="flex items-center gap-2 font-bold rarity-epic">
+                        <input type="checkbox" class="bulk-sell-checkbox accent-amber-500" data-rarity="epic">
+                        エピック
+                    </span>
+                </label>
+                <label class="flex items-center justify-between bg-slate-50 border border-slate-100 rounded-xl px-3 py-2">
+                    <span class="flex items-center gap-2 font-bold rarity-legendary">
+                        <input type="checkbox" class="bulk-sell-checkbox accent-amber-500" data-rarity="legendary">
+                        レジェンダリー
+                    </span>
+                </label>
+            </div>
+            <div class="mt-5 space-y-2">
+                <button id="bulk-sell-confirm" class="w-full bg-amber-500 text-white font-black py-3 rounded-2xl shadow-lg">売却！</button>
+                <button id="bulk-sell-close-bottom" class="w-full bg-slate-100 text-slate-500 font-black py-3 rounded-2xl shadow">キャンセル</button>
+            </div>
+        </div>
+    </div>
+
     <!-- EQUIP SLOT MODAL -->
     <div id="equip-slot-modal" class="fixed inset-0 bg-slate-900/80 z-[108] hidden items-center justify-center p-6 backdrop-blur-sm">
         <div class="bg-white w-full max-w-sm rounded-[2rem] overflow-hidden shadow-2xl p-6 border-b-8 border-slate-200">
@@ -936,6 +989,7 @@
             inventorySort: 'acquired',
             inventoryCounter: 0,
             lootFilter: { normal: false, magic: false, rare: false, epic: false, legendary: false },
+            bulkSellFilter: { normal: false, magic: false, rare: false, epic: false, legendary: false },
             lootQueue: [],
             pendingEquip: null,
             enemy: null, logs: [], dropLogs: []
@@ -2813,6 +2867,51 @@
             });
         });
 
+        const bulkSellModal = document.getElementById('bulk-sell-modal');
+        const bulkSellOpenBtn = document.getElementById('bulk-sell-open');
+        const bulkSellCloseBtn = document.getElementById('bulk-sell-close');
+        const bulkSellCloseBottomBtn = document.getElementById('bulk-sell-close-bottom');
+        const bulkSellConfirmBtn = document.getElementById('bulk-sell-confirm');
+        const bulkSellCheckboxes = Array.from(document.querySelectorAll('.bulk-sell-checkbox'));
+
+        const syncBulkSellUI = () => {
+            bulkSellCheckboxes.forEach((checkbox) => {
+                const rarity = checkbox.dataset.rarity;
+                checkbox.checked = Boolean(Game.bulkSellFilter?.[rarity]);
+            });
+        };
+
+        const openBulkSellModal = () => {
+            syncBulkSellUI();
+            bulkSellModal.classList.remove('hidden');
+            bulkSellModal.classList.add('flex');
+        };
+
+        const closeBulkSellModal = () => {
+            bulkSellModal.classList.add('hidden');
+            bulkSellModal.classList.remove('flex');
+        };
+
+        bulkSellOpenBtn.addEventListener('click', openBulkSellModal);
+        bulkSellCloseBtn.addEventListener('click', closeBulkSellModal);
+        bulkSellCloseBottomBtn.addEventListener('click', closeBulkSellModal);
+        bulkSellModal.addEventListener('click', (event) => {
+            if (event.target === bulkSellModal) closeBulkSellModal();
+        });
+        bulkSellCheckboxes.forEach((checkbox) => {
+            checkbox.addEventListener('change', (event) => {
+                const rarity = event.target.dataset.rarity;
+                Game.bulkSellFilter[rarity] = event.target.checked;
+            });
+        });
+        bulkSellConfirmBtn.addEventListener('click', () => {
+            const selected = bulkSellCheckboxes
+                .filter((checkbox) => checkbox.checked)
+                .map((checkbox) => checkbox.dataset.rarity);
+            closeBulkSellModal();
+            bulkSellByRarity(selected);
+        });
+
         const equipSlotModal = document.getElementById('equip-slot-modal');
         const equipSlotTitle = document.getElementById('equip-slot-title');
         const equipSlotButton1 = document.getElementById('equip-slot-1');
@@ -3542,6 +3641,22 @@
             const price = getSellPrice(item);
             if (removeInventoryItem(idx)) {
                 Game.player.gold += price;
+            }
+            updateUI();
+        }
+
+        function bulkSellByRarity(rarities) {
+            if (!Array.isArray(rarities) || rarities.length === 0) return;
+            let totalGold = 0;
+            for (let i = Game.player.inventory.length - 1; i >= 0; i--) {
+                const item = Game.player.inventory[i];
+                if (!item || isItemEquipped(item)) continue;
+                if (!rarities.includes(item.rarity)) continue;
+                totalGold += getSellPrice(item);
+                Game.player.inventory.splice(i, 1);
+            }
+            if (totalGold > 0) {
+                Game.player.gold += totalGold;
             }
             updateUI();
         }
