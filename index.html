@@ -2253,6 +2253,8 @@
             return Math.floor(base * prefixMul * suffixMul);
         };
 
+        const formatGold = (value) => Number(value ?? 0).toLocaleString('ja-JP');
+
         const getPotionDerived = (potion) => {
             if (!potion) return null;
             const totals = sumStats(getItemStats(potion));
@@ -3991,7 +3993,7 @@
             document.getElementById('floor-display').innerText = Game.floor;
             document.getElementById('header-lvl').innerText = p.level;
             document.getElementById('header-sp').innerText = p.sp;
-            document.getElementById('header-gold').innerText = p.gold;
+            document.getElementById('header-gold').innerText = formatGold(p.gold);
             document.getElementById('skill-sp-display').innerText = p.sp;
 
             // Health/Mana/Exp
@@ -4246,6 +4248,7 @@
             });
             sortedItems.forEach(({ item, index }) => {
                 const sellPrice = getSellPrice(item);
+                const sellPriceDisplay = formatGold(sellPrice);
                 const div = document.createElement('div');
                 div.className = "bg-white p-4 rounded-2xl border flex items-center justify-between shadow-sm";
                 const equipped = isItemEquipped(item);
@@ -4265,7 +4268,7 @@
                     <div class="ml-4 flex flex-col gap-2">
                         <button onclick="equip(${index})" class="px-5 py-2.5 bg-slate-800 text-white text-[11px] font-black rounded-xl">装備</button>
                         <button onclick="deleteItem(${index})" class="px-5 py-2.5 ${deleteClasses} text-[11px] font-black rounded-xl" ${equipped ? 'disabled' : ''}><i class="fas fa-coins"></i> ${deleteLabel}</button>
-                        <div class="text-[10px] text-slate-400 font-bold text-right">売値 ${sellPrice}G</div>
+                        <div class="text-[10px] text-slate-400 font-bold text-right">売値 ${sellPriceDisplay}G</div>
                     </div>
                 `;
                 invList.appendChild(div);
