@@ -3811,7 +3811,15 @@
             const lv = Math.max(1, level);
             const scale = lv - 1;
             const skill = { ...base, level: lv, maxLevel: base.maxLevel || SkillMaxLevel };
-            if (base.mp !== undefined) skill.mp = Math.max(0, Math.round(base.mp + (base.mpGrowth || 0) * scale));
+            if (base.mp !== undefined) {
+                const baseMp = Math.max(0, Math.round(base.mp + (base.mpGrowth || 0) * scale));
+                if (baseMp > 0) {
+                    const levelBonus = Math.floor(Math.max(0, lv - 1) * 0.8);
+                    skill.mp = baseMp + levelBonus;
+                } else {
+                    skill.mp = baseMp;
+                }
+            }
             if (base.pow !== undefined) skill.pow = Math.max(0, base.pow + (base.powGrowth || 0) * scale);
             if (base.val !== undefined) skill.val = Math.max(0, Math.round(base.val + (base.valGrowth || 0) * scale));
             if (base.hits !== undefined) skill.hits = Math.max(1, Math.round(base.hits + (base.hitsGrowth || 0) * scale));
