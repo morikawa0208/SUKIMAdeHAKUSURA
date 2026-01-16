@@ -3588,16 +3588,53 @@
             updateUI();
         }
 
+        const EquippedSlots = [
+            'weapon',
+            'armor',
+            'head',
+            'hands',
+            'feet',
+            'accessory1',
+            'accessory2',
+            'potion1',
+            'potion2'
+        ];
+
+        const syncEquippedItemIds = () => {
+            const inventory = Game.player.inventory || [];
+            inventory.forEach((invItem) => {
+                if (invItem && (invItem.acquiredAt === undefined || invItem.acquiredAt === null)) {
+                    invItem.acquiredAt = Game.inventoryCounter++;
+                }
+            });
+            EquippedSlots.forEach((slot) => {
+                const equipped = Game.player[slot];
+                if (!equipped) return;
+                if (equipped.acquiredAt !== undefined && equipped.acquiredAt !== null) return;
+                const match = inventory.find((invItem) => (
+                    invItem
+                    && invItem.type === equipped.type
+                    && invItem.name === equipped.name
+                    && invItem.rarity === equipped.rarity
+                    && invItem.rarityMul === equipped.rarityMul
+                ));
+                if (match && match.acquiredAt !== undefined && match.acquiredAt !== null) {
+                    equipped.acquiredAt = match.acquiredAt;
+                }
+            });
+        };
+
+        const isSameItem = (a, b) => {
+            if (!a || !b) return false;
+            if (a === b) return true;
+            if (a.acquiredAt !== undefined && b.acquiredAt !== undefined) {
+                return a.acquiredAt === b.acquiredAt;
+            }
+            return false;
+        };
+
         function isItemEquipped(item) {
-            return Game.player.weapon === item
-                || Game.player.armor === item
-                || Game.player.head === item
-                || Game.player.hands === item
-                || Game.player.feet === item
-                || Game.player.accessory1 === item
-                || Game.player.accessory2 === item
-                || Game.player.potion1 === item
-                || Game.player.potion2 === item;
+            return EquippedSlots.some((slot) => isSameItem(Game.player[slot], item));
         }
 
         function removeInventoryItem(idx) {
@@ -3674,6 +3711,7 @@
             const p = Game.player;
             const derived = getDerivedStats();
             const totals = derived.totals;
+            syncEquippedItemIds();
             document.getElementById('floor-display').innerText = Game.floor;
             document.getElementById('header-lvl').innerText = p.level;
             document.getElementById('header-sp').innerText = p.sp;
