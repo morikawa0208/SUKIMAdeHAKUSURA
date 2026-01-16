@@ -1103,7 +1103,7 @@
         const loadFromSlot = (slot) => {
             const raw = localStorage.getItem(getSaveKey(slot));
             if (!raw) {
-                setSaveStatus(`スロット${slot}は空です。`, 'text-rose-500');
+                resetGameForSlot(slot, `スロット${slot}は空のため新規開始しました。`, 'text-amber-600');
                 return;
             }
             const payload = JSON.parse(raw);
@@ -1132,7 +1132,7 @@
             renderSaveSlots();
         };
 
-        const resetGameForSlot = (slot) => {
+        const resetGameForSlot = (slot, message = `スロット${slot}のデータを削除して新規開始しました。`, tone = 'text-amber-600') => {
             localStorage.removeItem(getSaveKey(slot));
             applySaveData(buildInitialSnapshot());
             ensureWarpState();
@@ -1142,20 +1142,24 @@
             switchJob('warrior');
             switchSkillType('active');
             updateUI();
-            setSaveStatus(`スロット${slot}のデータを削除して新規開始しました。`, 'text-amber-600');
+            setSaveStatus(message, tone);
             renderSaveSlots();
+        };
+
+        const changeSaveSlot = (slot) => {
+            setAutosaveSlot(slot);
+            const raw = localStorage.getItem(getSaveKey(slot));
+            if (raw) {
+                loadFromSlot(slot);
+                return;
+            }
+            resetGameForSlot(slot, `スロット${slot}は空のため新規開始しました。`, 'text-amber-600');
         };
 
         const switchSaveSlot = () => {
             const current = getAutosaveSlot();
             const next = (current % 3) + 1;
-            setAutosaveSlot(next);
-            const raw = localStorage.getItem(getSaveKey(next));
-            if (raw) {
-                loadFromSlot(next);
-                return;
-            }
-            setSaveStatus(`スロット${next}に切り替えました（空）。`, 'text-slate-400');
+            changeSaveSlot(next);
         };
 
         const setupSaveControls = () => {
@@ -1174,7 +1178,7 @@
             document.querySelectorAll('input[name="autosave-slot"]').forEach((input) => {
                 input.addEventListener('change', () => {
                     const slot = Number.parseInt(input.value, 10);
-                    if (!Number.isNaN(slot)) setAutosaveSlot(slot);
+                    if (!Number.isNaN(slot)) changeSaveSlot(slot);
                 });
             });
             const switchSlotButton = document.getElementById('switch-save-slot-btn');
