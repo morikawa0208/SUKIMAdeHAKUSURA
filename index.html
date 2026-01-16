@@ -1016,7 +1016,7 @@
                 critDamage: 200, damageBoost: 0, damageReduction: 0, rareFind: 0, affixFind: 0, eliteEncounter: 20,
                 skillPowerBoost: 0, normalAttackBoost: 0, statusEffectStackBonus: 0, statusEffectTurnBonus: 0,
                 skillMpDiscount: 0, bossDropSynergy: 0, strMultiplier: 0, intMultiplier: 0, vitMultiplier: 0, dexMultiplier: 0,
-                exp: 0, next: 100, sp: 0,
+                exp: 0, next: 100, sp: 1,
                 gold: 0,
                 weapon: null, armor: null, head: null, hands: null, feet: null, accessory1: null, accessory2: null, potion1: null, potion2: null, inventory: [],
                 skillSlots: [null, null, null, null],
@@ -1116,7 +1116,7 @@
             mergeSaveData(Game, snapshot);
             if (Game.player) {
                 Game.player.level = Math.min(MAX_LEVEL, Game.player.level || 1);
-                Game.player.sp = Math.min(MAX_SKILL_POINTS, Game.player.sp || 0);
+                Game.player.sp = Math.min(MAX_SKILL_POINTS, Game.player.sp ?? 1);
                 if (Game.player.level >= MAX_LEVEL && Game.player.next) {
                     Game.player.exp = Math.min(Game.player.exp || 0, Game.player.next - 1);
                 }
