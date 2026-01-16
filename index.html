@@ -454,7 +454,17 @@
         <section id="page-skill" class="page bg-slate-50 flex-col h-full min-h-0">
             <div class="p-4 bg-white border-b shrink-0">
                 <div class="flex justify-between items-center mb-4 px-1">
-                    <h2 class="text-xl font-black">スキルツリー</h2>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <h2 class="text-xl font-black">スキルツリー</h2>
+                        <button id="skill-reset-btn" class="px-3 py-2 rounded-xl border border-rose-200 bg-rose-50 text-rose-600 text-[10px] font-black flex items-center gap-2">
+                            <i class="fas fa-rotate-left"></i>
+                            リセット
+                        </button>
+                        <button id="skill-point-mode" class="px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-600 text-[10px] font-black flex items-center gap-2">
+                            <i class="fas fa-sliders"></i>
+                            +1
+                        </button>
+                    </div>
                     <div class="text-sm font-bold bg-amber-100 text-amber-700 px-3 py-1 rounded-full">SP: <span id="skill-sp-display">0</span></div>
                 </div>
                 <!-- Job Select -->
@@ -981,6 +991,7 @@
             },
             currentJobTab: 'warrior',
             currentSkillType: 'active',
+            skillPointModeIndex: 0,
             inventoryFilter: 'all',
             inventorySort: 'acquired',
             inventoryCounter: 0,
@@ -4106,6 +4117,14 @@
         skillDetailModal.addEventListener('click', (event) => {
             if (event.target === skillDetailModal) closeSkillDetailModal();
         });
+        const skillResetButton = document.getElementById('skill-reset-btn');
+        if (skillResetButton) {
+            skillResetButton.addEventListener('click', resetSkillAllocation);
+        }
+        const skillPointModeButton = document.getElementById('skill-point-mode');
+        if (skillPointModeButton) {
+            skillPointModeButton.addEventListener('click', cycleSkillPointMode);
+        }
 
         const lootFilterModal = document.getElementById('loot-filter-modal');
         const lootFilterOpenBtn = document.getElementById('loot-filter-open');
@@ -4250,10 +4269,63 @@
             renderSkillList();
         }
 
+        const SkillPointModes = [
+            { value: 1, label: '+1', tone: 'text-slate-600' },
+            { value: 10, label: '+10', tone: 'text-emerald-600' },
+            { value: -1, label: '-1', tone: 'text-rose-600' },
+            { value: -10, label: '-10', tone: 'text-rose-700' }
+        ];
+
+        function getSkillPointModeValue() {
+            const mode = SkillPointModes[Game.skillPointModeIndex] || SkillPointModes[0];
+            return mode.value;
+        }
+
+        function updateSkillPointModeButton() {
+            const button = document.getElementById('skill-point-mode');
+            if (!button) return;
+            const mode = SkillPointModes[Game.skillPointModeIndex] || SkillPointModes[0];
+            button.innerHTML = `<i class="fas fa-sliders"></i><span class="${mode.tone}">${mode.label}</span>`;
+        }
+
+        function cycleSkillPointMode() {
+            Game.skillPointModeIndex = (Game.skillPointModeIndex + 1) % SkillPointModes.length;
+            updateSkillPointModeButton();
+            renderSkillList();
+        }
+
+        function resetSkillAllocation() {
+            const confirmed = window.confirm('全てのスキル振りをリセットしますか？');
+            if (!confirmed) return;
+            let refund = 0;
+            JobKeys.forEach((job) => {
+                ['active', 'passive'].forEach((type) => {
+                    const skillList = Game.player.skills[job]?.[type] || [];
+                    skillList.forEach((level, idx) => {
+                        if (level <= 0) return;
+                        refund += level;
+                        if (type === 'passive') {
+                            const skill = JobData[job][type][idx];
+                            if (skill?.apply) {
+                                skill.apply(-level);
+                            }
+                        }
+                        Game.player.skills[job][type][idx] = 0;
+                    });
+                });
+            });
+            Game.player.sp += refund;
+            renderSkillList();
+            updateUI();
+            triggerAutosave();
+        }
+
         function renderSkillList() {
             const list = document.getElementById('skill-list');
             list.innerHTML = '';
             const data = JobData[Game.currentJobTab][Game.currentSkillType];
+            const modeValue = getSkillPointModeValue();
+            const modeAbs = Math.abs(modeValue);
             
             data.forEach((skill, idx) => {
                 const level = getSkillLevel(Game.currentJobTab, Game.currentSkillType, idx);
@@ -4264,10 +4336,16 @@
                 card.className = `p-4 rounded-2xl border-2 transition-all shadow-sm ${isLearned ? 'bg-white border-slate-800' : 'bg-slate-100 border-slate-200 opacity-60'}`;
                 
                 let actionPart = '';
-                if (!isLearned) {
-                    actionPart = `<button onclick="event.stopPropagation(); learnSkill('${Game.currentJobTab}', '${Game.currentSkillType}', ${idx})" class="shrink-0 px-4 py-2 bg-slate-800 text-white text-[10px] font-black rounded-xl">1SP習得</button>`;
+                if (modeValue < 0) {
+                    if (level > 0) {
+                        actionPart = `<button onclick="event.stopPropagation(); learnSkill('${Game.currentJobTab}', '${Game.currentSkillType}', ${idx})" class="shrink-0 px-4 py-2 bg-rose-500 text-white text-[10px] font-black rounded-xl">${modeAbs}SP戻す</button>`;
+                    } else {
+                        actionPart = `<span class="shrink-0 text-xs font-black text-slate-400">戻すSPなし</span>`;
+                    }
+                } else if (!isLearned) {
+                    actionPart = `<button onclick="event.stopPropagation(); learnSkill('${Game.currentJobTab}', '${Game.currentSkillType}', ${idx})" class="shrink-0 px-4 py-2 bg-slate-800 text-white text-[10px] font-black rounded-xl">${modeAbs}SP習得</button>`;
                 } else if (!isMax) {
-                    actionPart = `<button onclick="event.stopPropagation(); learnSkill('${Game.currentJobTab}', '${Game.currentSkillType}', ${idx})" class="shrink-0 px-4 py-2 bg-amber-500 text-white text-[10px] font-black rounded-xl">1SP強化</button>`;
+                    actionPart = `<button onclick="event.stopPropagation(); learnSkill('${Game.currentJobTab}', '${Game.currentSkillType}', ${idx})" class="shrink-0 px-4 py-2 bg-amber-500 text-white text-[10px] font-black rounded-xl">${modeAbs}SP強化</button>`;
                 } else {
                     actionPart = `<span class="shrink-0 text-xs font-black text-slate-400"><i class="fas fa-check-circle"></i></span>`;
                 }
@@ -4310,12 +4388,26 @@
             const skill = JobData[job][type][idx];
             const current = getSkillLevel(job, type, idx);
             const maxLevel = skill.maxLevel || SkillMaxLevel;
-            if (Game.player.sp <= 0 || current >= maxLevel) return;
-            Game.player.sp--;
-            Game.player.skills[job][type][idx] = current + 1;
-            
-            if (type === 'passive' && skill.apply) {
-                skill.apply(1);
+            const modeValue = getSkillPointModeValue();
+            if (modeValue === 0) return;
+            if (modeValue > 0) {
+                if (Game.player.sp <= 0 || current >= maxLevel) return;
+                const add = Math.min(modeValue, Game.player.sp, maxLevel - current);
+                if (add <= 0) return;
+                Game.player.sp -= add;
+                Game.player.skills[job][type][idx] = current + add;
+                if (type === 'passive' && skill.apply) {
+                    skill.apply(add);
+                }
+            } else {
+                if (current <= 0) return;
+                const remove = Math.min(Math.abs(modeValue), current);
+                if (remove <= 0) return;
+                Game.player.sp += remove;
+                Game.player.skills[job][type][idx] = current - remove;
+                if (type === 'passive' && skill.apply) {
+                    skill.apply(-remove);
+                }
             }
 
             renderSkillList();
@@ -5059,6 +5151,7 @@
             document.getElementById('header-sp').innerText = p.sp;
             document.getElementById('header-gold').innerText = formatGold(p.gold);
             document.getElementById('skill-sp-display').innerText = p.sp;
+            updateSkillPointModeButton();
             const rematchToggle = document.getElementById('rematch-toggle');
             if (rematchToggle) {
                 rematchToggle.checked = Boolean(Game.stayOnFloor);
