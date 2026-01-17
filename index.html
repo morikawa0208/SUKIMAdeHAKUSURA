@@ -3441,6 +3441,13 @@
             }));
         };
 
+        const getEnhancementRatePercent = (item) => {
+            if (!isEnhanceableItem(item)) return 0;
+            const level = getWeaponEnhancementLevel(item);
+            if (level <= 0 || item.isBroken) return 0;
+            return Math.round(level * 3);
+        };
+
         const getItemStats = (item) => {
             if (!item) return [];
             return [
@@ -3888,7 +3895,10 @@
             const prefixLines = renderStatLines((item.affixStats || []).filter((stat) => stat.source === "prefix"));
             const suffixLines = renderStatLines((item.affixStats || []).filter((stat) => stat.source === "suffix"));
             const uniqueLines = renderStatLines(item.uniqueStats || []);
-            const baseLabel = isPotion ? "基礎(Affix反映済み)" : "基礎";
+            const enhancementRate = getEnhancementRatePercent(item);
+            const baseLabel = isPotion
+                ? "基礎(Affix反映済み)"
+                : `基礎${enhancementRate > 0 ? ` (強化値${enhancementRate}%)` : ""}`;
             const groups = [
                 renderStatGroupHtml(baseLabel, "fa-layer-group", baseLines),
                 renderStatGroupHtml("Prefix", "fa-arrow-up-wide-short", prefixLines),
