@@ -307,6 +307,10 @@
                         <span class="text-[10px] text-slate-400 font-bold uppercase">DEX (器用さ)</span>
                         <span class="text-2xl font-black text-green-600" id="status-dex">5</span>
                     </div>
+                    <div class="flex flex-col">
+                        <span class="text-[10px] text-slate-400 font-bold uppercase">LUK (運)</span>
+                        <span class="text-2xl font-black text-amber-600" id="status-luk">5</span>
+                    </div>
                 </div>
             </div>
 
@@ -882,6 +886,7 @@
                         <li><span class="font-bold text-slate-700">VIT</span>：被ダメージ軽減の基礎値。防具DEFと合算されます。</li>
                         <li><span class="font-bold text-slate-700">INT</span>：魔法攻撃の基礎値。回復量にも影響。</li>
                         <li><span class="font-bold text-slate-700">DEX</span>：器用さの基礎値。装備厳選の目安に利用。</li>
+                        <li><span class="font-bold text-slate-700">LUK</span>：運の基礎値。追加経験値・ドロップ率・レアドロ率・Affix率・エリート遭遇率・ゴールド増加率に影響。</li>
                     </ul>
                 </div>
                 <div>
@@ -1007,7 +1012,7 @@
                 level: 1,
                 hp: 100, maxHp: 100, mp: 30, maxMp: 30,
                 // Primary Stats
-                str: 10, vit: 5, int: 5, dex: 5,
+                str: 10, vit: 5, int: 5, dex: 5, luk: 5,
                 // Secondary Stats (calculated)
                 maxHpFlat: 0, hpEfficiency: 0, maxMpFlat: 0, mpEfficiency: 0,
                 attackFlat: 0, attackEfficiency: 0, defenseFlat: 0, defenseEfficiency: 0,
@@ -2529,6 +2534,7 @@
             vit: "VIT",
             int: "INT",
             dex: "DEX",
+            luk: "LUK",
             maxHp: "最大HP",
             maxMp: "最大MP",
             maxHpFlat: "最大HP",
@@ -2669,7 +2675,7 @@
                     { name: "軽歩の靴", stats: [{ key: "accuracy", value: 2 }, { key: "dex", value: 1 }] }
                 ],
                 accessories: [
-                    { name: "素朴な指輪", stats: [{ key: "critRate", value: 1 }, { key: "str", value: 1 }] },
+                    { name: "素朴な指輪", stats: [{ key: "critRate", value: 1 }, { key: "str", value: 1 }, { key: "luk", value: 1 }] },
                     { name: "護りのペンダント", stats: [{ key: "damageReduction", value: 1 }, { key: "maxHp", value: 6 }] },
                     { name: "学徒のタリスマン", stats: [{ key: "mpEfficiency", value: 2 }, { key: "int", value: 2 }] }
                 ]
@@ -2703,7 +2709,7 @@
                 ],
                 accessories: [
                     { name: "勇気の指輪", stats: [{ key: "critRate", value: 2 }, { key: "str", value: 3 }] },
-                    { name: "守護の首飾り", stats: [{ key: "damageReduction", value: 2 }, { key: "maxHp", value: 15 }] },
+                    { name: "守護の首飾り", stats: [{ key: "damageReduction", value: 2 }, { key: "maxHp", value: 15 }, { key: "luk", value: 2 }] },
                     { name: "知恵の護符", stats: [{ key: "mpEfficiency", value: 4 }, { key: "int", value: 4 }] }
                 ]
             },
@@ -2736,7 +2742,7 @@
                 ],
                 accessories: [
                     { name: "覇者の指輪", stats: [{ key: "critRate", value: 3 }, { key: "damageBoost", value: 2 }] },
-                    { name: "星守の護符", stats: [{ key: "rareFind", value: 3 }, { key: "maxMp", value: 20 }] },
+                    { name: "星守の護符", stats: [{ key: "rareFind", value: 3 }, { key: "maxMp", value: 20 }, { key: "luk", value: 4 }] },
                     { name: "黒曜のペンダント", stats: [{ key: "damageReduction", value: 3 }, { key: "maxHp", value: 20 }] }
                 ]
             }
@@ -2837,25 +2843,25 @@
         const PrefixAffixes = [
             { name: "鋭撃の", rank: 1, group: "attack", stats: ["str", "attackFlat", "accuracy", "critRate", "attackEfficiency"] },
             { name: "鉄壁の", rank: 1, group: "defense", stats: ["vit", "defenseFlat", "maxHp", "damageReduction", "hpRegen"] },
-            { name: "幸運の", rank: 1, group: "treasure", stats: ["luck", "rareFind", "goldBoost", "expBoost", "affixFind"] },
+            { name: "幸運の", rank: 1, group: "treasure", stats: ["luk", "luck", "rareFind", "goldBoost", "expBoost", "affixFind"] },
             { name: "剛撃の", rank: 2, group: "attack", stats: ["str", "dex", "attackFlat", "critRate", "damageBoost", "critDamage"] },
             { name: "守護の", rank: 2, group: "defense", stats: ["vit", "defenseFlat", "defenseEfficiency", "maxHp", "evasionRate"] },
-            { name: "豊穣の", rank: 2, group: "treasure", stats: ["luck", "rareFind", "affixFind", "goldBoost", "expBoost"] },
+            { name: "豊穣の", rank: 2, group: "treasure", stats: ["luk", "luck", "rareFind", "affixFind", "goldBoost", "expBoost"] },
             { name: "覇王の", rank: 3, group: "attack", stats: ["str", "int", "attackFlat", "attackEfficiency", "damageBoost", "critDamage"] },
             { name: "不屈の", rank: 3, group: "defense", stats: ["vit", "maxHp", "defenseEfficiency", "damageReduction", "hpRegen"] },
-            { name: "天運の", rank: 3, group: "treasure", stats: ["luck", "rareFind", "affixFind", "goldBoost", "expBoost"] }
+            { name: "天運の", rank: 3, group: "treasure", stats: ["luk", "luck", "rareFind", "affixFind", "goldBoost", "expBoost"] }
         ];
 
         const SuffixAffixes = [
             { name: "の一撃", rank: 1, group: "attack", stats: ["dex", "attackFlat", "accuracy", "critRate", "mPen"] },
             { name: "の守り", rank: 1, group: "defense", stats: ["vit", "defenseFlat", "maxHp", "evasionRate", "damageReduction"] },
-            { name: "の収集", rank: 1, group: "treasure", stats: ["luck", "goldBoost", "expBoost", "affixFind", "rareFind"] },
+            { name: "の収集", rank: 1, group: "treasure", stats: ["luk", "luck", "goldBoost", "expBoost", "affixFind", "rareFind"] },
             { name: "の猛進", rank: 2, group: "attack", stats: ["str", "attackFlat", "critRate", "damageBoost", "accuracy"] },
             { name: "の護り", rank: 2, group: "defense", stats: ["vit", "defenseEfficiency", "maxHp", "damageReduction", "hpRegen"] },
-            { name: "の財運", rank: 2, group: "treasure", stats: ["luck", "rareFind", "affixFind", "goldBoost", "expBoost"] },
+            { name: "の財運", rank: 2, group: "treasure", stats: ["luk", "luck", "rareFind", "affixFind", "goldBoost", "expBoost"] },
             { name: "の破壊", rank: 3, group: "attack", stats: ["str", "attackEfficiency", "critRate", "critDamage", "damageBoost"] },
             { name: "の堅牢", rank: 3, group: "defense", stats: ["vit", "maxHp", "defenseEfficiency", "damageReduction", "evasionRate"] },
-            { name: "の至宝", rank: 3, group: "treasure", stats: ["luck", "rareFind", "affixFind", "goldBoost", "expBoost"] }
+            { name: "の至宝", rank: 3, group: "treasure", stats: ["luk", "luck", "rareFind", "affixFind", "goldBoost", "expBoost"] }
         ];
 
         const AffixValueTable = {
@@ -2863,6 +2869,7 @@
             vit: [3, 6, 10],
             int: [3, 6, 10],
             dex: [3, 6, 10],
+            luk: [3, 6, 10],
             maxHp: [20, 45, 80],
             maxMp: [15, 35, 70],
             maxHpFlat: [20, 45, 80],
@@ -3276,6 +3283,7 @@
                 vit: Game.player.vit + (equip.vit || 0) + (milestone.vit || 0),
                 int: Game.player.int + (equip.int || 0) + (milestone.int || 0),
                 dex: Game.player.dex + (equip.dex || 0) + (milestone.dex || 0),
+                luk: Game.player.luk + (equip.luk || 0) + (milestone.luk || 0),
                 maxHp: Game.player.maxHp + (equip.maxHp || 0) + (milestone.maxHp || 0),
                 maxMp: Game.player.maxMp + (equip.maxMp || 0) + (milestone.maxMp || 0),
                 maxHpFlat: Game.player.maxHpFlat + (equip.maxHpFlat || 0) + (milestone.maxHpFlat || 0),
@@ -3921,12 +3929,19 @@
             const dexEvasionBonus = Math.floor(boostedTotals.dex * 0.15);
             const dexCritRateBonus = Math.floor(boostedTotals.dex * 0.05);
             const dexCritDamageBonus = Math.floor(boostedTotals.dex * 0.2);
+            const lukBonus = Math.floor(boostedTotals.luk * 0.5);
             const modifiedTotals = {
                 ...boostedTotals,
                 accuracy: Math.max(0, Math.floor((totals.accuracy + dexAccuracyBonus) * statusMods.accuracyMul)),
                 critRate: Math.max(0, Math.floor((totals.critRate + dexCritRateBonus) * statusMods.critMul)),
                 evasionRate: Math.max(0, Math.floor((totals.evasionRate + dexEvasionBonus) * statusMods.evasionMul)),
-                critDamage: Math.max(0, Math.floor(totals.critDamage + dexCritDamageBonus))
+                critDamage: Math.max(0, Math.floor(totals.critDamage + dexCritDamageBonus)),
+                expBoost: totals.expBoost + lukBonus,
+                luck: totals.luck + lukBonus,
+                rareFind: totals.rareFind + lukBonus,
+                affixFind: totals.affixFind + lukBonus,
+                eliteEncounter: totals.eliteEncounter + lukBonus,
+                goldBoost: totals.goldBoost + lukBonus
             };
             const bossDropCount = getBossDropCount();
             if (bossDropCount > 0 && modifiedTotals.bossDropSynergy > 0) {
@@ -5025,7 +5040,7 @@
                 Game.player.next = Math.floor(Game.player.next * 1.4);
                 Game.player.maxHp += 25; Game.player.hp = Game.player.maxHp;
                 Game.player.maxMp += 15; Game.player.mp = Game.player.maxMp;
-                Game.player.str += 3; Game.player.vit += 3; Game.player.int += 3; Game.player.dex += 2;
+                Game.player.str += 3; Game.player.vit += 3; Game.player.int += 3; Game.player.dex += 2; Game.player.luk += 1;
                 Game.player.sp = Math.min(MAX_SKILL_POINTS, Game.player.sp + LEVEL_UP_SKILL_POINTS);
                 addLog(`LEVEL UP! [${Game.player.level}]`, "text-blue-400 font-black");
                 document.getElementById('nav-sp-dot').classList.remove('hidden');
@@ -5531,6 +5546,7 @@
             document.getElementById('status-def').innerText = totals.vit;
             document.getElementById('status-int').innerText = totals.int;
             document.getElementById('status-dex').innerText = totals.dex;
+            document.getElementById('status-luk').innerText = totals.luk;
             document.getElementById('status-exp').innerText = p.exp;
             document.getElementById('status-next').innerText = p.next;
             document.getElementById('status-exp-bar').style.width = (p.exp/p.next*100)+'%';
