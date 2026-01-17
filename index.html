@@ -1401,7 +1401,7 @@
                     { id: 0, name: "クイックスタブ", mp: 3, pow: 1.0, powGrowth: 0.15, accuracyBonus: 15, accuracyGrowth: 5, maxLevel: 50, effects: [{ target: "self", id: "haste", stacks: 1, turns: 2 }], desc: "素早い突きで迅速を得る連携起点" },
                     { id: 1, name: "ダブルアタック", mp: 7, pow: 0.85, powGrowth: 0.1, hits: 2, maxLevel: 50, effects: [{ target: "enemy", id: "bleed", stacks: 1, turns: 2, log: "裂傷で出血した！" }], desc: "二連撃で出血を狙う" },
                     { id: 2, name: "毒の刃", mp: 10, pow: 1.8, powGrowth: 0.25, critBonus: 5, critGrowth: 2, maxLevel: 50, effects: [{ target: "enemy", id: "poison", stacks: 1, turns: 3, log: "毒が回った！" }], desc: "急所狙いで会心率上昇、毒を付与" },
-                    { id: 3, name: "強奪", mp: 5, pow: 1.0, powGrowth: 0.1, expBonus: 15, expBonusGrowth: 5, maxLevel: 50, desc: "攻撃しながら経験値を奪う" },
+                    { id: 3, name: "強奪", mp: 5, pow: 1.0, powGrowth: 0.1, maxLevel: 50, effects: [{ target: "enemy", id: "weaken", stacks: 1, turns: 2, log: "戦意を奪った！" }], desc: "攻撃と同時に敵の勢いを削ぐ弱体付与" },
                     { id: 4, name: "影縫い", mp: 12, pow: 2.2, powGrowth: 0.3, maxLevel: 50, effects: [{ target: "enemy", id: "silence", stacks: 1, turns: 1, log: "影に縛られて沈黙した！" }], desc: "影で封じ、敵のスキル回転を止める" },
                     { id: 5, name: "千手観音", mp: 30, pow: 1.1, powGrowth: 0.1, hits: 5, maxLevel: 50, desc: "圧倒的な五連撃" }
                 ],
