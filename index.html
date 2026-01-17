@@ -3215,11 +3215,15 @@
                 const gainMax = effect.gainRange?.[1] ?? gainMin;
                 const step = Math.floor(Math.random() * (stepMax - stepMin + 1)) + stepMin;
                 const gain = Math.floor(Math.random() * (gainMax - gainMin + 1)) + gainMin;
+                const statKeys = ["str", "vit", "int", "dex", "luk"];
+                const statKey = statKeys[Math.floor(Math.random() * statKeys.length)];
+                const statLabel = StatLabels[statKey] || statKey;
                 resolvedEffect = {
                     ...effect,
+                    stat: statKey,
                     step,
                     gain,
-                    label: `${base.name}：一次ステ成長 Lv${step}ごとに+${gain}`
+                    label: `${base.name}：${statLabel}成長 Lv${step}ごとに+${gain}`
                 };
                 delete resolvedEffect.randomize;
                 delete resolvedEffect.stepRange;
@@ -3358,11 +3362,15 @@
                     const gain = effect.gain || 0;
                     const bonus = Math.floor(Game.player.level / step) * gain;
                     if (bonus > 0) {
-                        updated.str += bonus;
-                        updated.vit += bonus;
-                        updated.int += bonus;
-                        updated.dex += bonus;
-                        updated.luk += bonus;
+                        if (effect.stat) {
+                            updated[effect.stat] = (updated[effect.stat] || 0) + bonus;
+                        } else {
+                            updated.str += bonus;
+                            updated.vit += bonus;
+                            updated.int += bonus;
+                            updated.dex += bonus;
+                            updated.luk += bonus;
+                        }
                     }
                 }
             });
