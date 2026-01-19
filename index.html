@@ -938,6 +938,10 @@
                 <div id="enhance-modal-result-title" class="font-black text-lg"></div>
                 <div id="enhance-modal-result-detail" class="text-xs font-bold text-slate-600"></div>
                 <div id="enhance-modal-result-extra" class="text-[10px] text-slate-400"></div>
+                <button id="enhance-modal-repeat" class="w-full bg-slate-800 text-white font-black py-2.5 rounded-xl shadow flex items-center justify-center gap-2">
+                    <i class="fas fa-hammer"></i>
+                    <span>強化する</span>
+                </button>
                 <div class="text-[10px] text-slate-400">タップで閉じる</div>
             </div>
         </div>
@@ -4923,12 +4927,18 @@
         const enhanceModal = document.getElementById('enhance-modal');
         const enhanceModalCloseBtn = document.getElementById('enhance-modal-close');
         const enhanceModalStartBtn = document.getElementById('enhance-modal-start');
+        const enhanceModalRepeatBtn = document.getElementById('enhance-modal-repeat');
         enhanceModalCloseBtn.addEventListener('click', (event) => {
             event.stopPropagation();
             closeEnhanceModal();
         });
         enhanceModalStartBtn.addEventListener('click', (event) => {
             event.stopPropagation();
+            runEnhancement();
+        });
+        enhanceModalRepeatBtn.addEventListener('click', (event) => {
+            event.stopPropagation();
+            setEnhanceModalWarning('');
             runEnhancement();
         });
         enhanceModal.addEventListener('click', (event) => {
@@ -5918,6 +5928,7 @@
             const previewEl = document.getElementById('enhance-modal-preview');
             const warningEl = document.getElementById('enhance-modal-warning');
             const startBtn = document.getElementById('enhance-modal-start');
+            const repeatBtn = document.getElementById('enhance-modal-repeat');
             if (!item || !isEnhanceableItem(item)) return;
             const level = getWeaponEnhancementLevel(item);
             const cost = getWeaponEnhancementCost(item);
@@ -5932,6 +5943,10 @@
             const canStart = !item.isBroken && !maxed && Game.player.gold >= cost;
             startBtn.disabled = !canStart;
             startBtn.className = `mt-4 w-full font-black py-3 rounded-2xl shadow-lg ${
+                canStart ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-300 cursor-not-allowed'
+            }`;
+            repeatBtn.disabled = !canStart;
+            repeatBtn.className = `w-full font-black py-2.5 rounded-xl shadow flex items-center justify-center gap-2 ${
                 canStart ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-300 cursor-not-allowed'
             }`;
             const progress = document.getElementById('enhance-modal-progress');
@@ -6061,6 +6076,7 @@
             }
             syncEnhanceModalStages();
             updateUI();
+            syncEnhanceModal();
         };
 
         const handleEnhanceModalTap = () => {
