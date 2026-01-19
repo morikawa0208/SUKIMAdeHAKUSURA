@@ -3290,10 +3290,22 @@
             const totals = getTotalStats();
             const eliteRank = Game.enemy?.elite?.rank || 0;
             const rarity = rollRarity(totals.rareFind, eliteRank);
+            const affixRate = totals.affixFind + eliteRank * 8;
+            const affixChance = Math.min(100, 2 + affixRate);
+            const prefixRank = Math.random() * 100 < affixChance ? rollAffixRank(affixRate, eliteRank) : 0;
+            const suffixRank = Math.random() * 100 < affixChance ? rollAffixRank(affixRate, eliteRank) : 0;
+            const prefix = prefixRank ? rollAffix(PrefixAffixes, prefixRank) : null;
+            const suffix = suffixRank ? rollAffix(SuffixAffixes, suffixRank) : null;
+            const prefixStars = prefix ? "☆".repeat(prefix.rank) : "";
+            const suffixStars = suffix ? "☆".repeat(suffix.rank) : "";
             const baseStats = base.stats.map((stat) => ({
                 key: stat.key,
                 value: Math.max(1, Math.ceil(stat.value * rarity.mul * 1.5))
             }));
+            const affixStats = [
+                ...(prefix ? prefix.stats.map((stat) => ({ ...stat, source: "prefix" })) : []),
+                ...(suffix ? suffix.stats.map((stat) => ({ ...stat, source: "suffix" })) : [])
+            ];
             const uniqueStats = (base.uniqueStats || []).map((stat) => ({ ...stat }));
             const effect = BossUniqueEffects[base.name];
             let resolvedEffect = effect;
@@ -3322,15 +3334,15 @@
                 uniqueStats.push({ key: "bossUniqueEffect", value: 0, effect: resolvedEffect });
             }
             const item = {
-                name: base.name,
+                name: `${prefixStars}${prefix ? prefix.name : ""}${base.name}${suffix ? suffix.name : ""}${suffixStars}`,
                 type: base.type,
                 rarity: rarity.key,
                 rarityMul: rarity.mul,
                 baseStats,
-                affixStats: [],
+                affixStats,
                 uniqueStats,
-                prefix: null,
-                suffix: null,
+                prefix,
+                suffix,
                 isBossDrop: true
             };
             if (item.type !== "potion") {
@@ -5133,12 +5145,12 @@
                     statusEffects: [],
                     isBoss: false
                 };
-                const totals = getTotalStats();
-                const eliteRank = rollEliteRank(totals.eliteEncounter);
-                if (eliteRank > 0) {
-                    Game.enemy = buildEliteEnemy(Game.enemy, eliteRank);
-                    addLog(`エリートランク${eliteRank} ${Game.enemy.name}が出現！`, "text-purple-500 font-black");
-                }
+            }
+            const totals = getTotalStats();
+            const eliteRank = rollEliteRank(totals.eliteEncounter);
+            if (eliteRank > 0) {
+                Game.enemy = buildEliteEnemy(Game.enemy, eliteRank);
+                addLog(`エリートランク${eliteRank} ${Game.enemy.name}が出現！`, "text-purple-500 font-black");
             }
             Game.state = 'combat';
         }
