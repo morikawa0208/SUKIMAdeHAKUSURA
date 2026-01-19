@@ -5569,7 +5569,8 @@
                 Game.player.level++;
                 Game.player.exp -= Game.player.next;
                 Game.player.next = Math.floor(Game.player.next * 1.4);
-                Game.player.maxHp += 25; Game.player.hp = Game.player.maxHp;
+                const hpGain = Math.floor(Game.player.maxHp * 0.03) + 10;
+                Game.player.maxHp += hpGain; Game.player.hp = Game.player.maxHp;
                 Game.player.maxMp += 15; Game.player.mp = Game.player.maxMp;
                 Game.player.str += 3; Game.player.vit += 3; Game.player.int += 3; Game.player.dex += 2; Game.player.luk += 1;
                 Game.player.sp = Math.min(MAX_SKILL_POINTS, Game.player.sp + LEVEL_UP_SKILL_POINTS);
