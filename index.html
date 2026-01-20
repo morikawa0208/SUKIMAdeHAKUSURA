@@ -5350,8 +5350,13 @@
                 let landedHit = false;
                 
                 for(let i=0; i<hits; i++){
-                    let hitChance = Math.min(100, derived.totals.accuracy + (currentSkill.accuracyBonus || 0) + bossMods.accuracyBonus - enemyEvasion);
-                    hitChance = Math.max(0, hitChance);
+                    const baseAccuracy = Math.max(0, derived.totals.accuracy + (currentSkill.accuracyBonus || 0) + bossMods.accuracyBonus);
+                    const evasionValue = Math.max(0, enemyEvasion);
+                    const ratioDenominator = baseAccuracy + evasionValue;
+                    let hitChance = ratioDenominator > 0
+                        ? (baseAccuracy / ratioDenominator) * 100
+                        : 0;
+                    hitChance = Math.min(95, Math.max(5, hitChance));
                     if (Math.random() * 100 > hitChance) {
                         continue;
                     }
