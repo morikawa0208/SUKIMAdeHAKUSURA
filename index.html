@@ -1142,6 +1142,15 @@
             windowTurns: 3
         };
 
+        const getNextExpRequirement = (level) => {
+            const base = 80;
+            const linear = level * 110;
+            const quadratic = level * level * 1.5;
+            return Math.floor(base + linear + quadratic);
+        };
+
+        Game.player.next = getNextExpRequirement(Game.player.level);
+
         const DefaultGameState = JSON.parse(JSON.stringify(Game));
         const buildInitialSnapshot = () => JSON.parse(JSON.stringify(DefaultGameState));
 
@@ -1210,6 +1219,10 @@
             if (Game.player) {
                 Game.player.level = Math.min(MAX_LEVEL, Game.player.level || 1);
                 Game.player.sp = Math.min(MAX_SKILL_POINTS, Game.player.sp ?? 1);
+                Game.player.next = getNextExpRequirement(Game.player.level);
+                if (Game.player.exp >= Game.player.next && Game.player.level < MAX_LEVEL) {
+                    Game.player.exp = Math.max(0, Game.player.next - 1);
+                }
                 if (Game.player.level >= MAX_LEVEL && Game.player.next) {
                     Game.player.exp = Math.min(Game.player.exp || 0, Game.player.next - 1);
                 }
@@ -5604,7 +5617,7 @@
             if (Game.player.exp >= Game.player.next && Game.player.level < MAX_LEVEL) {
                 Game.player.level++;
                 Game.player.exp -= Game.player.next;
-                Game.player.next = Math.floor(Game.player.next * 1.4);
+                Game.player.next = getNextExpRequirement(Game.player.level);
                 const hpGain = Math.floor(Game.player.maxHp * 0.03) + 10;
                 Game.player.maxHp += hpGain;
                 Game.player.maxMp += 15;
