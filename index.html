@@ -916,7 +916,8 @@
                     <li>・出現ボスはこれまでのボスからランダム抽選</li>
                     <li>・ステータスは1000階ボス基準で大幅に強化、回数が増えるほど強くなります</li>
                     <li>・ボスラッシュ中はドロップなしのエンドコンテンツです</li>
-                    <li>・1000階撃破後はDXボスドロップで装備を整えられます</li>
+                    <li>・1000階撃破後は過去階層へ戻ってDXボスドロップを狙えます（ボスも強化）</li>
+                    <li>・1000階ボスのドロップもDXボスドロップになります</li>
                 </ul>
             </div>
             <button id="bossrush-modal-ok" class="mt-4 w-full bg-slate-800 text-white font-black py-3 rounded-2xl shadow-lg">了解</button>
@@ -1074,6 +1075,9 @@
                 </button>
             </div>
             <div id="warp-bossrush-note" class="mt-2 text-[10px] text-amber-600 font-bold hidden">※10001F以上は任意ワープ不可（ボスラッシュはマイルストーンのみ）</div>
+            <button id="warp-bossrush-info" class="mt-3 hidden w-full bg-amber-100 text-amber-700 text-xs font-black py-2 rounded-xl hover:bg-amber-200 transition">
+                ボスラッシュ仕様を見る
+            </button>
             <div class="mt-4">
                 <div class="text-[10px] text-slate-400 font-black mb-2">討伐済みボス</div>
                 <div id="warp-boss-empty" class="text-[10px] text-slate-400 hidden">討伐したボスがありません。</div>
@@ -3383,6 +3387,7 @@
             const maxFloorEl = document.getElementById('warp-max-floor');
             const input = document.getElementById('warp-input');
             const note = document.getElementById('warp-bossrush-note');
+            const infoButton = document.getElementById('warp-bossrush-info');
             if (maxFloorEl) {
                 maxFloorEl.textContent = maxFloor;
             }
@@ -3396,6 +3401,9 @@
             }
             if (note) {
                 note.classList.toggle('hidden', maxFloor < BossRushStartFloor);
+            }
+            if (infoButton) {
+                infoButton.classList.toggle('hidden', maxFloor < 1000);
             }
             renderWarpBossButtons();
             renderWarpBossRushButtons();
@@ -3461,6 +3469,7 @@
             const warpConfirm = document.getElementById('warp-confirm');
             const warpInput = document.getElementById('warp-input');
             const warpModal = document.getElementById('warp-modal');
+            const warpBossRushInfo = document.getElementById('warp-bossrush-info');
             if (warpBtn) {
                 warpBtn.addEventListener('click', openWarpModal);
             }
@@ -3490,6 +3499,9 @@
                         closeWarpModal();
                     }
                 });
+            }
+            if (warpBossRushInfo) {
+                warpBossRushInfo.addEventListener('click', openBossRushModal);
             }
         };
 
@@ -4485,14 +4497,14 @@
             } else {
                 bossDef = BossDefs[Game.floor];
                 const hasBossRushUnlocked = Array.isArray(Game.defeatedBossFloors) && Game.defeatedBossFloors.includes(1000);
-                const isDxBoss = hasBossRushUnlocked && Game.floor < 1000;
+                const isDxBoss = hasBossRushUnlocked && Game.floor <= 1000;
                 bossBase = isDxBoss ? BossDefs[1000] : bossDef;
                 bossScale = getBossScale(Game.floor);
             }
             if (bossDef) {
                 const baseStats = bossBase || bossDef;
                 const hasBossRushUnlocked = Array.isArray(Game.defeatedBossFloors) && Game.defeatedBossFloors.includes(1000);
-                const isDxBoss = hasBossRushUnlocked && Game.floor < 1000;
+                const isDxBoss = hasBossRushUnlocked && Game.floor <= 1000;
                 Game.enemy = {
                     ...bossDef,
                     floor: Game.floor,
@@ -5087,7 +5099,7 @@
         }
 
         function buildEquipmentLoot() {
-            if (Game.enemy?.isBoss) {
+            if (Game.enemy?.isBoss && Game.enemy.floor <= 1000) {
                 const bossTable = Game.enemy.isDxBoss
                     ? buildDxBossLootTable(Game.enemy.floor)
                     : (BossRushLootTables[Game.enemy.floor] || BossLootTables[Game.enemy.floor]);
