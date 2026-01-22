@@ -1639,72 +1639,6 @@
             ]
         ];
 
-        const EnemyTiersPost1000 = [
-            [
-                { name: "深淵の獣", icon: "fa-hippo", hp: 476, str: 67, exp: 320, def: 6, acc: 8, eva: 0, onHitEffects: [{ id: "vulnerable", stacks: 1, turns: 2, chance: 0.35, log: "深淵の圧で脆弱になった！" }] },
-                { name: "虚空の狩人", icon: "fa-user-secret", hp: 455, str: 69, exp: 325, def: 5, acc: 9, eva: 1, onHitEffects: [{ id: "blind", stacks: 1, turns: 2, chance: 0.35, log: "虚空の一撃で視界が歪んだ！" }] },
-                { name: "冥界の刃狼", icon: "fa-dog", hp: 490, str: 65, exp: 318, def: 5, acc: 9, eva: 1, onHitEffects: [{ id: "bleed", stacks: 2, turns: 3, chance: 0.35, log: "冥界の牙で裂かれた！" }] },
-                { name: "滅尽の羽魔", icon: "fa-crow", hp: 462, str: 70, exp: 330, def: 5, acc: 9, eva: 1, onHitEffects: [{ id: "silence", stacks: 1, turns: 2, chance: 0.3, log: "滅尽の囁きで沈黙した！" }] },
-                { name: "雷禍の亡霊", icon: "fa-bolt", hp: 483, str: 68, exp: 322, def: 6, acc: 8, eva: 0, onHitEffects: [{ id: "attackDown", stacks: 1, turns: 2, chance: 0.35, log: "雷禍で攻撃が鈍った！" }] }
-            ],
-            [
-                { name: "災厄ゴーレム", icon: "fa-mountain", hp: 532, str: 76, exp: 360, def: 9, acc: 7, eva: 0, onHitEffects: [{ id: "defenseDown", stacks: 1, turns: 2, chance: 0.35, log: "災厄の衝撃で防御が崩れた！" }] },
-                { name: "冥火の精霊", icon: "fa-fire", hp: 504, str: 79, exp: 365, def: 5, acc: 11, eva: 0, onHitEffects: [{ id: "weaken", stacks: 1, turns: 2, chance: 0.35, log: "冥火で弱体化した！" }] },
-                { name: "凍嵐の魔獣", icon: "fa-snowflake", hp: 525, str: 74, exp: 358, def: 6, acc: 8, eva: 0, onHitEffects: [{ id: "freeze", stacks: 1, turns: 1, chance: 0.25, log: "凍嵐で凍結した！" }] },
-                { name: "毒瘴の女王", icon: "fa-spider", hp: 518, str: 77, exp: 362, def: 6, acc: 8, eva: 0, onHitEffects: [{ id: "poison", stacks: 3, turns: 3, chance: 0.35, log: "毒瘴が体を蝕む！" }] },
-                { name: "夜哭の魔導", icon: "fa-hat-wizard", hp: 497, str: 80, exp: 370, def: 5, acc: 11, eva: 0, onHitEffects: [{ id: "silence", stacks: 1, turns: 2, chance: 0.35, log: "夜哭の呪詛で沈黙した！" }] }
-            ],
-            [
-                { name: "雷哭竜", icon: "fa-dragon", hp: 574, str: 84, exp: 400, def: 9, acc: 7, eva: 0, onHitEffects: [{ id: "vulnerable", stacks: 2, turns: 2, chance: 0.35, log: "雷哭の咆哮で脆弱になった！" }] },
-                { name: "終夜の影刃", icon: "fa-ghost", hp: 546, str: 87, exp: 405, def: 5, acc: 9, eva: 1, onHitEffects: [{ id: "bleed", stacks: 2, turns: 3, chance: 0.35, log: "影刃で出血した！" }] },
-                { name: "審罰騎士", icon: "fa-chess-knight", hp: 588, str: 83, exp: 395, def: 9, acc: 7, eva: 0, onHitEffects: [{ id: "attackDown", stacks: 2, turns: 2, chance: 0.35, log: "審罰で攻撃が下がった！" }] },
-                { name: "虚無の賢者", icon: "fa-hat-wizard", hp: 560, str: 89, exp: 410, def: 5, acc: 11, eva: 0, onHitEffects: [{ id: "weaken", stacks: 2, turns: 2, chance: 0.35, log: "虚無の術で弱体化した！" }] },
-                { name: "冥雷の獣王", icon: "fa-bolt", hp: 602, str: 86, exp: 402, def: 6, acc: 8, eva: 0, onHitEffects: [{ id: "blind", stacks: 1, turns: 2, chance: 0.35, log: "冥雷で視界が乱れた！" }] }
-            ],
-            [
-                { name: "断罪の守護者", icon: "fa-shield-halved", hp: 630, str: 95, exp: 450, def: 9, acc: 7, eva: 0, onHitEffects: [{ id: "defenseDown", stacks: 2, turns: 3, chance: 0.35, log: "断罪の一撃で守りが崩れた！" }] },
-                { name: "灼滅の大精霊", icon: "fa-fire", hp: 616, str: 97, exp: 455, def: 5, acc: 11, eva: 0, onHitEffects: [{ id: "weaken", stacks: 2, turns: 2, chance: 0.35, log: "灼滅で弱体化した！" }] },
-                { name: "絶対零度獣", icon: "fa-snowflake", hp: 644, str: 93, exp: 448, def: 6, acc: 8, eva: 0, onHitEffects: [{ id: "freeze", stacks: 1, turns: 1, chance: 0.3, log: "凍結した！" }] },
-                { name: "咎人の亡霊", icon: "fa-skull", hp: 609, str: 98, exp: 458, def: 6, acc: 8, eva: 0, onHitEffects: [{ id: "silence", stacks: 1, turns: 2, chance: 0.35, log: "咎の囁きで沈黙した！" }] },
-                { name: "冥界の追跡者", icon: "fa-user-secret", hp: 637, str: 96, exp: 452, def: 5, acc: 9, eva: 1, onHitEffects: [{ id: "bleed", stacks: 2, turns: 3, chance: 0.35, log: "追跡の刃で裂かれた！" }] }
-            ],
-            [
-                { name: "神罰の巨影", icon: "fa-ghost", hp: 686, str: 105, exp: 510, def: 9, acc: 7, eva: 0, onHitEffects: [{ id: "vulnerable", stacks: 2, turns: 2, chance: 0.4, log: "神罰で脆弱になった！" }] },
-                { name: "深淵の咆哮竜", icon: "fa-dragon", hp: 714, str: 104, exp: 505, def: 9, acc: 7, eva: 0, onHitEffects: [{ id: "attackDown", stacks: 2, turns: 2, chance: 0.4, log: "咆哮で攻撃が下がった！" }] },
-                { name: "黒星の魔導", icon: "fa-hat-wizard", hp: 672, str: 109, exp: 520, def: 5, acc: 11, eva: 0, onHitEffects: [{ id: "silence", stacks: 1, turns: 2, chance: 0.4, log: "黒星の呪文で沈黙した！" }] },
-                { name: "審判の猛獣", icon: "fa-hippo", hp: 735, str: 103, exp: 498, def: 6, acc: 8, eva: 0, onHitEffects: [{ id: "defenseDown", stacks: 2, turns: 2, chance: 0.4, log: "審判の衝撃で防御が崩れた！" }] },
-                { name: "冥毒の女王", icon: "fa-spider", hp: 693, str: 107, exp: 512, def: 6, acc: 8, eva: 0, onHitEffects: [{ id: "poison", stacks: 4, turns: 3, chance: 0.4, log: "冥毒が広がった！" }] }
-            ],
-            [
-                { name: "星界の番人", icon: "fa-star", hp: 770, str: 116, exp: 570, def: 6, acc: 8, eva: 0, onHitEffects: [{ id: "weaken", stacks: 2, turns: 2, chance: 0.4, log: "星界の圧で弱体化した！" }] },
-                { name: "禁域の騎士", icon: "fa-chess-knight", hp: 791, str: 114, exp: 565, def: 9, acc: 7, eva: 0, onHitEffects: [{ id: "attackDown", stacks: 2, turns: 2, chance: 0.4, log: "禁域の刃で攻撃が下がった！" }] },
-                { name: "深海の魔王", icon: "fa-fish", hp: 756, str: 118, exp: 575, def: 5, acc: 11, eva: 0, onHitEffects: [{ id: "blind", stacks: 2, turns: 2, chance: 0.4, log: "深海の闇で視界が乱れた！" }] },
-                { name: "雷禍の使徒", icon: "fa-bolt", hp: 784, str: 117, exp: 568, def: 6, acc: 8, eva: 0, onHitEffects: [{ id: "vulnerable", stacks: 2, turns: 2, chance: 0.4, log: "雷禍で脆弱になった！" }] },
-                { name: "冥炎の賢者", icon: "fa-fire", hp: 763, str: 119, exp: 578, def: 5, acc: 11, eva: 0, onHitEffects: [{ id: "bleed", stacks: 2, turns: 3, chance: 0.4, log: "冥炎で裂かれた！" }] }
-            ],
-            [
-                { name: "超越の獄竜", icon: "fa-dragon", hp: 840, str: 130, exp: 640, def: 9, acc: 7, eva: 0, onHitEffects: [{ id: "vulnerable", stacks: 3, turns: 2, chance: 0.45, log: "超越の咆哮で脆弱になった！" }] },
-                { name: "黒曜の滅刃", icon: "fa-user-secret", hp: 826, str: 133, exp: 645, def: 5, acc: 9, eva: 1, onHitEffects: [{ id: "bleed", stacks: 3, turns: 3, chance: 0.45, log: "黒曜の刃で裂かれた！" }] },
-                { name: "幽冥の法王", icon: "fa-hat-wizard", hp: 805, str: 135, exp: 650, def: 5, acc: 11, eva: 0, onHitEffects: [{ id: "silence", stacks: 1, turns: 3, chance: 0.45, log: "幽冥の呪詛で沈黙した！" }] },
-                { name: "審罰の巨影", icon: "fa-ghost", hp: 854, str: 128, exp: 638, def: 9, acc: 7, eva: 0, onHitEffects: [{ id: "defenseDown", stacks: 3, turns: 3, chance: 0.45, log: "審罰で防御が崩れた！" }] },
-                { name: "虚無の雷帝", icon: "fa-bolt", hp: 833, str: 132, exp: 642, def: 6, acc: 8, eva: 0, onHitEffects: [{ id: "attackDown", stacks: 2, turns: 2, chance: 0.45, log: "虚無雷で攻撃が下がった！" }] }
-            ],
-            [
-                { name: "終焉の審判者", icon: "fa-sun", hp: 910, str: 144, exp: 720, def: 6, acc: 8, eva: 0, onHitEffects: [{ id: "vulnerable", stacks: 3, turns: 2, chance: 0.45, log: "終焉の光で脆弱になった！" }] },
-                { name: "深淵の疫王", icon: "fa-virus", hp: 896, str: 147, exp: 725, def: 6, acc: 8, eva: 0, onHitEffects: [{ id: "poison", stacks: 5, turns: 3, chance: 0.45, log: "疫毒が体を蝕む！" }] },
-                { name: "絶対零度の影", icon: "fa-snowflake", hp: 882, str: 146, exp: 722, def: 5, acc: 9, eva: 1, onHitEffects: [{ id: "freeze", stacks: 1, turns: 1, chance: 0.35, log: "絶対零度で凍結した！" }] },
-                { name: "災禍の殲滅竜", icon: "fa-dragon", hp: 938, str: 142, exp: 715, def: 9, acc: 7, eva: 0, onHitEffects: [{ id: "attackDown", stacks: 2, turns: 3, chance: 0.45, log: "災禍の爪で攻撃が下がった！" }] },
-                { name: "虚無の戦魔", icon: "fa-hippo", hp: 924, str: 145, exp: 718, def: 6, acc: 8, eva: 0, onHitEffects: [{ id: "weaken", stacks: 3, turns: 2, chance: 0.45, log: "虚無の圧で弱体化した！" }] }
-            ],
-            [
-                { name: "神域の影竜", icon: "fa-dragon", hp: 1015, str: 161, exp: 820, def: 9, acc: 7, eva: 0, onHitEffects: [{ id: "vulnerable", stacks: 3, turns: 3, chance: 0.5, log: "神域の咆哮で脆弱になった！" }] },
-                { name: "断罪の剣魔", icon: "fa-chess-knight", hp: 994, str: 165, exp: 825, def: 6, acc: 8, eva: 0, onHitEffects: [{ id: "defenseDown", stacks: 3, turns: 3, chance: 0.5, log: "断罪の一撃で防御が崩れた！" }] },
-                { name: "星滅の魔王", icon: "fa-star", hp: 980, str: 167, exp: 830, def: 5, acc: 11, eva: 0, onHitEffects: [{ id: "silence", stacks: 1, turns: 3, chance: 0.5, log: "星滅の呪詛で沈黙した！" }] },
-                { name: "冥炎の支配者", icon: "fa-fire", hp: 1036, str: 160, exp: 818, def: 6, acc: 8, eva: 0, onHitEffects: [{ id: "bleed", stacks: 3, turns: 3, chance: 0.5, log: "冥炎で裂かれた！" }] },
-                { name: "虚空の審判獣", icon: "fa-hippo", hp: 1050, str: 163, exp: 822, def: 6, acc: 8, eva: 0, onHitEffects: [{ id: "attackDown", stacks: 3, turns: 3, chance: 0.5, log: "虚空の衝撃で攻撃が下がった！" }] }
-            ]
-        ];
-
         const ElitePrefixes = {
             1: ["凶暴な", "荒々しい", "猛る"],
             2: ["残虐な", "狂戦士の", "血塗られた"],
@@ -1729,13 +1663,10 @@
         ];
 
         const BossFloors = [
-            10, 50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000,
-            ...Array.from({ length: 18 }, (_, idx) => 1500 + idx * 500)
+            10, 50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000
         ];
-        const BossRushStartFloor = 10001;
-        const BossRushSequence = [...BossFloors];
-        const BossRushSequenceEndFloor = BossRushStartFloor + BossRushSequence.length - 1;
-        const BossRushNoDropStartFloor = BossRushSequenceEndFloor + 1;
+        const BossRushStartFloor = 1001;
+        const BossRushNoDropStartFloor = BossRushStartFloor;
         const BossDefs = {
             10: {
                 floor: 10,
@@ -1966,528 +1897,6 @@
                         ]
                     }
                 ]
-            },
-            1500: {
-                floor: 1500,
-                name: "冥雷帝ゼルト",
-                icon: "fa-bolt",
-                hp: 770,
-                str: 91,
-                exp: 3200, def: 8, acc: 10, eva: 2,
-                skillInterval: 3,
-                skills: [
-                    {
-                        name: "雷冥断",
-                        pow: 2.2,
-                        hits: 2,
-                        effects: [
-                            { target: "player", id: "vulnerable", stacks: 2, turns: 2, log: "雷冥断で脆弱になった！" },
-                            { target: "player", id: "blind", stacks: 1, turns: 2, log: "雷閃で視界が乱れた！" }
-                        ]
-                    },
-                    {
-                        name: "支配の雷陣",
-                        pow: null,
-                        effects: [
-                            { target: "self", id: "attackUp", stacks: 2, turns: 3 },
-                            { target: "self", id: "haste", stacks: 2, turns: 2 },
-                            { target: "player", id: "attackDown", stacks: 2, turns: 2, log: "雷陣で攻撃が下がった！" }
-                        ],
-                        log: "雷陣が展開された！"
-                    }
-                ]
-            },
-            2000: {
-                floor: 2000,
-                name: "深淵王ヴァラド",
-                icon: "fa-skull",
-                hp: 910,
-                str: 105,
-                exp: 4200, def: 8, acc: 10, eva: 2,
-                skillInterval: 3,
-                skills: [
-                    {
-                        name: "深淵の裂爪",
-                        pow: 2.4,
-                        hits: 2,
-                        effects: [
-                            { target: "player", id: "bleed", stacks: 3, turns: 3, log: "深淵の爪で裂かれた！" },
-                            { target: "player", id: "weaken", stacks: 2, turns: 2, log: "深淵の圧で弱体化した！" }
-                        ]
-                    },
-                    {
-                        name: "奈落の呪縛",
-                        pow: 1.8,
-                        effects: [
-                            { target: "player", id: "silence", stacks: 1, turns: 2, log: "奈落の呪縛で沈黙した！" },
-                            { target: "player", id: "vulnerable", stacks: 2, turns: 2 }
-                        ]
-                    }
-                ]
-            },
-            2500: {
-                floor: 2500,
-                name: "灼滅王グラディア",
-                icon: "fa-fire",
-                hp: 1050,
-                str: 116,
-                exp: 5200, def: 8, acc: 10, eva: 2,
-                skillInterval: 3,
-                skills: [
-                    {
-                        name: "灼滅乱舞",
-                        pow: 2.5,
-                        hits: 3,
-                        effects: [
-                            { target: "player", id: "bleed", stacks: 2, turns: 3, log: "灼滅の斬撃で出血した！" }
-                        ]
-                    },
-                    {
-                        name: "熾火障壁",
-                        pow: null,
-                        effects: [
-                            { target: "self", id: "barrier", stacks: 2, turns: 3 },
-                            { target: "self", id: "defenseUp", stacks: 2, turns: 3 }
-                        ],
-                        log: "熾火の障壁が燃え上がった！"
-                    }
-                ]
-            },
-            3000: {
-                floor: 3000,
-                name: "氷獄姫セレスタ",
-                icon: "fa-snowflake",
-                hp: 1190,
-                str: 126,
-                exp: 6200, def: 7, acc: 13, eva: 3,
-                skillInterval: 3,
-                skills: [
-                    {
-                        name: "氷獄の槍",
-                        pow: 2.6,
-                        effects: [
-                            { target: "player", id: "freeze", stacks: 1, turns: 1, log: "氷獄で凍結した！" },
-                            { target: "player", id: "vulnerable", stacks: 2, turns: 2 }
-                        ]
-                    },
-                    {
-                        name: "氷牢結界",
-                        pow: null,
-                        effects: [
-                            { target: "self", id: "barrier", stacks: 2, turns: 3 },
-                            { target: "self", id: "reflect", stacks: 1, turns: 2 }
-                        ],
-                        log: "氷牢の結界が展開された！"
-                    }
-                ]
-            },
-            3500: {
-                floor: 3500,
-                name: "虚無王ナイトメア",
-                icon: "fa-ghost",
-                hp: 1330,
-                str: 137,
-                exp: 7200, def: 8, acc: 10, eva: 2,
-                skillInterval: 2,
-                skills: [
-                    {
-                        name: "虚無連撃",
-                        pow: 2.0,
-                        hits: 4,
-                        effects: [
-                            { target: "player", id: "blind", stacks: 2, turns: 2, log: "虚無の連撃で視界が乱れた！" },
-                            { target: "player", id: "silence", stacks: 1, turns: 2, log: "虚無の囁きで沈黙した！" }
-                        ]
-                    },
-                    {
-                        name: "終闇の呪詛",
-                        pow: 2.2,
-                        effects: [
-                            { target: "player", id: "attackDown", stacks: 2, turns: 2, log: "終闇で攻撃が下がった！" },
-                            { target: "player", id: "defenseDown", stacks: 2, turns: 2 }
-                        ]
-                    }
-                ]
-            },
-            4000: {
-                floor: 4000,
-                name: "星断の審判者オルド",
-                icon: "fa-chess-knight",
-                hp: 1470,
-                str: 147,
-                exp: 8200, def: 8, acc: 10, eva: 2,
-                skillInterval: 3,
-                skills: [
-                    {
-                        name: "審判の槍",
-                        pow: 2.8,
-                        effects: [
-                            { target: "player", id: "defenseDown", stacks: 2, turns: 3, log: "審判の槍で守りが崩れた！" },
-                            { target: "player", id: "vulnerable", stacks: 2, turns: 2 }
-                        ]
-                    },
-                    {
-                        name: "裁定の誓約",
-                        pow: null,
-                        effects: [
-                            { target: "self", id: "attackUp", stacks: 3, turns: 3 },
-                            { target: "self", id: "barrier", stacks: 2, turns: 3 }
-                        ],
-                        log: "裁定の誓約で力が高まった！"
-                    }
-                ]
-            },
-            4500: {
-                floor: 4500,
-                name: "毒宴姫モルティス",
-                icon: "fa-skull-crossbones",
-                hp: 1610,
-                str: 158,
-                exp: 9200, def: 7, acc: 13, eva: 3,
-                skillInterval: 3,
-                skills: [
-                    {
-                        name: "毒宴の舞",
-                        pow: 2.4,
-                        hits: 3,
-                        effects: [
-                            { target: "player", id: "poison", stacks: 4, turns: 3, log: "毒宴で体が蝕まれた！" },
-                            { target: "player", id: "weaken", stacks: 2, turns: 2 }
-                        ]
-                    },
-                    {
-                        name: "腐蝕の抱擁",
-                        pow: 2.1,
-                        effects: [
-                            { target: "player", id: "bleed", stacks: 3, turns: 3, log: "腐蝕で出血した！" },
-                            { target: "player", id: "attackDown", stacks: 2, turns: 2 }
-                        ]
-                    }
-                ]
-            },
-            5000: {
-                floor: 5000,
-                name: "終夜竜ノクシス",
-                icon: "fa-dragon",
-                hp: 1785,
-                str: 168,
-                exp: 10500, def: 11, acc: 9, eva: 0,
-                skillInterval: 3,
-                skills: [
-                    {
-                        name: "終夜の牙",
-                        pow: 2.9,
-                        hits: 2,
-                        effects: [
-                            { target: "player", id: "bleed", stacks: 3, turns: 3, log: "終夜の牙で裂かれた！" },
-                            { target: "player", id: "vulnerable", stacks: 2, turns: 2 }
-                        ]
-                    },
-                    {
-                        name: "黒翼の加速",
-                        pow: null,
-                        effects: [
-                            { target: "self", id: "haste", stacks: 2, turns: 3 },
-                            { target: "self", id: "attackUp", stacks: 2, turns: 3 }
-                        ],
-                        log: "黒翼が舞い、速度が増した！"
-                    }
-                ]
-            },
-            5500: {
-                floor: 5500,
-                name: "雷哭皇ヘイルド",
-                icon: "fa-bolt",
-                hp: 1960,
-                str: 179,
-                exp: 11800, def: 8, acc: 10, eva: 2,
-                skillInterval: 2,
-                skills: [
-                    {
-                        name: "雷哭連鎖",
-                        pow: 2.5,
-                        hits: 3,
-                        effects: [
-                            { target: "player", id: "blind", stacks: 2, turns: 2, log: "雷哭で視界が乱れた！" },
-                            { target: "player", id: "attackDown", stacks: 2, turns: 2 }
-                        ]
-                    },
-                    {
-                        name: "雷鳴の檻",
-                        pow: 2.8,
-                        effects: [
-                            { target: "player", id: "vulnerable", stacks: 3, turns: 2, log: "雷鳴の檻で脆弱になった！" },
-                            { target: "player", id: "silence", stacks: 1, turns: 2 }
-                        ]
-                    }
-                ]
-            },
-            6000: {
-                floor: 6000,
-                name: "聖裁神リュシア",
-                icon: "fa-sun",
-                hp: 2135,
-                str: 189,
-                exp: 13200, def: 8, acc: 10, eva: 2,
-                skillInterval: 3,
-                skills: [
-                    {
-                        name: "聖裁の光",
-                        pow: 3.0,
-                        effects: [
-                            { target: "player", id: "weaken", stacks: 2, turns: 2, log: "聖裁で弱体化した！" },
-                            { target: "player", id: "blind", stacks: 2, turns: 2 }
-                        ]
-                    },
-                    {
-                        name: "神域護壁",
-                        pow: null,
-                        healPct: 0.2,
-                        effects: [
-                            { target: "self", id: "barrier", stacks: 3, turns: 3 },
-                            { target: "self", id: "reflect", stacks: 2, turns: 2 }
-                        ],
-                        log: "神域の護壁が輝いた！"
-                    }
-                ]
-            },
-            6500: {
-                floor: 6500,
-                name: "地裂神バルド",
-                icon: "fa-mountain",
-                hp: 2310,
-                str: 200,
-                exp: 14600, def: 11, acc: 9, eva: 0,
-                skillInterval: 3,
-                skills: [
-                    {
-                        name: "地裂衝",
-                        pow: 3.1,
-                        hits: 2,
-                        effects: [
-                            { target: "player", id: "defenseDown", stacks: 3, turns: 3, log: "地裂で守りが崩れた！" },
-                            { target: "player", id: "attackDown", stacks: 2, turns: 2 }
-                        ]
-                    },
-                    {
-                        name: "岩界の加護",
-                        pow: null,
-                        effects: [
-                            { target: "self", id: "defenseUp", stacks: 3, turns: 3 },
-                            { target: "self", id: "barrier", stacks: 2, turns: 3 }
-                        ],
-                        log: "岩界の加護で防御が高まった！"
-                    }
-                ]
-            },
-            7000: {
-                floor: 7000,
-                name: "疫神ラグナ",
-                icon: "fa-virus",
-                hp: 2520,
-                str: 210,
-                exp: 16000, def: 8, acc: 10, eva: 2,
-                skillInterval: 2,
-                skills: [
-                    {
-                        name: "疫神の瘴気",
-                        pow: 2.8,
-                        effects: [
-                            { target: "player", id: "poison", stacks: 5, turns: 3, log: "疫神の瘴気が体を蝕む！" },
-                            { target: "player", id: "weaken", stacks: 3, turns: 2 }
-                        ]
-                    },
-                    {
-                        name: "黒疫の呪詛",
-                        pow: 2.6,
-                        effects: [
-                            { target: "player", id: "silence", stacks: 1, turns: 2, log: "黒疫の呪詛で沈黙した！" },
-                            { target: "player", id: "vulnerable", stacks: 3, turns: 2 }
-                        ]
-                    }
-                ]
-            },
-            7500: {
-                floor: 7500,
-                name: "影刃姫カゲロウ",
-                icon: "fa-user-secret",
-                hp: 2730,
-                str: 224,
-                exp: 17500, def: 7, acc: 11, eva: 5,
-                skillInterval: 2,
-                skills: [
-                    {
-                        name: "影刃乱舞",
-                        pow: 2.4,
-                        hits: 4,
-                        effects: [
-                            { target: "player", id: "bleed", stacks: 3, turns: 3, log: "影刃で出血した！" },
-                            { target: "player", id: "blind", stacks: 2, turns: 2 }
-                        ]
-                    },
-                    {
-                        name: "影縫いの呪縛",
-                        pow: 2.7,
-                        effects: [
-                            { target: "player", id: "attackDown", stacks: 3, turns: 2, log: "影縫いで攻撃が下がった！" },
-                            { target: "player", id: "defenseDown", stacks: 2, turns: 2 }
-                        ]
-                    }
-                ]
-            },
-            8000: {
-                floor: 8000,
-                name: "絶対零度アウリス",
-                icon: "fa-snowflake",
-                hp: 2940,
-                str: 235,
-                exp: 19000, def: 8, acc: 10, eva: 2,
-                skillInterval: 3,
-                skills: [
-                    {
-                        name: "絶対零度",
-                        pow: 3.3,
-                        effects: [
-                            { target: "player", id: "freeze", stacks: 1, turns: 1, log: "絶対零度で凍結した！" },
-                            { target: "player", id: "vulnerable", stacks: 3, turns: 2 }
-                        ]
-                    },
-                    {
-                        name: "氷結の反射壁",
-                        pow: null,
-                        effects: [
-                            { target: "self", id: "barrier", stacks: 3, turns: 3 },
-                            { target: "self", id: "reflect", stacks: 2, turns: 2 }
-                        ],
-                        log: "氷結の反射壁が展開された！"
-                    }
-                ]
-            },
-            8500: {
-                floor: 8500,
-                name: "業火王ヴァルム",
-                icon: "fa-fire",
-                hp: 3150,
-                str: 245,
-                exp: 20500, def: 8, acc: 10, eva: 2,
-                skillInterval: 3,
-                skills: [
-                    {
-                        name: "業火連撃",
-                        pow: 2.9,
-                        hits: 3,
-                        effects: [
-                            { target: "player", id: "bleed", stacks: 3, turns: 3, log: "業火で裂かれた！" },
-                            { target: "player", id: "weaken", stacks: 2, turns: 2 }
-                        ]
-                    },
-                    {
-                        name: "灰燼の烙印",
-                        pow: 3.1,
-                        effects: [
-                            { target: "player", id: "attackDown", stacks: 3, turns: 2, log: "灰燼の烙印で攻撃が下がった！" },
-                            { target: "player", id: "vulnerable", stacks: 2, turns: 2 }
-                        ]
-                    }
-                ]
-            },
-            9000: {
-                floor: 9000,
-                name: "星滅王オブリオン",
-                icon: "fa-star",
-                hp: 3360,
-                str: 259,
-                exp: 22000, def: 8, acc: 10, eva: 2,
-                skillInterval: 2,
-                skills: [
-                    {
-                        name: "星滅の奔流",
-                        pow: 3.4,
-                        hits: 2,
-                        effects: [
-                            { target: "player", id: "silence", stacks: 1, turns: 2, log: "星滅の奔流で沈黙した！" },
-                            { target: "player", id: "blind", stacks: 2, turns: 2 }
-                        ]
-                    },
-                    {
-                        name: "虚無の裁き",
-                        pow: 3.2,
-                        effects: [
-                            { target: "player", id: "defenseDown", stacks: 3, turns: 3, log: "虚無の裁きで守りが崩れた！" },
-                            { target: "player", id: "vulnerable", stacks: 3, turns: 2 }
-                        ]
-                    }
-                ]
-            },
-            9500: {
-                floor: 9500,
-                name: "神罰竜ゼファル",
-                icon: "fa-dragon",
-                hp: 3640,
-                str: 273,
-                exp: 24000, def: 11, acc: 9, eva: 0,
-                skillInterval: 2,
-                skills: [
-                    {
-                        name: "神罰の咆哮",
-                        pow: 3.6,
-                        effects: [
-                            { target: "player", id: "attackDown", stacks: 3, turns: 2, log: "神罰の咆哮で攻撃が下がった！" },
-                            { target: "player", id: "weaken", stacks: 3, turns: 2 }
-                        ]
-                    },
-                    {
-                        name: "天罰の護壁",
-                        pow: null,
-                        healPct: 0.15,
-                        effects: [
-                            { target: "self", id: "barrier", stacks: 3, turns: 3 },
-                            { target: "self", id: "reflect", stacks: 2, turns: 2 },
-                            { target: "self", id: "attackUp", stacks: 2, turns: 3 }
-                        ],
-                        log: "天罰の護壁が輝いた！"
-                    }
-                ]
-            },
-            10000: {
-                floor: 10000,
-                name: "終極神アポクリファ",
-                icon: "fa-crown",
-                hp: 4060,
-                str: 294,
-                exp: 28000, def: 8, acc: 10, eva: 2,
-                skillInterval: 2,
-                skills: [
-                    {
-                        name: "終極断罪",
-                        pow: 3.8,
-                        hits: 3,
-                        effects: [
-                            { target: "player", id: "vulnerable", stacks: 3, turns: 3, log: "終極断罪で脆弱になった！" },
-                            { target: "player", id: "defenseDown", stacks: 3, turns: 3 }
-                        ]
-                    },
-                    {
-                        name: "滅界の審理",
-                        pow: 3.5,
-                        effects: [
-                            { target: "player", id: "silence", stacks: 1, turns: 3, log: "滅界の審理で沈黙した！" },
-                            { target: "player", id: "blind", stacks: 2, turns: 2 },
-                            { target: "player", id: "attackDown", stacks: 3, turns: 2 }
-                        ]
-                    },
-                    {
-                        name: "終焉の加護",
-                        pow: null,
-                        healPct: 0.2,
-                        effects: [
-                            { target: "self", id: "barrier", stacks: 3, turns: 3 },
-                            { target: "self", id: "reflect", stacks: 3, turns: 2 },
-                            { target: "self", id: "attackUp", stacks: 3, turns: 3 }
-                        ],
-                        log: "終焉の加護で力が溢れた！"
-                    }
-                ]
             }
         };
 
@@ -2540,78 +1949,6 @@
                 { name: "終焉の竜槍", type: "weapon", rarity: "legendary", stats: [{ key: "attackFlat", value: 120 }, { key: "str", value: 30 }, { key: "damageBoost", value: 16 }], uniqueStats: [] },
                 { name: "竜鱗の護鎧", type: "armor", rarity: "legendary", stats: [{ key: "defenseFlat", value: 113 }, { key: "vit", value: 38 }, { key: "maxHp", value: 150 }], uniqueStats: [] }
             ],
-            1500: [
-                { name: "冥雷の長槍", type: "weapon", rarity: "legendary", stats: [{ key: "attackFlat", value: 150 }, { key: "str", value: 40 }, { key: "accuracy", value: 20 }], uniqueStats: [] },
-                { name: "雷陣の印章", type: "accessory", rarity: "legendary", stats: [{ key: "critRate", value: 16 }, { key: "damageBoost", value: 20 }, { key: "maxHp", value: 200 }], uniqueStats: [] }
-            ],
-            2000: [
-                { name: "深淵の大剣", type: "weapon", rarity: "legendary", stats: [{ key: "attackFlat", value: 180 }, { key: "str", value: 48 }, { key: "critDamage", value: 30 }], uniqueStats: [] },
-                { name: "奈落の指輪", type: "accessory", rarity: "legendary", stats: [{ key: "mPen", value: 24 }, { key: "damageBoost", value: 24 }, { key: "maxMp", value: 90 }], uniqueStats: [] }
-            ],
-            2500: [
-                { name: "灼滅の双剣", type: "weapon", rarity: "legendary", stats: [{ key: "attackFlat", value: 210 }, { key: "dex", value: 44 }, { key: "critRate", value: 20 }], uniqueStats: [] },
-                { name: "熾火の鎧", type: "armor", rarity: "legendary", stats: [{ key: "defenseFlat", value: 175 }, { key: "vit", value: 55 }, { key: "maxHp", value: 275 }], uniqueStats: [] }
-            ],
-            3000: [
-                { name: "氷獄の杖", type: "weapon", rarity: "legendary", stats: [{ key: "attackFlat", value: 230 }, { key: "int", value: 48 }, { key: "mPen", value: 28 }], uniqueStats: [] },
-                { name: "氷牢の護符", type: "accessory", rarity: "legendary", stats: [{ key: "mpEfficiency", value: 12 }, { key: "damageReduction", value: 20 }, { key: "maxMp", value: 100 }], uniqueStats: [] }
-            ],
-            3500: [
-                { name: "虚無の忍刀", type: "weapon", rarity: "legendary", stats: [{ key: "attackFlat", value: 250 }, { key: "dex", value: 50 }, { key: "critDamage", value: 36 }], uniqueStats: [] },
-                { name: "終闇の外套", type: "armor", rarity: "legendary", stats: [{ key: "evasionRate", value: 20 }, { key: "dex", value: 40 }, { key: "damageBoost", value: 20 }], uniqueStats: [] }
-            ],
-            4000: [
-                { name: "星断の槍", type: "weapon", rarity: "legendary", stats: [{ key: "attackFlat", value: 280 }, { key: "str", value: 56 }, { key: "accuracy", value: 24 }], uniqueStats: [] },
-                { name: "裁定の盾鎧", type: "armor", rarity: "legendary", stats: [{ key: "defenseFlat", value: 213 }, { key: "vit", value: 65 }, { key: "damageReduction", value: 25 }], uniqueStats: [] }
-            ],
-            4500: [
-                { name: "毒宴の鎌", type: "weapon", rarity: "legendary", stats: [{ key: "attackFlat", value: 300 }, { key: "dex", value: 52 }, { key: "leechRate", value: 8 }], uniqueStats: [] },
-                { name: "腐蝕の首飾り", type: "accessory", rarity: "legendary", stats: [{ key: "damageBoost", value: 24 }, { key: "maxHp", value: 325 }, { key: "mPen", value: 20 }], uniqueStats: [] }
-            ],
-            5000: [
-                { name: "終夜の竜剣", type: "weapon", rarity: "legendary", stats: [{ key: "attackFlat", value: 330 }, { key: "str", value: 60 }, { key: "critRate", value: 24 }], uniqueStats: [] },
-                { name: "黒翼のマント", type: "armor", rarity: "legendary", stats: [{ key: "evasionRate", value: 25 }, { key: "damageBoost", value: 24 }, { key: "maxHp", value: 350 }], uniqueStats: [] }
-            ],
-            5500: [
-                { name: "雷哭の戦槌", type: "weapon", rarity: "legendary", stats: [{ key: "attackFlat", value: 350 }, { key: "str", value: 64 }, { key: "accuracy", value: 28 }], uniqueStats: [] },
-                { name: "雷鳴の護符", type: "accessory", rarity: "legendary", stats: [{ key: "critRate", value: 20 }, { key: "damageBoost", value: 28 }, { key: "maxHp", value: 375 }], uniqueStats: [] }
-            ],
-            6000: [
-                { name: "聖裁の槍杖", type: "weapon", rarity: "legendary", stats: [{ key: "attackFlat", value: 380 }, { key: "int", value: 60 }, { key: "mPen", value: 32 }], uniqueStats: [] },
-                { name: "神域のローブ", type: "armor", rarity: "legendary", stats: [{ key: "defenseFlat", value: 250 }, { key: "int", value: 48 }, { key: "mpEfficiency", value: 14 }], uniqueStats: [] }
-            ],
-            6500: [
-                { name: "地裂の戦斧", type: "weapon", rarity: "legendary", stats: [{ key: "attackFlat", value: 410 }, { key: "str", value: 68 }, { key: "critDamage", value: 40 }], uniqueStats: [] },
-                { name: "岩界の鎧", type: "armor", rarity: "legendary", stats: [{ key: "defenseFlat", value: 275 }, { key: "vit", value: 75 }, { key: "maxHp", value: 425 }], uniqueStats: [] }
-            ],
-            7000: [
-                { name: "疫神の魔槍", type: "weapon", rarity: "legendary", stats: [{ key: "attackFlat", value: 440 }, { key: "int", value: 64 }, { key: "mPen", value: 36 }], uniqueStats: [] },
-                { name: "疫毒の印環", type: "accessory", rarity: "legendary", stats: [{ key: "damageBoost", value: 32 }, { key: "leechRate", value: 10 }, { key: "maxHp", value: 450 }], uniqueStats: [] }
-            ],
-            7500: [
-                { name: "影刃の双刃", type: "weapon", rarity: "legendary", stats: [{ key: "attackFlat", value: 470 }, { key: "dex", value: 68 }, { key: "critRate", value: 28 }], uniqueStats: [] },
-                { name: "影縫いの足袋", type: "feet", rarity: "legendary", stats: [{ key: "evasionRate", value: 30 }, { key: "dex", value: 48 }, { key: "accuracy", value: 28 }], uniqueStats: [] }
-            ],
-            8000: [
-                { name: "絶対零度の杖", type: "weapon", rarity: "legendary", stats: [{ key: "attackFlat", value: 500 }, { key: "int", value: 72 }, { key: "mPen", value: 40 }], uniqueStats: [] },
-                { name: "氷結の護鎧", type: "armor", rarity: "legendary", stats: [{ key: "defenseFlat", value: 313 }, { key: "vit", value: 80 }, { key: "damageReduction", value: 30 }], uniqueStats: [] }
-            ],
-            8500: [
-                { name: "業火の大剣", type: "weapon", rarity: "legendary", stats: [{ key: "attackFlat", value: 530 }, { key: "str", value: 72 }, { key: "critDamage", value: 48 }], uniqueStats: [] },
-                { name: "灰燼の手甲", type: "hands", rarity: "legendary", stats: [{ key: "attackFlat", value: 36 }, { key: "str", value: 40 }, { key: "damageBoost", value: 24 }], uniqueStats: [] }
-            ],
-            9000: [
-                { name: "星滅の大鎚", type: "weapon", rarity: "legendary", stats: [{ key: "attackFlat", value: 570 }, { key: "str", value: 80 }, { key: "accuracy", value: 32 }], uniqueStats: [] },
-                { name: "虚無の指輪", type: "accessory", rarity: "legendary", stats: [{ key: "critRate", value: 24 }, { key: "damageBoost", value: 36 }, { key: "maxMp", value: 140 }], uniqueStats: [] }
-            ],
-            9500: [
-                { name: "神罰の竜槍", type: "weapon", rarity: "legendary", stats: [{ key: "attackFlat", value: 620 }, { key: "str", value: 84 }, { key: "damageBoost", value: 40 }], uniqueStats: [] },
-                { name: "天罰の護符", type: "accessory", rarity: "legendary", stats: [{ key: "damageReduction", value: 35 }, { key: "maxHp", value: 500 }, { key: "mpRegen", value: 6 }], uniqueStats: [] }
-            ],
-            10000: [
-                { name: "終極の神剣", type: "weapon", rarity: "legendary", stats: [{ key: "attackFlat", value: 700 }, { key: "str", value: 100 }, { key: "critDamage", value: 60 }], uniqueStats: [] },
-                { name: "終焉神の鎧", type: "armor", rarity: "legendary", stats: [{ key: "defenseFlat", value: 400 }, { key: "vit", value: 113 }, { key: "maxHp", value: 650 }], uniqueStats: [] }
-            ]
         };
 
 
@@ -2640,58 +1977,9 @@
             "夜走りの足袋": { type: "statMultiplier", stat: "dex", value: 18, label: "夜走りの足袋：DEX倍率 +18%" },
             "終焉の竜槍": { type: "riskBoost", condition: { type: "playerMpZero" }, value: 25, penalty: 15, label: "終焉の竜槍：MP0で与ダメ+25%/被ダメ+15%" },
             "竜鱗の護鎧": { type: "statMultiplier", stat: "vit", value: 20, label: "竜鱗の護鎧：VIT倍率 +20%" },
-            "冥雷の長槍": { type: "statBonus", stats: [ { key: "skillPowerBoost", value: 18 } ], label: "冥雷の長槍：スキル威力 +18%" },
-            "雷陣の印章": { type: "statBonus", stats: [ { key: "statusEffectTurnBonus", value: 2 } ], label: "雷陣の印章：状態異常付与ターン +2" },
-            "深淵の大剣": { type: "extraTurnChance", chance: 15, hitMultiplier: 0.6, label: "深淵の大剣：15%で追加行動(60%)" },
-            "奈落の指輪": { type: "statBonus", stats: [ { key: "skillMpDiscount", value: 15 } ], label: "奈落の指輪：スキルMP消費 -15%" },
-            "灼滅の双剣": { type: "statBonus", stats: [ { key: "statusEffectStackBonus", value: 2 }, { key: "statusEffectTurnBonus", value: 1 } ], label: "灼滅の双剣：状態異常付与スタック +2 / ターン +1" },
-            "熾火の鎧": { type: "statMultiplier", stat: "vit", value: 22, label: "熾火の鎧：VIT倍率 +22%" },
-            "氷獄の杖": { type: "statMultiplier", stat: "int", value: 28, label: "氷獄の杖：INT倍率 +28%" },
-            "氷牢の護符": { type: "statBonus", stats: [ { key: "skillMpDiscount", value: 18 } ], label: "氷牢の護符：スキルMP消費 -18%" },
-            "虚無の忍刀": { type: "damageBoost", condition: { type: "enemyStatus", status: "bleed" }, value: 18, label: "虚無の忍刀：出血中の敵に与ダメ+18%" },
-            "終闇の外套": { type: "statMultiplier", stat: "dex", value: 22, label: "終闇の外套：DEX倍率 +22%" },
-            "星断の槍": { type: "statMultiplier", stat: "str", value: 22, label: "星断の槍：STR倍率 +22%" },
-            "裁定の盾鎧": { type: "damageBoost", condition: { type: "playerHpAbove", threshold: 0.7 }, value: 18, label: "裁定の盾鎧：HP70%以上で与ダメ+18%" },
-            "毒宴の鎌": { type: "statBonus", stats: [ { key: "statusEffectTurnBonus", value: 2 } ], label: "毒宴の鎌：状態異常付与ターン +2" },
-            "腐蝕の首飾り": { type: "statBonus", stats: [ { key: "statusEffectStackBonus", value: 3 } ], label: "腐蝕の首飾り：状態異常付与スタック +3" },
-            "終夜の竜剣": { type: "statMultiplier", stat: "str", value: 25, label: "終夜の竜剣：STR倍率 +25%" },
-            "黒翼のマント": { type: "statMultiplier", stat: "luk", value: 30, label: "黒翼のマント：LUK倍率 +30%" },
-            "雷哭の戦槌": { type: "bonusHitsChance", chance: 25, hits: 1, hitMultiplier: 0.75, label: "雷哭の戦槌：25%で追加ヒット+1(75%)" },
-            "雷鳴の護符": { type: "statBonus", stats: [ { key: "skillMpDiscount", value: 20 } ], label: "雷鳴の護符：スキルMP消費 -20%" },
-            "聖裁の槍杖": { type: "statBonus", stats: [ { key: "skillPowerBoost", value: 22 } ], label: "聖裁の槍杖：スキル威力 +22%" },
-            "神域のローブ": { type: "statMultiplier", stat: "int", value: 32, label: "神域のローブ：INT倍率 +32%" },
-            "地裂の戦斧": { type: "riskBoost", condition: { type: "playerHpBelow", threshold: 0.4 }, value: 28, penalty: 18, label: "地裂の戦斧：HP40%以下で与ダメ+28%/被ダメ+18%" },
-            "岩界の鎧": { type: "statMultiplier", stat: "vit", value: 25, label: "岩界の鎧：VIT倍率 +25%" },
-            "疫神の魔槍": { type: "statBonus", stats: [ { key: "statusEffectTurnBonus", value: 3 } ], label: "疫神の魔槍：状態異常付与ターン +3" },
-            "疫毒の印環": { type: "statBonus", stats: [ { key: "statusEffectStackBonus", value: 4 } ], label: "疫毒の印環：状態異常付与スタック +4" },
-            "影刃の双刃": { type: "extraTurnChance", chance: 18, hitMultiplier: 0.65, label: "影刃の双刃：18%で追加行動(65%)" },
-            "影縫いの足袋": { type: "statMultiplier", stat: "dex", value: 26, label: "影縫いの足袋：DEX倍率 +26%" },
-            "絶対零度の杖": { type: "statBonus", stats: [ { key: "skillPowerBoost", value: 28 } ], label: "絶対零度の杖：スキル威力 +28%" },
-            "氷結の護鎧": { type: "damageBoost", condition: { type: "enemyHpAbove", threshold: 0.7 }, value: 20, label: "氷結の護鎧：敵HP70%以上で与ダメ+20%" },
-            "業火の大剣": { type: "statBonus", stats: [ { key: "skillPowerBoost", value: 30 }, { key: "statusEffectStackBonus", value: 2 } ], label: "業火の大剣：スキル威力 +30% / 状態異常付与スタック +2" },
-            "灰燼の手甲": { type: "statBonus", stats: [ { key: "statusEffectTurnBonus", value: 2 }, { key: "skillMpDiscount", value: 12 } ], label: "灰燼の手甲：状態異常付与ターン +2 / スキルMP消費 -12%" },
-            "星滅の大鎚": { type: "statMultiplier", stat: "str", value: 30, label: "星滅の大鎚：STR倍率 +30%" },
-            "虚無の指輪": { type: "statBonus", stats: [ { key: "skillMpDiscount", value: 24 } ], label: "虚無の指輪：スキルMP消費 -24%" },
-            "神罰の竜槍": { type: "levelRatioBoost", randomize: true, stepRange: [2, 3], gainRange: [1, 2], label: "神罰の竜槍：一次ステ成長(抽選)" },
-            "天罰の護符": { type: "damageBoost", condition: { type: "playerMpBelow", threshold: 0.3 }, value: 22, label: "天罰の護符：MP30%以下で与ダメ+22%" },
-            "終極の神剣": { type: "levelRatioBoost", randomize: true, stepRange: [2, 3], gainRange: [1, 2], label: "終極の神剣：一次ステ成長(抽選)" },
-            "終焉神の鎧": { type: "levelRatioBoost", randomize: true, stepRange: [2, 3], gainRange: [1, 2], label: "終焉神の鎧：一次ステ成長(抽選)" }
         };
 
-        const BossRushDropScale = 1.4;
-        const BossRushLootTables = Object.fromEntries(
-            BossRushSequence.map((_, idx) => {
-                const floor = BossRushStartFloor + idx;
-                const baseTable = BossLootTables[10000] || [];
-                const table = baseTable.map((item) => ({
-                    ...item,
-                    name: `DX${item.name}`,
-                    stats: item.stats.map((stat) => ({ ...stat, value: Math.max(1, Math.floor(stat.value * BossRushDropScale)) })),
-                    uniqueStats: (item.uniqueStats || []).map((stat) => ({ ...stat }))
-                }));
-                return [floor, table];
-            })
-        );
+        const BossRushLootTables = {};
 
         const StatLabels = {
             str: "STR",
@@ -2917,13 +2205,7 @@
             { floorStart: 201, prefix: "深淵の", scale: 1.25 },
             { floorStart: 401, prefix: "冥域の", scale: 1.45 },
             { floorStart: 601, prefix: "終焉の", scale: 1.7 },
-            { floorStart: 801, prefix: "神域の", scale: 1.95 },
-            { floorStart: 1201, prefix: "天穹の", scale: 2.3 },
-            { floorStart: 2001, prefix: "星滅の", scale: 2.7 },
-            { floorStart: 3001, prefix: "虚無の", scale: 3.2 },
-            { floorStart: 5001, prefix: "霊王の", scale: 3.8 },
-            { floorStart: 7001, prefix: "超越の", scale: 4.4 },
-            { floorStart: 9001, prefix: "絶対の", scale: 5.1 }
+            { floorStart: 801, prefix: "神域の", scale: 1.95 }
         ];
 
         const buildScaledEquipmentTier = (baseTier, preset) => ({
@@ -3139,13 +2421,21 @@
             return base + surge + spike;
         };
 
+        const getBossRushScale = (floor) => {
+            const count = Math.max(1, floor - BossRushStartFloor + 1);
+            return 3 + (count - 1) * 0.08;
+        };
+
+        const getDxBossLootScale = (floor) => {
+            const baseScale = getBossScale(floor);
+            const targetScale = getBossScale(1000);
+            const ratio = baseScale > 0 ? targetScale / baseScale : 1;
+            return Math.min(ratio, 3);
+        };
+
         const getEnemyPool = (floor) => {
-            if (floor <= 1000) {
-                const baseIdx = Math.min(EnemyTiers.length - 1, Math.floor((floor - 1) / 100));
-                return EnemyTiers[baseIdx];
-            }
-            const postIdx = Math.min(EnemyTiersPost1000.length - 1, Math.floor((floor - 1001) / 1000));
-            return EnemyTiersPost1000[postIdx];
+            const baseIdx = Math.min(EnemyTiers.length - 1, Math.floor((floor - 1) / 100));
+            return EnemyTiers[baseIdx];
         };
 
         const getTierIndex = (floor) => {
@@ -3322,7 +2612,9 @@
                 ...(suffix ? suffix.stats.map((stat) => ({ ...stat, source: "suffix" })) : [])
             ];
             const uniqueStats = (base.uniqueStats || []).map((stat) => ({ ...stat }));
-            const effect = BossUniqueEffects[base.name];
+            const displayName = base.name;
+            const effectBaseName = base.originalName || base.name;
+            const effect = BossUniqueEffects[effectBaseName];
             let resolvedEffect = effect;
             if (effect?.type === "levelRatioBoost" && effect.randomize) {
                 const stepMin = effect.stepRange?.[0] ?? 2;
@@ -3339,7 +2631,7 @@
                     stat: statKey,
                     step,
                     gain,
-                    label: `${base.name}：${statLabel}成長 Lv${step}ごとに+${gain}`
+                    label: `${displayName}：${statLabel}成長 Lv${step}ごとに+${gain}`
                 };
                 delete resolvedEffect.randomize;
                 delete resolvedEffect.stepRange;
@@ -3349,7 +2641,7 @@
                 uniqueStats.push({ key: "bossUniqueEffect", value: 0, effect: resolvedEffect });
             }
             const item = {
-                name: `${prefixStars}${prefix ? prefix.name : ""}${base.name}${suffix ? suffix.name : ""}${suffixStars}`,
+                name: `${prefixStars}${prefix ? prefix.name : ""}${displayName}${suffix ? suffix.name : ""}${suffixStars}`,
                 type: base.type,
                 rarity: rarity.key,
                 rarityMul: rarity.mul,
@@ -3365,6 +2657,19 @@
                 item.isBroken = false;
             }
             return item;
+        };
+
+        const buildDxBossLootTable = (floor) => {
+            const baseTable = BossLootTables[floor] || [];
+            if (baseTable.length === 0) return [];
+            const scale = getDxBossLootScale(floor);
+            return baseTable.map((item) => ({
+                ...item,
+                name: `DX${item.name}`,
+                originalName: item.name,
+                stats: item.stats.map((stat) => ({ ...stat, value: Math.max(1, Math.floor(stat.value * scale)) })),
+                uniqueStats: (item.uniqueStats || []).map((stat) => ({ ...stat }))
+            }));
         };
 
         const MAX_WEAPON_ENHANCEMENT = 21;
@@ -5127,32 +4432,38 @@
 
         function spawn() {
             let bossDef = null;
+            let bossBase = null;
+            let bossScale = 1;
             if (Game.floor >= BossRushStartFloor) {
-                if (Game.floor <= BossRushSequenceEndFloor) {
-                    const originFloor = BossRushSequence[Game.floor - BossRushStartFloor];
-                    bossDef = BossDefs[originFloor] ? { ...BossDefs[originFloor], originFloor } : null;
-                } else {
-                    const pool = Object.values(BossDefs);
-                    const picked = pickRandom(pool);
-                    bossDef = picked ? { ...picked, originFloor: picked.floor } : null;
-                }
+                const pool = Object.values(BossDefs);
+                const picked = pickRandom(pool);
+                bossDef = picked ? { ...picked, originFloor: picked.floor } : null;
+                bossBase = BossDefs[1000] || picked;
+                bossScale = getBossRushScale(Game.floor);
             } else {
                 bossDef = BossDefs[Game.floor];
+                const hasBossRushUnlocked = Array.isArray(Game.defeatedBossFloors) && Game.defeatedBossFloors.includes(1000);
+                const isDxBoss = hasBossRushUnlocked && Game.floor < 1000;
+                bossBase = isDxBoss ? BossDefs[1000] : bossDef;
+                bossScale = getBossScale(Game.floor);
             }
             if (bossDef) {
-                const scale = getBossScale(Game.floor);
+                const baseStats = bossBase || bossDef;
+                const hasBossRushUnlocked = Array.isArray(Game.defeatedBossFloors) && Game.defeatedBossFloors.includes(1000);
+                const isDxBoss = hasBossRushUnlocked && Game.floor < 1000;
                 Game.enemy = {
                     ...bossDef,
                     floor: Game.floor,
-                    maxHp: Math.floor(bossDef.hp * scale),
-                    hp: Math.floor(bossDef.hp * scale),
-                    str: Math.floor(bossDef.str * scale),
-                    def: Math.floor(bossDef.def * scale),
-                    acc: Math.floor(bossDef.acc * scale),
-                    eva: Math.floor(bossDef.eva * scale),
-                    exp: Math.floor(bossDef.exp * scale),
+                    maxHp: Math.floor(baseStats.hp * bossScale),
+                    hp: Math.floor(baseStats.hp * bossScale),
+                    str: Math.floor(baseStats.str * bossScale),
+                    def: Math.floor(baseStats.def * bossScale),
+                    acc: Math.floor(baseStats.acc * bossScale),
+                    eva: Math.floor(baseStats.eva * bossScale),
+                    exp: Math.floor(baseStats.exp * bossScale),
                     statusEffects: [],
                     isBoss: true,
+                    isDxBoss,
                     skillCooldown: bossDef.skillInterval,
                     skillRotation: 0
                 };
@@ -5640,12 +4951,13 @@
                 const totals = getTotalStats();
                 let dropChance = Math.min(0.95, totals.luck / 100);
                 dropChance = Math.min(0.95, dropChance * eliteLootMultiplier);
+                const isDxBoss = Boolean(Game.enemy?.isBoss && Game.enemy?.isDxBoss);
                 if (Math.random() < dropChance) queueLoot(buildEquipmentLoot());
-                if (Math.random() < dropChance) queueLoot(buildPotionLoot());
+                if (!isDxBoss && Math.random() < dropChance) queueLoot(buildPotionLoot());
                 const bonusRolls = Game.enemy?.elite ? Math.floor(Game.enemy.elite.rank / 2) : 0;
                 for (let i = 0; i < bonusRolls; i++) {
                     if (Math.random() < dropChance) queueLoot(buildEquipmentLoot());
-                    if (Math.random() < dropChance) queueLoot(buildPotionLoot());
+                    if (!isDxBoss && Math.random() < dropChance) queueLoot(buildPotionLoot());
                 }
             }
             openNextLoot();
@@ -5726,7 +5038,9 @@
 
         function buildEquipmentLoot() {
             if (Game.enemy?.isBoss) {
-                const bossTable = BossRushLootTables[Game.enemy.floor] || BossLootTables[Game.enemy.floor];
+                const bossTable = Game.enemy.isDxBoss
+                    ? buildDxBossLootTable(Game.enemy.floor)
+                    : (BossRushLootTables[Game.enemy.floor] || BossLootTables[Game.enemy.floor]);
                 if (bossTable && bossTable.length > 0) {
                     const base = pickRandom(bossTable);
                     const index = Math.max(0, bossTable.indexOf(base));
