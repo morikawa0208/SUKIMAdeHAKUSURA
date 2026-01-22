@@ -3416,6 +3416,9 @@
             if (!modal) return;
             syncWarpModal();
             modal.style.display = 'flex';
+            if (Game.maxFloor >= 1000) {
+                openBossRushModal();
+            }
         };
 
         const closeWarpModal = () => {
