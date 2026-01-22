@@ -2423,13 +2423,14 @@
 
         const getBossRushScale = (floor) => {
             const count = Math.max(1, floor - BossRushStartFloor + 1);
-            return 1 + (count - 1) * 0.05;
+            return 3 + (count - 1) * 0.08;
         };
 
         const getDxBossLootScale = (floor) => {
             const baseScale = getBossScale(floor);
             const targetScale = getBossScale(1000);
-            return baseScale > 0 ? targetScale / baseScale : 1;
+            const ratio = baseScale > 0 ? targetScale / baseScale : 1;
+            return Math.min(ratio, 3);
         };
 
         const getEnemyPool = (floor) => {
