@@ -2426,6 +2426,12 @@
             return 1 + (count - 1) * 0.05;
         };
 
+        const getDxBossLootScale = (floor) => {
+            const baseScale = getBossScale(floor);
+            const targetScale = getBossScale(1000);
+            return baseScale > 0 ? targetScale / baseScale : 1;
+        };
+
         const getEnemyPool = (floor) => {
             const baseIdx = Math.min(EnemyTiers.length - 1, Math.floor((floor - 1) / 100));
             return EnemyTiers[baseIdx];
@@ -2605,7 +2611,9 @@
                 ...(suffix ? suffix.stats.map((stat) => ({ ...stat, source: "suffix" })) : [])
             ];
             const uniqueStats = (base.uniqueStats || []).map((stat) => ({ ...stat }));
-            const effect = BossUniqueEffects[base.name];
+            const displayName = base.name;
+            const effectBaseName = base.originalName || base.name;
+            const effect = BossUniqueEffects[effectBaseName];
             let resolvedEffect = effect;
             if (effect?.type === "levelRatioBoost" && effect.randomize) {
                 const stepMin = effect.stepRange?.[0] ?? 2;
@@ -2622,7 +2630,7 @@
                     stat: statKey,
                     step,
                     gain,
-                    label: `${base.name}：${statLabel}成長 Lv${step}ごとに+${gain}`
+                    label: `${displayName}：${statLabel}成長 Lv${step}ごとに+${gain}`
                 };
                 delete resolvedEffect.randomize;
                 delete resolvedEffect.stepRange;
@@ -2632,7 +2640,7 @@
                 uniqueStats.push({ key: "bossUniqueEffect", value: 0, effect: resolvedEffect });
             }
             const item = {
-                name: `${prefixStars}${prefix ? prefix.name : ""}${base.name}${suffix ? suffix.name : ""}${suffixStars}`,
+                name: `${prefixStars}${prefix ? prefix.name : ""}${displayName}${suffix ? suffix.name : ""}${suffixStars}`,
                 type: base.type,
                 rarity: rarity.key,
                 rarityMul: rarity.mul,
@@ -2648,6 +2656,19 @@
                 item.isBroken = false;
             }
             return item;
+        };
+
+        const buildDxBossLootTable = (floor) => {
+            const baseTable = BossLootTables[floor] || [];
+            if (baseTable.length === 0) return [];
+            const scale = getDxBossLootScale(floor);
+            return baseTable.map((item) => ({
+                ...item,
+                name: `DX${item.name}`,
+                originalName: item.name,
+                stats: item.stats.map((stat) => ({ ...stat, value: Math.max(1, Math.floor(stat.value * scale)) })),
+                uniqueStats: (item.uniqueStats || []).map((stat) => ({ ...stat }))
+            }));
         };
 
         const MAX_WEAPON_ENHANCEMENT = 21;
@@ -4420,11 +4441,15 @@
                 bossScale = getBossRushScale(Game.floor);
             } else {
                 bossDef = BossDefs[Game.floor];
-                bossBase = bossDef;
+                const hasBossRushUnlocked = Array.isArray(Game.defeatedBossFloors) && Game.defeatedBossFloors.includes(1000);
+                const isDxBoss = hasBossRushUnlocked && Game.floor < 1000;
+                bossBase = isDxBoss ? BossDefs[1000] : bossDef;
                 bossScale = getBossScale(Game.floor);
             }
             if (bossDef) {
                 const baseStats = bossBase || bossDef;
+                const hasBossRushUnlocked = Array.isArray(Game.defeatedBossFloors) && Game.defeatedBossFloors.includes(1000);
+                const isDxBoss = hasBossRushUnlocked && Game.floor < 1000;
                 Game.enemy = {
                     ...bossDef,
                     floor: Game.floor,
@@ -4437,6 +4462,7 @@
                     exp: Math.floor(baseStats.exp * bossScale),
                     statusEffects: [],
                     isBoss: true,
+                    isDxBoss,
                     skillCooldown: bossDef.skillInterval,
                     skillRotation: 0
                 };
@@ -4924,12 +4950,13 @@
                 const totals = getTotalStats();
                 let dropChance = Math.min(0.95, totals.luck / 100);
                 dropChance = Math.min(0.95, dropChance * eliteLootMultiplier);
+                const isDxBoss = Boolean(Game.enemy?.isBoss && Game.enemy?.isDxBoss);
                 if (Math.random() < dropChance) queueLoot(buildEquipmentLoot());
-                if (Math.random() < dropChance) queueLoot(buildPotionLoot());
+                if (!isDxBoss && Math.random() < dropChance) queueLoot(buildPotionLoot());
                 const bonusRolls = Game.enemy?.elite ? Math.floor(Game.enemy.elite.rank / 2) : 0;
                 for (let i = 0; i < bonusRolls; i++) {
                     if (Math.random() < dropChance) queueLoot(buildEquipmentLoot());
-                    if (Math.random() < dropChance) queueLoot(buildPotionLoot());
+                    if (!isDxBoss && Math.random() < dropChance) queueLoot(buildPotionLoot());
                 }
             }
             openNextLoot();
@@ -5010,7 +5037,9 @@
 
         function buildEquipmentLoot() {
             if (Game.enemy?.isBoss) {
-                const bossTable = BossRushLootTables[Game.enemy.floor] || BossLootTables[Game.enemy.floor];
+                const bossTable = Game.enemy.isDxBoss
+                    ? buildDxBossLootTable(Game.enemy.floor)
+                    : (BossRushLootTables[Game.enemy.floor] || BossLootTables[Game.enemy.floor]);
                 if (bossTable && bossTable.length > 0) {
                     const base = pickRandom(bossTable);
                     const index = Math.max(0, bossTable.indexOf(base));
