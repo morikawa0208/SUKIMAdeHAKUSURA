@@ -613,7 +613,7 @@
             <button type="button"
               class="w-full bg-amber-500 text-white font-black py-3 rounded-2xl shadow-lg active:scale-95 transition-transform flex items-center justify-center gap-2"
               onclick="openDonateModal()">
-              <i class="fas fa-mug-hot"></i> 応援する（お布施）
+              <i class="fas fa-mug-hot"></i> 応援する
             </button>
             <p class="text-[10px] text-slate-500 mt-2">
               任意です。いつも遊んでくれてありがとうございます。
@@ -1146,7 +1146,7 @@
     
           <button class="w-full bg-slate-800 text-white font-black py-3 rounded-2xl shadow-lg flex items-center justify-center gap-2"
             onclick="purchaseTip('donate.superThanks')">
-            🔥 もう本当に応援ありがとうございます（感謝）
+            🔥 本当に応援ありがとうございます
           </button>
         </div>
     
@@ -6051,14 +6051,14 @@
               return;
             }
           } catch (e) {}
-          showDonateToast('iOSアプリ内でお布施できます');
+          showDonateToast('iOSアプリ内で応援できます');
         }
         
         // Swift→HTML から購入結果を受け取る口（Swiftはここを呼ぶだけ）
         window.onTipResult = function(status) {
           if (status === 'success') {
             closeDonateModal();
-            showDonateToast('お布施ありがとうございます！めちゃくちゃ励みになります🔥');
+            showDonateToast('応援ありがとうございます！めちゃくちゃ励みになります🔥');
           } else if (status === 'cancel') {
             showDonateToast('キャンセルしました');
           } else {
