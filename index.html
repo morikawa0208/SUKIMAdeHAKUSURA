@@ -616,17 +616,23 @@
               <i class="fas fa-mug-hot"></i> 応援する
             </button>
             <p class="text-[10px] text-slate-500 mt-2">
-              任意です。いつも遊んでくれてありがとうございます。
+              いつも遊んでくれてありがとうございます。
             </p>
-
-
-                    
-                    <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest">状態異常</div>
-                    <p class="text-xs text-slate-500 mt-2">戦闘で発生する状態異常の効果一覧です。攻撃力/防御力のバフ・デバフ設計もここに整理しています。</p>
-                </div>
+         </div>
+               
                 <div class="space-y-4 text-sm">
+
+                    <div class="rounded-2xl border border-slate-100 bg-slate-50 p-4 space-y-2">
+                        <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest">装備強化</div>
+                        <ul class="text-xs text-slate-500 space-y-1">
+                            <li>対象: ポーション以外の装備品（武器/防具/装飾品）。</li>
+                            <li>成功時は基礎ステータスが強化値1ごとに+3%増加（次の強化値分だけ反映）。</li>
+                            <li>強化費用は強化値が高いほど上昇。</li>
+                            <li>失敗ペナルティ: +5まで変化なし / +6〜+9は1低下 / +10以上は破損して修理が必要。</li>
+                        </ul>
+                    </div>
+                    
                     <div class="rounded-2xl border border-slate-100 bg-slate-50 p-4 space-y-3">
-                        <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest">攻撃力/防御力バフ・デバフ</div>
                         <div class="grid gap-3">
                             <div class="flex items-start gap-3 rounded-xl border border-slate-100 bg-white p-3">
                                 <div class="w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center text-emerald-500"><i class="fas fa-arrow-up-long"></i></div>
@@ -657,19 +663,8 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="text-[11px] text-slate-500">
-                            <span class="font-bold text-slate-600">運用ルール:</span> 基礎攻撃/防御 × (1 + 合計補正) で計算。
-                        </div>
                     </div>
-                    <div class="rounded-2xl border border-slate-100 bg-slate-50 p-4 space-y-2">
-                        <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest">装備強化</div>
-                        <ul class="text-xs text-slate-500 space-y-1">
-                            <li>対象: ポーション以外の装備品（武器/防具/装飾品）。</li>
-                            <li>成功時は基礎ステータスが強化値1ごとに+3%増加（次の強化値分だけ反映）。</li>
-                            <li>強化費用は強化値が高いほど上昇。</li>
-                            <li>失敗ペナルティ: +5まで変化なし / +6〜+9は1低下 / +10以上は破損して修理が必要。</li>
-                        </ul>
-                    </div>
+
                     <div class="rounded-2xl border border-slate-100 bg-slate-50 p-4 space-y-3">
                         <div class="grid gap-3">
                             <div class="flex items-start gap-3 rounded-xl border border-slate-100 bg-white p-3">
