@@ -6025,45 +6025,91 @@
         
         function closeDonateModal() {
           const m = document.getElementById('donate-modal');
-          if (m) { m.classList.add('hidden'); m.classList.remove('flex'); }
+          if (m) {
+            m.classList.add('hidden');
+            m.classList.remove('flex');
+          }
+          // ← これが大事：閉じたら必ず残骸を消す
+          hideDonateToast();
         }
         
-        function showDonateToast(text) {
-          const t = document.getElementById('donate-toast');
-          const tt = document.getElementById('donate-toast-text');
-          if (!t || !tt) return;
-          tt.textContent = text;
-          t.classList.remove('hidden');
-          // 2.3秒で自動で消す（←「消えない」問題はHTML側で解決）
-          clearTimeout(window.__donateToastTimer);
-          window.__donateToastTimer = setTimeout(() => {
-            t.classList.add('hidden');
-          }, 2300);
+        // donate UI state
+        window.__donateUI = window.__donateUI || {
+          toastTimer: null,
+          lastToastText: "",
+        };
+        
+        // トースト表示（必ず自動で消える）
+        function showDonateToast(text, ms = 2300) {
+          const wrap = document.getElementById('donate-toast');
+          const label = document.getElementById('donate-toast-text');
+          if (!wrap || !label) return;
+        
+          // 表示
+          label.textContent = text;
+          wrap.classList.remove('hidden');
+        
+          // タイマーを必ずリセット
+          if (window.__donateUI.toastTimer) {
+            clearTimeout(window.__donateUI.toastTimer);
+            window.__donateUI.toastTimer = null;
+          }
+        
+          // 自動で消す
+          window.__donateUI.toastTimer = setTimeout(() => {
+            wrap.classList.add('hidden');
+            window.__donateUI.toastTimer = null;
+          }, ms);
+        }
+        
+        // トーストを即消し（モーダル閉じ・画面切替時に使う）
+        function hideDonateToast() {
+          const wrap = document.getElementById('donate-toast');
+          if (!wrap) return;
+        
+          if (window.__donateUI.toastTimer) {
+            clearTimeout(window.__donateUI.toastTimer);
+            window.__donateUI.toastTimer = null;
+          }
+          wrap.classList.add('hidden');
+        
+          const label = document.getElementById('donate-toast-text');
+          if (label) label.textContent = "";
         }
         
         // HTML→Swiftへ productId を送る（Swift側はこれだけ受ければOK）
         function purchaseTip(productId) {
+          hideDonateToast(); // ← 前の残りをまず消す
           try {
             const handler = window?.webkit?.messageHandlers?.tip;
             if (handler?.postMessage) {
               handler.postMessage({ productId });
-              showDonateToast('購入画面を開いています…');
+              showDonateToast('購入画面を開いています…', 1200);
               return;
             }
           } catch (e) {}
-          showDonateToast('iOSアプリ内で応援できます');
+          showDonateToast('iOSアプリ内で応援できます', 1800);
         }
         
         // Swift→HTML から購入結果を受け取る口（Swiftはここを呼ぶだけ）
         window.onTipResult = function(status) {
+          // まずは前の表示を消してから出す（重なり防止）
+          hideDonateToast();
+        
           if (status === 'success') {
             closeDonateModal();
-            showDonateToast('応援ありがとうございます！めちゃくちゃ励みになります🔥');
-          } else if (status === 'cancel') {
-            showDonateToast('キャンセルしました');
-          } else {
-            showDonateToast('購入に失敗しました');
+            showDonateToast('応援ありがとうございます！めちゃくちゃ励みになります🔥', 2600);
+            return;
           }
+        
+          if (status === 'cancel') {
+            // キャンセルはモーダルは閉じない方が親切（再選択できる）
+            showDonateToast('キャンセルしました', 1600);
+            return;
+          }
+        
+          // fail / unknown
+          showDonateToast('購入に失敗しました。時間をおいて再度お試しください。', 2200);
         };
 
 
