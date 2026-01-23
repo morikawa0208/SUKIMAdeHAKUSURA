@@ -609,14 +609,16 @@
             <div class="bg-white rounded-3xl p-6 shadow-sm space-y-4">
                 <div>
 
-            <!-- ヘルプページの一番上（例：h2の直下）に追加 -->
-            <button id="donate-btn"
-              class="w-full bg-amber-500 text-white font-black py-3 rounded-2xl shadow-lg active:scale-95 transition">
-              ☕️ お布施する
+            <!-- 応援ボタン（ヘルプ最上部） -->
+            <button type="button"
+              class="w-full bg-amber-500 text-white font-black py-3 rounded-2xl shadow-lg active:scale-95 transition-transform flex items-center justify-center gap-2"
+              onclick="openDonateModal()">
+              <i class="fas fa-mug-hot"></i> 応援する（お布施）
             </button>
-            <p class="text-[11px] text-slate-500 mt-2">
-              開発の応援になります（任意）
+            <p class="text-[10px] text-slate-500 mt-2">
+              任意です。いつも遊んでくれてありがとうございます。
             </p>
+
 
                     
                     <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest">状態異常</div>
@@ -1114,6 +1116,54 @@
             </div>
         </div>
     </div>
+
+    <!-- DONATE MODAL -->
+    <div id="donate-modal" class="fixed inset-0 bg-slate-900/80 z-[120] hidden items-center justify-center p-6 backdrop-blur-sm">
+      <div class="bg-white w-full max-w-sm rounded-[2rem] overflow-hidden shadow-2xl p-6 border-b-8 border-amber-200">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-black text-lg text-slate-800 flex items-center gap-2">
+            <i class="fas fa-heart text-rose-500"></i> 応援
+          </h3>
+          <button class="text-slate-400 hover:text-slate-700 text-lg" onclick="closeDonateModal()">
+            <i class="fas fa-xmark"></i>
+          </button>
+        </div>
+    
+        <div class="text-[11px] text-slate-600 font-bold mb-4">
+          気が向いたらで大丈夫です。開発の励みになります。
+        </div>
+    
+        <div class="space-y-3">
+          <button class="w-full bg-amber-500 text-white font-black py-3 rounded-2xl shadow-lg flex items-center justify-center gap-2"
+            onclick="purchaseTip('donate.coffee100')">
+            ☕️ 100円（コーヒー）
+          </button>
+    
+          <button class="w-full bg-amber-500 text-white font-black py-3 rounded-2xl shadow-lg flex items-center justify-center gap-2"
+            onclick="purchaseTip('donate.coffeeSnack300')">
+            ☕️🍪 300円（コーヒー＋お菓子）
+          </button>
+    
+          <button class="w-full bg-slate-800 text-white font-black py-3 rounded-2xl shadow-lg flex items-center justify-center gap-2"
+            onclick="purchaseTip('donate.superThanks')">
+            🔥 もう本当に応援ありがとうございます（感謝）
+          </button>
+        </div>
+    
+        <button class="mt-5 w-full bg-slate-100 text-slate-500 font-black py-3 rounded-2xl shadow"
+          onclick="closeDonateModal()">
+          キャンセル
+        </button>
+      </div>
+    </div>
+    
+    <!-- DONATE TOAST -->
+    <div id="donate-toast" class="fixed left-1/2 -translate-x-1/2 bottom-24 z-[130] hidden">
+      <div class="bg-white/95 border border-slate-200 shadow-xl rounded-2xl px-4 py-3 text-[12px] font-black text-slate-800">
+        <span id="donate-toast-text"></span>
+      </div>
+    </div>
+
 
     <script>
         let lastTouchEnd = 0;
@@ -5968,20 +6018,54 @@
             }
         }
 
-        function requestTip(productId) {
-          // iOS（WKWebView）で開いている時だけ呼べる
-          const handler = window?.webkit?.messageHandlers?.tip;
-          if (handler && handler.postMessage) {
-            handler.postMessage({ productId }); // Swiftへ渡す
-            return;
-          }
-          alert("iOSアプリ内でお布施できます");
+        function openDonateModal() {
+          const m = document.getElementById('donate-modal');
+          if (m) { m.classList.remove('hidden'); m.classList.add('flex'); }
         }
         
-        document.addEventListener("DOMContentLoaded", () => {
-          const btn = document.getElementById("donate-btn");
-          if (btn) btn.addEventListener("click", () => requestTip("tip_small"));
-        });
+        function closeDonateModal() {
+          const m = document.getElementById('donate-modal');
+          if (m) { m.classList.add('hidden'); m.classList.remove('flex'); }
+        }
+        
+        function showDonateToast(text) {
+          const t = document.getElementById('donate-toast');
+          const tt = document.getElementById('donate-toast-text');
+          if (!t || !tt) return;
+          tt.textContent = text;
+          t.classList.remove('hidden');
+          // 2.3秒で自動で消す（←「消えない」問題はHTML側で解決）
+          clearTimeout(window.__donateToastTimer);
+          window.__donateToastTimer = setTimeout(() => {
+            t.classList.add('hidden');
+          }, 2300);
+        }
+        
+        // HTML→Swiftへ productId を送る（Swift側はこれだけ受ければOK）
+        function purchaseTip(productId) {
+          try {
+            const handler = window?.webkit?.messageHandlers?.tip;
+            if (handler?.postMessage) {
+              handler.postMessage({ productId });
+              showDonateToast('購入画面を開いています…');
+              return;
+            }
+          } catch (e) {}
+          showDonateToast('iOSアプリ内でお布施できます');
+        }
+        
+        // Swift→HTML から購入結果を受け取る口（Swiftはここを呼ぶだけ）
+        window.onTipResult = function(status) {
+          if (status === 'success') {
+            closeDonateModal();
+            showDonateToast('お布施ありがとうございます！めちゃくちゃ励みになります🔥');
+          } else if (status === 'cancel') {
+            showDonateToast('キャンセルしました');
+          } else {
+            showDonateToast('購入に失敗しました');
+          }
+        };
+
 
     </script>
     </div>
