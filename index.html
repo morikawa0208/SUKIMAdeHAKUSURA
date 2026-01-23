@@ -924,6 +924,19 @@
         </div>
     </div>
 
+    <!-- CONFIRM MODAL -->
+    <div id="confirm-modal" class="fixed inset-0 bg-slate-900/80 z-[125] hidden items-center justify-center p-6 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-sm rounded-[2rem] overflow-hidden shadow-2xl p-6 border-b-8 border-rose-100 text-center space-y-4">
+            <div class="text-rose-500 text-3xl"><i class="fas fa-triangle-exclamation"></i></div>
+            <h3 class="text-base font-black text-slate-800">確認</h3>
+            <p id="confirm-modal-message" class="text-xs text-slate-500"></p>
+            <div class="grid grid-cols-2 gap-3 pt-2">
+                <button id="confirm-modal-cancel" class="py-2 rounded-xl bg-slate-100 text-slate-600 text-[10px] font-black">キャンセル</button>
+                <button id="confirm-modal-ok" class="py-2 rounded-xl bg-rose-500 text-white text-[10px] font-black hover:bg-rose-600 transition">実行</button>
+            </div>
+        </div>
+    </div>
+
     <!-- ENHANCE MODAL -->
     <div id="enhance-modal" class="fixed inset-0 bg-slate-900/80 z-[130] hidden items-center justify-center p-6 backdrop-blur-sm">
         <div class="bg-white w-full max-w-sm rounded-[2rem] overflow-hidden shadow-2xl p-6 border-b-8 border-slate-200">
@@ -1386,9 +1399,9 @@
             if (newSaveButton) {
                 newSaveButton.addEventListener('click', () => {
                     const slot = getAutosaveSlot();
-                    const confirmed = window.confirm(`スロット${slot}のデータを削除して新しく始めますか？`);
-                    if (!confirmed) return;
-                    resetGameForSlot(slot);
+                    openConfirmModal(`スロット${slot}のデータを削除して新しく始めますか？`, () => {
+                        resetGameForSlot(slot);
+                    });
                 });
             }
             renderSaveSlots();
@@ -4306,6 +4319,36 @@
             if (event.target === bossRushModal) closeBossRushModal();
         });
 
+        const confirmModal = document.getElementById('confirm-modal');
+        const confirmModalMessage = document.getElementById('confirm-modal-message');
+        const confirmModalOk = document.getElementById('confirm-modal-ok');
+        const confirmModalCancel = document.getElementById('confirm-modal-cancel');
+        let confirmModalAction = null;
+
+        const closeConfirmModal = () => {
+            if (!confirmModal) return;
+            confirmModal.classList.add('hidden');
+            confirmModal.classList.remove('flex');
+            confirmModalAction = null;
+        };
+
+        const openConfirmModal = (message, onConfirm) => {
+            if (!confirmModal) return;
+            if (confirmModalMessage) confirmModalMessage.textContent = message;
+            confirmModalAction = typeof onConfirm === 'function' ? onConfirm : null;
+            confirmModal.classList.remove('hidden');
+            confirmModal.classList.add('flex');
+        };
+
+        confirmModalOk.addEventListener('click', () => {
+            if (confirmModalAction) confirmModalAction();
+            closeConfirmModal();
+        });
+        confirmModalCancel.addEventListener('click', closeConfirmModal);
+        confirmModal.addEventListener('click', (event) => {
+            if (event.target === confirmModal) closeConfirmModal();
+        });
+
         const enhanceModal = document.getElementById('enhance-modal');
         const enhanceModalCloseBtn = document.getElementById('enhance-modal-close');
         const enhanceModalStartBtn = document.getElementById('enhance-modal-start');
@@ -4364,29 +4407,29 @@
         }
 
         function resetSkillAllocation() {
-            const confirmed = window.confirm('全てのスキル振りをリセットしますか？');
-            if (!confirmed) return;
-            let refund = 0;
-            JobKeys.forEach((job) => {
-                ['active', 'passive'].forEach((type) => {
-                    const skillList = Game.player.skills[job]?.[type] || [];
-                    skillList.forEach((level, idx) => {
-                        if (level <= 0) return;
-                        refund += level;
-                        if (type === 'passive') {
-                            const skill = JobData[job][type][idx];
-                            if (skill?.apply) {
-                                skill.apply(-level);
+            openConfirmModal('全てのスキル振りをリセットしますか？', () => {
+                let refund = 0;
+                JobKeys.forEach((job) => {
+                    ['active', 'passive'].forEach((type) => {
+                        const skillList = Game.player.skills[job]?.[type] || [];
+                        skillList.forEach((level, idx) => {
+                            if (level <= 0) return;
+                            refund += level;
+                            if (type === 'passive') {
+                                const skill = JobData[job][type][idx];
+                                if (skill?.apply) {
+                                    skill.apply(-level);
+                                }
                             }
-                        }
-                        Game.player.skills[job][type][idx] = 0;
+                            Game.player.skills[job][type][idx] = 0;
+                        });
                     });
                 });
+                Game.player.sp = Math.min(MAX_SKILL_POINTS, Game.player.sp + refund);
+                renderSkillList();
+                updateUI();
+                triggerAutosave();
             });
-            Game.player.sp = Math.min(MAX_SKILL_POINTS, Game.player.sp + refund);
-            renderSkillList();
-            updateUI();
-            triggerAutosave();
         }
 
         function renderSkillList() {
