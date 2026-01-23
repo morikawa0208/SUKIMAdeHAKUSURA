@@ -5967,6 +5967,22 @@
                 syncWarpModal();
             }
         }
+
+        function requestTip(productId) {
+          // iOS（WKWebView）で開いている時だけ呼べる
+          const handler = window?.webkit?.messageHandlers?.tip;
+          if (handler && handler.postMessage) {
+            handler.postMessage({ productId }); // Swiftへ渡す
+            return;
+          }
+          alert("iOSアプリ内でお布施できます");
+        }
+        
+        document.addEventListener("DOMContentLoaded", () => {
+          const btn = document.getElementById("donate-btn");
+          if (btn) btn.addEventListener("click", () => requestTip("tip_small"));
+        });
+
     </script>
     </div>
 </body>
