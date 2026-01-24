@@ -2513,6 +2513,12 @@
 
         const pickRandom = (list) => list[Math.floor(Math.random() * list.length)];
         const clampPercent = (value) => Math.max(0, Math.min(100, value));
+        const rollStatValue = (baseValue, variance = 0.12) => {
+            const min = Math.max(1, Math.floor(baseValue * (1 - variance)));
+            const max = Math.max(min, Math.ceil(baseValue * (1 + variance)));
+            return min === max ? min : (min + Math.floor(Math.random() * (max - min + 1)));
+        };
+        const getAffixLevelMultiplier = () => 1 + Math.max(0, (Game.player.level || 1) - 1) * 0.0015;
 
         const rollEliteRank = (encounterRate) => {
             const chance = clampPercent(encounterRate);
@@ -2650,9 +2656,11 @@
         const getAffixStats = (affix, rank) => {
             const pool = affix.fixedStats || affix.stats || [];
             const selected = pool.slice(0, Math.max(1, rank));
+            const levelMultiplier = getAffixLevelMultiplier();
             return selected.map((key) => {
                 const baseValues = AffixValueTable[key] || [1, 2, 3];
-                return { key, value: Math.ceil(baseValues[rank - 1] * 1.5) };
+                const scaledValue = baseValues[rank - 1] * 1.5 * levelMultiplier;
+                return { key, value: rollStatValue(scaledValue, 0.15) };
             });
         };
 
@@ -2675,10 +2683,10 @@
             const suffix = suffixRank ? rollAffix(SuffixAffixes, suffixRank) : null;
             const prefixStars = prefix ? "☆".repeat(prefix.rank) : "";
             const suffixStars = suffix ? "☆".repeat(suffix.rank) : "";
-            const baseStats = base.stats.map((stat) => ({
-                key: stat.key,
-                value: Math.max(1, Math.ceil(stat.value * rarity.mul * 1.5))
-            }));
+            const baseStats = base.stats.map((stat) => {
+                const scaledValue = Math.max(1, Math.ceil(stat.value * rarity.mul * 1.5));
+                return { key: stat.key, value: rollStatValue(scaledValue, 0.12) };
+            });
             const affixStats = [
                 ...(prefix ? prefix.stats.map((stat) => ({ ...stat, source: "prefix" })) : []),
                 ...(suffix ? suffix.stats.map((stat) => ({ ...stat, source: "suffix" })) : [])
@@ -2761,10 +2769,10 @@
             const suffix = suffixRank ? rollAffix(SuffixAffixes, suffixRank) : null;
             const prefixStars = prefix ? "☆".repeat(prefix.rank) : "";
             const suffixStars = suffix ? "☆".repeat(suffix.rank) : "";
-            const baseStats = base.stats.map((stat) => ({
-                key: stat.key,
-                value: Math.max(1, Math.ceil(stat.value * rarity.mul * 1.5))
-            }));
+            const baseStats = base.stats.map((stat) => {
+                const scaledValue = Math.max(1, Math.ceil(stat.value * rarity.mul * 1.5));
+                return { key: stat.key, value: rollStatValue(scaledValue, 0.12) };
+            });
             const affixStats = [
                 ...(prefix ? prefix.stats.map((stat) => ({ ...stat, source: "prefix" })) : []),
                 ...(suffix ? suffix.stats.map((stat) => ({ ...stat, source: "suffix" })) : [])
