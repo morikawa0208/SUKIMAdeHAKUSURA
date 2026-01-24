@@ -1793,6 +1793,14 @@
         const BossRushNoDropStartFloor = BossRushStartFloor;
         const BossRushBaseScale = 3;
         const BossRushScaleStep = 0.08;
+        const BossRushBaseStats = {
+            hp: 100000,
+            str: 1000,
+            def: 1000,
+            acc: 1000,
+            eva: 1000,
+            exp: 0
+        };
         const BossDefs = {
             10: {
                 floor: 10,
@@ -4695,7 +4703,7 @@
                 const pool = Object.values(BossDefs);
                 const picked = pickRandom(pool);
                 bossDef = picked ? { ...picked, originFloor: picked.floor } : null;
-                bossBase = BossDefs[1000] || picked;
+                bossBase = BossRushBaseStats;
                 bossScale = getBossRushScale(Game.floor);
             } else {
                 bossDef = BossDefs[Game.floor];
