@@ -1791,6 +1791,16 @@
         ];
         const BossRushStartFloor = 1001;
         const BossRushNoDropStartFloor = BossRushStartFloor;
+        const BossRushBaseScale = 3;
+        const BossRushScaleStep = 0.08;
+        const BossRushBaseStats = {
+            hp: 100000,
+            str: 1000,
+            def: 1000,
+            acc: 1000,
+            eva: 1000,
+            exp: 0
+        };
         const BossDefs = {
             10: {
                 floor: 10,
@@ -2034,7 +2044,7 @@
                 { name: "風走りのブーツ", type: "feet", rarity: "epic", stats: [{ key: "evasionRate", value: 10 }, { key: "dex", value: 9 }, { key: "hpEfficiency", value: 13 }], uniqueStats: [] }
             ],
             100: [
-                { name: "岩核の大盾", type: "armor", rarity: "epic", stats: [{ key: "defenseFlat", value: 59 }, { key: "vit", value: 17 }, { key: "damageReduction", value: 6 }], uniqueStats: [] },
+                { name: "岩核の大盾", type: "armor", rarity: "epic", stats: [{ key: "defenseFlat", value: 59 }, { key: "vit", value: 17 }, { key: "damageReduction", value: 4 }], uniqueStats: [] },
                 { name: "岩守りの兜", type: "head", rarity: "epic", stats: [{ key: "defenseFlat", value: 27 }, { key: "vit", value: 11 }, { key: "maxHp", value: 48 }], uniqueStats: [] }
             ],
             200: [
@@ -2055,14 +2065,14 @@
             ],
             600: [
                 { name: "聖紋のローブ", type: "armor", rarity: "epic", stats: [{ key: "defenseFlat", value: 48 }, { key: "int", value: 13 }, { key: "mpEfficiency", value: 8 }], uniqueStats: [] },
-                { name: "聖祈の護符", type: "accessory", rarity: "epic", stats: [{ key: "hpRegen", value: 11 }, { key: "mpRegen", value: 3 }, { key: "damageReduction", value: 6 }], uniqueStats: [] }
+                { name: "聖祈の護符", type: "accessory", rarity: "epic", stats: [{ key: "hpRegen", value: 11 }, { key: "mpRegen", value: 3 }, { key: "damageReduction", value: 4 }], uniqueStats: [] }
             ],
             700: [
                 { name: "疫毒の鎌", type: "weapon", rarity: "epic", stats: [{ key: "attackFlat", value: 63 }, { key: "dex", value: 13 }, { key: "mPen", value: 9 }], uniqueStats: [] },
                 { name: "腐蝕の指輪", type: "accessory", rarity: "epic", stats: [{ key: "damageBoost", value: 7 }, { key: "leechRate", value: 5 }, { key: "maxHp", value: 53 }], uniqueStats: [] }
             ],
             800: [
-                { name: "鉄壁の鎧", type: "armor", rarity: "epic", stats: [{ key: "defenseFlat", value: 69 }, { key: "vit", value: 20 }, { key: "damageReduction", value: 10 }], uniqueStats: [] },
+                { name: "鉄壁の鎧", type: "armor", rarity: "epic", stats: [{ key: "defenseFlat", value: 69 }, { key: "vit", value: 20 }, { key: "damageReduction", value: 6 }], uniqueStats: [] },
                 { name: "鋼鉄のグローブ", type: "hands", rarity: "epic", stats: [{ key: "defenseFlat", value: 21 }, { key: "str", value: 12 }, { key: "hpEfficiency", value: 15 }], uniqueStats: [] }
             ],
             900: [
@@ -2253,7 +2263,7 @@
                 ],
                 accessories: [
                     { name: "素朴な指輪", stats: [{ key: "critRate", value: 2 }, { key: "str", value: 2 }, { key: "luk", value: 1 }] },
-                    { name: "護りのペンダント", stats: [{ key: "damageReduction", value: 3 }, { key: "maxHp", value: 11 }] },
+                    { name: "護りのペンダント", stats: [{ key: "damageReduction", value: 2 }, { key: "maxHp", value: 11 }] },
                     { name: "学徒のタリスマン", stats: [{ key: "mpEfficiency", value: 2 }, { key: "int", value: 3 }] }
                 ]
             },
@@ -2286,7 +2296,7 @@
                 ],
                 accessories: [
                     { name: "勇気の指輪", stats: [{ key: "critRate", value: 3 }, { key: "str", value: 5 }] },
-                    { name: "守護の首飾り", stats: [{ key: "damageReduction", value: 4 }, { key: "maxHp", value: 27 }, { key: "luk", value: 2 }] },
+                    { name: "守護の首飾り", stats: [{ key: "damageReduction", value: 3 }, { key: "maxHp", value: 27 }, { key: "luk", value: 2 }] },
                     { name: "知恵の護符", stats: [{ key: "mpEfficiency", value: 4 }, { key: "int", value: 6 }] }
                 ]
             },
@@ -2313,14 +2323,14 @@
                     { name: "星詠みの手甲", stats: [{ key: "mpEfficiency", value: 6 }, { key: "int", value: 9 }] }
                 ],
                 feet: [
-                    { name: "重装のブーツ", stats: [{ key: "defenseFlat", value: 17 }, { key: "damageReduction", value: 4 }] },
+                    { name: "重装のブーツ", stats: [{ key: "defenseFlat", value: 17 }, { key: "damageReduction", value: 3 }] },
                     { name: "影歩きの靴", stats: [{ key: "evasionRate", value: 6 }, { key: "dex", value: 9 }] },
                     { name: "神官の靴", stats: [{ key: "hpEfficiency", value: 10 }, { key: "maxHp", value: 32 }] }
                 ],
                 accessories: [
                     { name: "覇者の指輪", stats: [{ key: "critRate", value: 5 }, { key: "damageBoost", value: 3 }] },
                     { name: "星守の護符", stats: [{ key: "rareFind", value: 3 }, { key: "maxMp", value: 20 }, { key: "luk", value: 4 }] },
-                    { name: "黒曜のペンダント", stats: [{ key: "damageReduction", value: 6 }, { key: "maxHp", value: 35 }] }
+                    { name: "黒曜のペンダント", stats: [{ key: "damageReduction", value: 4 }, { key: "maxHp", value: 35 }] }
                 ]
             }
         ];
@@ -2521,7 +2531,7 @@
             critRate: [3, 6, 10],
             critDamage: [14, 28, 49],
             damageBoost: [5, 9, 14],
-            damageReduction: [4, 7, 13],
+            damageReduction: [2, 4, 8],
             evasionRate: [4, 7, 13],
             leechRate: [2, 4, 6],
             expBoost: [4, 8, 15],
@@ -2618,7 +2628,7 @@
 
         const getBossRushScale = (floor) => {
             const count = Math.max(1, floor - BossRushStartFloor + 1);
-            return 3 + (count - 1) * 0.08;
+            return BossRushBaseScale + (count - 1) * BossRushScaleStep;
         };
 
         const getDxBossLootScale = (floor) => {
@@ -3185,7 +3195,9 @@
                 dexMultiplier: Game.player.dexMultiplier + (equip.dexMultiplier || 0),
                 lukMultiplier: Game.player.lukMultiplier + (equip.lukMultiplier || 0)
             };
-            return applyBossUniqueStatBonuses(totals);
+            const adjusted = applyBossUniqueStatBonuses(totals);
+            adjusted.damageReduction = Math.min(80, adjusted.damageReduction);
+            return adjusted;
         };
 
         function getStatusEffect(target, effectId) {
@@ -4693,7 +4705,7 @@
                 const pool = Object.values(BossDefs);
                 const picked = pickRandom(pool);
                 bossDef = picked ? { ...picked, originFloor: picked.floor } : null;
-                bossBase = BossDefs[1000] || picked;
+                bossBase = BossRushBaseStats;
                 bossScale = getBossRushScale(Game.floor);
             } else {
                 bossDef = BossDefs[Game.floor];
