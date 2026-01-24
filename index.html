@@ -2383,28 +2383,93 @@
         ];
 
         const PrefixAffixes = [
-            { name: "鋭撃の", rank: 1, group: "attack", stats: ["str", "attackFlat", "accuracy", "critRate", "attackEfficiency"] },
-            { name: "鉄壁の", rank: 1, group: "defense", stats: ["vit", "defenseFlat", "maxHp", "damageReduction", "hpRegen"] },
-            { name: "幸運の", rank: 1, group: "treasure", stats: ["luk", "luck", "rareFind", "goldBoost", "expBoost", "affixFind"] },
-            { name: "剛撃の", rank: 2, group: "attack", stats: ["str", "dex", "attackFlat", "critRate", "damageBoost", "critDamage"] },
-            { name: "守護の", rank: 2, group: "defense", stats: ["vit", "defenseFlat", "defenseEfficiency", "maxHp", "evasionRate"] },
-            { name: "豊穣の", rank: 2, group: "treasure", stats: ["luk", "luck", "rareFind", "affixFind", "goldBoost", "expBoost"] },
-            { name: "覇王の", rank: 3, group: "attack", stats: ["str", "int", "attackFlat", "attackEfficiency", "damageBoost", "critDamage"] },
-            { name: "不屈の", rank: 3, group: "defense", stats: ["vit", "maxHp", "defenseEfficiency", "damageReduction", "hpRegen"] },
-            { name: "天運の", rank: 3, group: "treasure", stats: ["luk", "luck", "rareFind", "affixFind", "goldBoost", "expBoost"] }
+            { name: "鋭撃の", suffixName: "の冒険者", rank: 1, group: "attack", stats: ["attackFlat"] },
+            { name: "狙撃の", suffixName: "の戦鬼", rank: 1, group: "attack", stats: ["critRate"] },
+            { name: "強打の", suffixName: "の・紅刃", rank: 1, group: "attack", stats: ["str"] },
+            { name: "鉄壁の", suffixName: "の守人", rank: 1, group: "defense", stats: ["defenseFlat"] },
+            { name: "堅守の", suffixName: "の盾持ち", rank: 1, group: "defense", stats: ["vit"] },
+            { name: "耐久の", suffixName: "の・護盾", rank: 1, group: "defense", stats: ["maxHp"] },
+            { name: "幸運の", suffixName: "の旅商", rank: 1, group: "treasure", stats: ["luck"] },
+            { name: "財運の", suffixName: "の探索者", rank: 1, group: "treasure", stats: ["goldBoost"] },
+            { name: "探索の", suffixName: "の・金猫", rank: 1, group: "treasure", stats: ["rareFind"] },
+            { name: "癒しの", suffixName: "の聖歌", rank: 1, group: "support", stats: ["hpRegen"] },
+            { name: "調律の", suffixName: "の癒奏", rank: 1, group: "support", stats: ["mpRegen"] },
+            { name: "再生の", suffixName: "の静養", rank: 1, group: "support", stats: ["hpEfficiency"] },
+            { name: "精密の", suffixName: "の鷹眼", rank: 1, group: "precision", stats: ["accuracy"] },
+            { name: "集中の", suffixName: "の射手", rank: 1, group: "precision", stats: ["accuracy", "critRate"] },
+            { name: "直感の", suffixName: "の・蒼瞳", rank: 1, group: "precision", stats: ["accuracy", "dex"] },
+            { name: "生命の", suffixName: "の活力", rank: 1, group: "vitality", stats: ["maxHp"] },
+            { name: "精神の", suffixName: "の霊気", rank: 1, group: "vitality", stats: ["maxMp"] },
+            { name: "健康の", suffixName: "の息吹", rank: 1, group: "vitality", stats: ["hpEfficiency"] },
+            { name: "浄化の", suffixName: "の護符", rank: 1, group: "resistance", stats: ["hpRegen"] },
+            { name: "抵抗の", suffixName: "の静寂", rank: 1, group: "resistance", stats: ["damageReduction"] },
+            { name: "抑制の", suffixName: "の遮断", rank: 1, group: "resistance", stats: ["mpEfficiency"] },
+            { name: "商才の", suffixName: "の航路", rank: 1, group: "economy", stats: ["goldBoost"] },
+            { name: "経験の", suffixName: "の知恵", rank: 1, group: "economy", stats: ["expBoost"] },
+            { name: "幸運の", suffixName: "の宝匠", rank: 1, group: "economy", stats: ["luck"] },
+            { name: "剛力の", suffixName: "の剛腕", rank: 1, group: "stat", stats: ["str"] },
+            { name: "理知の", suffixName: "の賢者", rank: 1, group: "stat", stats: ["int"] },
+            { name: "俊敏の", suffixName: "の迅脚", rank: 1, group: "stat", stats: ["dex"] },
+            { name: "剛撃の", suffixName: "の烈風", rank: 2, group: "attack", stats: ["str", "critRate"] },
+            { name: "斬裂の", suffixName: "の剣舞", rank: 2, group: "attack", stats: ["attackEfficiency", "attackFlat"] },
+            { name: "猛進の", suffixName: "の黒翼", rank: 2, group: "attack", stats: ["damageBoost", "attackFlat"] },
+            { name: "守護の", suffixName: "の砦守", rank: 2, group: "defense", stats: ["vit", "maxHp"] },
+            { name: "堅牢の", suffixName: "の蒼壁", rank: 2, group: "defense", stats: ["defenseEfficiency", "damageReduction"] },
+            { name: "不屈の", suffixName: "の不動", rank: 2, group: "defense", stats: ["hpRegen", "damageReduction"] },
+            { name: "豊穣の", suffixName: "の宝路", rank: 2, group: "treasure", stats: ["rareFind", "goldBoost"] },
+            { name: "蒐集の", suffixName: "の星見", rank: 2, group: "treasure", stats: ["affixFind", "expBoost"] },
+            { name: "採掘の", suffixName: "の拾遺", rank: 2, group: "treasure", stats: ["goldBoost", "expBoost"] },
+            { name: "慈愛の", suffixName: "の安寧", rank: 2, group: "support", stats: ["hpRegen", "hpEfficiency"] },
+            { name: "瞑想の", suffixName: "の月祈", rank: 2, group: "support", stats: ["mpRegen", "mpEfficiency"] },
+            { name: "治癒の", suffixName: "の白灯", rank: 2, group: "support", stats: ["hpRegen", "maxHp"] },
+            { name: "照準の", suffixName: "の慧眼", rank: 2, group: "precision", stats: ["accuracy", "critRate"] },
+            { name: "見切りの", suffixName: "の夜隼", rank: 2, group: "precision", stats: ["accuracy", "evasionRate"] },
+            { name: "貫通の", suffixName: "の迅視", rank: 2, group: "precision", stats: ["accuracy", "mPen"] },
+            { name: "充実の", suffixName: "の瑞穂", rank: 2, group: "vitality", stats: ["maxHp", "hpEfficiency"] },
+            { name: "充魔の", suffixName: "の旺盛", rank: 2, group: "vitality", stats: ["maxMp", "mpEfficiency"] },
+            { name: "体力の", suffixName: "の深泉", rank: 2, group: "vitality", stats: ["maxHp", "hpRegen"] },
+            { name: "免疫の", suffixName: "の防壁", rank: 2, group: "resistance", stats: ["damageReduction", "hpRegen"] },
+            { name: "克己の", suffixName: "の・白環", rank: 2, group: "resistance", stats: ["mpEfficiency", "hpEfficiency"] },
+            { name: "断絶の", suffixName: "の抗魔", rank: 2, group: "resistance", stats: ["damageReduction", "evasionRate"] },
+            { name: "収益の", suffixName: "の富籤", rank: 2, group: "economy", stats: ["goldBoost", "expBoost"] },
+            { name: "発見の", suffixName: "の交易", rank: 2, group: "economy", stats: ["rareFind", "affixFind"] },
+            { name: "宝探しの", suffixName: "の黄金路", rank: 2, group: "economy", stats: ["rareFind", "goldBoost"] },
+            { name: "武勇の", suffixName: "の豪胆", rank: 2, group: "stat", stats: ["str", "dex"] },
+            { name: "英知の", suffixName: "の智導", rank: 2, group: "stat", stats: ["int", "mpEfficiency"] },
+            { name: "機敏の", suffixName: "の疾影", rank: 2, group: "stat", stats: ["dex", "evasionRate"] },
+            { name: "覇王の", suffixName: "の魔剣", rank: 3, group: "attack", stats: ["str", "attackEfficiency", "critDamage"] },
+            { name: "破壊の", suffixName: "の疾風", rank: 3, group: "attack", stats: ["damageBoost", "critDamage", "critRate"] },
+            { name: "滅殺の", suffixName: "の覇者", rank: 3, group: "attack", stats: ["attackFlat", "critRate", "accuracy"] },
+            { name: "不屈の", suffixName: "の堅陣", rank: 3, group: "defense", stats: ["vit", "damageReduction", "hpRegen"] },
+            { name: "磐石の", suffixName: "の護衛", rank: 3, group: "defense", stats: ["maxHp", "defenseEfficiency", "evasionRate"] },
+            { name: "護神の", suffixName: "の静壁", rank: 3, group: "defense", stats: ["defenseFlat", "damageReduction", "hpRegen"] },
+            { name: "天運の", suffixName: "の宝匠", rank: 3, group: "treasure", stats: ["luck", "rareFind", "affixFind"] },
+            { name: "至宝の", suffixName: "の黄金路", rank: 3, group: "treasure", stats: ["rareFind", "goldBoost", "affixFind"] },
+            { name: "隆盛の", suffixName: "の瑞兆", rank: 3, group: "treasure", stats: ["luck", "goldBoost", "expBoost"] },
+            { name: "祝福の", suffixName: "の慈雨", rank: 3, group: "support", stats: ["hpRegen", "mpRegen", "hpEfficiency"] },
+            { name: "救済の", suffixName: "の回生", rank: 3, group: "support", stats: ["hpRegen", "maxHp", "damageReduction"] },
+            { name: "聖泉の", suffixName: "の天恵", rank: 3, group: "support", stats: ["mpRegen", "mpEfficiency", "maxMp"] },
+            { name: "神眼の", suffixName: "の狙星", rank: 3, group: "precision", stats: ["accuracy", "critRate", "critDamage"] },
+            { name: "無双の", suffixName: "の空刃", rank: 3, group: "precision", stats: ["accuracy", "attackEfficiency", "critRate"] },
+            { name: "看破の", suffixName: "の導眼", rank: 3, group: "precision", stats: ["accuracy", "mPen", "damageBoost"] },
+            { name: "不滅の", suffixName: "の蒼命", rank: 3, group: "vitality", stats: ["maxHp", "damageReduction", "hpRegen"] },
+            { name: "神髄の", suffixName: "の再紡", rank: 3, group: "vitality", stats: ["maxMp", "mpEfficiency", "mpRegen"] },
+            { name: "恒常の", suffixName: "の永環", rank: 3, group: "vitality", stats: ["maxHp", "maxMp", "hpEfficiency"] },
+            { name: "結界の", suffixName: "の玄壁", rank: 3, group: "resistance", stats: ["damageReduction", "maxHp", "hpRegen"] },
+            { name: "清廉の", suffixName: "の祓印", rank: 3, group: "resistance", stats: ["hpRegen", "mpRegen", "hpEfficiency"] },
+            { name: "不侵の", suffixName: "の静防", rank: 3, group: "resistance", stats: ["damageReduction", "evasionRate", "maxHp"] },
+            { name: "繁栄の", suffixName: "の瑞兆", rank: 3, group: "economy", stats: ["goldBoost", "expBoost", "luck"] },
+            { name: "大富豪の", suffixName: "の蔵王", rank: 3, group: "economy", stats: ["goldBoost", "rareFind", "affixFind"] },
+            { name: "伝承の", suffixName: "の秘録", rank: 3, group: "economy", stats: ["expBoost", "rareFind", "affixFind"] },
+            { name: "覇気の", suffixName: "の覇道", rank: 3, group: "stat", stats: ["str", "dex", "attackEfficiency"] },
+            { name: "叡智の", suffixName: "の天賢", rank: 3, group: "stat", stats: ["int", "mpEfficiency", "critRate"] },
+            { name: "超速の", suffixName: "の迅牙", rank: 3, group: "stat", stats: ["dex", "accuracy", "critRate"] }
         ];
 
-        const SuffixAffixes = [
-            { name: "の一撃", rank: 1, group: "attack", stats: ["dex", "attackFlat", "accuracy", "critRate", "mPen"] },
-            { name: "の守り", rank: 1, group: "defense", stats: ["vit", "defenseFlat", "maxHp", "evasionRate", "damageReduction"] },
-            { name: "の収集", rank: 1, group: "treasure", stats: ["luk", "luck", "goldBoost", "expBoost", "affixFind", "rareFind"] },
-            { name: "の猛進", rank: 2, group: "attack", stats: ["str", "attackFlat", "critRate", "damageBoost", "accuracy"] },
-            { name: "の護り", rank: 2, group: "defense", stats: ["vit", "defenseEfficiency", "maxHp", "damageReduction", "hpRegen"] },
-            { name: "の財運", rank: 2, group: "treasure", stats: ["luk", "luck", "rareFind", "affixFind", "goldBoost", "expBoost"] },
-            { name: "の破壊", rank: 3, group: "attack", stats: ["str", "attackEfficiency", "critRate", "critDamage", "damageBoost"] },
-            { name: "の堅牢", rank: 3, group: "defense", stats: ["vit", "maxHp", "defenseEfficiency", "damageReduction", "evasionRate"] },
-            { name: "の至宝", rank: 3, group: "treasure", stats: ["luk", "luck", "rareFind", "affixFind", "goldBoost", "expBoost"] }
-        ];
+        const SuffixAffixes = PrefixAffixes.map(({ suffixName, ...affix }) => ({
+            ...affix,
+            name: suffixName || `の${affix.name.replace(/の$/, "")}`
+        }));
 
         const AffixValueTable = {
             str: [5, 9, 14],
@@ -2583,17 +2648,12 @@
         };
 
         const getAffixStats = (affix, rank) => {
-            const pool = affix.stats;
-            const stats = [];
-            const keys = [...pool];
-            for (let i = 0; i < rank; i++) {
-                if (keys.length === 0) break;
-                const idx = Math.floor(Math.random() * keys.length);
-                const key = keys.splice(idx, 1)[0];
+            const pool = affix.fixedStats || affix.stats || [];
+            const selected = pool.slice(0, Math.max(1, rank));
+            return selected.map((key) => {
                 const baseValues = AffixValueTable[key] || [1, 2, 3];
-                stats.push({ key, value: Math.ceil(baseValues[rank - 1] * 1.5) });
-            }
-            return stats;
+                return { key, value: Math.ceil(baseValues[rank - 1] * 1.5) };
+            });
         };
 
         const rollAffix = (pool, rank) => {
