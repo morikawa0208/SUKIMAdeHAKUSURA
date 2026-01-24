@@ -1791,6 +1791,8 @@
         ];
         const BossRushStartFloor = 1001;
         const BossRushNoDropStartFloor = BossRushStartFloor;
+        const BossRushBaseScale = 3;
+        const BossRushScaleStep = 0.08;
         const BossDefs = {
             10: {
                 floor: 10,
@@ -2618,7 +2620,7 @@
 
         const getBossRushScale = (floor) => {
             const count = Math.max(1, floor - BossRushStartFloor + 1);
-            return 3 + (count - 1) * 0.08;
+            return BossRushBaseScale + (count - 1) * BossRushScaleStep;
         };
 
         const getDxBossLootScale = (floor) => {
