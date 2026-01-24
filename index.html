@@ -1244,6 +1244,40 @@
             return Math.floor(base + linear + quadratic);
         };
 
+        const applyLevelUps = ({ log = true } = {}) => {
+            let leveledUp = false;
+            while (Game.player.exp >= Game.player.next && Game.player.level < MAX_LEVEL) {
+                Game.player.level++;
+                Game.player.exp -= Game.player.next;
+                Game.player.next = getNextExpRequirement(Game.player.level);
+                const hpGain = Math.floor(Game.player.maxHp * 0.03) + 10;
+                Game.player.maxHp += hpGain;
+                Game.player.maxMp += 15;
+                const derived = getDerivedStats();
+                Game.player.hp = derived.maxHp;
+                Game.player.mp = derived.maxMp;
+                Game.player.str += 3;
+                Game.player.vit += 3;
+                Game.player.int += 3;
+                Game.player.dex += 2;
+                Game.player.luk += 1;
+                Game.player.sp = Math.min(MAX_SKILL_POINTS, Game.player.sp + LEVEL_UP_SKILL_POINTS);
+                if (log) {
+                    addLog(`LEVEL UP! [${Game.player.level}]`, "text-blue-400 font-black");
+                }
+                leveledUp = true;
+            }
+            if (leveledUp) {
+                const spDot = document.getElementById('nav-sp-dot');
+                if (spDot) {
+                    spDot.classList.remove('hidden');
+                }
+            }
+            if (Game.player.level >= MAX_LEVEL) {
+                Game.player.exp = Math.min(Game.player.exp, Game.player.next - 1);
+            }
+        };
+
         Game.player.next = getNextExpRequirement(Game.player.level);
 
         const DefaultGameState = JSON.parse(JSON.stringify(Game));
@@ -1315,12 +1349,7 @@
                 Game.player.level = Math.min(MAX_LEVEL, Game.player.level || 1);
                 Game.player.sp = Math.min(MAX_SKILL_POINTS, Game.player.sp ?? 1);
                 Game.player.next = getNextExpRequirement(Game.player.level);
-                if (Game.player.exp >= Game.player.next && Game.player.level < MAX_LEVEL) {
-                    Game.player.exp = Math.max(0, Game.player.next - 1);
-                }
-                if (Game.player.level >= MAX_LEVEL && Game.player.next) {
-                    Game.player.exp = Math.min(Game.player.exp || 0, Game.player.next - 1);
-                }
+                applyLevelUps({ log: false });
             }
         };
 
@@ -4982,6 +5011,7 @@
                     let b = Math.floor(Game.player.next * (currentSkill.expBonus / 100));
                     Game.player.exp += b;
                     addLog(`EXP +${b} 奪取！`);
+                    applyLevelUps();
                 }
 
                 document.getElementById('enemy-visual').classList.add('shake');
@@ -5156,24 +5186,7 @@
             }
             Game.player.exp += gain;
 
-            if (Game.player.exp >= Game.player.next && Game.player.level < MAX_LEVEL) {
-                Game.player.level++;
-                Game.player.exp -= Game.player.next;
-                Game.player.next = getNextExpRequirement(Game.player.level);
-                const hpGain = Math.floor(Game.player.maxHp * 0.03) + 10;
-                Game.player.maxHp += hpGain;
-                Game.player.maxMp += 15;
-                const derived = getDerivedStats();
-                Game.player.hp = derived.maxHp;
-                Game.player.mp = derived.maxMp;
-                Game.player.str += 3; Game.player.vit += 3; Game.player.int += 3; Game.player.dex += 2; Game.player.luk += 1;
-                Game.player.sp = Math.min(MAX_SKILL_POINTS, Game.player.sp + LEVEL_UP_SKILL_POINTS);
-                addLog(`LEVEL UP! [${Game.player.level}]`, "text-blue-400 font-black");
-                document.getElementById('nav-sp-dot').classList.remove('hidden');
-            }
-            if (Game.player.level >= MAX_LEVEL) {
-                Game.player.exp = Math.min(Game.player.exp, Game.player.next - 1);
-            }
+            applyLevelUps();
             restorePotionCapacity(Game.player.potion1);
             restorePotionCapacity(Game.player.potion2);
             // Drop Luck Check
