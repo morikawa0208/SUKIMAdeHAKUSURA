@@ -1208,6 +1208,7 @@
                 critRate: 5, evasionRate: 3, leechRate: 0, expBoost: 0, mPen: 0, luck: 50, accuracy: 95,
                 critDamage: 200, damageBoost: 0, damageReduction: 0, rareFind: 0, affixFind: 0, eliteEncounter: 20,
                 skillPowerBoost: 0, statusEffectStackBonus: 0, statusEffectTurnBonus: 0,
+                poisonMaxStacksBonus: 0, poisonMinPctBonus: 0,
                 skillMpDiscount: 0, strMultiplier: 0, intMultiplier: 0, vitMultiplier: 0, dexMultiplier: 0, lukMultiplier: 0,
                 exp: 0, next: 100, sp: 1,
                 gold: 0,
@@ -1679,7 +1680,7 @@
         };
 
         const StatusDefs = {
-            poison: { id: 'poison', name: '毒', effectType: 'poison', stackable: true, maxStacks: 5, defaultTurns: 3, icon: 'fa-skull-crossbones', desc: 'ターン開始時に最大HPの3%×スタックのダメージ。' },
+            poison: { id: 'poison', name: '毒', effectType: 'poison', stackable: true, maxStacks: 1, defaultTurns: 3, icon: 'fa-skull-crossbones', desc: 'ターン開始時に最大HPの3%×スタック（最大1）。防御で軽減、最低1%保証。' },
             bleed: { id: 'bleed', name: '出血', effectType: 'bleed', stackable: true, maxStacks: 5, defaultTurns: 3, icon: 'fa-droplet', desc: 'ターン開始時に(固定2+STR×0.3)×スタックのダメージ。' },
             weaken: { id: 'weaken', name: '弱体', effectType: 'weaken', stackable: true, maxStacks: 5, defaultTurns: 2, icon: 'fa-down-long', desc: '与ダメが低下する。' },
             vulnerable: { id: 'vulnerable', name: '脆弱', effectType: 'vulnerable', stackable: true, maxStacks: 3, defaultTurns: 2, icon: 'fa-shield-halved', desc: '被ダメージが増加する状態。' },
@@ -2122,8 +2123,8 @@
 
 
         const BossUniqueEffects = {
-            "毒牙の短剣": { type: "statBonus", stats: [ { key: "statusEffectStackBonus", value: 2 } ], label: "毒牙の短剣：状態異常付与スタック +2" },
-            "毒煙の護符": { type: "statBonus", stats: [ { key: "statusEffectTurnBonus", value: 2 } ], label: "毒煙の護符：状態異常付与ターン +2" },
+            "毒牙の短剣": { type: "statBonus", stats: [ { key: "statusEffectStackBonus", value: 2 }, { key: "poisonMaxStacksBonus", value: 1 } ], label: "毒牙の短剣：状態異常付与スタック +2 / 毒上限スタック +1" },
+            "毒煙の護符": { type: "statBonus", stats: [ { key: "statusEffectTurnBonus", value: 2 }, { key: "poisonMinPctBonus", value: 0.5 } ], label: "毒煙の護符：状態異常付与ターン +2 / 毒最低保証 +0.5%" },
             "疾風の爪剣": { type: "statMultiplier", stat: "dex", value: 12, label: "疾風の爪剣：DEX倍率 +12%" },
             "風走りのブーツ": { type: "bonusHitsChance", chance: 20, hits: 1, hitMultiplier: 0.7, label: "風走りのブーツ：20%で追加ヒット+1(70%)" },
             "岩核の大盾": { type: "statMultiplier", stat: "vit", value: 12, label: "岩核の大盾：VIT倍率 +12%" },
@@ -2138,8 +2139,8 @@
             "帯電の護符": { type: "statBonus", stats: [ { key: "skillMpDiscount", value: 10 } ], label: "帯電の護符：スキルMP消費 -10%" },
             "聖紋のローブ": { type: "statMultiplier", stat: "int", value: 18, label: "聖紋のローブ：INT倍率 +18%" },
             "聖祈の護符": { type: "statBonus", stats: [ { key: "skillPowerBoost", value: 16 } ], label: "聖祈の護符：スキル威力 +16%" },
-            "疫毒の鎌": { type: "statBonus", stats: [ { key: "statusEffectStackBonus", value: 2 } ], label: "疫毒の鎌：状態異常付与スタック +2" },
-            "腐蝕の指輪": { type: "statBonus", stats: [ { key: "statusEffectTurnBonus", value: 1 } ], label: "腐蝕の指輪：状態異常付与ターン +1" },
+            "疫毒の鎌": { type: "statBonus", stats: [ { key: "statusEffectStackBonus", value: 2 }, { key: "poisonMaxStacksBonus", value: 1 } ], label: "疫毒の鎌：状態異常付与スタック +2 / 毒上限スタック +1" },
+            "腐蝕の指輪": { type: "statBonus", stats: [ { key: "statusEffectTurnBonus", value: 1 }, { key: "poisonMinPctBonus", value: 0.5 } ], label: "腐蝕の指輪：状態異常付与ターン +1 / 毒最低保証 +0.5%" },
             "鉄壁の鎧": { type: "statMultiplier", stat: "vit", value: 18, label: "鉄壁の鎧：VIT倍率 +18%" },
             "鋼鉄のグローブ": { type: "statMultiplier", stat: "str", value: 14, label: "鋼鉄のグローブ：STR倍率 +14%" },
             "影刃の忍刀": { type: "bonusHitsChance", chance: 22, hits: 1, hitMultiplier: 0.7, label: "影刃の忍刀：22%で追加ヒット+1(70%)" },
@@ -2215,7 +2216,9 @@
             potionChargeOnKill: "討伐回復",
             potionCleanse: "状態異常回復",
             potionAutoRegen: "再生付与",
-            potionBarrier: "バリア付与"
+            potionBarrier: "バリア付与",
+            poisonMaxStacksBonus: "毒上限スタック",
+            poisonMinPctBonus: "毒最低保証"
         };
 
         const PercentStats = new Set([
@@ -2237,7 +2240,8 @@
             "affixFind",
             "eliteEncounter",
             "goldBoost",
-            "potionHealPct"
+            "potionHealPct",
+            "poisonMinPctBonus"
         ]);
 
         const RarityDefs = [
@@ -3247,6 +3251,8 @@
                 skillPowerBoost: Game.player.skillPowerBoost + (equip.skillPowerBoost || 0),
                 statusEffectStackBonus: Game.player.statusEffectStackBonus + (equip.statusEffectStackBonus || 0),
                 statusEffectTurnBonus: Game.player.statusEffectTurnBonus + (equip.statusEffectTurnBonus || 0),
+                poisonMaxStacksBonus: Game.player.poisonMaxStacksBonus + (equip.poisonMaxStacksBonus || 0),
+                poisonMinPctBonus: Game.player.poisonMinPctBonus + (equip.poisonMinPctBonus || 0),
                 skillMpDiscount: Game.player.skillMpDiscount + (equip.skillMpDiscount || 0),
                 strMultiplier: Game.player.strMultiplier + (equip.strMultiplier || 0),
                 intMultiplier: Game.player.intMultiplier + (equip.intMultiplier || 0),
@@ -3436,6 +3442,8 @@
             skillPowerBoost: (stat) => `スキル威力 +${stat.value}%`,
             statusEffectStackBonus: (stat) => `状態異常付与スタック +${stat.value}`,
             statusEffectTurnBonus: (stat) => `状態異常付与ターン +${stat.value}`,
+            poisonMaxStacksBonus: (stat) => `毒上限スタック +${stat.value}`,
+            poisonMinPctBonus: (stat) => `毒最低保証 +${stat.value}%`,
             skillMpDiscount: (stat) => `スキルMP消費 -${stat.value}%`,
             strMultiplier: (stat) => `STR倍率 +${stat.value}%`,
             vitMultiplier: (stat) => `VIT倍率 +${stat.value}%`,
@@ -4166,19 +4174,26 @@
                 const derived = isPlayer ? getDerivedStats() : null;
                 const maxHp = isPlayer ? derived.maxHp : target.maxHp;
                 const strValue = isPlayer ? derived.totals.str : (target.str || 0);
+                const defenseValue = isPlayer ? derived.def : (target.def || 0);
                 target.statusEffects.forEach(effect => {
                     const def = StatusDefs[effect.id];
                     if (!def) return;
                     if (def.effectType === 'poison') {
                         const stacks = Math.max(1, effect.stacks || 1);
                         const baseHp = maxHp || target.hp || 0;
-                        const dmg = Math.max(1, Math.floor(baseHp * 0.03 * stacks));
+                        const defenseMitigation = 1 / (1 + defenseValue / 200);
+                        const minPctBonus = Number.isFinite(effect.poisonMinPctBonus) ? effect.poisonMinPctBonus : 0;
+                        const minPct = 0.01 + Math.max(0, minPctBonus) / 100;
+                        const scaledDamage = Math.max(1, Math.floor(baseHp * 0.03 * stacks * defenseMitigation));
+                        const guaranteedDamage = Math.max(1, Math.floor(baseHp * minPct * stacks));
+                        const dmg = Math.max(scaledDamage, guaranteedDamage);
                         const appliedDamage = applyDamage(target, dmg, null, { ignoreReflect: true });
                         addLog(`${targetLabel}は毒で${appliedDamage}ダメージ`, "text-purple-400");
                     }
                     if (def.effectType === 'bleed') {
                         const stacks = Math.max(1, effect.stacks || 1);
-                        const dmg = Math.max(1, Math.floor((2 + strValue * 0.3) * stacks));
+                        const sourceStr = Number.isFinite(effect.sourceStr) ? effect.sourceStr : strValue;
+                        const dmg = Math.max(1, Math.floor((2 + sourceStr * 0.3) * stacks));
                         const appliedDamage = applyDamage(target, dmg, null, { ignoreReflect: true });
                         addLog(`${targetLabel}は出血で${appliedDamage}ダメージ`, "text-purple-400");
                     }
@@ -4192,14 +4207,19 @@
             }
         }
 
-        function applyStatusEffect(target, effectId, stacks = 1, turns = null) {
+        function applyStatusEffect(target, effectId, stacks = 1, turns = null, source = null) {
             const def = StatusDefs[effectId];
             if (!def) return;
             if (!Array.isArray(target.statusEffects)) {
                 target.statusEffects = [];
             }
             const duration = turns ?? def.defaultTurns ?? 1;
-            const maxStacks = def.maxStacks ?? stacks;
+            const bonusMaxStacks = def.effectType === 'poison' && Number.isFinite(source?.poisonMaxStacksBonus)
+                ? source.poisonMaxStacksBonus
+                : 0;
+            const maxStacks = def.effectType === 'poison'
+                ? (def.maxStacks ?? stacks) + Math.max(0, bonusMaxStacks)
+                : (def.maxStacks ?? stacks);
             const existing = target.statusEffects.find(effect => effect.id === effectId);
             if (existing) {
                 if (def.stackable) {
@@ -4208,6 +4228,12 @@
                     existing.stacks = 1;
                 }
                 existing.turns = Math.max(existing.turns, duration);
+                if (Number.isFinite(source?.sourceStr)) {
+                    existing.sourceStr = source.sourceStr;
+                }
+                if (Number.isFinite(source?.poisonMinPctBonus)) {
+                    existing.poisonMinPctBonus = source.poisonMinPctBonus;
+                }
                 if (def.effectType === 'barrier') {
                     const perStack = def.shieldPerStack || 0;
                     existing.shield = (existing.shield || 0) + perStack * stacks;
@@ -4222,6 +4248,12 @@
                     stacks: def.stackable ? Math.min(maxStacks, stacks) : 1,
                     turns: duration
                 };
+                if (Number.isFinite(source?.sourceStr)) {
+                    entry.sourceStr = source.sourceStr;
+                }
+                if (Number.isFinite(source?.poisonMinPctBonus)) {
+                    entry.poisonMinPctBonus = source.poisonMinPctBonus;
+                }
                 if (def.effectType === 'barrier') {
                     const perStack = def.shieldPerStack || 0;
                     entry.shield = perStack * entry.stacks;
@@ -4911,7 +4943,8 @@
                     const baseChance = effect.chance ?? 1;
                     const finalChance = isFreeze ? getFreezeDecayChance(target, baseChance) : baseChance;
                     if (!isFreeze || Math.random() < finalChance) {
-                        applyStatusEffect(target, effect.id, effect.stacks, effect.turns);
+                        const sourceStr = effect.target === "self" ? null : (Game.enemy?.str || 0);
+                        applyStatusEffect(target, effect.id, effect.stacks, effect.turns, sourceStr ? { sourceStr } : null);
                         if (isFreeze) {
                             recordFreezeApplied(target);
                         }
@@ -5152,7 +5185,13 @@
                     const baseChance = effect.chance ?? 1;
                     const finalChance = isFreeze ? getFreezeDecayChance(target, baseChance) : baseChance;
                     if (!isFreeze || Math.random() < finalChance) {
-                        applyStatusEffect(target, effect.id, stacks, turns);
+                        const sourceStr = effect.target === "self" ? null : derived.totals.str;
+                        const poisonMaxStacksBonus = effect.id === "poison" ? derived.totals.poisonMaxStacksBonus : 0;
+                        const poisonMinPctBonus = effect.id === "poison" ? derived.totals.poisonMinPctBonus : 0;
+                        const source = (sourceStr || poisonMaxStacksBonus || poisonMinPctBonus)
+                            ? { sourceStr, poisonMaxStacksBonus, poisonMinPctBonus }
+                            : null;
+                        applyStatusEffect(target, effect.id, stacks, turns, source);
                         if (isFreeze) {
                             recordFreezeApplied(target);
                         }
@@ -5250,7 +5289,8 @@
                         const isFreeze = effect.id === "freeze";
                         const finalChance = isFreeze ? getFreezeDecayChance(Game.player, chance) : chance;
                         if (!isFreeze || Math.random() < finalChance) {
-                            applyStatusEffect(Game.player, effect.id, effect.stacks, effect.turns);
+                            const sourceStr = Game.enemy?.str || 0;
+                            applyStatusEffect(Game.player, effect.id, effect.stacks, effect.turns, sourceStr ? { sourceStr } : null);
                             if (isFreeze) {
                                 recordFreezeApplied(Game.player);
                             }
