@@ -6193,10 +6193,18 @@
           const encoded = encodeURIComponent(text);
           const appUrl = `twitter://post?message=${encoded}`;
           const webUrl = `https://x.com/intent/tweet?text=${encoded}`;
-          const start = Date.now();
+          let openedApp = false;
+          const markOpened = () => { openedApp = true; };
+          const handleVisibility = () => {
+            if (document.hidden) {
+              markOpened();
+            }
+          };
+          window.addEventListener("blur", markOpened, { once: true });
+          document.addEventListener("visibilitychange", handleVisibility, { once: true });
           window.location.href = appUrl;
           setTimeout(() => {
-            if (Date.now() - start < 1600) {
+            if (!openedApp) {
               window.open(webUrl, "_blank", "noopener,noreferrer");
             }
           }, 1200);
