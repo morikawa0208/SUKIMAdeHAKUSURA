@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>White Dungeon - Professional Build System</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
@@ -389,7 +388,7 @@
                         <span class="text-[9px] text-slate-400">現在のオートセーブスロットを対象</span>
                     </div>
                     <p class="text-[10px] text-slate-500 mb-3">
-                        文字列コピーまたはQRコードで他端末へ引き継げます。
+                        文字列コピーで他端末へ引き継げます。
                     </p>
                     <div class="grid grid-cols-1 gap-3">
                         <div class="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2">
@@ -409,14 +408,6 @@
                                 <button id="export-clear-btn" class="flex-1 py-2 rounded-xl bg-slate-200 text-slate-700 text-[10px] font-black flex items-center justify-center gap-1">
                                     <i class="fas fa-eraser"></i> クリア
                                 </button>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <div class="flex-1">
-                                    <div class="text-[9px] font-bold text-slate-400 mb-1 flex items-center gap-1">
-                                        <i class="fas fa-qrcode"></i> QRコード
-                                    </div>
-                                    <div id="export-qr" class="w-full flex items-center justify-center rounded-lg border border-dashed border-slate-200 bg-white p-2 min-h-[96px]"></div>
-                                </div>
                             </div>
                         </div>
 
@@ -444,9 +435,6 @@
                                     <i class="fas fa-eraser"></i> クリア
                                 </button>
                             </div>
-                            <p class="text-[9px] text-slate-400">
-                                QR読み取りはiOS側で文字列化して貼り付けてください。
-                            </p>
                         </div>
                     </div>
                 </div>
@@ -1592,36 +1580,10 @@
             renderSaveSlots();
         };
 
-        let exportQrInstance = null;
-
         const buildExportText = () => {
             const slot = getAutosaveSlot();
             const raw = localStorage.getItem(getSaveKey(slot));
             return raw ?? '';
-        };
-
-        const updateExportQr = (text) => {
-            const qrContainer = document.getElementById('export-qr');
-            if (!qrContainer) return;
-            qrContainer.innerHTML = '';
-            if (!text) {
-                qrContainer.innerHTML = '<span class="text-[9px] text-slate-400">データなし</span>';
-                return;
-            }
-            if (typeof QRCode !== 'function') {
-                qrContainer.innerHTML = '<span class="text-[9px] text-slate-400">QR未対応</span>';
-                return;
-            }
-            try {
-                exportQrInstance = new QRCode(qrContainer, {
-                    text,
-                    width: 96,
-                    height: 96,
-                    correctLevel: QRCode.CorrectLevel.M
-                });
-            } catch (error) {
-                qrContainer.innerHTML = '<span class="text-[9px] text-slate-400">QR生成に失敗</span>';
-            }
         };
 
         const refreshExportPanel = () => {
@@ -1629,7 +1591,6 @@
             if (!exportTextArea) return;
             const text = buildExportText();
             exportTextArea.value = text;
-            updateExportQr(text);
         };
 
         const normalizeImportedPayload = (rawText) => {
@@ -1695,7 +1656,6 @@
             if (exportClearButton && exportTextArea) {
                 exportClearButton.addEventListener('click', () => {
                     exportTextArea.value = '';
-                    updateExportQr('');
                 });
             }
 
