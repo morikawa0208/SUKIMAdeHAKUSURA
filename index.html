@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>White Dungeon - Professional Build System</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
@@ -449,6 +450,77 @@
                             <button data-load-slot="3" class="flex-1 py-2 rounded-xl bg-slate-200 text-slate-700 text-[10px] font-black flex items-center justify-center gap-1">
                                 <i class="fas fa-download"></i> ロード
                             </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 rounded-2xl border border-slate-200 bg-white p-4">
+                    <div class="flex items-center justify-between gap-2 mb-2">
+                        <h4 class="text-[11px] font-black text-slate-700 flex items-center gap-2">
+                            <i class="fas fa-file-export"></i> エクスポート / インポート
+                        </h4>
+                        <span class="text-[9px] text-slate-400">現在のオートセーブスロットを対象</span>
+                    </div>
+                    <p class="text-[10px] text-slate-500 mb-3">
+                        文字列コピーまたはQRコードで他端末へ引き継げます。
+                    </p>
+                    <div class="grid grid-cols-1 gap-3">
+                        <div class="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2">
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="text-[10px] font-black text-slate-600 flex items-center gap-1">
+                                    <i class="fas fa-copy"></i> エクスポート文字列
+                                </span>
+                                <button id="export-refresh-btn" class="text-[9px] font-black px-2 py-1 rounded-full bg-slate-800 text-white">
+                                    更新
+                                </button>
+                            </div>
+                            <textarea id="export-text" class="w-full h-20 rounded-lg border border-slate-200 bg-white p-2 text-[9px] text-slate-600" readonly></textarea>
+                            <div id="export-copy-toast" class="text-[9px] text-emerald-600 font-bold hidden">コピー完了</div>
+                            <div class="flex items-center gap-2">
+                                <button id="export-copy-btn" class="flex-1 py-2 rounded-xl bg-slate-800 text-white text-[10px] font-black flex items-center justify-center gap-1">
+                                    <i class="fas fa-copy"></i> コピー
+                                </button>
+                                <button id="export-clear-btn" class="flex-1 py-2 rounded-xl bg-slate-200 text-slate-700 text-[10px] font-black flex items-center justify-center gap-1">
+                                    <i class="fas fa-eraser"></i> クリア
+                                </button>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="flex-1">
+                                    <div class="text-[9px] font-bold text-slate-400 mb-1 flex items-center gap-1">
+                                        <i class="fas fa-qrcode"></i> QRコード
+                                    </div>
+                                    <div id="export-qr" class="w-full flex items-center justify-center rounded-lg border border-dashed border-slate-200 bg-white p-2 min-h-[96px]"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2">
+                            <span class="text-[10px] font-black text-slate-600 flex items-center gap-1">
+                                <i class="fas fa-file-import"></i> インポート文字列
+                            </span>
+                            <div class="flex items-center justify-between gap-2 text-[9px] text-slate-500">
+                                <span class="font-bold flex items-center gap-1">
+                                    <i class="fas fa-bullseye"></i> 取り込み先スロット
+                                </span>
+                                <select id="import-slot-select" class="rounded-lg border border-slate-200 bg-white px-2 py-1 text-[9px] text-slate-600">
+                                    <option value="auto">オートセーブ</option>
+                                    <option value="1">スロット1</option>
+                                    <option value="2">スロット2</option>
+                                    <option value="3">スロット3</option>
+                                </select>
+                            </div>
+                            <textarea id="import-text" class="w-full h-20 rounded-lg border border-slate-200 bg-white p-2 text-[9px] text-slate-600" placeholder="ここに貼り付け"></textarea>
+                            <div class="flex items-center gap-2">
+                                <button id="import-apply-btn" class="flex-1 py-2 rounded-xl bg-emerald-600 text-white text-[10px] font-black flex items-center justify-center gap-1">
+                                    <i class="fas fa-upload"></i> 取り込み
+                                </button>
+                                <button id="import-clear-btn" class="flex-1 py-2 rounded-xl bg-slate-200 text-slate-700 text-[10px] font-black flex items-center justify-center gap-1">
+                                    <i class="fas fa-eraser"></i> クリア
+                                </button>
+                            </div>
+                            <p class="text-[9px] text-slate-400">
+                                QR読み取りはiOS側で文字列化して貼り付けてください。
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -1398,6 +1470,7 @@
             const modeLabel = isAuto ? 'オートセーブ' : '手動セーブ';
             setSaveStatus(`${modeLabel}: スロット${slot}に保存しました。`, 'text-emerald-600');
             renderSaveSlots();
+            refreshExportPanel();
         };
 
         const triggerAutosave = () => {
@@ -1435,6 +1508,7 @@
             updateUI();
             setSaveStatus(`スロット${slot}からロードしました。`, 'text-blue-600');
             renderSaveSlots();
+            refreshExportPanel();
         };
 
         const resetGameForSlot = (slot, message = `スロット${slot}のデータを削除して新規開始しました。`, tone = 'text-amber-600') => {
@@ -1449,6 +1523,7 @@
             updateUI();
             setSaveStatus(message, tone);
             renderSaveSlots();
+            refreshExportPanel();
         };
 
         const changeSaveSlot = (slot) => {
@@ -1502,6 +1577,535 @@
                 });
             }
             renderSaveSlots();
+        };
+
+        let exportQrInstance = null;
+        let copyToastTimer = null;
+
+        const QR_PREFIX = 'KQ1:';
+
+        const LZString = (() => {
+            const f = String.fromCharCode;
+            const keyStrUriSafe = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$";
+            const getBaseValue = (alphabet, character) => alphabet.indexOf(character);
+            const compress = (uncompressed, bitsPerChar, getCharFromInt) => {
+                if (uncompressed == null) return "";
+                let i, value;
+                const contextDictionary = {};
+                const contextDictionaryToCreate = {};
+                let contextC = "";
+                let contextW = "";
+                let contextEnlargeIn = 2;
+                let contextDictSize = 3;
+                let contextNumBits = 2;
+                const contextData = [];
+                let contextDataVal = 0;
+                let contextDataPosition = 0;
+                for (let ii = 0; ii < uncompressed.length; ii += 1) {
+                    contextC = uncompressed.charAt(ii);
+                    if (!Object.prototype.hasOwnProperty.call(contextDictionary, contextC)) {
+                        contextDictionary[contextC] = contextDictSize++;
+                        contextDictionaryToCreate[contextC] = true;
+                    }
+                    contextW = contextW + contextC;
+                    if (Object.prototype.hasOwnProperty.call(contextDictionary, contextW)) {
+                        continue;
+                    }
+                    if (Object.prototype.hasOwnProperty.call(contextDictionaryToCreate, contextW)) {
+                        if (contextW.charCodeAt(0) < 256) {
+                            for (i = 0; i < contextNumBits; i++) {
+                                contextDataVal = (contextDataVal << 1);
+                                if (contextDataPosition === bitsPerChar - 1) {
+                                    contextDataPosition = 0;
+                                    contextData.push(getCharFromInt(contextDataVal));
+                                    contextDataVal = 0;
+                                } else {
+                                    contextDataPosition++;
+                                }
+                            }
+                            value = contextW.charCodeAt(0);
+                            for (i = 0; i < 8; i++) {
+                                contextDataVal = (contextDataVal << 1) | (value & 1);
+                                if (contextDataPosition === bitsPerChar - 1) {
+                                    contextDataPosition = 0;
+                                    contextData.push(getCharFromInt(contextDataVal));
+                                    contextDataVal = 0;
+                                } else {
+                                    contextDataPosition++;
+                                }
+                                value = value >> 1;
+                            }
+                        } else {
+                            value = 1;
+                            for (i = 0; i < contextNumBits; i++) {
+                                contextDataVal = (contextDataVal << 1) | value;
+                                if (contextDataPosition === bitsPerChar - 1) {
+                                    contextDataPosition = 0;
+                                    contextData.push(getCharFromInt(contextDataVal));
+                                    contextDataVal = 0;
+                                } else {
+                                    contextDataPosition++;
+                                }
+                                value = 0;
+                            }
+                            value = contextW.charCodeAt(0);
+                            for (i = 0; i < 16; i++) {
+                                contextDataVal = (contextDataVal << 1) | (value & 1);
+                                if (contextDataPosition === bitsPerChar - 1) {
+                                    contextDataPosition = 0;
+                                    contextData.push(getCharFromInt(contextDataVal));
+                                    contextDataVal = 0;
+                                } else {
+                                    contextDataPosition++;
+                                }
+                                value = value >> 1;
+                            }
+                        }
+                        contextEnlargeIn--;
+                        if (contextEnlargeIn === 0) {
+                            contextEnlargeIn = Math.pow(2, contextNumBits);
+                            contextNumBits++;
+                        }
+                        delete contextDictionaryToCreate[contextW];
+                    } else {
+                        value = contextDictionary[contextW];
+                        for (i = 0; i < contextNumBits; i++) {
+                            contextDataVal = (contextDataVal << 1) | (value & 1);
+                            if (contextDataPosition === bitsPerChar - 1) {
+                                contextDataPosition = 0;
+                                contextData.push(getCharFromInt(contextDataVal));
+                                contextDataVal = 0;
+                            } else {
+                                contextDataPosition++;
+                            }
+                            value = value >> 1;
+                        }
+                    }
+                    contextEnlargeIn--;
+                    if (contextEnlargeIn === 0) {
+                        contextEnlargeIn = Math.pow(2, contextNumBits);
+                        contextNumBits++;
+                    }
+                    contextDictionary[contextW] = contextDictSize++;
+                    contextW = String(contextC);
+                }
+                if (contextW !== "") {
+                    if (Object.prototype.hasOwnProperty.call(contextDictionaryToCreate, contextW)) {
+                        if (contextW.charCodeAt(0) < 256) {
+                            for (i = 0; i < contextNumBits; i++) {
+                                contextDataVal = (contextDataVal << 1);
+                                if (contextDataPosition === bitsPerChar - 1) {
+                                    contextDataPosition = 0;
+                                    contextData.push(getCharFromInt(contextDataVal));
+                                    contextDataVal = 0;
+                                } else {
+                                    contextDataPosition++;
+                                }
+                            }
+                            value = contextW.charCodeAt(0);
+                            for (i = 0; i < 8; i++) {
+                                contextDataVal = (contextDataVal << 1) | (value & 1);
+                                if (contextDataPosition === bitsPerChar - 1) {
+                                    contextDataPosition = 0;
+                                    contextData.push(getCharFromInt(contextDataVal));
+                                    contextDataVal = 0;
+                                } else {
+                                    contextDataPosition++;
+                                }
+                                value = value >> 1;
+                            }
+                        } else {
+                            value = 1;
+                            for (i = 0; i < contextNumBits; i++) {
+                                contextDataVal = (contextDataVal << 1) | value;
+                                if (contextDataPosition === bitsPerChar - 1) {
+                                    contextDataPosition = 0;
+                                    contextData.push(getCharFromInt(contextDataVal));
+                                    contextDataVal = 0;
+                                } else {
+                                    contextDataPosition++;
+                                }
+                                value = 0;
+                            }
+                            value = contextW.charCodeAt(0);
+                            for (i = 0; i < 16; i++) {
+                                contextDataVal = (contextDataVal << 1) | (value & 1);
+                                if (contextDataPosition === bitsPerChar - 1) {
+                                    contextDataPosition = 0;
+                                    contextData.push(getCharFromInt(contextDataVal));
+                                    contextDataVal = 0;
+                                } else {
+                                    contextDataPosition++;
+                                }
+                                value = value >> 1;
+                            }
+                        }
+                        contextEnlargeIn--;
+                        if (contextEnlargeIn === 0) {
+                            contextEnlargeIn = Math.pow(2, contextNumBits);
+                            contextNumBits++;
+                        }
+                        delete contextDictionaryToCreate[contextW];
+                    } else {
+                        value = contextDictionary[contextW];
+                        for (i = 0; i < contextNumBits; i++) {
+                            contextDataVal = (contextDataVal << 1) | (value & 1);
+                            if (contextDataPosition === bitsPerChar - 1) {
+                                contextDataPosition = 0;
+                                contextData.push(getCharFromInt(contextDataVal));
+                                contextDataVal = 0;
+                            } else {
+                                contextDataPosition++;
+                            }
+                            value = value >> 1;
+                        }
+                    }
+                    contextEnlargeIn--;
+                    if (contextEnlargeIn === 0) {
+                        contextEnlargeIn = Math.pow(2, contextNumBits);
+                        contextNumBits++;
+                    }
+                }
+                value = 2;
+                for (i = 0; i < contextNumBits; i++) {
+                    contextDataVal = (contextDataVal << 1) | (value & 1);
+                    if (contextDataPosition === bitsPerChar - 1) {
+                        contextDataPosition = 0;
+                        contextData.push(getCharFromInt(contextDataVal));
+                        contextDataVal = 0;
+                    } else {
+                        contextDataPosition++;
+                    }
+                    value = value >> 1;
+                }
+                while (true) {
+                    contextDataVal = (contextDataVal << 1);
+                    if (contextDataPosition === bitsPerChar - 1) {
+                        contextData.push(getCharFromInt(contextDataVal));
+                        break;
+                    } else {
+                        contextDataPosition++;
+                    }
+                }
+                return contextData.join('');
+            };
+            const decompress = (length, resetValue, getNextValue) => {
+                const dictionary = [];
+                let next, enlargeIn = 4, dictSize = 4, numBits = 3;
+                let entry = "", result = "", i, w, bits, resb, maxpower, power;
+                const data = { val: getNextValue(0), position: resetValue, index: 1 };
+                for (i = 0; i < 3; i += 1) {
+                    dictionary[i] = i;
+                }
+                bits = 0;
+                maxpower = Math.pow(2, 2);
+                power = 1;
+                while (power !== maxpower) {
+                    resb = data.val & data.position;
+                    data.position >>= 1;
+                    if (data.position === 0) {
+                        data.position = resetValue;
+                        data.val = getNextValue(data.index++);
+                    }
+                    bits |= (resb > 0 ? 1 : 0) * power;
+                    power <<= 1;
+                }
+                switch (next = bits) {
+                    case 0:
+                        bits = 0;
+                        maxpower = Math.pow(2, 8);
+                        power = 1;
+                        while (power !== maxpower) {
+                            resb = data.val & data.position;
+                            data.position >>= 1;
+                            if (data.position === 0) {
+                                data.position = resetValue;
+                                data.val = getNextValue(data.index++);
+                            }
+                            bits |= (resb > 0 ? 1 : 0) * power;
+                            power <<= 1;
+                        }
+                        next = f(bits);
+                        break;
+                    case 1:
+                        bits = 0;
+                        maxpower = Math.pow(2, 16);
+                        power = 1;
+                        while (power !== maxpower) {
+                            resb = data.val & data.position;
+                            data.position >>= 1;
+                            if (data.position === 0) {
+                                data.position = resetValue;
+                                data.val = getNextValue(data.index++);
+                            }
+                            bits |= (resb > 0 ? 1 : 0) * power;
+                            power <<= 1;
+                        }
+                        next = f(bits);
+                        break;
+                    case 2:
+                        return "";
+                }
+                dictionary[3] = next;
+                w = next;
+                result = next;
+                while (true) {
+                    if (data.index > length) {
+                        return "";
+                    }
+                    bits = 0;
+                    maxpower = Math.pow(2, numBits);
+                    power = 1;
+                    while (power !== maxpower) {
+                        resb = data.val & data.position;
+                        data.position >>= 1;
+                        if (data.position === 0) {
+                            data.position = resetValue;
+                            data.val = getNextValue(data.index++);
+                        }
+                        bits |= (resb > 0 ? 1 : 0) * power;
+                        power <<= 1;
+                    }
+                    switch (next = bits) {
+                        case 0:
+                            bits = 0;
+                            maxpower = Math.pow(2, 8);
+                            power = 1;
+                            while (power !== maxpower) {
+                                resb = data.val & data.position;
+                                data.position >>= 1;
+                                if (data.position === 0) {
+                                    data.position = resetValue;
+                                    data.val = getNextValue(data.index++);
+                                }
+                                bits |= (resb > 0 ? 1 : 0) * power;
+                                power <<= 1;
+                            }
+                            dictionary[dictSize++] = f(bits);
+                            next = dictSize - 1;
+                            enlargeIn--;
+                            break;
+                        case 1:
+                            bits = 0;
+                            maxpower = Math.pow(2, 16);
+                            power = 1;
+                            while (power !== maxpower) {
+                                resb = data.val & data.position;
+                                data.position >>= 1;
+                                if (data.position === 0) {
+                                    data.position = resetValue;
+                                    data.val = getNextValue(data.index++);
+                                }
+                                bits |= (resb > 0 ? 1 : 0) * power;
+                                power <<= 1;
+                            }
+                            dictionary[dictSize++] = f(bits);
+                            next = dictSize - 1;
+                            enlargeIn--;
+                            break;
+                        case 2:
+                            return result;
+                    }
+                    if (enlargeIn === 0) {
+                        enlargeIn = Math.pow(2, numBits);
+                        numBits++;
+                    }
+                    if (dictionary[next]) {
+                        entry = dictionary[next];
+                    } else {
+                        if (next === dictSize) {
+                            entry = w + w.charAt(0);
+                        } else {
+                            return null;
+                        }
+                    }
+                    result += entry;
+                    dictionary[dictSize++] = w + entry.charAt(0);
+                    enlargeIn--;
+                    w = entry;
+                    if (enlargeIn === 0) {
+                        enlargeIn = Math.pow(2, numBits);
+                        numBits++;
+                    }
+                }
+            };
+            return {
+                compressToEncodedURIComponent: (input) => {
+                    if (input == null) return "";
+                    return compress(input, 6, (a) => keyStrUriSafe.charAt(a));
+                },
+                decompressFromEncodedURIComponent: (input) => {
+                    if (input == null) return "";
+                    if (input === "") return null;
+                    return decompress(input.length, 32, (index) => getBaseValue(keyStrUriSafe, input.charAt(index)));
+                }
+            };
+        })();
+
+        const buildExportText = () => {
+            const slot = getAutosaveSlot();
+            const raw = localStorage.getItem(getSaveKey(slot));
+            return raw ?? '';
+        };
+
+        const buildQrPayload = (text) => {
+            if (!text) return '';
+            const compressed = LZString.compressToEncodedURIComponent(text);
+            if (compressed) {
+                return `${QR_PREFIX}${compressed}`;
+            }
+            return text;
+        };
+
+        const updateExportQr = (text) => {
+            const qrContainer = document.getElementById('export-qr');
+            if (!qrContainer) return;
+            qrContainer.innerHTML = '';
+            if (!text) {
+                qrContainer.innerHTML = '<span class="text-[9px] text-slate-400">データなし</span>';
+                return;
+            }
+            if (typeof QRCode !== 'function') {
+                qrContainer.innerHTML = '<span class="text-[9px] text-slate-400">QR未対応</span>';
+                return;
+            }
+            const qrText = buildQrPayload(text);
+            try {
+                exportQrInstance = new QRCode(qrContainer, {
+                    text: qrText,
+                    width: 96,
+                    height: 96,
+                    correctLevel: QRCode.CorrectLevel.L
+                });
+            } catch (error) {
+                qrContainer.innerHTML = '<span class="text-[9px] text-slate-400">QR生成に失敗</span>';
+            }
+        };
+
+        const refreshExportPanel = () => {
+            const exportTextArea = document.getElementById('export-text');
+            if (!exportTextArea) return;
+            const text = buildExportText();
+            exportTextArea.value = text;
+            updateExportQr(text);
+        };
+
+        const normalizeImportedPayload = (rawText) => {
+            const trimmed = rawText.trim();
+            if (!trimmed) return null;
+            const normalizedText = trimmed.startsWith(QR_PREFIX)
+                ? LZString.decompressFromEncodedURIComponent(trimmed.slice(QR_PREFIX.length)) || ''
+                : trimmed;
+            const parsed = JSON.parse(normalizedText);
+            if (!parsed || typeof parsed !== 'object') return null;
+            if (parsed.data && typeof parsed.data === 'object') {
+                return {
+                    savedAt: parsed.savedAt || new Date().toISOString(),
+                    data: parsed.data
+                };
+            }
+            return {
+                savedAt: new Date().toISOString(),
+                data: parsed
+            };
+        };
+
+        const getImportTargetSlot = () => {
+            const select = document.getElementById('import-slot-select');
+            if (!select) return getAutosaveSlot();
+            if (select.value === 'auto') return getAutosaveSlot();
+            const slot = Number.parseInt(select.value, 10);
+            return Number.isNaN(slot) ? getAutosaveSlot() : Math.min(3, Math.max(1, slot));
+        };
+
+        const setupExportImportControls = () => {
+            const exportRefreshButton = document.getElementById('export-refresh-btn');
+            const exportCopyButton = document.getElementById('export-copy-btn');
+            const exportClearButton = document.getElementById('export-clear-btn');
+            const importApplyButton = document.getElementById('import-apply-btn');
+            const importClearButton = document.getElementById('import-clear-btn');
+            const importTextArea = document.getElementById('import-text');
+            const exportTextArea = document.getElementById('export-text');
+            const importSlotSelect = document.getElementById('import-slot-select');
+            const exportCopyToast = document.getElementById('export-copy-toast');
+
+            if (exportRefreshButton) {
+                exportRefreshButton.addEventListener('click', () => {
+                    refreshExportPanel();
+                    setSaveStatus('エクスポート文字列を更新しました。', 'text-emerald-600');
+                });
+            }
+
+            if (exportCopyButton && exportTextArea) {
+                exportCopyButton.addEventListener('click', async () => {
+                    const text = exportTextArea.value;
+                    if (!text) {
+                        setSaveStatus('エクスポートするデータがありません。', 'text-amber-600');
+                        return;
+                    }
+                    if (navigator.clipboard?.writeText) {
+                        await navigator.clipboard.writeText(text);
+                    } else {
+                        exportTextArea.select();
+                        document.execCommand('copy');
+                        exportTextArea.setSelectionRange(0, 0);
+                    }
+                    setSaveStatus('エクスポート文字列をコピーしました。', 'text-emerald-600');
+                    if (exportCopyToast) {
+                        exportCopyToast.classList.remove('hidden');
+                        if (copyToastTimer) {
+                            clearTimeout(copyToastTimer);
+                        }
+                        copyToastTimer = setTimeout(() => {
+                            exportCopyToast.classList.add('hidden');
+                        }, 1600);
+                    }
+                });
+            }
+
+            if (exportClearButton && exportTextArea) {
+                exportClearButton.addEventListener('click', () => {
+                    exportTextArea.value = '';
+                    updateExportQr('');
+                });
+            }
+
+            if (importApplyButton && importTextArea) {
+                importApplyButton.addEventListener('click', () => {
+                    const text = importTextArea.value;
+                    if (!text.trim()) {
+                        setSaveStatus('インポート文字列が空です。', 'text-amber-600');
+                        return;
+                    }
+                    let payload = null;
+                    try {
+                        payload = normalizeImportedPayload(text);
+                    } catch (error) {
+                        payload = null;
+                    }
+                    if (!payload?.data) {
+                        setSaveStatus('インポート文字列が正しくありません。', 'text-rose-500');
+                        return;
+                    }
+                    const slot = getImportTargetSlot();
+                    localStorage.setItem(getSaveKey(slot), JSON.stringify(payload));
+                    loadFromSlot(slot);
+                    setSaveStatus(`スロット${slot}にインポートしました。`, 'text-blue-600');
+                    refreshExportPanel();
+                });
+            }
+
+            if (importClearButton && importTextArea) {
+                importClearButton.addEventListener('click', () => {
+                    importTextArea.value = '';
+                });
+            }
+
+            if (importSlotSelect) {
+                importSlotSelect.value = 'auto';
+            }
+
+            refreshExportPanel();
         };
 
         const startAutosaveTimer = () => {
@@ -3767,6 +4371,7 @@
         // --- CORE LOGIC ---
         window.onload = () => {
             setupSaveControls();
+            setupExportImportControls();
             setupWarpControls();
             setupRematchToggle();
             startAutosaveTimer();
