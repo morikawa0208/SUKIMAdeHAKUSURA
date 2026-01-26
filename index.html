@@ -402,6 +402,7 @@
                                 </button>
                             </div>
                             <textarea id="export-text" class="w-full h-20 rounded-lg border border-slate-200 bg-white p-2 text-[9px] text-slate-600" readonly></textarea>
+                            <div id="export-copy-toast" class="text-[9px] text-emerald-600 font-bold hidden">コピー完了</div>
                             <div class="flex items-center gap-2">
                                 <button id="export-copy-btn" class="flex-1 py-2 rounded-xl bg-slate-800 text-white text-[10px] font-black flex items-center justify-center gap-1">
                                     <i class="fas fa-copy"></i> コピー
@@ -410,13 +411,16 @@
                                     <i class="fas fa-eraser"></i> クリア
                                 </button>
                             </div>
-                            <div class="flex items-center gap-3">
+                            <div class="flex items-center justify-between gap-2">
                                 <div class="flex-1">
                                     <div class="text-[9px] font-bold text-slate-400 mb-1 flex items-center gap-1">
                                         <i class="fas fa-qrcode"></i> QRコード
                                     </div>
                                     <div id="export-qr" class="w-full flex items-center justify-center rounded-lg border border-dashed border-slate-200 bg-white p-2 min-h-[96px]"></div>
                                 </div>
+                                <button id="export-qr-generate-btn" class="self-start text-[9px] font-black px-2 py-1 rounded-full bg-slate-800 text-white flex items-center gap-1">
+                                    <i class="fas fa-bolt"></i> 生成
+                                </button>
                             </div>
                         </div>
 
@@ -449,84 +453,6 @@
                             </p>
                         </div>
                     </div>
-                </div>
-            </div>
-        </section>
-        <!-- STATUS PAGE -->
-        <section id="page-status" class="page p-4 bg-slate-50">
-            <h2 class="text-xl font-black mb-4 flex items-center gap-2 px-2"><i class="fas fa-user-circle"></i> ステータス</h2>
-            
-            <!-- Summary Card -->
-            <div class="bg-white rounded-3xl p-6 shadow-sm mb-4">
-                <div class="flex items-center justify-between border-b pb-4 mb-4">
-                    <div>
-                        <div class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Level</div>
-                        <div class="text-4xl font-black" id="status-lvl">1</div>
-                    </div>
-                    <div class="text-right">
-                        <div class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Experience</div>
-                        <div class="text-sm font-bold"><span id="status-exp">0</span> / <span id="status-next">100</span></div>
-                        <div class="w-32 bar-container h-2 mt-1 border-0 bg-slate-100"><div id="status-exp-bar" class="bar-fill exp-fill"></div></div>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-y-6 gap-x-4">
-                    <div class="flex flex-col">
-                        <span class="text-[10px] text-slate-400 font-bold uppercase">STR (物理攻撃)</span>
-                        <span class="text-2xl font-black text-slate-700" id="status-atk">10</span>
-                    </div>
-                    <div class="flex flex-col">
-                        <span class="text-[10px] text-slate-400 font-bold uppercase">VIT (物理防御)</span>
-                        <span class="text-2xl font-black text-slate-700" id="status-def">5</span>
-                    </div>
-                    <div class="flex flex-col">
-                        <span class="text-[10px] text-slate-400 font-bold uppercase">INT (魔法威力)</span>
-                        <span class="text-2xl font-black text-blue-600" id="status-int">5</span>
-                    </div>
-                    <div class="flex flex-col">
-                        <span class="text-[10px] text-slate-400 font-bold uppercase">DEX (器用さ)</span>
-                        <span class="text-2xl font-black text-green-600" id="status-dex">5</span>
-                    </div>
-                    <div class="flex flex-col">
-                        <span class="text-[10px] text-slate-400 font-bold uppercase">LUK (運)</span>
-                        <span class="text-2xl font-black text-amber-600" id="status-luk">5</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Detailed Stats -->
-            <div class="bg-slate-800 rounded-3xl p-6 text-white mb-6">
-                <div class="flex items-center justify-between mb-4 border-b border-slate-700 pb-2">
-                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-tighter">Secondary Attributes</h3>
-                    <button id="secondary-info-btn" class="text-slate-400 hover:text-white transition-colors text-xs font-bold flex items-center gap-1">
-                        <i class="fas fa-circle-info"></i> Info
-                    </button>
-                </div>
-                <div class="grid grid-cols-2 gap-4 text-xs">
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>最大HP</span><span id="stat-max-hp">0</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>HP効率</span><span id="stat-hp-eff">0%</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>最大MP</span><span id="stat-max-mp">0</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>MP効率</span><span id="stat-mp-eff">0%</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>HP自動回復</span><span id="stat-hp-regen">0</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>MP自動回復</span><span id="stat-mp-regen">0</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>攻撃力</span><span id="stat-atk-flat">0</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>攻撃効率</span><span id="stat-atk-eff">0%</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>防御力</span><span id="stat-def-flat">0</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>防御効率</span><span id="stat-def-eff">0%</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>命中率</span><span id="stat-accuracy">95%</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>会心率</span><span id="stat-crit">5%</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>会心ダメージ</span><span id="stat-crit-dmg">200%</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>与ダメ増加</span><span id="stat-dmg-boost">0%</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>被ダメ軽減</span><span id="stat-dmg-reduction">0%</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>回避率</span><span id="stat-eva">3%</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>吸血率</span><span id="stat-leech">0%</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>魔法貫通</span><span id="stat-m-pen">0%</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>追加経験値</span><span id="stat-exp-boost">0%</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>ドロップ率</span><span id="stat-luck">0%</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>レアドロ率</span><span id="stat-rare-find">0%</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>Affix率</span><span id="stat-affix-find">0%</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>エリート遭遇率</span><span id="stat-elite-encounter">0%</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>ゴールド増加率</span><span id="stat-gold-boost">0%</span></div>
                 </div>
             </div>
 
@@ -1593,6 +1519,368 @@
         };
 
         let exportQrInstance = null;
+        let copyToastTimer = null;
+        let exportQrEnabled = false;
+
+        const QR_PREFIX = 'KQ1:';
+
+        const LZString = (() => {
+            const f = String.fromCharCode;
+            const keyStrUriSafe = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$";
+            const getBaseValue = (alphabet, character) => alphabet.indexOf(character);
+            const compress = (uncompressed, bitsPerChar, getCharFromInt) => {
+                if (uncompressed == null) return "";
+                let i, value;
+                const contextDictionary = {};
+                const contextDictionaryToCreate = {};
+                let contextC = "";
+                let contextW = "";
+                let contextEnlargeIn = 2;
+                let contextDictSize = 3;
+                let contextNumBits = 2;
+                const contextData = [];
+                let contextDataVal = 0;
+                let contextDataPosition = 0;
+                for (let ii = 0; ii < uncompressed.length; ii += 1) {
+                    contextC = uncompressed.charAt(ii);
+                    if (!Object.prototype.hasOwnProperty.call(contextDictionary, contextC)) {
+                        contextDictionary[contextC] = contextDictSize++;
+                        contextDictionaryToCreate[contextC] = true;
+                    }
+                    contextW = contextW + contextC;
+                    if (Object.prototype.hasOwnProperty.call(contextDictionary, contextW)) {
+                        continue;
+                    }
+                    if (Object.prototype.hasOwnProperty.call(contextDictionaryToCreate, contextW)) {
+                        if (contextW.charCodeAt(0) < 256) {
+                            for (i = 0; i < contextNumBits; i++) {
+                                contextDataVal = (contextDataVal << 1);
+                                if (contextDataPosition === bitsPerChar - 1) {
+                                    contextDataPosition = 0;
+                                    contextData.push(getCharFromInt(contextDataVal));
+                                    contextDataVal = 0;
+                                } else {
+                                    contextDataPosition++;
+                                }
+                            }
+                            value = contextW.charCodeAt(0);
+                            for (i = 0; i < 8; i++) {
+                                contextDataVal = (contextDataVal << 1) | (value & 1);
+                                if (contextDataPosition === bitsPerChar - 1) {
+                                    contextDataPosition = 0;
+                                    contextData.push(getCharFromInt(contextDataVal));
+                                    contextDataVal = 0;
+                                } else {
+                                    contextDataPosition++;
+                                }
+                                value = value >> 1;
+                            }
+                        } else {
+                            value = 1;
+                            for (i = 0; i < contextNumBits; i++) {
+                                contextDataVal = (contextDataVal << 1) | value;
+                                if (contextDataPosition === bitsPerChar - 1) {
+                                    contextDataPosition = 0;
+                                    contextData.push(getCharFromInt(contextDataVal));
+                                    contextDataVal = 0;
+                                } else {
+                                    contextDataPosition++;
+                                }
+                                value = 0;
+                            }
+                            value = contextW.charCodeAt(0);
+                            for (i = 0; i < 16; i++) {
+                                contextDataVal = (contextDataVal << 1) | (value & 1);
+                                if (contextDataPosition === bitsPerChar - 1) {
+                                    contextDataPosition = 0;
+                                    contextData.push(getCharFromInt(contextDataVal));
+                                    contextDataVal = 0;
+                                } else {
+                                    contextDataPosition++;
+                                }
+                                value = value >> 1;
+                            }
+                        }
+                        contextEnlargeIn--;
+                        if (contextEnlargeIn === 0) {
+                            contextEnlargeIn = Math.pow(2, contextNumBits);
+                            contextNumBits++;
+                        }
+                        delete contextDictionaryToCreate[contextW];
+                    } else {
+                        value = contextDictionary[contextW];
+                        for (i = 0; i < contextNumBits; i++) {
+                            contextDataVal = (contextDataVal << 1) | (value & 1);
+                            if (contextDataPosition === bitsPerChar - 1) {
+                                contextDataPosition = 0;
+                                contextData.push(getCharFromInt(contextDataVal));
+                                contextDataVal = 0;
+                            } else {
+                                contextDataPosition++;
+                            }
+                            value = value >> 1;
+                        }
+                    }
+                    contextEnlargeIn--;
+                    if (contextEnlargeIn === 0) {
+                        contextEnlargeIn = Math.pow(2, contextNumBits);
+                        contextNumBits++;
+                    }
+                    contextDictionary[contextW] = contextDictSize++;
+                    contextW = String(contextC);
+                }
+                if (contextW !== "") {
+                    if (Object.prototype.hasOwnProperty.call(contextDictionaryToCreate, contextW)) {
+                        if (contextW.charCodeAt(0) < 256) {
+                            for (i = 0; i < contextNumBits; i++) {
+                                contextDataVal = (contextDataVal << 1);
+                                if (contextDataPosition === bitsPerChar - 1) {
+                                    contextDataPosition = 0;
+                                    contextData.push(getCharFromInt(contextDataVal));
+                                    contextDataVal = 0;
+                                } else {
+                                    contextDataPosition++;
+                                }
+                            }
+                            value = contextW.charCodeAt(0);
+                            for (i = 0; i < 8; i++) {
+                                contextDataVal = (contextDataVal << 1) | (value & 1);
+                                if (contextDataPosition === bitsPerChar - 1) {
+                                    contextDataPosition = 0;
+                                    contextData.push(getCharFromInt(contextDataVal));
+                                    contextDataVal = 0;
+                                } else {
+                                    contextDataPosition++;
+                                }
+                                value = value >> 1;
+                            }
+                        } else {
+                            value = 1;
+                            for (i = 0; i < contextNumBits; i++) {
+                                contextDataVal = (contextDataVal << 1) | value;
+                                if (contextDataPosition === bitsPerChar - 1) {
+                                    contextDataPosition = 0;
+                                    contextData.push(getCharFromInt(contextDataVal));
+                                    contextDataVal = 0;
+                                } else {
+                                    contextDataPosition++;
+                                }
+                                value = 0;
+                            }
+                            value = contextW.charCodeAt(0);
+                            for (i = 0; i < 16; i++) {
+                                contextDataVal = (contextDataVal << 1) | (value & 1);
+                                if (contextDataPosition === bitsPerChar - 1) {
+                                    contextDataPosition = 0;
+                                    contextData.push(getCharFromInt(contextDataVal));
+                                    contextDataVal = 0;
+                                } else {
+                                    contextDataPosition++;
+                                }
+                                value = value >> 1;
+                            }
+                        }
+                        contextEnlargeIn--;
+                        if (contextEnlargeIn === 0) {
+                            contextEnlargeIn = Math.pow(2, contextNumBits);
+                            contextNumBits++;
+                        }
+                        delete contextDictionaryToCreate[contextW];
+                    } else {
+                        value = contextDictionary[contextW];
+                        for (i = 0; i < contextNumBits; i++) {
+                            contextDataVal = (contextDataVal << 1) | (value & 1);
+                            if (contextDataPosition === bitsPerChar - 1) {
+                                contextDataPosition = 0;
+                                contextData.push(getCharFromInt(contextDataVal));
+                                contextDataVal = 0;
+                            } else {
+                                contextDataPosition++;
+                            }
+                            value = value >> 1;
+                        }
+                    }
+                    contextEnlargeIn--;
+                    if (contextEnlargeIn === 0) {
+                        contextEnlargeIn = Math.pow(2, contextNumBits);
+                        contextNumBits++;
+                    }
+                }
+                value = 2;
+                for (i = 0; i < contextNumBits; i++) {
+                    contextDataVal = (contextDataVal << 1) | (value & 1);
+                    if (contextDataPosition === bitsPerChar - 1) {
+                        contextDataPosition = 0;
+                        contextData.push(getCharFromInt(contextDataVal));
+                        contextDataVal = 0;
+                    } else {
+                        contextDataPosition++;
+                    }
+                    value = value >> 1;
+                }
+                while (true) {
+                    contextDataVal = (contextDataVal << 1);
+                    if (contextDataPosition === bitsPerChar - 1) {
+                        contextData.push(getCharFromInt(contextDataVal));
+                        break;
+                    } else {
+                        contextDataPosition++;
+                    }
+                }
+                return contextData.join('');
+            };
+            const decompress = (length, resetValue, getNextValue) => {
+                const dictionary = [];
+                let next, enlargeIn = 4, dictSize = 4, numBits = 3;
+                let entry = "", result = "", i, w, bits, resb, maxpower, power;
+                const data = { val: getNextValue(0), position: resetValue, index: 1 };
+                for (i = 0; i < 3; i += 1) {
+                    dictionary[i] = i;
+                }
+                bits = 0;
+                maxpower = Math.pow(2, 2);
+                power = 1;
+                while (power !== maxpower) {
+                    resb = data.val & data.position;
+                    data.position >>= 1;
+                    if (data.position === 0) {
+                        data.position = resetValue;
+                        data.val = getNextValue(data.index++);
+                    }
+                    bits |= (resb > 0 ? 1 : 0) * power;
+                    power <<= 1;
+                }
+                switch (next = bits) {
+                    case 0:
+                        bits = 0;
+                        maxpower = Math.pow(2, 8);
+                        power = 1;
+                        while (power !== maxpower) {
+                            resb = data.val & data.position;
+                            data.position >>= 1;
+                            if (data.position === 0) {
+                                data.position = resetValue;
+                                data.val = getNextValue(data.index++);
+                            }
+                            bits |= (resb > 0 ? 1 : 0) * power;
+                            power <<= 1;
+                        }
+                        next = f(bits);
+                        break;
+                    case 1:
+                        bits = 0;
+                        maxpower = Math.pow(2, 16);
+                        power = 1;
+                        while (power !== maxpower) {
+                            resb = data.val & data.position;
+                            data.position >>= 1;
+                            if (data.position === 0) {
+                                data.position = resetValue;
+                                data.val = getNextValue(data.index++);
+                            }
+                            bits |= (resb > 0 ? 1 : 0) * power;
+                            power <<= 1;
+                        }
+                        next = f(bits);
+                        break;
+                    case 2:
+                        return "";
+                }
+                dictionary[3] = next;
+                w = next;
+                result = next;
+                while (true) {
+                    if (data.index > length) {
+                        return "";
+                    }
+                    bits = 0;
+                    maxpower = Math.pow(2, numBits);
+                    power = 1;
+                    while (power !== maxpower) {
+                        resb = data.val & data.position;
+                        data.position >>= 1;
+                        if (data.position === 0) {
+                            data.position = resetValue;
+                            data.val = getNextValue(data.index++);
+                        }
+                        bits |= (resb > 0 ? 1 : 0) * power;
+                        power <<= 1;
+                    }
+                    switch (next = bits) {
+                        case 0:
+                            bits = 0;
+                            maxpower = Math.pow(2, 8);
+                            power = 1;
+                            while (power !== maxpower) {
+                                resb = data.val & data.position;
+                                data.position >>= 1;
+                                if (data.position === 0) {
+                                    data.position = resetValue;
+                                    data.val = getNextValue(data.index++);
+                                }
+                                bits |= (resb > 0 ? 1 : 0) * power;
+                                power <<= 1;
+                            }
+                            dictionary[dictSize++] = f(bits);
+                            next = dictSize - 1;
+                            enlargeIn--;
+                            break;
+                        case 1:
+                            bits = 0;
+                            maxpower = Math.pow(2, 16);
+                            power = 1;
+                            while (power !== maxpower) {
+                                resb = data.val & data.position;
+                                data.position >>= 1;
+                                if (data.position === 0) {
+                                    data.position = resetValue;
+                                    data.val = getNextValue(data.index++);
+                                }
+                                bits |= (resb > 0 ? 1 : 0) * power;
+                                power <<= 1;
+                            }
+                            dictionary[dictSize++] = f(bits);
+                            next = dictSize - 1;
+                            enlargeIn--;
+                            break;
+                        case 2:
+                            return result;
+                    }
+                    if (enlargeIn === 0) {
+                        enlargeIn = Math.pow(2, numBits);
+                        numBits++;
+                    }
+                    if (dictionary[next]) {
+                        entry = dictionary[next];
+                    } else {
+                        if (next === dictSize) {
+                            entry = w + w.charAt(0);
+                        } else {
+                            return null;
+                        }
+                    }
+                    result += entry;
+                    dictionary[dictSize++] = w + entry.charAt(0);
+                    enlargeIn--;
+                    w = entry;
+                    if (enlargeIn === 0) {
+                        enlargeIn = Math.pow(2, numBits);
+                        numBits++;
+                    }
+                }
+            };
+            return {
+                compressToEncodedURIComponent: (input) => {
+                    if (input == null) return "";
+                    return compress(input, 6, (a) => keyStrUriSafe.charAt(a));
+                },
+                decompressFromEncodedURIComponent: (input) => {
+                    if (input == null) return "";
+                    if (input === "") return null;
+                    return decompress(input.length, 32, (index) => getBaseValue(keyStrUriSafe, input.charAt(index)));
+                }
+            };
+        })();
 
         const buildExportText = () => {
             const slot = getAutosaveSlot();
@@ -1600,10 +1888,23 @@
             return raw ?? '';
         };
 
+        const buildQrPayload = (text) => {
+            if (!text) return '';
+            const compressed = LZString.compressToEncodedURIComponent(text);
+            if (compressed) {
+                return `${QR_PREFIX}${compressed}`;
+            }
+            return text;
+        };
+
         const updateExportQr = (text) => {
             const qrContainer = document.getElementById('export-qr');
             if (!qrContainer) return;
             qrContainer.innerHTML = '';
+            if (!exportQrEnabled) {
+                qrContainer.innerHTML = '<span class="text-[9px] text-slate-400">未生成</span>';
+                return;
+            }
             if (!text) {
                 qrContainer.innerHTML = '<span class="text-[9px] text-slate-400">データなし</span>';
                 return;
@@ -1612,12 +1913,13 @@
                 qrContainer.innerHTML = '<span class="text-[9px] text-slate-400">QR未対応</span>';
                 return;
             }
+            const qrText = buildQrPayload(text);
             try {
                 exportQrInstance = new QRCode(qrContainer, {
-                    text,
+                    text: qrText,
                     width: 96,
                     height: 96,
-                    correctLevel: QRCode.CorrectLevel.M
+                    correctLevel: QRCode.CorrectLevel.L
                 });
             } catch (error) {
                 qrContainer.innerHTML = '<span class="text-[9px] text-slate-400">QR生成に失敗</span>';
@@ -1635,7 +1937,10 @@
         const normalizeImportedPayload = (rawText) => {
             const trimmed = rawText.trim();
             if (!trimmed) return null;
-            const parsed = JSON.parse(trimmed);
+            const normalizedText = trimmed.startsWith(QR_PREFIX)
+                ? LZString.decompressFromEncodedURIComponent(trimmed.slice(QR_PREFIX.length)) || ''
+                : trimmed;
+            const parsed = JSON.parse(normalizedText);
             if (!parsed || typeof parsed !== 'object') return null;
             if (parsed.data && typeof parsed.data === 'object') {
                 return {
@@ -1666,6 +1971,8 @@
             const importTextArea = document.getElementById('import-text');
             const exportTextArea = document.getElementById('export-text');
             const importSlotSelect = document.getElementById('import-slot-select');
+            const exportCopyToast = document.getElementById('export-copy-toast');
+            const exportQrGenerateButton = document.getElementById('export-qr-generate-btn');
 
             if (exportRefreshButton) {
                 exportRefreshButton.addEventListener('click', () => {
@@ -1689,6 +1996,15 @@
                         exportTextArea.setSelectionRange(0, 0);
                     }
                     setSaveStatus('エクスポート文字列をコピーしました。', 'text-emerald-600');
+                    if (exportCopyToast) {
+                        exportCopyToast.classList.remove('hidden');
+                        if (copyToastTimer) {
+                            clearTimeout(copyToastTimer);
+                        }
+                        copyToastTimer = setTimeout(() => {
+                            exportCopyToast.classList.add('hidden');
+                        }, 1600);
+                    }
                 });
             }
 
@@ -1696,6 +2012,13 @@
                 exportClearButton.addEventListener('click', () => {
                     exportTextArea.value = '';
                     updateExportQr('');
+                });
+            }
+
+            if (exportQrGenerateButton) {
+                exportQrGenerateButton.addEventListener('click', () => {
+                    exportQrEnabled = true;
+                    refreshExportPanel();
                 });
             }
 
