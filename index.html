@@ -1621,12 +1621,16 @@
                 qrContainer.innerHTML = '<span class="text-[9px] text-slate-400">QR未対応</span>';
                 return;
             }
-            exportQrInstance = new QRCode(qrContainer, {
-                text,
-                width: 96,
-                height: 96,
-                correctLevel: QRCode.CorrectLevel.M
-            });
+            try {
+                exportQrInstance = new QRCode(qrContainer, {
+                    text,
+                    width: 96,
+                    height: 96,
+                    correctLevel: QRCode.CorrectLevel.M
+                });
+            } catch (error) {
+                qrContainer.innerHTML = '<span class="text-[9px] text-slate-400">QR生成に失敗</span>';
+            }
         };
 
         const refreshExportPanel = () => {
