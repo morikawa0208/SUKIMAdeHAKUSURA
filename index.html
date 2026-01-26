@@ -607,12 +607,29 @@
         <section id="page-help" class="page p-4 bg-slate-50">
             <div class="flex items-start justify-between mb-4 px-2">
                 <h2 class="text-xl font-black flex items-center gap-2"><i class="fas fa-circle-question"></i> ヘルプ</h2>
-                <!-- 応援ボタン（ヘルプ右上） -->
-                <button type="button"
-                  class="bg-white text-slate-900 border border-slate-900 text-[11px] font-black px-3 py-1.5 rounded-full shadow-sm active:scale-95 transition-transform flex items-center gap-1.5"
-                  onclick="openDonateModal()">
-                  <i class="fas fa-mug-hot"></i> 応援
-                </button>
+                <div class="flex items-center gap-2">
+                    <a
+                      href="https://x.com/intent/tweet?text=%23%E3%81%99%E3%81%8D%E3%81%BE%E3%81%A7%E3%83%8F%E3%82%AF%E3%82%B9%E3%83%A9"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="bg-slate-900 text-white border border-slate-900 text-[11px] font-black px-3 py-1.5 rounded-full shadow-sm active:scale-95 transition-transform flex items-center gap-1.5"
+                      aria-label="Xで #すきまでハクスラ をツイート">
+                      <i class="fa-brands fa-x-twitter"></i> ツイート
+                    </a>
+                    <button
+                      type="button"
+                      class="bg-white text-slate-900 border border-slate-900 text-[11px] font-black px-3 py-1.5 rounded-full shadow-sm active:scale-95 transition-transform flex items-center gap-1.5"
+                      onclick="openXDM()"
+                      aria-label="XのDMを送る">
+                      <i class="fa-regular fa-envelope"></i> DM
+                    </button>
+                    <!-- 応援ボタン（ヘルプ右上） -->
+                    <button type="button"
+                      class="bg-white text-slate-900 border border-slate-900 text-[11px] font-black px-3 py-1.5 rounded-full shadow-sm active:scale-95 transition-transform flex items-center gap-1.5"
+                      onclick="openDonateModal()">
+                      <i class="fas fa-mug-hot"></i> 応援
+                    </button>
+                </div>
             </div>
             <div class="bg-white rounded-3xl p-6 shadow-sm space-y-4">
                 <div>
@@ -6116,6 +6133,18 @@
         function openDonateModal() {
           const m = document.getElementById('donate-modal');
           if (m) { m.classList.remove('hidden'); m.classList.add('flex'); }
+        }
+
+        const X_DM_RECIPIENT_ID = "REPLACE_WITH_YOUR_X_RECIPIENT_ID";
+
+        function openXDM() {
+          const recipientId = X_DM_RECIPIENT_ID.trim();
+          if (!recipientId || recipientId === "REPLACE_WITH_YOUR_X_RECIPIENT_ID") {
+            alert("XのDM宛先IDが未設定です。X_DM_RECIPIENT_IDを設定してください。");
+            return;
+          }
+          const url = `https://x.com/messages/compose?recipient_id=${encodeURIComponent(recipientId)}`;
+          window.open(url, "_blank", "noopener,noreferrer");
         }
         
         function closeDonateModal() {
