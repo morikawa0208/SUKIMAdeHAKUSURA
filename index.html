@@ -298,85 +298,12 @@
             </div>
         </section>
 
-        <!-- STATUS PAGE -->
-        <section id="page-status" class="page p-4 bg-slate-50">
-            <h2 class="text-xl font-black mb-4 flex items-center gap-2 px-2"><i class="fas fa-user-circle"></i> ステータス</h2>
-            
-            <!-- Summary Card -->
-            <div class="bg-white rounded-3xl p-6 shadow-sm mb-4">
-                <div class="flex items-center justify-between border-b pb-4 mb-4">
-                    <div>
-                        <div class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Level</div>
-                        <div class="text-4xl font-black" id="status-lvl">1</div>
-                    </div>
-                    <div class="text-right">
-                        <div class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Experience</div>
-                        <div class="text-sm font-bold"><span id="status-exp">0</span> / <span id="status-next">100</span></div>
-                        <div class="w-32 bar-container h-2 mt-1 border-0 bg-slate-100"><div id="status-exp-bar" class="bar-fill exp-fill"></div></div>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-y-6 gap-x-4">
-                    <div class="flex flex-col">
-                        <span class="text-[10px] text-slate-400 font-bold uppercase">STR (物理攻撃)</span>
-                        <span class="text-2xl font-black text-slate-700" id="status-atk">10</span>
-                    </div>
-                    <div class="flex flex-col">
-                        <span class="text-[10px] text-slate-400 font-bold uppercase">VIT (物理防御)</span>
-                        <span class="text-2xl font-black text-slate-700" id="status-def">5</span>
-                    </div>
-                    <div class="flex flex-col">
-                        <span class="text-[10px] text-slate-400 font-bold uppercase">INT (魔法威力)</span>
-                        <span class="text-2xl font-black text-blue-600" id="status-int">5</span>
-                    </div>
-                    <div class="flex flex-col">
-                        <span class="text-[10px] text-slate-400 font-bold uppercase">DEX (器用さ)</span>
-                        <span class="text-2xl font-black text-green-600" id="status-dex">5</span>
-                    </div>
-                    <div class="flex flex-col">
-                        <span class="text-[10px] text-slate-400 font-bold uppercase">LUK (運)</span>
-                        <span class="text-2xl font-black text-amber-600" id="status-luk">5</span>
-                    </div>
-                </div>
+        <!-- SAVE PAGE -->
+        <section id="page-save" class="page p-4 bg-slate-50">
+            <div class="flex items-center justify-between mb-4 px-2">
+                <h2 class="text-xl font-black flex items-center gap-2"><i class="fas fa-floppy-disk"></i> セーブ</h2>
             </div>
-
-            <!-- Detailed Stats -->
-            <div class="bg-slate-800 rounded-3xl p-6 text-white mb-6">
-                <div class="flex items-center justify-between mb-4 border-b border-slate-700 pb-2">
-                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-tighter">Secondary Attributes</h3>
-                    <button id="secondary-info-btn" class="text-slate-400 hover:text-white transition-colors text-xs font-bold flex items-center gap-1">
-                        <i class="fas fa-circle-info"></i> Info
-                    </button>
-                </div>
-                <div class="grid grid-cols-2 gap-4 text-xs">
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>最大HP</span><span id="stat-max-hp">0</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>HP効率</span><span id="stat-hp-eff">0%</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>最大MP</span><span id="stat-max-mp">0</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>MP効率</span><span id="stat-mp-eff">0%</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>HP自動回復</span><span id="stat-hp-regen">0</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>MP自動回復</span><span id="stat-mp-regen">0</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>攻撃力</span><span id="stat-atk-flat">0</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>攻撃効率</span><span id="stat-atk-eff">0%</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>防御力</span><span id="stat-def-flat">0</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>防御効率</span><span id="stat-def-eff">0%</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>命中率</span><span id="stat-accuracy">95%</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>会心率</span><span id="stat-crit">5%</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>会心ダメージ</span><span id="stat-crit-dmg">200%</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>与ダメ増加</span><span id="stat-dmg-boost">0%</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>被ダメ軽減</span><span id="stat-dmg-reduction">0%</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>回避率</span><span id="stat-eva">3%</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>吸血率</span><span id="stat-leech">0%</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>魔法貫通</span><span id="stat-m-pen">0%</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>追加経験値</span><span id="stat-exp-boost">0%</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>ドロップ率</span><span id="stat-luck">0%</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>レアドロ率</span><span id="stat-rare-find">0%</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>Affix率</span><span id="stat-affix-find">0%</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>エリート遭遇率</span><span id="stat-elite-encounter">0%</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>ゴールド増加率</span><span id="stat-gold-boost">0%</span></div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-3xl p-6 shadow-sm mb-6">
+            <div id="save-section" class="bg-white rounded-3xl p-6 shadow-sm mb-6">
                 <div class="flex items-center justify-between mb-3">
                     <h3 class="text-sm font-black text-slate-700 flex items-center gap-2"><i class="fas fa-floppy-disk"></i> セーブ/ロード</h3>
                     <span id="autosave-indicator" class="text-[10px] text-emerald-600 font-bold">オートセーブ: スロット1</span>
@@ -511,6 +438,84 @@
                             </p>
                         </div>
                     </div>
+                </div>
+            </div>
+        </section>
+        <!-- STATUS PAGE -->
+        <section id="page-status" class="page p-4 bg-slate-50">
+            <h2 class="text-xl font-black mb-4 flex items-center gap-2 px-2"><i class="fas fa-user-circle"></i> ステータス</h2>
+            
+            <!-- Summary Card -->
+            <div class="bg-white rounded-3xl p-6 shadow-sm mb-4">
+                <div class="flex items-center justify-between border-b pb-4 mb-4">
+                    <div>
+                        <div class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Level</div>
+                        <div class="text-4xl font-black" id="status-lvl">1</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Experience</div>
+                        <div class="text-sm font-bold"><span id="status-exp">0</span> / <span id="status-next">100</span></div>
+                        <div class="w-32 bar-container h-2 mt-1 border-0 bg-slate-100"><div id="status-exp-bar" class="bar-fill exp-fill"></div></div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-y-6 gap-x-4">
+                    <div class="flex flex-col">
+                        <span class="text-[10px] text-slate-400 font-bold uppercase">STR (物理攻撃)</span>
+                        <span class="text-2xl font-black text-slate-700" id="status-atk">10</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-[10px] text-slate-400 font-bold uppercase">VIT (物理防御)</span>
+                        <span class="text-2xl font-black text-slate-700" id="status-def">5</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-[10px] text-slate-400 font-bold uppercase">INT (魔法威力)</span>
+                        <span class="text-2xl font-black text-blue-600" id="status-int">5</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-[10px] text-slate-400 font-bold uppercase">DEX (器用さ)</span>
+                        <span class="text-2xl font-black text-green-600" id="status-dex">5</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-[10px] text-slate-400 font-bold uppercase">LUK (運)</span>
+                        <span class="text-2xl font-black text-amber-600" id="status-luk">5</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Stats -->
+            <div class="bg-slate-800 rounded-3xl p-6 text-white mb-6">
+                <div class="flex items-center justify-between mb-4 border-b border-slate-700 pb-2">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-tighter">Secondary Attributes</h3>
+                    <button id="secondary-info-btn" class="text-slate-400 hover:text-white transition-colors text-xs font-bold flex items-center gap-1">
+                        <i class="fas fa-circle-info"></i> Info
+                    </button>
+                </div>
+                <div class="grid grid-cols-2 gap-4 text-xs">
+                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>最大HP</span><span id="stat-max-hp">0</span></div>
+                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>HP効率</span><span id="stat-hp-eff">0%</span></div>
+                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>最大MP</span><span id="stat-max-mp">0</span></div>
+                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>MP効率</span><span id="stat-mp-eff">0%</span></div>
+                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>HP自動回復</span><span id="stat-hp-regen">0</span></div>
+                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>MP自動回復</span><span id="stat-mp-regen">0</span></div>
+                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>攻撃力</span><span id="stat-atk-flat">0</span></div>
+                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>攻撃効率</span><span id="stat-atk-eff">0%</span></div>
+                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>防御力</span><span id="stat-def-flat">0</span></div>
+                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>防御効率</span><span id="stat-def-eff">0%</span></div>
+                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>命中率</span><span id="stat-accuracy">95%</span></div>
+                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>会心率</span><span id="stat-crit">5%</span></div>
+                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>会心ダメージ</span><span id="stat-crit-dmg">200%</span></div>
+                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>与ダメ増加</span><span id="stat-dmg-boost">0%</span></div>
+                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>被ダメ軽減</span><span id="stat-dmg-reduction">0%</span></div>
+                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>回避率</span><span id="stat-eva">3%</span></div>
+                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>吸血率</span><span id="stat-leech">0%</span></div>
+                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>魔法貫通</span><span id="stat-m-pen">0%</span></div>
+                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>追加経験値</span><span id="stat-exp-boost">0%</span></div>
+                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>ドロップ率</span><span id="stat-luck">0%</span></div>
+                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>レアドロ率</span><span id="stat-rare-find">0%</span></div>
+                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>Affix率</span><span id="stat-affix-find">0%</span></div>
+                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>エリート遭遇率</span><span id="stat-elite-encounter">0%</span></div>
+                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>ゴールド増加率</span><span id="stat-gold-boost">0%</span></div>
                 </div>
             </div>
 
@@ -667,21 +672,6 @@
         <section id="page-help" class="page p-4 bg-slate-50">
             <div class="flex items-start justify-between mb-4 px-2">
                 <h2 class="text-xl font-black flex items-center gap-2"><i class="fas fa-circle-question"></i> ヘルプ</h2>
-                <div class="flex items-center gap-2">
-                    <a
-                      href="https://x.com/intent/tweet?text=%23%E3%81%99%E3%81%8D%E3%81%BE%E3%81%A7%E3%83%8F%E3%82%AF%E3%82%B9%E3%83%A9"
-                      onclick="return openXShare(event)"
-                      class="bg-slate-900 text-white border border-slate-900 text-[11px] font-black px-3 py-1.5 rounded-full shadow-sm active:scale-95 transition-transform flex items-center gap-1.5"
-                      aria-label="Xで #すきまでハクスラ をツイート">
-                      <i class="fa-brands fa-x-twitter"></i> ツイート
-                    </a>
-                    <!-- 応援ボタン（ヘルプ右上） -->
-                    <button type="button"
-                      class="bg-white text-slate-900 border border-slate-900 text-[11px] font-black px-3 py-1.5 rounded-full shadow-sm active:scale-95 transition-transform flex items-center gap-1.5"
-                      onclick="openDonateModal()">
-                      <i class="fas fa-mug-hot"></i> 応援
-                    </button>
-                </div>
             </div>
             <div class="bg-white rounded-3xl p-6 shadow-sm space-y-4">
                 <div>
@@ -832,6 +822,29 @@
     </main>
 
     <!-- BOTTOM NAV -->
+    <div id="bottom-menu-backdrop" class="fixed inset-0 z-[45] hidden" aria-hidden="true"></div>
+    <div id="bottom-menu-panel" class="fixed left-1/2 -translate-x-1/2 bottom-20 z-[60] hidden" style="width: min(420px, calc(100% - 2rem));">
+        <div class="bg-white border border-slate-200 rounded-2xl shadow-2xl px-3 py-3">
+            <div class="grid grid-cols-4 gap-2 text-[10px] font-black text-slate-700">
+                <button onclick="openBottomMenuDonate()" class="flex flex-col items-center justify-center gap-1 rounded-xl border border-slate-200 bg-slate-50 py-2 active:scale-95 transition-transform">
+                    <i class="fas fa-mug-hot text-base text-slate-500"></i>
+                    応援
+                </button>
+                <button onclick="openBottomMenuSave()" class="flex flex-col items-center justify-center gap-1 rounded-xl border border-slate-200 bg-slate-50 py-2 active:scale-95 transition-transform">
+                    <i class="fas fa-floppy-disk text-base text-slate-500"></i>
+                    セーブ
+                </button>
+                <button onclick="openBottomMenuHelp()" class="flex flex-col items-center justify-center gap-1 rounded-xl border border-slate-200 bg-slate-50 py-2 active:scale-95 transition-transform">
+                    <i class="fas fa-circle-question text-base text-slate-500"></i>
+                    ヘルプ
+                </button>
+                <button onclick="openBottomMenuTweet(event)" class="flex flex-col items-center justify-center gap-1 rounded-xl border border-slate-200 bg-slate-50 py-2 active:scale-95 transition-transform">
+                    <i class="fa-brands fa-twitter text-base text-slate-500"></i>
+                    ツイート
+                </button>
+            </div>
+        </div>
+    </div>
     <nav class="h-16 border-t bg-white grid grid-cols-6 shrink-0 items-center pb-1 z-50 relative shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
         <button onclick="switchPage('battle')" id="nav-battle" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-slate-300 transition-all">
             <i class="fas fa-hand-fist text-xl"></i><span class="text-[9px] font-black">戦闘</span>
@@ -849,9 +862,10 @@
         <button onclick="switchPage('log')" id="nav-log" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-slate-300 transition-all">
             <i class="fas fa-scroll text-xl"></i><span class="text-[9px] font-black">履歴</span>
         </button>
-        <button onclick="switchPage('help')" id="nav-help" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-slate-300 transition-all">
-            <i class="fas fa-circle-question text-xl"></i><span class="text-[9px] font-black">ヘルプ</span>
+        <button onclick="toggleBottomMenu()" id="nav-help" aria-controls="bottom-menu-panel" aria-expanded="false" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-slate-300 transition-all">
+            <i class="fas fa-bars text-xl"></i><span class="text-[9px] font-black">メニュー</span>
         </button>
+        <button id="nav-save" class="hidden" aria-hidden="true" tabindex="-1"></button>
     </nav>
 
     <!-- LOOT MODAL -->
@@ -6483,6 +6497,51 @@
             }
           }, 1200);
           return false;
+        }
+
+        const bottomMenuState = { open: false };
+
+        function setBottomMenuOpen(isOpen) {
+            bottomMenuState.open = isOpen;
+            const panel = document.getElementById('bottom-menu-panel');
+            const backdrop = document.getElementById('bottom-menu-backdrop');
+            const toggleButton = document.getElementById('nav-help');
+            if (panel) panel.classList.toggle('hidden', !isOpen);
+            if (backdrop) backdrop.classList.toggle('hidden', !isOpen);
+            if (toggleButton) toggleButton.setAttribute('aria-expanded', String(isOpen));
+        }
+
+        function toggleBottomMenu() {
+            setBottomMenuOpen(!bottomMenuState.open);
+        }
+
+        function closeBottomMenu() {
+            setBottomMenuOpen(false);
+        }
+
+        function openBottomMenuHelp() {
+            closeBottomMenu();
+            switchPage('help');
+        }
+
+        function openBottomMenuSave() {
+            closeBottomMenu();
+            switchPage('save');
+        }
+
+        function openBottomMenuDonate() {
+            closeBottomMenu();
+            openDonateModal();
+        }
+
+        function openBottomMenuTweet(event) {
+            closeBottomMenu();
+            openXShare(event);
+        }
+
+        const bottomMenuBackdrop = document.getElementById('bottom-menu-backdrop');
+        if (bottomMenuBackdrop) {
+            bottomMenuBackdrop.addEventListener('click', closeBottomMenu);
         }
         
         function closeDonateModal() {
