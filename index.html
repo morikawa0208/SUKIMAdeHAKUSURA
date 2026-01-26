@@ -4286,31 +4286,6 @@
             triggerAutosave();
         };
 
-        const bossRushModal = document.getElementById('bossrush-modal');
-        const bossRushCloseBtn = document.getElementById('bossrush-modal-close');
-        const bossRushOkBtn = document.getElementById('bossrush-modal-ok');
-        const closeBossRushModal = () => {
-            if (!bossRushModal) return;
-            bossRushModal.classList.add('hidden');
-            bossRushModal.classList.remove('flex');
-        };
-        const openBossRushModal = () => {
-            if (!bossRushModal) return;
-            bossRushModal.classList.remove('hidden');
-            bossRushModal.classList.add('flex');
-        };
-        if (bossRushCloseBtn) {
-            bossRushCloseBtn.addEventListener('click', closeBossRushModal);
-        }
-        if (bossRushOkBtn) {
-            bossRushOkBtn.addEventListener('click', closeBossRushModal);
-        }
-        if (bossRushModal) {
-            bossRushModal.addEventListener('click', (event) => {
-                if (event.target === bossRushModal) closeBossRushModal();
-            });
-        }
-
         const setupWarpControls = () => {
             const warpBtn = document.getElementById('warp-btn');
             const warpClose = document.getElementById('warp-close');
@@ -5181,6 +5156,25 @@
         document.getElementById('equip-slot-close-bottom').addEventListener('click', closeEquipSlotModal);
         equipSlotModal.addEventListener('click', (event) => {
             if (event.target === equipSlotModal) closeEquipSlotModal();
+        });
+
+        const bossRushModal = document.getElementById('bossrush-modal');
+        const bossRushCloseBtn = document.getElementById('bossrush-modal-close');
+        const bossRushOkBtn = document.getElementById('bossrush-modal-ok');
+        const closeBossRushModal = () => {
+            if (!bossRushModal) return;
+            bossRushModal.classList.add('hidden');
+            bossRushModal.classList.remove('flex');
+        };
+        const openBossRushModal = () => {
+            if (!bossRushModal) return;
+            bossRushModal.classList.remove('hidden');
+            bossRushModal.classList.add('flex');
+        };
+        bossRushCloseBtn.addEventListener('click', closeBossRushModal);
+        bossRushOkBtn.addEventListener('click', closeBossRushModal);
+        bossRushModal.addEventListener('click', (event) => {
+            if (event.target === bossRushModal) closeBossRushModal();
         });
 
         const confirmModal = document.getElementById('confirm-modal');
