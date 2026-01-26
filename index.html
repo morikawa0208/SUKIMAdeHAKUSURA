@@ -610,8 +610,7 @@
                 <div class="flex items-center gap-2">
                     <a
                       href="https://x.com/intent/tweet?text=%23%E3%81%99%E3%81%8D%E3%81%BE%E3%81%A7%E3%83%8F%E3%82%AF%E3%82%B9%E3%83%A9"
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      onclick="return openXShare(event)"
                       class="bg-slate-900 text-white border border-slate-900 text-[11px] font-black px-3 py-1.5 rounded-full shadow-sm active:scale-95 transition-transform flex items-center gap-1.5"
                       aria-label="Xで #すきまでハクスラ をツイート">
                       <i class="fa-brands fa-x-twitter"></i> ツイート
@@ -6174,6 +6173,22 @@
         function openDonateModal() {
           const m = document.getElementById('donate-modal');
           if (m) { m.classList.remove('hidden'); m.classList.add('flex'); }
+        }
+        
+        function openXShare(event) {
+          if (event) event.preventDefault();
+          const text = "#すきまでハクスラ";
+          const encoded = encodeURIComponent(text);
+          const appUrl = `twitter://post?message=${encoded}`;
+          const webUrl = `https://x.com/intent/tweet?text=${encoded}`;
+          const start = Date.now();
+          window.location.href = appUrl;
+          setTimeout(() => {
+            if (Date.now() - start < 1600) {
+              window.open(webUrl, "_blank", "noopener,noreferrer");
+            }
+          }, 1200);
+          return false;
         }
         
         function closeDonateModal() {
