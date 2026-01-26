@@ -2321,7 +2321,7 @@
                 { name: "終焉の竜槍", type: "weapon", rarity: "legendary", stats: [{ key: "attackFlat", value: 84 }, { key: "str", value: 21 }, { key: "damageBoost", value: 12 }], uniqueStats: [] },
                 { name: "竜鱗の護鎧", type: "armor", rarity: "legendary", stats: [{ key: "defenseFlat", value: 80 }, { key: "vit", value: 27 }, { key: "maxHp", value: 105 }], uniqueStats: [] },
                 { name: "終焉の兜", type: "head", rarity: "legendary", stats: [{ key: "defenseFlat", value: 40 }, { key: "vit", value: 14 }], uniqueStats: [] },
-                { name: "終焉の護符", type: "accessory", rarity: "legendary", stats: [{ key: "damageBoost", value: 10 }, { key: "maxHp", value: 60 }], uniqueStats: [] }
+                { name: "終焉の護符", type: "accessory", rarity: "legendary", stats: [{ key: "luck", value: 36 }, { key: "rareFind", value: 34 }, { key: "affixFind", value: 32 }], uniqueStats: [] }
             ],
         };
 
@@ -2374,7 +2374,7 @@
             "影走りの護衣": { type: "extraTurnChance", condition: { type: "enemyHpBelow", threshold: 0.35 }, chance: 12, hitMultiplier: 0.7, label: "影走りの護衣：敵HP35%以下で12%で追加行動(70%)" },
             "影刃の護符": { type: "accuracyBoost", condition: { type: "playerHpAbove", threshold: 0.6 }, value: 9, label: "影刃の護符：HP60%以上で命中+9" },
             "終焉の兜": { type: "damageTakenReduction", condition: { type: "enemyHpAbove", threshold: 0.8 }, value: 12, label: "終焉の兜：敵HP80%以上で被ダメ-12%" },
-            "終焉の護符": { type: "critBoost", condition: { type: "playerMpBelow", threshold: 0.3 }, value: 12, label: "終焉の護符：MP30%以下で会心率+12%" },
+            "終焉の護符": { type: "levelRatioBoost", stat: "luk", randomize: true, stepRange: [1, 5], gainRange: [1, 2], label: "終焉の護符：LUK成長" },
         };
 
         const BossRushLootTables = {};
@@ -3096,7 +3096,7 @@
                 const step = Math.floor(Math.random() * (stepMax - stepMin + 1)) + stepMin;
                 const gain = Math.floor(Math.random() * (gainMax - gainMin + 1)) + gainMin;
                 const statKeys = ["str", "vit", "int", "dex", "luk"];
-                const statKey = statKeys[Math.floor(Math.random() * statKeys.length)];
+                const statKey = statKeys.includes(effect.stat) ? effect.stat : statKeys[Math.floor(Math.random() * statKeys.length)];
                 const statLabel = StatLabels[statKey] || statKey;
                 resolvedEffect = {
                     ...effect,
