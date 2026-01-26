@@ -4833,9 +4833,14 @@
             if (skill.pow !== undefined && skill.pow !== null) {
                 const hits = skill.hits || 1;
                 for (let i = 0; i < hits; i++) {
-                    const baseAccuracy = (skill.accuracy ?? 100) + (Game.enemy.acc || 0);
-                    const accuracy = Math.max(0, Math.floor(baseAccuracy * enemyStatusMods.accuracyMul));
-                    if (Math.random() * 100 > accuracy) {
+                    const baseAccuracy = Math.max(0, Math.floor(((skill.accuracy ?? 100) + (Game.enemy.acc || 0)) * enemyStatusMods.accuracyMul));
+                    const evasionValue = Math.max(0, derived.totals.evasionRate);
+                    const ratioDenominator = baseAccuracy + evasionValue;
+                    let hitChance = ratioDenominator > 0
+                        ? (baseAccuracy / ratioDenominator) * 100
+                        : 0;
+                    hitChance = Math.min(95, Math.max(10, hitChance));
+                    if (Math.random() * 100 > hitChance) {
                         continue;
                     }
                     landedHit = true;
@@ -5164,7 +5169,14 @@
 
             // Evasion Check
             if (!usedBossSkill) {
-                if (Math.random() * 100 < derived.totals.evasionRate) {
+                const baseAccuracy = Math.max(0, Math.floor((Game.enemy.acc || 0) * enemyStatusMods.accuracyMul));
+                const evasionValue = Math.max(0, derived.totals.evasionRate);
+                const ratioDenominator = baseAccuracy + evasionValue;
+                let hitChance = ratioDenominator > 0
+                    ? (baseAccuracy / ratioDenominator) * 100
+                    : 0;
+                hitChance = Math.min(95, Math.max(10, hitChance));
+                if (Math.random() * 100 > hitChance) {
                     addLog("攻撃を回避！", "text-blue-500 font-bold");
                     dmgText("MISS", false);
                     advanceStatusEffects(Game.enemy, 'end');
