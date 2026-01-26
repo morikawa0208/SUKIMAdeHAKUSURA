@@ -1334,7 +1334,7 @@
                 Game.player.level++;
                 Game.player.exp -= Game.player.next;
                 Game.player.next = getNextExpRequirement(Game.player.level);
-                const hpGain = Math.floor(Game.player.maxHp * 0.03) + 10;
+                const hpGain = Math.floor(Game.player.maxHp * 0.025) + 10;
                 Game.player.maxHp += hpGain;
                 Game.player.maxMp += 15;
                 const derived = getDerivedStats();
