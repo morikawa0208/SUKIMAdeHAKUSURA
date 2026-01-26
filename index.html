@@ -4033,10 +4033,20 @@
             const derived = getDerivedStats();
             if (p.hp <= 0) return;
             if (derived.totals.hpRegen > 0) {
+                const beforeHp = p.hp;
                 p.hp = Math.min(derived.maxHp, p.hp + derived.totals.hpRegen);
+                const actual = p.hp - beforeHp;
+                if (actual > 0) {
+                    addLog(`自動回復でHPが${actual}回復`, "text-emerald-400");
+                }
             }
             if (derived.totals.mpRegen > 0) {
+                const beforeMp = p.mp;
                 p.mp = Math.min(derived.maxMp, p.mp + derived.totals.mpRegen);
+                const actual = p.mp - beforeMp;
+                if (actual > 0) {
+                    addLog(`自動回復でMPが${actual}回復`, "text-blue-400");
+                }
             }
             if (Array.isArray(p.statusEffects)) {
                 p.statusEffects.forEach(effect => {
@@ -4046,10 +4056,20 @@
                     const amount = (def.regenPerStack || 0) * stacks;
                     if (amount <= 0) return;
                     if (def.resource === 'hp') {
+                        const beforeHp = p.hp;
                         p.hp = Math.min(derived.maxHp, p.hp + amount);
+                        const actual = p.hp - beforeHp;
+                        if (actual > 0) {
+                            addLog(`再生効果でHPが${actual}回復`, "text-emerald-400");
+                        }
                     }
                     if (def.resource === 'mp') {
+                        const beforeMp = p.mp;
                         p.mp = Math.min(derived.maxMp, p.mp + amount);
+                        const actual = p.mp - beforeMp;
+                        if (actual > 0) {
+                            addLog(`再生効果でMPが${actual}回復`, "text-blue-400");
+                        }
                     }
                 });
             }
@@ -4142,6 +4162,7 @@
             target.statusEffects = target.statusEffects.filter(effect => effect.turns > 0);
             if (phase === 'start') {
                 const isPlayer = target === Game.player;
+                const targetLabel = isPlayer ? '自分' : (target.name || '敵');
                 const derived = isPlayer ? getDerivedStats() : null;
                 const maxHp = isPlayer ? derived.maxHp : target.maxHp;
                 const strValue = isPlayer ? derived.totals.str : (target.str || 0);
@@ -4152,12 +4173,14 @@
                         const stacks = Math.max(1, effect.stacks || 1);
                         const baseHp = maxHp || target.hp || 0;
                         const dmg = Math.max(1, Math.floor(baseHp * 0.03 * stacks));
-                        applyDamage(target, dmg, null, { ignoreReflect: true });
+                        const appliedDamage = applyDamage(target, dmg, null, { ignoreReflect: true });
+                        addLog(`${targetLabel}は毒で${appliedDamage}ダメージ`, "text-purple-400");
                     }
                     if (def.effectType === 'bleed') {
                         const stacks = Math.max(1, effect.stacks || 1);
                         const dmg = Math.max(1, Math.floor((2 + strValue * 0.3) * stacks));
-                        applyDamage(target, dmg, null, { ignoreReflect: true });
+                        const appliedDamage = applyDamage(target, dmg, null, { ignoreReflect: true });
+                        addLog(`${targetLabel}は出血で${appliedDamage}ダメージ`, "text-purple-400");
                     }
                 });
             }
@@ -4977,9 +5000,15 @@
             if (currentSkill.hpCost) {
                 const cost = Math.floor(derived.maxHp * currentSkill.hpCost);
                 Game.player.hp = Math.max(1, Game.player.hp - cost);
+                if (cost > 0) {
+                    addLog(`HP消費 ${cost}`, "text-rose-400");
+                }
             }
 
             Game.player.mp -= adjustedMpCost;
+            if (adjustedMpCost > 0) {
+                addLog(`MP消費 ${adjustedMpCost}`, "text-slate-400");
+            }
 
             if (currentSkill.type === 'heal') {
                 let amt = Math.floor(currentSkill.val + (derived.totals.int * 1.2));
@@ -5002,6 +5031,7 @@
                 let hits = currentSkill.hits || 1;
                 hits += bossMods.bonusHits || 0;
                 let totalDamage = 0;
+                let totalLeechApplied = 0;
                 let landedHit = false;
                 
                 for(let i=0; i<hits; i++){
@@ -5061,7 +5091,9 @@
                     if (totalLeech > 0 && appliedDamage > 0) {
                         let l = Math.floor(appliedDamage * (totalLeech / 100));
                         if (l > 0) {
+                            const beforeHp = Game.player.hp;
                             Game.player.hp = Math.min(derived.maxHp, Game.player.hp + l);
+                            totalLeechApplied += (Game.player.hp - beforeHp);
                         }
                     }
                 }
@@ -5081,7 +5113,15 @@
 
                 if (currentSkill.mpHeal && totalDamage > 0) {
                     const mHeal = Math.floor(totalDamage * currentSkill.mpHeal);
+                    const beforeMp = Game.player.mp;
                     Game.player.mp = Math.min(derived.maxMp, Game.player.mp + mHeal);
+                    const actual = Game.player.mp - beforeMp;
+                    if (actual > 0) {
+                        addLog(`MP吸収 +${actual}`, "text-blue-400");
+                    }
+                }
+                if (totalLeechApplied > 0) {
+                    addLog(`吸血でHPが${totalLeechApplied}回復`, "text-emerald-400");
                 }
                 if (currentSkill.expBonus && totalDamage > 0) {
                     let b = Math.floor(Game.player.next * (currentSkill.expBonus / 100));
@@ -5225,7 +5265,12 @@
             // Passive: MP Regen
             const mpRegenLevel = getPassiveLevel('mage', 2);
             if (mpRegenLevel > 0) {
+                const beforeMp = Game.player.mp;
                 Game.player.mp = Math.min(derived.maxMp, Game.player.mp + (2 * mpRegenLevel));
+                const actual = Game.player.mp - beforeMp;
+                if (actual > 0) {
+                    addLog(`瞑想でMPが${actual}回復`, "text-blue-400");
+                }
             }
             
             // Passive: Counter
@@ -5234,7 +5279,7 @@
                 const derived = getDerivedStats();
                 let cdmg = Math.floor(derived.totals.str * (0.2 + 0.1 * counterLevel));
                 Game.enemy.hp = Math.max(0, Game.enemy.hp - cdmg);
-                addLog("カウンター！", "text-orange-500");
+                addLog(`カウンター！ ${cdmg}ダメージ`, "text-orange-500");
                 dmgText(cdmg);
                 if (Game.enemy.hp <= 0) victory();
             }
