@@ -1299,7 +1299,7 @@
                     thief: { active: [0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
                     ranger: { active: [0,0,0,0,0,0,0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
                     paladin: { active: [0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
-                    monk: { active: [0,0,0,0,0,0], passive: [0,0,0,0,0,0] }
+                    monk: { active: [0,0,0,0,0,0,0,0,0,0,0,0], passive: [0,0,0,0,0,0] }
                 }
             },
             currentJobTab: 'warrior',
@@ -1841,12 +1841,18 @@
             monk: {
                 name: "拳闘士",
                 active: [
-                    { id: 0, name: "連打拳", mp: 4, pow: 0.7, powGrowth: 0.1, hits: 3, maxLevel: 50, desc: "素早い連打で削る" },
-                    { id: 1, name: "気功波", mp: 8, pow: 1.8, powGrowth: 0.25, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "気を乱され脆弱になった！" }], desc: "敵の隙を作る遠隔打撃で脆弱を狙う" },
-                    { id: 2, name: "破岩撃", mp: 10, pow: 2.4, powGrowth: 0.3, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 1, turns: 2, log: "守りが砕けた！" }], desc: "岩をも砕く一撃で脆甲を付与" },
-                    { id: 3, name: "回天脚", mp: 12, pow: 1.0, powGrowth: 0.15, hits: 4, accuracyBonus: 10, accuracyGrowth: 5, maxLevel: 50, effects: [{ target: "enemy", id: "blind", stacks: 1, turns: 2, log: "回転で目がくらんだ！" }], desc: "回転蹴りの連撃で暗闇を与える" },
-                    { id: 4, name: "活力循環", mp: 10, val: 25, valGrowth: 10, type: 'heal', maxLevel: 50, effects: [{ target: "self", id: "haste", stacks: 1, turns: 2 }], desc: "回復と迅速化で手数を増やす" },
-                    { id: 5, name: "無我の境地", mp: 30, pow: 3.8, powGrowth: 0.6, critBonus: 10, critGrowth: 3, maxLevel: 50, effects: [{ target: "self", id: "attackUp", stacks: 2, turns: 2 }, { target: "self", id: "reflect", stacks: 1, turns: 2 }], desc: "闘志と反射で反撃寄りの攻めを作る" }
+                    { id: 0, name: "疾風連打", mp: 4, pow: 0.6, powGrowth: 0.08, hits: 4, maxLevel: 50, desc: "発動条件: 常時使用可。素早い連打で削る" },
+                    { id: 1, name: "ボディ・シフター", mp: 7, pow: 1.1, powGrowth: 0.15, maxLevel: 50, effects: [{ target: "enemy", id: "weaken", stacks: 1, turns: 2, log: "動きが鈍った！" }], desc: "発動条件: 直前の攻撃が命中。ボディ連打で相手の勢いを削ぐ" },
+                    { id: 2, name: "カウンター・スリップ", mp: 9, pow: 1.0, powGrowth: 0.12, accuracyBonus: 5, accuracyGrowth: 2, maxLevel: 50, effects: [{ target: "self", id: "haste", stacks: 1, turns: 2 }, { target: "self", id: "reflect", stacks: 1, turns: 2 }], desc: "発動条件: 敵の攻撃に合わせて使用。回避と反撃を狙う" },
+                    { id: 3, name: "ラッシュ・アッパー", mp: 12, pow: 1.6, powGrowth: 0.2, critBonus: 8, critGrowth: 2, maxLevel: 50, desc: "発動条件: 直前に拳技を使用。連携で威力が増す" },
+                    { id: 4, name: "リング・コンビネーション", mp: 14, pow: 0.9, powGrowth: 0.12, hits: 2, accuracyBonus: 10, accuracyGrowth: 3, maxLevel: 50, effects: [{ target: "enemy", id: "blind", stacks: 1, turns: 2, log: "視界が乱れた！" }], desc: "発動条件: 敵が暗闇、または自身が迅速。連撃で主導権を握る" },
+                    { id: 5, name: "フィニッシュ・ブロー", mp: 18, pow: 2.6, powGrowth: 0.35, critBonus: 12, critGrowth: 3, maxLevel: 50, desc: "発動条件: 直近で拳技が連続命中。締めの一撃" },
+                    { id: 6, name: "鉄拳衝", mp: 10, pow: 2.1, powGrowth: 0.28, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 1, turns: 2, log: "防御が削がれた！" }], desc: "発動条件: 常時使用可。防御を崩す重い一撃" },
+                    { id: 7, name: "ガード・クラッシュ", mp: 16, pow: 2.7, powGrowth: 0.35, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 2, turns: 2, log: "ガードが崩れた！" }], desc: "発動条件: 敵が防御系状態。ガードを破砕する強打" },
+                    { id: 8, name: "踏み込み破砕", mp: 14, pow: 2.3, powGrowth: 0.3, maxLevel: 50, effects: [{ target: "enemy", id: "attackDown", stacks: 1, turns: 2, log: "衝撃で動きが鈍った！" }], desc: "発動条件: 自身が闘志/強化。踏み込みで押し切る" },
+                    { id: 9, name: "震脚一撃", mp: 12, pow: 1.8, powGrowth: 0.24, accuracyBonus: 5, accuracyGrowth: 2, maxLevel: 50, effects: [{ target: "enemy", id: "blind", stacks: 1, turns: 2, log: "衝撃で視界が揺れた！" }], desc: "発動条件: 敵の命中が高い時に有効。視界を乱す衝撃拳" },
+                    { id: 10, name: "破壊の拳圧", mp: 18, pow: 2.0, powGrowth: 0.28, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "防勢が崩れた！" }, { target: "enemy", id: "defenseDown", stacks: 1, turns: 2, log: "守りが裂けた！" }], desc: "発動条件: 敵が弱体/脆弱/脆甲。圧で連携を通す" },
+                    { id: 11, name: "覇拳・極", mp: 28, pow: 4.2, powGrowth: 0.6, critBonus: 10, critGrowth: 3, maxLevel: 50, effects: [{ target: "self", id: "attackDown", stacks: 1, turns: 2 }], desc: "発動条件: 直前に被ダメ。溜めの決定打" }
                 ],
                 passive: [
                     { id: 0, name: "体術鍛錬", desc: "STR+2/レベル & DEX+2/レベル", maxLevel: 50, apply: (d) => { Game.player.str += 2 * d; Game.player.dex += 2 * d; } },
