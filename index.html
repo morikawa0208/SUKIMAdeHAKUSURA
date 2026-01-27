@@ -1722,12 +1722,18 @@
             warrior: {
                 name: "戦士",
                 active: [
-                    { id: 0, name: "ヘヴィスラッシュ", mp: 4, mpGrowth: 0, pow: 1.7, powGrowth: 0.25, maxLevel: 50, desc: "重い一撃で押し切る主力斬撃" },
-                    { id: 1, name: "オーバーヘッドクラッシュ", mp: 7, mpGrowth: 0, pow: 2.0, powGrowth: 0.3, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 1, turns: 2, log: "防御が崩れた！" }], desc: "縦振りで防御を砕く一撃" },
-                    { id: 2, name: "チャージインパクト", mp: 10, pow: 2.4, powGrowth: 0.35, accuracyBonus: 5, accuracyGrowth: 3, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "突撃で脆弱になった！" }], desc: "突進の衝撃で脆弱を与える強打" },
-                    { id: 3, name: "アースシェイカー", mp: 14, pow: 1.0, powGrowth: 0.15, hits: 3, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "衝撃で隙が生まれた！" }], desc: "地を揺らす連撃で押し切る" },
-                    { id: 4, name: "ウォーブレイク", mp: 18, pow: 2.8, powGrowth: 0.4, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 2, turns: 2, log: "装甲が砕けた！" }], desc: "敵の装甲を打ち砕く決定打" },
-                    { id: 5, name: "デストロイヤー・バスター", mp: 30, pow: 5.5, powGrowth: 0.8, maxLevel: 50, effects: [{ target: "self", id: "vulnerable", stacks: 1, turns: 1 }], desc: "全身を叩き込む決死の大斬撃" }
+                    { id: 0, name: "血沸きの咆哮", mp: 6, mpGrowth: 0, pow: 1.3, powGrowth: 0.2, maxLevel: 50, effects: [{ target: "self", id: "attackUp", stacks: 1, turns: 2 }], desc: "闘志を燃やし、攻撃を底上げする咆哮" },
+                    { id: 1, name: "狂走連撃", mp: 10, mpGrowth: 0, pow: 0.95, powGrowth: 0.12, hits: 2, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "連撃で脆弱になった！" }], desc: "突進からの連撃で脆弱を刻む" },
+                    { id: 2, name: "逆境の一撃", mp: 14, pow: 2.6, powGrowth: 0.38, maxLevel: 50, critBonus: 5, critGrowth: 2, desc: "追い込まれた力を叩きつける強打" },
+                    { id: 3, name: "破滅の誓い", mp: 10, pow: 1.6, powGrowth: 0.2, maxLevel: 50, effects: [{ target: "self", id: "attackUp", stacks: 2, turns: 2 }, { target: "self", id: "vulnerable", stacks: 1, turns: 1 }], desc: "力を引き上げる代償に隙を生む誓約" },
+                    { id: 4, name: "戦鬼の反撃", mp: 16, pow: 1.4, powGrowth: 0.18, maxLevel: 50, effects: [{ target: "self", id: "reflect", stacks: 1, turns: 2 }], desc: "反射で反撃を狙う荒々しい斬撃" },
+                    { id: 5, name: "命燃やし", mp: 0, pow: 3.4, powGrowth: 0.5, hpCost: 0.12, maxLevel: 50, effects: [{ target: "self", id: "attackUp", stacks: 1, turns: 2 }], desc: "HPを燃料に爆発的な一撃を放つ" },
+                    { id: 6, name: "鎧割り", mp: 6, mpGrowth: 0, pow: 1.6, powGrowth: 0.24, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 1, turns: 2, log: "鎧が砕けた！" }], desc: "防御を削り、破砕の起点を作る" },
+                    { id: 7, name: "破城の槌", mp: 12, mpGrowth: 0, pow: 2.5, powGrowth: 0.35, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 2, turns: 2, log: "装甲が崩れた！" }], desc: "脆甲を重ねる重撃で堅牢を崩す" },
+                    { id: 8, name: "崩し打ち", mp: 10, mpGrowth: 0, pow: 1.8, powGrowth: 0.26, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "体勢が崩れた！" }], desc: "隙を作り、被ダメを引き上げる" },
+                    { id: 9, name: "震撃波", mp: 14, mpGrowth: 0, pow: 1.2, powGrowth: 0.18, hits: 2, maxLevel: 50, effects: [{ target: "enemy", id: "blind", stacks: 1, turns: 2, log: "衝撃で視界が乱れた！" }], desc: "衝撃波の連撃で命中を崩す" },
+                    { id: 10, name: "粉砕圧", mp: 16, mpGrowth: 0, pow: 2.1, powGrowth: 0.3, maxLevel: 50, effects: [{ target: "enemy", id: "attackDown", stacks: 1, turns: 2, log: "圧により衰弱した！" }], desc: "圧で敵火力を落として崩し切る" },
+                    { id: 11, name: "断罪の楔", mp: 20, mpGrowth: 0, pow: 2.9, powGrowth: 0.42, maxLevel: 50, effects: [{ target: "enemy", id: "silence", stacks: 1, turns: 1, log: "楔で沈黙した！" }], desc: "行動を封じる決定打" }
                 ],
                 passive: [
                     { id: 0, name: "剛力鍛錬", desc: "STR+4/レベル", maxLevel: 50, apply: (d) => Game.player.str += 4 * d },
@@ -1741,12 +1747,18 @@
             mage: {
                 name: "魔術師",
                 active: [
-                    { id: 0, name: "ファイアボール", mp: 8, pow: 2.0, powGrowth: 0.3, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "weaken", stacks: 1, turns: 2, log: "炎が勢いを削いだ！" }], desc: "炎で勢いを削ぎ、継続火力を支える弱体付与" },
-                    { id: 1, name: "アイスランス", mp: 10, pow: 2.3, powGrowth: 0.35, isMagic: true, accuracyBonus: 5, accuracyGrowth: 3, maxLevel: 50, effects: [{ target: "enemy", id: "freeze", stacks: 1, turns: 1, log: "氷槍で凍結した！" }], desc: "命中寄りの一撃で短時間の凍結を狙う" },
-                    { id: 2, name: "マナドレイン", mp: 0, pow: 0.7, powGrowth: 0.1, isMagic: true, mpHeal: 0.4, mpHealGrowth: 0.05, maxLevel: 50, desc: "与ダメに応じてMPを吸収" },
-                    { id: 3, name: "サンダーストーム", mp: 18, pow: 3.2, powGrowth: 0.45, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "blind", stacks: 1, turns: 2, log: "雷光で目がくらんだ！" }], desc: "雷撃で命中と会心を阻害する制圧魔法" },
-                    { id: 4, name: "メテオ", mp: 30, pow: 5.0, powGrowth: 0.8, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 2, turns: 2, log: "衝撃で防御が崩れた！" }], desc: "重い一撃で防御を砕く高火力" },
-                    { id: 5, name: "終焉の禁呪", mp: 50, pow: 10.0, powGrowth: 1.2, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "silence", stacks: 1, turns: 1, log: "禁呪で沈黙した！" }], desc: "絶大火力と引き換えに敵のスキルを封じる" }
+                    { id: 0, name: "火球撃", mp: 8, pow: 2.0, powGrowth: 0.3, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "weaken", stacks: 1, turns: 2, log: "炎が勢いを削いだ！" }], desc: "炎で勢いを削ぎ、連携の起点を作る基本火力" },
+                    { id: 1, name: "灼き剥がし", mp: 12, pow: 2.4, powGrowth: 0.35, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 1, turns: 2, log: "装甲が焼け落ちた！" }], desc: "防御を削り高火力スキルの下地を作る" },
+                    { id: 2, name: "熾火の符", mp: 10, pow: 0.8, powGrowth: 0.1, isMagic: true, maxLevel: 50, effects: [{ target: "self", id: "attackUp", stacks: 1, turns: 2, log: "炎の符で火力が高まった！" }], desc: "次の一撃を強める自己強化の準備術" },
+                    { id: 3, name: "黒煙纏い", mp: 14, pow: 1.4, powGrowth: 0.2, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "blind", stacks: 1, turns: 2, log: "黒煙で視界が奪われた！" }], desc: "暗闇を付与し連携の合図となる" },
+                    { id: 4, name: "盲目狩り", mp: 18, pow: 3.2, powGrowth: 0.45, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "混乱の隙に急所を突いた！" }], desc: "暗闇の隙を突く連携火力" },
+                    { id: 5, name: "終焉の禁呪", mp: 50, pow: 10.0, powGrowth: 1.2, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "silence", stacks: 1, turns: 1, log: "禁呪で沈黙した！" }], desc: "最大火力で戦闘を決める奥義" },
+                    { id: 6, name: "アイスランス", mp: 10, pow: 2.3, powGrowth: 0.35, isMagic: true, accuracyBonus: 5, accuracyGrowth: 3, maxLevel: 50, effects: [{ target: "enemy", id: "freeze", stacks: 1, turns: 1, log: "氷槍で凍結した！" }], desc: "命中寄りの一撃で凍結を狙う" },
+                    { id: 7, name: "霜鎖", mp: 12, pow: 1.4, powGrowth: 0.2, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "attackDown", stacks: 1, turns: 2, log: "霜鎖で動きが鈍った！" }], desc: "攻撃力を抑えて被ダメを安定化" },
+                    { id: 8, name: "凍圧", mp: 14, pow: 2.2, powGrowth: 0.3, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "weaken", stacks: 1, turns: 2, log: "冷気で勢いを削いだ！" }], desc: "弱体で次の攻撃を通しやすくする" },
+                    { id: 9, name: "白霧", mp: 14, pow: 1.2, powGrowth: 0.2, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "blind", stacks: 1, turns: 2, log: "白霧で視界が奪われた！" }], desc: "暗闇で連携の起点を作る制圧術" },
+                    { id: 10, name: "静氷断", mp: 18, pow: 2.8, powGrowth: 0.4, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 1, turns: 2, log: "氷刃で守りが崩れた！" }], desc: "凍結や暗闇の隙を突く連携火力" },
+                    { id: 11, name: "零度封印", mp: 30, pow: 5.0, powGrowth: 0.8, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "freeze", stacks: 1, turns: 1, log: "零度の封印で凍結した！" }], desc: "強力な氷で行動を止める切り札" }
                 ],
                 passive: [
                     { id: 0, name: "知力増強", desc: "INT+4/レベル", maxLevel: 50, apply: (d) => Game.player.int += 4 * d },
