@@ -1298,8 +1298,8 @@
                     mage: { active: [0,0,0,0,0,0,0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
                     thief: { active: [0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
                     ranger: { active: [0,0,0,0,0,0,0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
-                    paladin: { active: [0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
-                    monk: { active: [0,0,0,0,0,0,0,0,0,0,0,0], passive: [0,0,0,0,0,0] }
+                    paladin: { active: [0,0,0,0,0,0,0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
+                    monk: { active: [0,0,0,0,0,0], passive: [0,0,0,0,0,0] }
                 }
             },
             currentJobTab: 'warrior',
@@ -1822,12 +1822,18 @@
             paladin: {
                 name: "聖騎士",
                 active: [
-                    { id: 0, name: "ホーリースマイト", mp: 6, pow: 1.7, powGrowth: 0.25, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "聖撃で脆弱になった！" }], desc: "聖撃で被ダメを増やし、連撃の起点にする" },
-                    { id: 1, name: "シールドチャージ", mp: 8, pow: 1.3, powGrowth: 0.2, accuracyBonus: 10, accuracyGrowth: 5, maxLevel: 50, effects: [{ target: "enemy", id: "taunt", stacks: 1, turns: 2, log: "盾撃ちで挑発した！" }], desc: "盾で押し込み、敵を挑発して受け止める" },
-                    { id: 2, name: "セイクリッドヒール", mp: 12, val: 40, valGrowth: 15, type: 'heal', isMagic: true, maxLevel: 50, effects: [{ target: "self", id: "barrier", stacks: 1, turns: 2 }], desc: "回復と同時にバリアを展開する守護技" },
-                    { id: 3, name: "ライトバースト", mp: 18, pow: 2.8, powGrowth: 0.4, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "silence", stacks: 1, turns: 1, log: "眩光で沈黙した！" }], desc: "光で敵の詠唱を遮る制圧の一撃" },
-                    { id: 4, name: "ジャッジメント", mp: 22, pow: 2.0, powGrowth: 0.3, isMagic: true, hits: 2, maxLevel: 50, effects: [{ target: "enemy", id: "weaken", stacks: 1, turns: 2, log: "裁きで弱体化した！" }], desc: "連撃で削りつつ敵火力を抑える" },
-                    { id: 5, name: "聖域の裁き", mp: 35, pow: 4.8, powGrowth: 0.7, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "attackDown", stacks: 2, turns: 2, log: "聖域の圧で攻撃が下がった！" }], desc: "広範囲の圧で敵の攻撃力を大きく下げる" }
+                    { id: 0, name: "光盾の契約", mp: 8, pow: 0.9, powGrowth: 0.12, maxLevel: 50, effects: [{ target: "self", id: "barrier", stacks: 1, turns: 2, log: "光盾で守りが強化された！" }], desc: "小さな攻撃と同時にバリアを張る防御の起点" },
+                    { id: 1, name: "守護誓約", mp: 10, pow: 1.1, powGrowth: 0.15, maxLevel: 50, effects: [{ target: "self", id: "defenseUp", stacks: 1, turns: 2, log: "守護の誓約で守勢を得た！" }], desc: "被ダメを抑える守勢をまとい、粘り強く戦う" },
+                    { id: 2, name: "浄化の祈り", mp: 12, val: 32, valGrowth: 12, type: 'heal', isMagic: true, maxLevel: 50, effects: [{ target: "self", id: "defenseUp", stacks: 1, turns: 2 }], desc: "自己回復と守勢で安定を作る祈り" },
+                    { id: 3, name: "黒耀の誓印", mp: 10, pow: 1.2, powGrowth: 0.16, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "blind", stacks: 1, turns: 2, log: "黒耀の印で視界が奪われた！" }], desc: "暗闇を自前で付与し、防御連携の起点を作る" },
+                    { id: 4, name: "黎明の剣", mp: 14, pow: 2.2, powGrowth: 0.32, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "黎明の一閃で脆弱になった！" }], desc: "聖なる一撃で隙を作り、追撃に繋げる" },
+                    { id: 5, name: "赦しの誓い", mp: 16, val: 52, valGrowth: 18, type: 'heal', isMagic: true, maxLevel: 50, effects: [{ target: "self", id: "barrier", stacks: 1, turns: 2 }], desc: "自己回復とバリアで長期戦を支える" },
+                    { id: 6, name: "裁きの槍", mp: 10, pow: 1.8, powGrowth: 0.25, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "裁きで脆弱になった！" }], desc: "裁きの突きで脆弱を刻む制裁の一撃" },
+                    { id: 7, name: "懺悔の宣告", mp: 12, pow: 1.4, powGrowth: 0.2, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "weaken", stacks: 1, turns: 2, log: "懺悔の宣告で勢いが削がれた！" }], desc: "敵火力を抑えつつ連携の下地を作る" },
+                    { id: 8, name: "黒騎の帳", mp: 12, pow: 1.0, powGrowth: 0.14, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "blind", stacks: 1, turns: 2, log: "黒騎の帳で視界が奪われた！" }, { target: "self", id: "attackUp", stacks: 1, turns: 2 }], desc: "暗闇を付与し、自身の攻めを強化する" },
+                    { id: 9, name: "影狩り", mp: 16, pow: 2.6, powGrowth: 0.36, maxLevel: 50, critBonus: 5, critGrowth: 2, desc: "暗闇の隙を狙い撃つ高火力の追撃" },
+                    { id: 10, name: "忌光の鎖", mp: 14, pow: 1.5, powGrowth: 0.2, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "silence", stacks: 1, turns: 1, log: "忌光の鎖で沈黙した！" }], desc: "敵の行動を縛り、主導権を握る" },
+                    { id: 11, name: "天刑の宣告", mp: 24, pow: 3.4, powGrowth: 0.48, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 2, turns: 2, log: "天刑の宣告で守りが崩れた！" }], desc: "強烈な制裁で守りを崩し、とどめを狙う" }
                 ],
                 passive: [
                     { id: 0, name: "信仰", desc: "最大HP+15/レベル", maxLevel: 50, apply: (d) => Game.player.maxHpFlat += 15 * d },
