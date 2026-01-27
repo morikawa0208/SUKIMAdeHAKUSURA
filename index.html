@@ -1295,7 +1295,7 @@
                 statusEffects: [],
                 skills: {
                     warrior: { active: [0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
-                    mage: { active: [0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
+                    mage: { active: [0,0,0,0,0,0,0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
                     thief: { active: [0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
                     ranger: { active: [0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
                     paladin: { active: [0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
@@ -1741,12 +1741,18 @@
             mage: {
                 name: "魔術師",
                 active: [
-                    { id: 0, name: "ファイアボール", mp: 8, pow: 2.0, powGrowth: 0.3, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "weaken", stacks: 1, turns: 2, log: "炎が勢いを削いだ！" }], desc: "炎で勢いを削ぎ、継続火力を支える弱体付与" },
-                    { id: 1, name: "アイスランス", mp: 10, pow: 2.3, powGrowth: 0.35, isMagic: true, accuracyBonus: 5, accuracyGrowth: 3, maxLevel: 50, effects: [{ target: "enemy", id: "freeze", stacks: 1, turns: 1, log: "氷槍で凍結した！" }], desc: "命中寄りの一撃で短時間の凍結を狙う" },
-                    { id: 2, name: "マナドレイン", mp: 0, pow: 0.7, powGrowth: 0.1, isMagic: true, mpHeal: 0.4, mpHealGrowth: 0.05, maxLevel: 50, desc: "与ダメに応じてMPを吸収" },
-                    { id: 3, name: "サンダーストーム", mp: 18, pow: 3.2, powGrowth: 0.45, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "blind", stacks: 1, turns: 2, log: "雷光で目がくらんだ！" }], desc: "雷撃で命中と会心を阻害する制圧魔法" },
-                    { id: 4, name: "メテオ", mp: 30, pow: 5.0, powGrowth: 0.8, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 2, turns: 2, log: "衝撃で防御が崩れた！" }], desc: "重い一撃で防御を砕く高火力" },
-                    { id: 5, name: "終焉の禁呪", mp: 50, pow: 10.0, powGrowth: 1.2, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "silence", stacks: 1, turns: 1, log: "禁呪で沈黙した！" }], desc: "絶大火力と引き換えに敵のスキルを封じる" }
+                    { id: 0, name: "火球撃", mp: 8, pow: 2.0, powGrowth: 0.3, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "weaken", stacks: 1, turns: 2, log: "炎が勢いを削いだ！" }], desc: "炎で勢いを削ぎ、連携の起点を作る基本火力" },
+                    { id: 1, name: "灼き剥がし", mp: 12, pow: 2.4, powGrowth: 0.35, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 1, turns: 2, log: "装甲が焼け落ちた！" }], desc: "防御を削り高火力スキルの下地を作る" },
+                    { id: 2, name: "熾火の符", mp: 10, pow: 0.8, powGrowth: 0.1, isMagic: true, maxLevel: 50, effects: [{ target: "self", id: "attackUp", stacks: 1, turns: 2, log: "炎の符で火力が高まった！" }], desc: "次の一撃を強める自己強化の準備術" },
+                    { id: 3, name: "黒煙纏い", mp: 14, pow: 1.4, powGrowth: 0.2, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "blind", stacks: 1, turns: 2, log: "黒煙で視界が奪われた！" }], desc: "暗闇を付与し連携の合図となる" },
+                    { id: 4, name: "盲目狩り", mp: 18, pow: 3.2, powGrowth: 0.45, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "混乱の隙に急所を突いた！" }], desc: "暗闇の隙を突く連携火力" },
+                    { id: 5, name: "終焉の禁呪", mp: 50, pow: 10.0, powGrowth: 1.2, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "silence", stacks: 1, turns: 1, log: "禁呪で沈黙した！" }], desc: "最大火力で戦闘を決める奥義" },
+                    { id: 6, name: "アイスランス", mp: 10, pow: 2.3, powGrowth: 0.35, isMagic: true, accuracyBonus: 5, accuracyGrowth: 3, maxLevel: 50, effects: [{ target: "enemy", id: "freeze", stacks: 1, turns: 1, log: "氷槍で凍結した！" }], desc: "命中寄りの一撃で凍結を狙う" },
+                    { id: 7, name: "霜鎖", mp: 12, pow: 1.4, powGrowth: 0.2, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "attackDown", stacks: 1, turns: 2, log: "霜鎖で動きが鈍った！" }], desc: "攻撃力を抑えて被ダメを安定化" },
+                    { id: 8, name: "凍圧", mp: 14, pow: 2.2, powGrowth: 0.3, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "weaken", stacks: 1, turns: 2, log: "冷気で勢いを削いだ！" }], desc: "弱体で次の攻撃を通しやすくする" },
+                    { id: 9, name: "白霧", mp: 14, pow: 1.2, powGrowth: 0.2, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "blind", stacks: 1, turns: 2, log: "白霧で視界が奪われた！" }], desc: "暗闇で連携の起点を作る制圧術" },
+                    { id: 10, name: "静氷断", mp: 18, pow: 2.8, powGrowth: 0.4, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 1, turns: 2, log: "氷刃で守りが崩れた！" }], desc: "凍結や暗闇の隙を突く連携火力" },
+                    { id: 11, name: "零度封印", mp: 30, pow: 5.0, powGrowth: 0.8, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "freeze", stacks: 1, turns: 1, log: "零度の封印で凍結した！" }], desc: "強力な氷で行動を止める切り札" }
                 ],
                 passive: [
                     { id: 0, name: "知力増強", desc: "INT+4/レベル", maxLevel: 50, apply: (d) => Game.player.int += 4 * d },
