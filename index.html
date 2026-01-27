@@ -226,6 +226,7 @@
                 </div>
                 <div id="enemy-container" class="text-center transition-all duration-300">
                     <div id="enemy-visual" class="text-8xl mb-4 text-slate-700"><i class="fas fa-ghost"></i></div>
+                <div id="enemy-bossrush-buffs" class="flex flex-wrap justify-center gap-1 mb-1 text-[10px]"></div>
                 <div id="enemy-name" class="font-bold text-lg mb-1">スライム</div>
                 <div id="enemy-boss-badge" class="hidden justify-center mb-2">
                     <span class="boss-badge"><i class="fas fa-crown"></i> BOSS</span>
@@ -1313,6 +1314,7 @@
             bulkSellFilter: { normal: false, magic: false, rare: false, epic: false, legendary: false },
             lootQueue: [],
             pendingEquip: null,
+            bossRushCarryoverDamage: 0,
             enemy: null, logs: [], dropLogs: []
         };
 
@@ -2020,6 +2022,300 @@
             eva: 1004,
             exp: 0
         };
+        const BossRushBuffConfig = {
+            extraActionChance: 0.25,
+            startBonusActionChance: 0.18,
+            followUpMultiplier: 0.6,
+            healCounterMultiplier: 0.35,
+            mistakeCounterMultiplier: 0.45,
+            statusRandomChance: 0.35,
+            statusGainBoost: 0.06,
+            critDefBoost: 0.08,
+            hitTakenBoost: 0.03,
+            turnAtkBoost: 0.05,
+            turnDefBoost: 0.05,
+            hp50Boost: 0.35,
+            hpMissingDamageBoost: 0.6,
+            buffGuardPerBuff: 0.05,
+            buffGuardMax: 0.35,
+            statusGuardPerStack: 0.06,
+            statusGuardMax: 0.4,
+            damageSpreadPct: 0.3,
+            smallDamageNullifyPct: 0.02,
+            reflectPct: 0.3,
+            leechPct: 0.2,
+            reviveHpPct: 0.5,
+            baseCritMultiplier: 1.5
+        };
+        const BossRushBuffCategories = [
+            {
+                id: "basic",
+                colorClass: "bg-rose-100 text-rose-600",
+                icon: "fa-arrow-up",
+                buffs: [
+                    { id: "br_basic_hp", shortLabel: "HP+100", label: "体力+100%", applySpawn: (enemy) => { enemy.maxHp = Math.floor(enemy.maxHp * 2); enemy.hp = enemy.maxHp; } },
+                    { id: "br_basic_atk", shortLabel: "攻+100", label: "攻撃+100%", applySpawn: (enemy) => { enemy.str = Math.floor(enemy.str * 2); } },
+                    { id: "br_basic_def", shortLabel: "防+50", label: "防御+50%", applySpawn: (enemy) => { enemy.def = Math.floor(enemy.def * 1.5); } },
+                    { id: "br_basic_extra_action", shortLabel: "行+1", label: "行動+1(率)" },
+                    { id: "br_basic_crit_rate", shortLabel: "会心+30", label: "会心率+30%" },
+                    { id: "br_basic_crit_dmg", shortLabel: "会心D+100", label: "会心DMG+100%" }
+                ]
+            },
+            {
+                id: "behavior",
+                colorClass: "bg-sky-100 text-sky-600",
+                icon: "fa-shield-halved",
+                buffs: [
+                    { id: "br_blue_reduce_30", shortLabel: "被-30", label: "被ダメ-30%" },
+                    { id: "br_blue_reduce_50", shortLabel: "被-50", label: "被ダメ-50%" },
+                    { id: "br_blue_nullify", shortLabel: "小無効", label: "小ダメ無効" },
+                    { id: "br_blue_reflect", shortLabel: "反射30", label: "反射30%" },
+                    { id: "br_blue_leech", shortLabel: "吸収20", label: "与ダメ吸収20%" },
+                    { id: "br_blue_ignore_def", shortLabel: "防無視", label: "防御無視" },
+                    { id: "br_blue_spread", shortLabel: "分散", label: "被ダメ分散" }
+                ]
+            },
+            {
+                id: "scaling",
+                colorClass: "bg-emerald-100 text-emerald-600",
+                icon: "fa-seedling",
+                buffs: [
+                    { id: "br_green_turn_atk", shortLabel: "攻UP/T", label: "ターン攻撃UP" },
+                    { id: "br_green_turn_def", shortLabel: "防UP/T", label: "ターン防御UP" },
+                    { id: "br_green_hit_scale", shortLabel: "被弾UP", label: "被弾強化" },
+                    { id: "br_green_hp50_boost", shortLabel: "半強化", label: "HP50%強化" },
+                    { id: "br_green_hp30_extra", shortLabel: "瀕死行+1", label: "HP30%で行+1" }
+                ]
+            },
+            {
+                id: "meta",
+                colorClass: "bg-amber-100 text-amber-600",
+                icon: "fa-bullseye",
+                buffs: [
+                    { id: "br_yellow_heal_counter", shortLabel: "回復反撃", label: "回復反撃" },
+                    { id: "br_yellow_buff_guard", shortLabel: "バフ盾", label: "バフ数で軽減" },
+                    { id: "br_yellow_debuff_counter", shortLabel: "異常反撃", label: "異常解除反撃" },
+                    { id: "br_yellow_crit_def", shortLabel: "会心防", label: "会心で防御UP" },
+                    { id: "br_yellow_status_limit", shortLabel: "異常1種", label: "異常1種" }
+                ]
+            },
+            {
+                id: "pattern",
+                colorClass: "bg-purple-100 text-purple-600",
+                icon: "fa-repeat",
+                buffs: [
+                    { id: "br_purple_double", shortLabel: "2連行動", label: "2連続行動" },
+                    { id: "br_purple_follow", shortLabel: "追撃", label: "追撃" },
+                    { id: "br_purple_start_bonus", shortLabel: "開幕追", label: "開幕追加行動" }
+                ]
+            },
+            {
+                id: "status",
+                colorClass: "bg-orange-100 text-orange-600",
+                icon: "fa-biohazard",
+                buffs: [
+                    { id: "br_orange_random", shortLabel: "異常付与", label: "ランダム異常" },
+                    { id: "br_orange_immune", shortLabel: "異常無効", label: "異常無効" },
+                    { id: "br_orange_gain", shortLabel: "異常強化", label: "異常で強化" },
+                    { id: "br_orange_guard", shortLabel: "異常盾", label: "異常数で軽減" }
+                ]
+            },
+            {
+                id: "late",
+                minFloor: 1031,
+                colorClass: "bg-red-100 text-red-600",
+                icon: "fa-skull",
+                buffs: [
+                    { id: "br_red_revive", shortLabel: "復活", label: "復活" },
+                    { id: "br_red_ignore_def", shortLabel: "防無視攻", label: "防無視攻撃" },
+                    { id: "br_red_missing_hp", shortLabel: "減HP火力", label: "減HP火力" },
+                    { id: "br_red_mistake", shortLabel: "ミス反応", label: "ミス即反応" }
+                ]
+            }
+        ];
+
+        const getBossRushBuffCount = (floor) => {
+            if (floor < BossRushStartFloor) return 0;
+            if (floor <= 1010) return 1;
+            if (floor <= 1020) return 2;
+            if (floor <= 1030) return 3;
+            if (floor <= 1040) return 4;
+            return 5;
+        };
+
+        const getBossRushBuffs = (enemy) => (Array.isArray(enemy?.bossRushBuffs) ? enemy.bossRushBuffs : []);
+
+        const hasBossRushBuff = (enemy, buffId) => getBossRushBuffs(enemy).some((buff) => buff.id === buffId);
+
+        const getBossRushBuffState = (enemy) => {
+            if (!enemy) return null;
+            if (!enemy.bossRushBuffState) {
+                enemy.bossRushBuffState = {
+                    turnCount: 0,
+                    hitsTaken: 0,
+                    defenseBoostPct: 0,
+                    statusBoostPct: 0,
+                    revived: false
+                };
+            }
+            return enemy.bossRushBuffState;
+        };
+
+        const buildBossRushBuffPool = (floor) => {
+            return BossRushBuffCategories
+                .filter((category) => !category.minFloor || floor >= category.minFloor)
+                .map((category) => {
+                    let buffs = category.buffs;
+                    if (floor === 1021 && category.id === "basic") {
+                        buffs = buffs.filter((buff) => !["br_basic_hp", "br_basic_def"].includes(buff.id));
+                    }
+                    return { ...category, buffs };
+                })
+                .filter((category) => category.buffs.length > 0);
+        };
+
+        const rollBossRushBuffs = (floor) => {
+            const count = getBossRushBuffCount(floor);
+            if (count <= 0) return [];
+            const pool = buildBossRushBuffPool(floor);
+            const picked = [];
+            const available = [...pool];
+            while (picked.length < count && available.length > 0) {
+                const category = available.splice(Math.floor(Math.random() * available.length), 1)[0];
+                if (!category || !category.buffs.length) continue;
+                const buff = pickRandom(category.buffs);
+                if (!buff) continue;
+                picked.push({
+                    ...buff,
+                    categoryId: category.id,
+                    colorClass: category.colorClass,
+                    icon: category.icon
+                });
+            }
+            return picked;
+        };
+
+        const applyBossRushBuffStats = (enemy, buffs) => {
+            if (!enemy || !Array.isArray(buffs)) return;
+            buffs.forEach((buff) => {
+                if (buff.applySpawn) {
+                    buff.applySpawn(enemy);
+                }
+            });
+        };
+
+        const getBossRushPlayerBuffCount = () => {
+            if (!Array.isArray(Game.player?.statusEffects)) return 0;
+            return Game.player.statusEffects.filter((effect) => !NegativeStatusEffectIds.has(effect.id)).length;
+        };
+
+        const getBossRushEnemyDebuffCount = (enemy) => {
+            if (!Array.isArray(enemy?.statusEffects)) return 0;
+            return enemy.statusEffects.filter((effect) => NegativeStatusEffectIds.has(effect.id)).length;
+        };
+
+        const getBossRushDamageNullifyThreshold = (enemy) => {
+            if (!enemy || !hasBossRushBuff(enemy, "br_blue_nullify")) return 0;
+            return Math.max(1, Math.floor((enemy.maxHp || 0) * BossRushBuffConfig.smallDamageNullifyPct));
+        };
+
+        const getBossRushEnemyAttackMultiplier = (enemy) => {
+            if (!enemy) return 1;
+            const state = getBossRushBuffState(enemy);
+            let multiplier = 1;
+            if (hasBossRushBuff(enemy, "br_green_turn_atk")) {
+                multiplier += BossRushBuffConfig.turnAtkBoost * Math.max(0, state.turnCount || 0);
+            }
+            if (hasBossRushBuff(enemy, "br_green_hit_scale")) {
+                multiplier += BossRushBuffConfig.hitTakenBoost * Math.max(0, state.hitsTaken || 0);
+            }
+            if (hasBossRushBuff(enemy, "br_green_hp50_boost") && enemy.hp <= (enemy.maxHp || 1) * 0.5) {
+                multiplier += BossRushBuffConfig.hp50Boost;
+            }
+            if (hasBossRushBuff(enemy, "br_red_missing_hp")) {
+                const missingRate = 1 - (enemy.hp / (enemy.maxHp || enemy.hp || 1));
+                multiplier += Math.max(0, missingRate) * BossRushBuffConfig.hpMissingDamageBoost;
+            }
+            if (hasBossRushBuff(enemy, "br_orange_gain")) {
+                multiplier += Math.max(0, (state.statusBoostPct || 0) / 100);
+            }
+            return multiplier;
+        };
+
+        const getBossRushEnemyDefenseMultiplier = (enemy) => {
+            if (!enemy) return 1;
+            const state = getBossRushBuffState(enemy);
+            let multiplier = 1;
+            if (hasBossRushBuff(enemy, "br_green_turn_def")) {
+                multiplier += BossRushBuffConfig.turnDefBoost * Math.max(0, state.turnCount || 0);
+            }
+            if (hasBossRushBuff(enemy, "br_green_hit_scale")) {
+                multiplier += BossRushBuffConfig.hitTakenBoost * Math.max(0, state.hitsTaken || 0);
+            }
+            if (hasBossRushBuff(enemy, "br_green_hp50_boost") && enemy.hp <= (enemy.maxHp || 1) * 0.5) {
+                multiplier += BossRushBuffConfig.hp50Boost;
+            }
+            if (hasBossRushBuff(enemy, "br_yellow_crit_def")) {
+                multiplier += Math.max(0, (state.defenseBoostPct || 0) / 100);
+            }
+            if (hasBossRushBuff(enemy, "br_orange_gain")) {
+                multiplier += Math.max(0, (state.statusBoostPct || 0) / 100);
+            }
+            return multiplier;
+        };
+
+        const getBossRushDamageTakenMultiplier = (enemy, player) => {
+            if (!enemy || !player) return 1;
+            let multiplier = 1;
+            if (hasBossRushBuff(enemy, "br_blue_reduce_30")) multiplier *= 0.7;
+            if (hasBossRushBuff(enemy, "br_blue_reduce_50")) multiplier *= 0.5;
+            if (hasBossRushBuff(enemy, "br_yellow_buff_guard")) {
+                const buffCount = getBossRushPlayerBuffCount();
+                const reduction = Math.min(BossRushBuffConfig.buffGuardMax, buffCount * BossRushBuffConfig.buffGuardPerBuff);
+                multiplier *= Math.max(0.3, 1 - reduction);
+            }
+            if (hasBossRushBuff(enemy, "br_orange_guard")) {
+                const debuffCount = getBossRushEnemyDebuffCount(enemy);
+                const reduction = Math.min(BossRushBuffConfig.statusGuardMax, debuffCount * BossRushBuffConfig.statusGuardPerStack);
+                multiplier *= Math.max(0.3, 1 - reduction);
+            }
+            return multiplier;
+        };
+
+        const getBossRushEnemyCritRate = (enemy) => {
+            if (!enemy) return 0;
+            let rate = enemy.critRate || 0;
+            if (hasBossRushBuff(enemy, "br_basic_crit_rate")) rate += 30;
+            return rate;
+        };
+
+        const getBossRushEnemyCritMultiplier = (enemy) => {
+            if (!enemy) return BossRushBuffConfig.baseCritMultiplier;
+            let multiplier = BossRushBuffConfig.baseCritMultiplier;
+            if (hasBossRushBuff(enemy, "br_basic_crit_dmg")) {
+                multiplier += 1;
+            }
+            return multiplier;
+        };
+
+        const applyBossRushCarryoverDamage = (enemy) => {
+            if (!enemy) return;
+            if (Game.floor < BossRushStartFloor) {
+                Game.bossRushCarryoverDamage = 0;
+                return;
+            }
+            const carry = Math.max(0, Math.floor(Game.bossRushCarryoverDamage || 0));
+            if (carry <= 0) return;
+            Game.bossRushCarryoverDamage = 0;
+            const applied = applyDamage(enemy, carry, null, { ignoreReflect: true, ignoreBossRushSpread: true, ignoreBossRushNullify: true, ignoreBossRushDamageReduction: true });
+            if (applied > 0) {
+                addLog(`分散ダメージ ${applied}が蓄積から発動！`, "text-rose-400");
+            }
+        };
+
+        const shouldBossRushIgnoreDefense = (enemy) => (
+            hasBossRushBuff(enemy, "br_blue_ignore_def") || hasBossRushBuff(enemy, "br_red_ignore_def")
+        );
         const BossDefs = {
             10: {
                 floor: 10,
@@ -3298,6 +3594,16 @@
             "silence",
             "taunt"
         ]);
+        const BossRushRandomStatusPool = [
+            "poison",
+            "bleed",
+            "weaken",
+            "vulnerable",
+            "attackDown",
+            "defenseDown",
+            "blind",
+            "silence"
+        ];
 
         const getEquipmentStats = () => {
             const weaponStats = getItemStats(Game.player.weapon);
@@ -4177,6 +4483,15 @@
             const safeAmount = Math.max(0, Math.floor(amount));
             if (!target || safeAmount <= 0) return 0;
             let remaining = safeAmount;
+            if (target === Game.enemy && !options.ignoreBossRushNullify) {
+                const threshold = getBossRushDamageNullifyThreshold(target);
+                if (threshold > 0 && remaining < threshold) {
+                    return 0;
+                }
+            }
+            if (target === Game.enemy && !options.ignoreBossRushDamageReduction) {
+                remaining = Math.floor(remaining * getBossRushDamageTakenMultiplier(target, Game.player));
+            }
             const barrierEffect = getStatusEffect(target, 'barrier');
             if (barrierEffect) {
                 const def = StatusDefs.barrier;
@@ -4192,19 +4507,138 @@
                     barrierEffect.stacks = Math.max(1, Math.ceil(barrierEffect.shield / def.shieldPerStack));
                 }
             }
+            if (remaining > 0 && target === Game.enemy && hasBossRushBuff(target, "br_blue_spread") && !options.ignoreBossRushSpread) {
+                const spread = Math.floor(remaining * BossRushBuffConfig.damageSpreadPct);
+                if (spread > 0) {
+                    remaining -= spread;
+                    Game.bossRushCarryoverDamage = Math.max(0, (Game.bossRushCarryoverDamage || 0) + spread);
+                }
+            }
             if (remaining > 0) {
                 target.hp = Math.max(0, target.hp - remaining);
                 removeStatusEffect(target, 'freeze');
             }
+            if (remaining > 0 && target === Game.enemy) {
+                const state = getBossRushBuffState(target);
+                if (state) {
+                    state.hitsTaken = Math.max(0, state.hitsTaken || 0) + 1;
+                }
+                if (target.hp <= 0 && hasBossRushBuff(target, "br_red_revive") && !state?.revived) {
+                    if (state) state.revived = true;
+                    target.hp = Math.max(1, Math.floor(target.maxHp * BossRushBuffConfig.reviveHpPct));
+                    addLog(`${target.name}が復活した！`, "text-rose-400 font-black");
+                }
+            }
             if (!options.ignoreReflect && remaining > 0 && source) {
                 const mods = getStatusModifiers(target);
-                if (mods.reflectPct > 0) {
-                    const reflectDamage = Math.max(1, Math.floor(remaining * mods.reflectPct));
+                let reflectPct = mods.reflectPct;
+                if (target === Game.enemy && hasBossRushBuff(target, "br_blue_reflect")) {
+                    reflectPct += BossRushBuffConfig.reflectPct;
+                }
+                reflectPct = Math.min(0.8, Math.max(0, reflectPct));
+                if (reflectPct > 0) {
+                    const reflectDamage = Math.max(1, Math.floor(remaining * reflectPct));
                     applyDamage(source, reflectDamage, null, { ignoreReflect: true });
                     addLog(`反射ダメージ ${reflectDamage}`, "text-purple-400");
                 }
             }
             return remaining;
+        }
+
+        function applyBossRushOnHitEffects(appliedDamage) {
+            if (!Game.enemy || appliedDamage <= 0) return;
+            if (hasBossRushBuff(Game.enemy, "br_blue_leech")) {
+                const heal = Math.max(1, Math.floor(appliedDamage * BossRushBuffConfig.leechPct));
+                const before = Game.enemy.hp;
+                Game.enemy.hp = Math.min(Game.enemy.maxHp, Game.enemy.hp + heal);
+                const actual = Game.enemy.hp - before;
+                if (actual > 0) {
+                    addLog(`${Game.enemy.name}はHPを${actual}吸収！`, "text-emerald-400");
+                }
+            }
+            if (hasBossRushBuff(Game.enemy, "br_orange_random") && Math.random() < BossRushBuffConfig.statusRandomChance) {
+                const statusId = pickRandom(BossRushRandomStatusPool);
+                if (statusId) {
+                    applyStatusEffect(Game.player, statusId, 1, StatusDefs[statusId]?.defaultTurns ?? 2);
+                    addLog(`${Game.enemy.name}の異常付与！`, "text-purple-400");
+                }
+            }
+        }
+
+        function performEnemyPhysicalAttack({ derived, label = "", damageMultiplier = 1, canMiss = true, logTone = "text-red-400" }) {
+            const enemyStatusMods = getStatusModifiers(Game.enemy);
+            const playerStatusMods = getStatusModifiers(Game.player);
+            if (canMiss) {
+                const baseAccuracy = Math.max(0, Math.floor((Game.enemy.acc || 0) * enemyStatusMods.accuracyMul));
+                const evasionValue = Math.max(0, derived.totals.evasionRate);
+                const ratioDenominator = baseAccuracy + evasionValue;
+                let hitChance = ratioDenominator > 0
+                    ? (baseAccuracy / ratioDenominator) * 100
+                    : 0;
+                hitChance = Math.min(95, Math.max(10, hitChance));
+                if (Math.random() * 100 > hitChance) {
+                    addLog("攻撃を回避！", "text-blue-500 font-bold");
+                    dmgText("MISS", false);
+                    return { appliedDamage: 0, landedHit: false, isCrit: false };
+                }
+            }
+            const ignoreDefense = shouldBossRushIgnoreDefense(Game.enemy);
+            let enemyAtk = Game.enemy.str * enemyStatusMods.atkMul;
+            let d = Math.floor(enemyAtk * (0.8 + Math.random() * 0.4) * damageMultiplier);
+            d = Math.floor(d * getBossRushEnemyAttackMultiplier(Game.enemy));
+            let isCrit = false;
+            const critRate = getBossRushEnemyCritRate(Game.enemy);
+            if (Math.random() * 100 < critRate) {
+                isCrit = true;
+                d = Math.floor(d * getBossRushEnemyCritMultiplier(Game.enemy));
+            }
+            if (!ignoreDefense) {
+                d -= derived.def;
+                const armorBoostLevel = getPassiveLevel('warrior', 4);
+                if (armorBoostLevel > 0) d -= Math.floor(getItemStatValue(Game.player.armor, "defenseFlat") * 0.15 * armorBoostLevel);
+            }
+            if (derived.totals.damageReduction > 0) {
+                d = Math.floor(d * (1 - derived.totals.damageReduction / 100));
+            }
+            d = Math.floor(d * enemyStatusMods.damageDoneMul);
+            d = Math.floor(d * playerStatusMods.damageTakenMul);
+            d = Math.floor(d * getBossUniqueDamageTakenMultiplier({
+                player: Game.player,
+                enemy: Game.enemy,
+                derived
+            }));
+            d = Math.max(1, d);
+            const appliedDamage = applyDamage(Game.player, d, Game.enemy);
+            if (label) {
+                addLog(`${label}${appliedDamage}ダメ`, logTone);
+            }
+            if (isCrit) {
+                addLog("敵の会心！", "text-amber-400");
+            }
+            applyBossRushOnHitEffects(appliedDamage);
+            return { appliedDamage, landedHit: true, isCrit };
+        }
+
+        function performBossRushCounterAttack(multiplier = BossRushBuffConfig.healCounterMultiplier, label = "反撃") {
+            if (Game.state !== 'combat' || !Game.enemy || Game.enemy.hp <= 0 || Game.player.hp <= 0) return;
+            const derived = getDerivedStats();
+            performEnemyPhysicalAttack({ derived, label: `${label}！ `, damageMultiplier: multiplier, canMiss: false, logTone: "text-rose-400" });
+        }
+
+        function triggerBossRushHealReaction(healAmount, label = "回復反撃") {
+            if (Game.state !== 'combat' || !Game.enemy || healAmount <= 0) return;
+            if (!hasBossRushBuff(Game.enemy, "br_yellow_heal_counter")) return;
+            performBossRushCounterAttack(BossRushBuffConfig.healCounterMultiplier, label);
+        }
+
+        function triggerBossRushMistakeReaction() {
+            if (Game.state !== 'combat' || !Game.enemy || !hasBossRushBuff(Game.enemy, "br_red_mistake")) return;
+            performBossRushCounterAttack(BossRushBuffConfig.mistakeCounterMultiplier, "ミス反応");
+        }
+
+        function triggerBossRushDebuffReaction() {
+            if (Game.state !== 'combat' || !Game.enemy || !hasBossRushBuff(Game.enemy, "br_yellow_debuff_counter")) return;
+            performBossRushCounterAttack(BossRushBuffConfig.healCounterMultiplier, "異常反撃");
         }
 
         function applyAutoRegen() {
@@ -4217,6 +4651,7 @@
                 const actual = p.hp - beforeHp;
                 if (actual > 0) {
                     addLog(`自動回復でHPが${actual}回復`, "text-emerald-400");
+                    triggerBossRushHealReaction(actual, "回復反撃");
                 }
             }
             if (derived.totals.mpRegen > 0) {
@@ -4240,6 +4675,7 @@
                         const actual = p.hp - beforeHp;
                         if (actual > 0) {
                             addLog(`再生効果でHPが${actual}回復`, "text-emerald-400");
+                            triggerBossRushHealReaction(actual, "回復反撃");
                         }
                     }
                     if (def.resource === 'mp') {
@@ -4248,6 +4684,7 @@
                         const actual = p.mp - beforeMp;
                         if (actual > 0) {
                             addLog(`再生効果でMPが${actual}回復`, "text-blue-400");
+                            triggerBossRushHealReaction(actual, "回復反撃");
                         }
                     }
                 });
@@ -4302,6 +4739,7 @@
                 if (actual > 0) {
                     addLog(`HPポーション！ ${actual}回復`, "text-emerald-500");
                     dmgText(actual, true);
+                    triggerBossRushHealReaction(actual, "回復反撃");
                 } else {
                     addLog("HPポーション！ これ以上回復できない", "text-slate-400");
                 }
@@ -4316,6 +4754,7 @@
                 const actual = Game.player.mp - before;
                 if (actual > 0) {
                     addLog(`MPポーション！ ${actual}回復`, "text-blue-500");
+                    triggerBossRushHealReaction(actual, "回復反撃");
                 } else {
                     addLog("MPポーション！ これ以上回復できない", "text-slate-400");
                 }
@@ -4387,6 +4826,27 @@
         function applyStatusEffect(target, effectId, stacks = 1, turns = null, source = null) {
             const def = StatusDefs[effectId];
             if (!def) return;
+            const isEnemyTarget = target === Game.enemy;
+            const isNegative = NegativeStatusEffectIds.has(effectId);
+            if (isEnemyTarget && isNegative) {
+                if (hasBossRushBuff(target, "br_orange_immune")) {
+                    return;
+                }
+                if (hasBossRushBuff(target, "br_yellow_status_limit")) {
+                    const existingNegative = (target.statusEffects || []).find((effect) => NegativeStatusEffectIds.has(effect.id));
+                    if (existingNegative && existingNegative.id !== effectId) {
+                        return;
+                    }
+                }
+                if (hasBossRushBuff(target, "br_yellow_debuff_counter")) {
+                    const state = getBossRushBuffState(target);
+                    if (hasBossRushBuff(target, "br_orange_gain") && state) {
+                        state.statusBoostPct = Math.min(100, (state.statusBoostPct || 0) + BossRushBuffConfig.statusGainBoost * 100);
+                    }
+                    triggerBossRushDebuffReaction();
+                    return;
+                }
+            }
             if (!Array.isArray(target.statusEffects)) {
                 target.statusEffects = [];
             }
@@ -4436,6 +4896,12 @@
                     entry.shield = perStack * entry.stacks;
                 }
                 target.statusEffects.push(entry);
+            }
+            if (isEnemyTarget && isNegative && hasBossRushBuff(target, "br_orange_gain")) {
+                const state = getBossRushBuffState(target);
+                if (state) {
+                    state.statusBoostPct = Math.min(100, (state.statusBoostPct || 0) + BossRushBuffConfig.statusGainBoost * 100);
+                }
             }
         }
 
@@ -5023,8 +5489,20 @@
                     isBoss: true,
                     isDxBoss,
                     skillCooldown: bossDef.skillInterval,
-                    skillRotation: 0
+                    skillRotation: 0,
+                    critRate: 0,
+                    critDamage: Math.floor(BossRushBuffConfig.baseCritMultiplier * 100),
+                    bossRushBuffs: [],
+                    bossRushBuffState: null
                 };
+                if (Game.floor >= BossRushStartFloor) {
+                    Game.enemy.bossRushBuffs = rollBossRushBuffs(Game.floor);
+                    Game.enemy.bossRushBuffState = null;
+                    applyBossRushBuffStats(Game.enemy, Game.enemy.bossRushBuffs);
+                    applyBossRushCarryoverDamage(Game.enemy);
+                } else {
+                    Game.bossRushCarryoverDamage = 0;
+                }
                 addLog(`BOSS ${bossDef.name}が出現！`, "text-amber-500 font-black");
             } else {
                 const scale = getEnemyScale(Game.floor);
@@ -5039,8 +5517,13 @@
                     acc: Math.floor(base.acc * scale),
                     eva: Math.floor(base.eva * scale),
                     statusEffects: [],
-                    isBoss: false
+                    isBoss: false,
+                    critRate: 0,
+                    critDamage: Math.floor(BossRushBuffConfig.baseCritMultiplier * 100),
+                    bossRushBuffs: [],
+                    bossRushBuffState: null
                 };
+                Game.bossRushCarryoverDamage = 0;
             }
             const totals = getTotalStats();
             const eliteRank = rollEliteRank(totals.eliteEncounter);
@@ -5076,11 +5559,22 @@
                         continue;
                     }
                     landedHit = true;
+                    const ignoreDefense = shouldBossRushIgnoreDefense(Game.enemy);
                     let enemyAtk = Game.enemy.str * enemyStatusMods.atkMul;
-                    let d = Math.floor((skill.pow ?? 1) * enemyAtk * (0.8 + Math.random() * 0.4)) - derived.def;
-                    // Passive: Armor Boost
-                    const armorBoostLevel = getPassiveLevel('warrior', 4);
-                    if (armorBoostLevel > 0) d -= Math.floor(getItemStatValue(Game.player.armor, "defenseFlat") * 0.15 * armorBoostLevel);
+                    let d = Math.floor((skill.pow ?? 1) * enemyAtk * (0.8 + Math.random() * 0.4));
+                    d = Math.floor(d * getBossRushEnemyAttackMultiplier(Game.enemy));
+                    let isCrit = false;
+                    const critRate = getBossRushEnemyCritRate(Game.enemy);
+                    if (Math.random() * 100 < critRate) {
+                        isCrit = true;
+                        d = Math.floor(d * getBossRushEnemyCritMultiplier(Game.enemy));
+                    }
+                    if (!ignoreDefense) {
+                        d -= derived.def;
+                        // Passive: Armor Boost
+                        const armorBoostLevel = getPassiveLevel('warrior', 4);
+                        if (armorBoostLevel > 0) d -= Math.floor(getItemStatValue(Game.player.armor, "defenseFlat") * 0.15 * armorBoostLevel);
+                    }
                     if (derived.totals.damageReduction > 0) {
                         d = Math.floor(d * (1 - derived.totals.damageReduction / 100));
                     }
@@ -5088,7 +5582,12 @@
                     d = Math.floor(d * playerStatusMods.damageTakenMul);
                     d = Math.floor(d * bossDefenseMultiplier);
                     d = Math.max(1, d);
-                    totalDamage += applyDamage(Game.player, d, Game.enemy);
+                    const applied = applyDamage(Game.player, d, Game.enemy);
+                    totalDamage += applied;
+                    if (isCrit) {
+                        addLog(`${Game.enemy.name}の会心！`, "text-amber-400");
+                    }
+                    applyBossRushOnHitEffects(applied);
                 }
             }
 
@@ -5205,7 +5704,8 @@
 
             const enemyStatusMods = getStatusModifiers(Game.enemy);
             const enemyEvasion = Math.max(0, Math.floor((Game.enemy.eva || 0) * enemyStatusMods.evasionMul));
-            const enemyDefense = Math.max(0, Math.floor((Game.enemy.def || 0) * enemyStatusMods.defMul));
+            const bossRushDefenseMul = getBossRushEnemyDefenseMultiplier(Game.enemy);
+            const enemyDefense = Math.max(0, Math.floor((Game.enemy.def || 0) * enemyStatusMods.defMul * bossRushDefenseMul));
 
             if (currentSkill.hpCost) {
                 const cost = Math.floor(derived.maxHp * currentSkill.hpCost);
@@ -5228,6 +5728,7 @@
                 Game.player.hp = Math.min(derived.maxHp, Game.player.hp + amt);
                 addLog(`【回復】${amt}HP`, "text-green-500");
                 dmgText(amt, true);
+                triggerBossRushHealReaction(amt, "回復反撃");
             } else {
                 const bossMods = getBossUniqueCombatModifiers({
                     player: Game.player,
@@ -5243,6 +5744,7 @@
                 let totalDamage = 0;
                 let totalLeechApplied = 0;
                 let landedHit = false;
+                let nullifiedHit = false;
                 
                 for(let i=0; i<hits; i++){
                     const baseAccuracy = Math.max(0, derived.totals.accuracy + (currentSkill.accuracyBonus || 0) + bossMods.accuracyBonus);
@@ -5263,6 +5765,12 @@
                     let isCrit = Math.random() * 100 < (derived.totals.critRate + (currentSkill.critBonus || 0) + bossMods.critRateBonus);
                     let dmg = Math.floor(currentSkill.pow * atkBase * (0.9 + Math.random() * 0.2));
                     if (isCrit) dmg = Math.floor(dmg * (derived.totals.critDamage / 100));
+                    if (isCrit && hasBossRushBuff(Game.enemy, "br_yellow_crit_def")) {
+                        const state = getBossRushBuffState(Game.enemy);
+                        if (state) {
+                            state.defenseBoostPct = Math.min(100, (state.defenseBoostPct || 0) + BossRushBuffConfig.critDefBoost * 100);
+                        }
+                    }
 
                     if (currentSkill.name !== '通常攻撃' && derived.totals.skillPowerBoost > 0) {
                         dmg = Math.floor(dmg * (1 + derived.totals.skillPowerBoost / 100));
@@ -5290,10 +5798,15 @@
                     }
                     dmg = Math.floor(dmg * playerStatusMods.damageDoneMul);
                     dmg = Math.floor(dmg * enemyStatusMods.damageTakenMul);
+                    dmg = Math.floor(dmg * getBossRushDamageTakenMultiplier(Game.enemy, Game.player));
                     dmg = Math.max(0, dmg - enemyDefense);
-
+                    const nullifyThreshold = getBossRushDamageNullifyThreshold(Game.enemy);
+                    if (nullifyThreshold > 0 && dmg > 0 && dmg < nullifyThreshold) {
+                        nullifiedHit = true;
+                        continue;
+                    }
                     dmg = Math.max(1, dmg);
-                    const appliedDamage = applyDamage(Game.enemy, dmg, Game.player);
+                    const appliedDamage = applyDamage(Game.enemy, dmg, Game.player, { ignoreBossRushNullify: true, ignoreBossRushDamageReduction: true });
                     totalDamage += appliedDamage;
                     
                     // Leech
@@ -5310,11 +5823,12 @@
                 
                 if (totalDamage === 0) {
                     if (landedHit) {
-                        addLog("バリアに防がれた！", "text-slate-400");
+                        addLog(nullifiedHit ? "ダメージが無効化された！" : "バリアに防がれた！", "text-slate-400");
                         dmgText(0, false);
                     } else {
                         addLog("攻撃が外れた！", "text-slate-400");
                         dmgText("MISS", false);
+                        triggerBossRushMistakeReaction();
                     }
                 } else {
                     addLog(`${currentSkill.name}！ ${totalDamage}のダメージ`);
@@ -5328,10 +5842,12 @@
                     const actual = Game.player.mp - beforeMp;
                     if (actual > 0) {
                         addLog(`MP吸収 +${actual}`, "text-blue-400");
+                        triggerBossRushHealReaction(actual, "回復反撃");
                     }
                 }
                 if (totalLeechApplied > 0) {
                     addLog(`吸血でHPが${totalLeechApplied}回復`, "text-emerald-400");
+                    triggerBossRushHealReaction(totalLeechApplied, "回復反撃");
                 }
                 if (currentSkill.expBonus && totalDamage > 0) {
                     let b = Math.floor(Game.player.next * (currentSkill.expBonus / 100));
@@ -5409,74 +5925,72 @@
                 return;
             }
             const derived = getDerivedStats();
-            const playerStatusMods = getStatusModifiers(Game.player);
+            const bossRushState = getBossRushBuffState(Game.enemy);
+            if (bossRushState) {
+                bossRushState.turnCount = Math.max(0, bossRushState.turnCount || 0) + 1;
+            }
 
             let usedBossSkill = false;
+            let actionCount = 1;
+            if (hasBossRushBuff(Game.enemy, "br_purple_double")) actionCount += 1;
+            if (hasBossRushBuff(Game.enemy, "br_basic_extra_action") && Math.random() < BossRushBuffConfig.extraActionChance) actionCount += 1;
+            if (hasBossRushBuff(Game.enemy, "br_green_hp30_extra") && Game.enemy.hp <= (Game.enemy.maxHp || 1) * 0.3) actionCount += 1;
+            if (hasBossRushBuff(Game.enemy, "br_purple_start_bonus") && Math.random() < BossRushBuffConfig.startBonusActionChance) actionCount += 1;
+            if (actionCount > 1) {
+                addLog(`${Game.enemy.name}が連続行動！`, "text-purple-400");
+            }
+
+            let skillReady = false;
             if (Game.enemy.isBoss && Array.isArray(Game.enemy.skills) && Game.enemy.skills.length > 0) {
                 Game.enemy.skillCooldown = Math.max(0, (Game.enemy.skillCooldown ?? 0) - 1);
                 if (Game.enemy.skillCooldown <= 0) {
+                    skillReady = true;
+                }
+            }
+
+            for (let actionIndex = 0; actionIndex < actionCount; actionIndex += 1) {
+                let didSkill = false;
+                if (!usedBossSkill && skillReady && Game.enemy.isBoss && Array.isArray(Game.enemy.skills) && Game.enemy.skills.length > 0) {
                     const skill = Game.enemy.skills[Game.enemy.skillRotation % Game.enemy.skills.length];
                     Game.enemy.skillRotation = (Game.enemy.skillRotation + 1) % Game.enemy.skills.length;
                     performEnemySkill(skill, derived);
                     Game.enemy.skillCooldown = Game.enemy.skillInterval;
                     usedBossSkill = true;
+                    didSkill = true;
+                    skillReady = false;
                 }
-            }
 
-            // Evasion Check
-            if (!usedBossSkill) {
-                const baseAccuracy = Math.max(0, Math.floor((Game.enemy.acc || 0) * enemyStatusMods.accuracyMul));
-                const evasionValue = Math.max(0, derived.totals.evasionRate);
-                const ratioDenominator = baseAccuracy + evasionValue;
-                let hitChance = ratioDenominator > 0
-                    ? (baseAccuracy / ratioDenominator) * 100
-                    : 0;
-                hitChance = Math.min(95, Math.max(10, hitChance));
-                if (Math.random() * 100 > hitChance) {
-                    addLog("攻撃を回避！", "text-blue-500 font-bold");
-                    dmgText("MISS", false);
-                    advanceStatusEffects(Game.enemy, 'end');
-                    updateUI();
-                    return;
-                }
-            }
-            let enemyAtk = Game.enemy.str * enemyStatusMods.atkMul;
-            let d = usedBossSkill ? 0 : Math.floor(enemyAtk * (0.8 + Math.random() * 0.4)) - derived.def;
-            // Passive: Armor Boost
-            const armorBoostLevel = getPassiveLevel('warrior', 4);
-            if (armorBoostLevel > 0) d -= Math.floor(getItemStatValue(Game.player.armor, "defenseFlat") * 0.15 * armorBoostLevel);
-            
-            if (!usedBossSkill && derived.totals.damageReduction > 0) {
-                d = Math.floor(d * (1 - derived.totals.damageReduction / 100));
-            }
-            if (!usedBossSkill) {
-                d = Math.floor(d * enemyStatusMods.damageDoneMul);
-                d = Math.floor(d * playerStatusMods.damageTakenMul);
-                d = Math.floor(d * getBossUniqueDamageTakenMultiplier({
-                    player: Game.player,
-                    enemy: Game.enemy,
-                    derived
-                }));
-                d = Math.max(1, d);
-                const appliedDamage = applyDamage(Game.player, d, Game.enemy);
-                addLog(`${Game.enemy.name}：${appliedDamage}ダメ`, "text-red-400");
-                if (!Game.enemy.isBoss && appliedDamage > 0 && Array.isArray(Game.enemy.onHitEffects)) {
-                    Game.enemy.onHitEffects.forEach((effect) => {
-                        const chance = effect.chance ?? 1;
-                        const isFreeze = effect.id === "freeze";
-                        const finalChance = isFreeze ? getFreezeDecayChance(Game.player, chance) : chance;
-                        if (!isFreeze || Math.random() < finalChance) {
-                            const sourceStr = Game.enemy?.str || 0;
-                            applyStatusEffect(Game.player, effect.id, effect.stacks, effect.turns, sourceStr ? { sourceStr } : null);
-                            if (isFreeze) {
-                                recordFreezeApplied(Game.player);
+                if (!didSkill) {
+                    const result = performEnemyPhysicalAttack({ derived, label: `${Game.enemy.name}：`, damageMultiplier: 1 });
+                    if (!result.landedHit) {
+                        continue;
+                    }
+                    if (!Game.enemy.isBoss && result.appliedDamage > 0 && Array.isArray(Game.enemy.onHitEffects)) {
+                        Game.enemy.onHitEffects.forEach((effect) => {
+                            const chance = effect.chance ?? 1;
+                            const isFreeze = effect.id === "freeze";
+                            const finalChance = isFreeze ? getFreezeDecayChance(Game.player, chance) : chance;
+                            if (!isFreeze || Math.random() < finalChance) {
+                                const sourceStr = Game.enemy?.str || 0;
+                                applyStatusEffect(Game.player, effect.id, effect.stacks, effect.turns, sourceStr ? { sourceStr } : null);
+                                if (isFreeze) {
+                                    recordFreezeApplied(Game.player);
+                                }
+                                if (effect.log) {
+                                    addLog(effect.log, "text-purple-400");
+                                }
                             }
-                            if (effect.log) {
-                                addLog(effect.log, "text-purple-400");
-                            }
-                        }
-                    });
+                        });
+                    }
+                    if (hasBossRushBuff(Game.enemy, "br_purple_follow") && result.appliedDamage > 0) {
+                        const followUpDamage = Math.max(1, Math.floor(result.appliedDamage * BossRushBuffConfig.followUpMultiplier));
+                        const applied = applyDamage(Game.player, followUpDamage, Game.enemy, { ignoreBossRushNullify: true });
+                        addLog(`追撃！ ${applied}ダメ`, "text-red-400");
+                        applyBossRushOnHitEffects(applied);
+                    }
                 }
+
+                if (Game.player.hp <= 0) break;
             }
             
             // Passive: MP Regen
@@ -6126,6 +6640,22 @@
                 }
             }
 
+            const renderBossRushBuffs = (enemy) => {
+                const container = document.getElementById('enemy-bossrush-buffs');
+                if (!container) return;
+                container.innerHTML = '';
+                const buffs = getBossRushBuffs(enemy);
+                if (!buffs.length) {
+                    return;
+                }
+                buffs.forEach((buff) => {
+                    const badge = document.createElement('span');
+                    badge.className = `flex items-center gap-1 px-2 py-0.5 rounded-full ${buff.colorClass || "bg-slate-100 text-slate-500"} text-[9px] font-bold`;
+                    badge.innerHTML = `<i class="fa-solid ${buff.icon || "fa-star"}"></i><span>${buff.shortLabel}</span>`;
+                    container.appendChild(badge);
+                });
+            };
+
             const renderStatusEffects = (target, containerId) => {
                 const container = document.getElementById(containerId);
                 if (!container) return;
@@ -6149,6 +6679,7 @@
                     container.appendChild(badge);
                 });
             };
+            renderBossRushBuffs(Game.enemy);
             renderStatusEffects(Game.player, 'player-status-effects');
             renderStatusEffects(Game.enemy, 'enemy-status-effects');
 
