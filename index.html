@@ -1008,6 +1008,7 @@
                 <ul class="space-y-2">
                     <li>・出現ボスはこれまでのボスからランダム抽選</li>
                     <li>・ステータスは1000階ボス基準で大幅に強化、回数が増えるほど強くなります</li>
+                    <li>・ボスラッシュ中はポーション効果が半減します</li>
                     <li>・ボスラッシュ中はドロップなしのエンドコンテンツです</li>
                     <li>・1000階撃破後は過去階層へ戻ってDXボスドロップを狙えます（ボスも強化）</li>
                     <li>・1000階ボスのドロップもDXボスドロップになります</li>
@@ -2650,18 +2651,12 @@
         ]);
 
         const PotionBases = [
-            { name: "HP回復薬(小)", target: "hp", healType: "flat", icon: "fa-heart", stats: [{ key: "potionHealFlat", value: 50 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 25 }, { key: "potionChargeOnKill", value: 15 }] },
-            { name: "HP回復薬(中)", target: "hp", healType: "flat", icon: "fa-heart", stats: [{ key: "potionHealFlat", value: 120 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 35 }, { key: "potionChargeOnKill", value: 14 }] },
-            { name: "HP回復薬(大)", target: "hp", healType: "flat", icon: "fa-heart", stats: [{ key: "potionHealFlat", value: 240 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 50 }, { key: "potionChargeOnKill", value: 12 }] },
-            { name: "MP回復薬(小)", target: "mp", healType: "flat", icon: "fa-droplet", stats: [{ key: "potionHealFlat", value: 50 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 25 }, { key: "potionChargeOnKill", value: 15 }] },
-            { name: "MP回復薬(中)", target: "mp", healType: "flat", icon: "fa-droplet", stats: [{ key: "potionHealFlat", value: 110 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 35 }, { key: "potionChargeOnKill", value: 14 }] },
-            { name: "MP回復薬(大)", target: "mp", healType: "flat", icon: "fa-droplet", stats: [{ key: "potionHealFlat", value: 220 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 50 }, { key: "potionChargeOnKill", value: 12 }] },
-            { name: "HP回復剤(小)", target: "hp", healType: "pct", icon: "fa-heart", stats: [{ key: "potionHealPct", value: 15 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 30 }, { key: "potionChargeOnKill", value: 14 }] },
-            { name: "HP回復剤(中)", target: "hp", healType: "pct", icon: "fa-heart", stats: [{ key: "potionHealPct", value: 30 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 45 }, { key: "potionChargeOnKill", value: 12 }] },
-            { name: "HP回復剤(大)", target: "hp", healType: "pct", icon: "fa-heart", stats: [{ key: "potionHealPct", value: 50 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 60 }, { key: "potionChargeOnKill", value: 10 }] },
-            { name: "MP回復剤(小)", target: "mp", healType: "pct", icon: "fa-droplet", stats: [{ key: "potionHealPct", value: 15 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 30 }, { key: "potionChargeOnKill", value: 14 }] },
-            { name: "MP回復剤(中)", target: "mp", healType: "pct", icon: "fa-droplet", stats: [{ key: "potionHealPct", value: 30 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 45 }, { key: "potionChargeOnKill", value: 12 }] },
-            { name: "MP回復剤(大)", target: "mp", healType: "pct", icon: "fa-droplet", stats: [{ key: "potionHealPct", value: 50 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 60 }, { key: "potionChargeOnKill", value: 10 }] }
+            { name: "HP回復剤(小)", target: "hp", healType: "pct", icon: "fa-heart", stats: [{ key: "potionHealPct", value: 8 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 30 }, { key: "potionChargeOnKill", value: 14 }] },
+            { name: "HP回復剤(中)", target: "hp", healType: "pct", icon: "fa-heart", stats: [{ key: "potionHealPct", value: 10 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 45 }, { key: "potionChargeOnKill", value: 12 }] },
+            { name: "HP回復剤(大)", target: "hp", healType: "pct", icon: "fa-heart", stats: [{ key: "potionHealPct", value: 12 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 60 }, { key: "potionChargeOnKill", value: 10 }] },
+            { name: "MP回復剤(小)", target: "mp", healType: "pct", icon: "fa-droplet", stats: [{ key: "potionHealPct", value: 8 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 30 }, { key: "potionChargeOnKill", value: 14 }] },
+            { name: "MP回復剤(中)", target: "mp", healType: "pct", icon: "fa-droplet", stats: [{ key: "potionHealPct", value: 10 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 45 }, { key: "potionChargeOnKill", value: 12 }] },
+            { name: "MP回復剤(大)", target: "mp", healType: "pct", icon: "fa-droplet", stats: [{ key: "potionHealPct", value: 12 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 60 }, { key: "potionChargeOnKill", value: 10 }] }
         ];
 
         const PotionPrefixAffixes = [
@@ -3756,10 +3751,10 @@
 
         const initializeStarterPotions = () => {
             if (!Game.player.potion1) {
-                Game.player.potion1 = createStarterPotion("HP回復薬(小)");
+                Game.player.potion1 = createStarterPotion("HP回復剤(小)");
             }
             if (!Game.player.potion2) {
-                Game.player.potion2 = createStarterPotion("MP回復薬(小)");
+                Game.player.potion2 = createStarterPotion("MP回復剤(小)");
             }
             syncPotionCapacity(Game.player.potion1);
             syncPotionCapacity(Game.player.potion2);
@@ -4315,6 +4310,7 @@
                 return;
             }
             const potionDerived = syncPotionCapacity(potion);
+            const potionEffectMultiplier = Game.floor >= BossRushStartFloor ? 0.5 : 1;
             if (potion.currentCapacity < potionDerived.cost) {
                 addLog("ポーション容量が足りない！", "text-slate-400");
                 return;
@@ -4323,9 +4319,10 @@
             const derived = getDerivedStats();
             if (potion.target === 'hp') {
                 const before = Game.player.hp;
-                const healAmount = potionDerived.healPct > 0
+                const baseHeal = potionDerived.healPct > 0
                     ? Math.floor(derived.maxHp * (potionDerived.healPct / 100))
                     : potionDerived.healFlat;
+                const healAmount = Math.floor(baseHeal * potionEffectMultiplier);
                 Game.player.hp = Math.min(derived.maxHp, Game.player.hp + healAmount);
                 const actual = Game.player.hp - before;
                 if (actual > 0) {
@@ -4337,9 +4334,10 @@
             }
             if (potion.target === 'mp') {
                 const before = Game.player.mp;
-                const healAmount = potionDerived.healPct > 0
+                const baseHeal = potionDerived.healPct > 0
                     ? Math.floor(derived.maxMp * (potionDerived.healPct / 100))
                     : potionDerived.healFlat;
+                const healAmount = Math.floor(baseHeal * potionEffectMultiplier);
                 Game.player.mp = Math.min(derived.maxMp, Game.player.mp + healAmount);
                 const actual = Game.player.mp - before;
                 if (actual > 0) {
@@ -4348,19 +4346,22 @@
                     addLog("MPポーション！ これ以上回復できない", "text-slate-400");
                 }
             }
-            if (potionDerived.cleanse > 0) {
-                const removed = cleanseStatusEffects(Game.player, potionDerived.cleanse);
+            const cleanseCount = Math.floor(potionDerived.cleanse * potionEffectMultiplier);
+            if (cleanseCount > 0) {
+                const removed = cleanseStatusEffects(Game.player, cleanseCount);
                 if (removed > 0) {
                     addLog(`状態異常を${removed}個回復`, "text-purple-400");
                 }
             }
-            if (potionDerived.autoRegen > 0) {
+            const autoRegenStacks = Math.floor(potionDerived.autoRegen * potionEffectMultiplier);
+            if (autoRegenStacks > 0) {
                 const regenId = potion.target === 'mp' ? 'potionRegenMp' : 'potionRegenHp';
-                applyStatusEffect(Game.player, regenId, potionDerived.autoRegen);
+                applyStatusEffect(Game.player, regenId, autoRegenStacks);
                 addLog("再生効果を付与！", "text-emerald-400");
             }
-            if (potionDerived.barrier > 0) {
-                applyStatusEffect(Game.player, 'barrier', potionDerived.barrier);
+            const barrierStacks = Math.floor(potionDerived.barrier * potionEffectMultiplier);
+            if (barrierStacks > 0) {
+                applyStatusEffect(Game.player, 'barrier', barrierStacks);
                 addLog("バリアを付与！", "text-sky-400");
             }
             updateUI();
