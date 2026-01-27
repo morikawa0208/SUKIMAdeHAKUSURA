@@ -6349,7 +6349,7 @@
                 const acquiredB = b.item.acquiredAt ?? b.index;
                 if (sortMode === 'rarity') {
                     if (rarityA !== rarityB) return rarityB - rarityA;
-                    return acquiredA - acquiredB;
+                    return acquiredB - acquiredA;
                 }
                 if (sortMode === 'affix') {
                     const affixA = getAffixScore(a.item);
