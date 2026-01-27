@@ -1009,9 +1009,11 @@
                     <li>・ボスラッシュ解放後は過去ボス階で、DX装備がドロップします。</li>
                     <li></li>
                     <li>・出現ボスはこれまでのボスからランダム抽選</li>
-                    <li>・ステータスは大幅に強化、階数を進むほど強くなります</li>
+                    <li>・ステータスは1000階ボス基準で大幅に強化、回数が増えるほど強くなります</li>
                     <li>・ボスラッシュ中はポーション効果が半減します</li>
-                    <li>・ボスラッシュ中はドロップなしのエンドコンテンツです</li>                    
+                    <li>・ボスラッシュ中はドロップなしのエンドコンテンツです</li>
+                    <li>・1000階撃破後は過去階層へ戻ってDXボスドロップを狙えます（ボスも強化）</li>
+                    <li>・1000階ボスのドロップもDXボスドロップになります</li>
                 </ul>
             </div>
             <button id="bossrush-modal-ok" class="mt-4 w-full bg-slate-800 text-white font-black py-3 rounded-2xl shadow-lg">了解</button>
@@ -2651,18 +2653,12 @@
         ]);
 
         const PotionBases = [
-            { name: "HP回復薬(小)", target: "hp", healType: "flat", icon: "fa-heart", stats: [{ key: "potionHealFlat", value: 50 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 25 }, { key: "potionChargeOnKill", value: 15 }] },
-            { name: "HP回復薬(中)", target: "hp", healType: "flat", icon: "fa-heart", stats: [{ key: "potionHealFlat", value: 120 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 35 }, { key: "potionChargeOnKill", value: 14 }] },
-            { name: "HP回復薬(大)", target: "hp", healType: "flat", icon: "fa-heart", stats: [{ key: "potionHealFlat", value: 240 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 50 }, { key: "potionChargeOnKill", value: 12 }] },
-            { name: "MP回復薬(小)", target: "mp", healType: "flat", icon: "fa-droplet", stats: [{ key: "potionHealFlat", value: 50 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 25 }, { key: "potionChargeOnKill", value: 15 }] },
-            { name: "MP回復薬(中)", target: "mp", healType: "flat", icon: "fa-droplet", stats: [{ key: "potionHealFlat", value: 110 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 35 }, { key: "potionChargeOnKill", value: 14 }] },
-            { name: "MP回復薬(大)", target: "mp", healType: "flat", icon: "fa-droplet", stats: [{ key: "potionHealFlat", value: 220 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 50 }, { key: "potionChargeOnKill", value: 12 }] },
-            { name: "HP回復剤(小)", target: "hp", healType: "pct", icon: "fa-heart", stats: [{ key: "potionHealPct", value: 15 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 30 }, { key: "potionChargeOnKill", value: 14 }] },
-            { name: "HP回復剤(中)", target: "hp", healType: "pct", icon: "fa-heart", stats: [{ key: "potionHealPct", value: 30 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 45 }, { key: "potionChargeOnKill", value: 12 }] },
-            { name: "HP回復剤(大)", target: "hp", healType: "pct", icon: "fa-heart", stats: [{ key: "potionHealPct", value: 50 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 60 }, { key: "potionChargeOnKill", value: 10 }] },
-            { name: "MP回復剤(小)", target: "mp", healType: "pct", icon: "fa-droplet", stats: [{ key: "potionHealPct", value: 15 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 30 }, { key: "potionChargeOnKill", value: 14 }] },
-            { name: "MP回復剤(中)", target: "mp", healType: "pct", icon: "fa-droplet", stats: [{ key: "potionHealPct", value: 30 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 45 }, { key: "potionChargeOnKill", value: 12 }] },
-            { name: "MP回復剤(大)", target: "mp", healType: "pct", icon: "fa-droplet", stats: [{ key: "potionHealPct", value: 50 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 60 }, { key: "potionChargeOnKill", value: 10 }] }
+            { name: "HP回復剤(小)", target: "hp", healType: "pct", icon: "fa-heart", stats: [{ key: "potionHealPct", value: 8 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 30 }, { key: "potionChargeOnKill", value: 14 }] },
+            { name: "HP回復剤(中)", target: "hp", healType: "pct", icon: "fa-heart", stats: [{ key: "potionHealPct", value: 10 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 45 }, { key: "potionChargeOnKill", value: 12 }] },
+            { name: "HP回復剤(大)", target: "hp", healType: "pct", icon: "fa-heart", stats: [{ key: "potionHealPct", value: 12 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 60 }, { key: "potionChargeOnKill", value: 10 }] },
+            { name: "MP回復剤(小)", target: "mp", healType: "pct", icon: "fa-droplet", stats: [{ key: "potionHealPct", value: 8 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 30 }, { key: "potionChargeOnKill", value: 14 }] },
+            { name: "MP回復剤(中)", target: "mp", healType: "pct", icon: "fa-droplet", stats: [{ key: "potionHealPct", value: 10 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 45 }, { key: "potionChargeOnKill", value: 12 }] },
+            { name: "MP回復剤(大)", target: "mp", healType: "pct", icon: "fa-droplet", stats: [{ key: "potionHealPct", value: 12 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 60 }, { key: "potionChargeOnKill", value: 10 }] }
         ];
 
         const PotionPrefixAffixes = [
@@ -3757,10 +3753,10 @@
 
         const initializeStarterPotions = () => {
             if (!Game.player.potion1) {
-                Game.player.potion1 = createStarterPotion("HP回復薬(小)");
+                Game.player.potion1 = createStarterPotion("HP回復剤(小)");
             }
             if (!Game.player.potion2) {
-                Game.player.potion2 = createStarterPotion("MP回復薬(小)");
+                Game.player.potion2 = createStarterPotion("MP回復剤(小)");
             }
             syncPotionCapacity(Game.player.potion1);
             syncPotionCapacity(Game.player.potion2);
