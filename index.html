@@ -1006,6 +1006,8 @@
             <div class="space-y-3 text-xs text-slate-600 leading-relaxed">
                 <p class="font-bold text-slate-700">1001階からボスラッシュが開始されます。</p>
                 <ul class="space-y-2">
+                    <li>・ボスラッシュ解放後は過去ボス階で、DX装備がドロップします。</li>
+                    <li></li>
                     <li>・出現ボスはこれまでのボスからランダム抽選</li>
                     <li>・ステータスは1000階ボス基準で大幅に強化、回数が増えるほど強くなります</li>
                     <li>・ボスラッシュ中はポーション効果が半減します</li>
@@ -1181,7 +1183,7 @@
                     ワープ
                 </button>
             </div>
-            <div id="warp-bossrush-note" class="mt-2 text-[10px] text-amber-600 font-bold hidden">※10001F以上は任意ワープ不可（ボスラッシュはマイルストーンのみ）</div>
+
             <button id="warp-bossrush-info" class="mt-3 hidden w-full bg-amber-100 text-amber-700 text-xs font-black py-2 rounded-xl hover:bg-amber-200 transition">
                 ボスラッシュ仕様を見る
             </button>
@@ -1914,11 +1916,11 @@
                 { name: "草の精", icon: "fa-leaf", hp: 23, str: 7, exp: 14, def: 1, acc: 5, eva: 0, onHitEffects: [{ id: "weaken", stacks: 1, turns: 2, chance: 0.25, log: "胞子で弱体化した！" }] }
             ],
             [
-                { name: "ゴブリン", icon: "fa-user-ninja", hp: 44, str: 15, exp: 25, def: 6, acc: 15, eva: 0 },
-                { name: "スケルトン", icon: "fa-skull", hp: 48, str: 19, exp: 40, def: 5, acc: 15, eva: 0, onHitEffects: [{ id: "bleed", stacks: 1, turns: 2, chance: 0.25, log: "骨刃で切り裂かれた！" }] },
-                { name: "大蜘蛛", icon: "fa-spider", hp:47, str: 18, exp: 32, def: 6, acc: 15, eva: 0, onHitEffects: [{ id: "poison", stacks: 1, turns: 3, chance: 0.3, log: "毒糸が絡みついた！" }] },
-                { name: "小悪魔", icon: "fa-ghost", hp: 46, str: 17, exp: 30, def: 5, acc: 15, eva: 0, onHitEffects: [{ id: "silence", stacks: 1, turns: 2, chance: 0.2, log: "呪いで沈黙した！" }] },
-                { name: "野生狼", icon: "fa-paw", hp: 43, str: 18, exp: 35, def: 6, acc: 16, eva: 0 }
+                { name: "ゴブリン", icon: "fa-user-ninja", hp: 44, str: 25, exp: 25, def: 6, acc: 15, eva: 0 },
+                { name: "スケルトン", icon: "fa-skull", hp: 48, str: 24, exp: 40, def: 5, acc: 15, eva: 0, onHitEffects: [{ id: "bleed", stacks: 1, turns: 2, chance: 0.25, log: "骨刃で切り裂かれた！" }] },
+                { name: "大蜘蛛", icon: "fa-spider", hp:47, str: 23, exp: 32, def: 6, acc: 15, eva: 0, onHitEffects: [{ id: "poison", stacks: 1, turns: 3, chance: 0.3, log: "毒糸が絡みついた！" }] },
+                { name: "小悪魔", icon: "fa-ghost", hp: 46, str: 22, exp: 30, def: 5, acc: 15, eva: 0, onHitEffects: [{ id: "silence", stacks: 1, turns: 2, chance: 0.2, log: "呪いで沈黙した！" }] },
+                { name: "野生狼", icon: "fa-paw", hp: 43, str: 21, exp: 35, def: 6, acc: 16, eva: 0 }
             ],
             [
                 { name: "洞窟トカゲ", icon: "fa-dragon", hp: 57, str: 26, exp: 55, def: 11, acc: 15, eva: 0, onHitEffects: [{ id: "defenseDown", stacks: 1, turns: 2, chance: 0.2, log: "硬い鱗で守りが削がれた！" }] },
@@ -2009,11 +2011,11 @@
         const BossRushStartFloor = 1001;
         const BossRushNoDropStartFloor = BossRushStartFloor;
         const BossRushBaseScale = 5;
-        const BossRushScaleStep = 5;
+        const BossRushScaleStep = 10;
         const BossRushBaseStats = {
             hp: 561543,
-            str: 24846,
-            def: 6215,
+            str: 34846,
+            def: 4215,
             acc: 2312,
             eva: 1004,
             exp: 0
@@ -3835,7 +3837,6 @@
             const maxFloor = getWarpMaxFloor();
             const maxFloorEl = document.getElementById('warp-max-floor');
             const input = document.getElementById('warp-input');
-            const note = document.getElementById('warp-bossrush-note');
             const infoButton = document.getElementById('warp-bossrush-info');
             if (maxFloorEl) {
                 maxFloorEl.textContent = maxFloor;
@@ -3847,9 +3848,6 @@
                 if (normalized !== null) {
                     input.value = normalized;
                 }
-            }
-            if (note) {
-                note.classList.toggle('hidden', maxFloor < BossRushStartFloor);
             }
             if (infoButton) {
                 infoButton.classList.toggle('hidden', maxFloor < 1000);
