@@ -6362,7 +6362,7 @@
                     if (rarityA !== rarityB) return rarityB - rarityA;
                     return acquiredA - acquiredB;
                 }
-                return acquiredA - acquiredB;
+                return acquiredB - acquiredA;
             });
             sortedItems.forEach(({ item, index }) => {
                 if (isEnhanceableItem(item)) {
