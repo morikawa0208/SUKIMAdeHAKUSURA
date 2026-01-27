@@ -3094,19 +3094,26 @@
         const getAffixLevelMultiplier = () => 1 + Math.max(0, (Game.player.level || 1) - 1) * 0.0015;
 
         const rollEliteRank = (encounterRate) => {
-            const chance = clampPercent(encounterRate);
+            const safeRate = Math.max(0, encounterRate);
+            const chance = Math.min(100, safeRate);
             if (Math.random() * 100 >= chance) return 0;
             const eligible = EliteRankWeights.filter((entry) => (
-                entry.minEncounter === undefined || encounterRate >= entry.minEncounter
+                entry.minEncounter === undefined || safeRate >= entry.minEncounter
             ));
             if (eligible.length === 0) return 0;
-            const totalWeight = eligible.reduce((sum, entry) => sum + entry.weight, 0);
+            const rankBias = Math.max(0, safeRate - 100) / 100;
+            const biasMultiplier = 1 + rankBias;
+            const adjusted = eligible.map((entry) => ({
+                ...entry,
+                adjustedWeight: entry.weight * (1 + (entry.rank - 1) * 0.25 * biasMultiplier)
+            }));
+            const totalWeight = adjusted.reduce((sum, entry) => sum + entry.adjustedWeight, 0);
             let roll = Math.random() * totalWeight;
-            for (const entry of eligible) {
-                if (roll < entry.weight) return entry.rank;
-                roll -= entry.weight;
+            for (const entry of adjusted) {
+                if (roll < entry.adjustedWeight) return entry.rank;
+                roll -= entry.adjustedWeight;
             }
-            return eligible[0].rank;
+            return adjusted[0].rank;
         };
 
         const buildEliteEnemy = (baseEnemy, rank) => {
@@ -5523,8 +5530,8 @@
                 };
                 Game.bossRushCarryoverDamage = 0;
             }
-            const totals = getTotalStats();
-            const eliteRank = rollEliteRank(totals.eliteEncounter);
+            const derived = getDerivedStats();
+            const eliteRank = rollEliteRank(derived.totals.eliteEncounter);
             if (eliteRank > 0) {
                 Game.enemy = buildEliteEnemy(Game.enemy, eliteRank);
                 addLog(`エリートランク${eliteRank} ${Game.enemy.name}が出現！`, "text-purple-500 font-black");
