@@ -1008,6 +1008,7 @@
                 <ul class="space-y-2">
                     <li>・出現ボスはこれまでのボスからランダム抽選</li>
                     <li>・ステータスは1000階ボス基準で大幅に強化、回数が増えるほど強くなります</li>
+                    <li>・ボスラッシュ中はポーション効果が半減します</li>
                     <li>・ボスラッシュ中はドロップなしのエンドコンテンツです</li>
                     <li>・1000階撃破後は過去階層へ戻ってDXボスドロップを狙えます（ボスも強化）</li>
                     <li>・1000階ボスのドロップもDXボスドロップになります</li>
@@ -4315,6 +4316,7 @@
                 return;
             }
             const potionDerived = syncPotionCapacity(potion);
+            const potionEffectMultiplier = Game.floor >= BossRushStartFloor ? 0.5 : 1;
             if (potion.currentCapacity < potionDerived.cost) {
                 addLog("ポーション容量が足りない！", "text-slate-400");
                 return;
@@ -4323,9 +4325,10 @@
             const derived = getDerivedStats();
             if (potion.target === 'hp') {
                 const before = Game.player.hp;
-                const healAmount = potionDerived.healPct > 0
+                const baseHeal = potionDerived.healPct > 0
                     ? Math.floor(derived.maxHp * (potionDerived.healPct / 100))
                     : potionDerived.healFlat;
+                const healAmount = Math.floor(baseHeal * potionEffectMultiplier);
                 Game.player.hp = Math.min(derived.maxHp, Game.player.hp + healAmount);
                 const actual = Game.player.hp - before;
                 if (actual > 0) {
@@ -4337,9 +4340,10 @@
             }
             if (potion.target === 'mp') {
                 const before = Game.player.mp;
-                const healAmount = potionDerived.healPct > 0
+                const baseHeal = potionDerived.healPct > 0
                     ? Math.floor(derived.maxMp * (potionDerived.healPct / 100))
                     : potionDerived.healFlat;
+                const healAmount = Math.floor(baseHeal * potionEffectMultiplier);
                 Game.player.mp = Math.min(derived.maxMp, Game.player.mp + healAmount);
                 const actual = Game.player.mp - before;
                 if (actual > 0) {
@@ -4348,19 +4352,22 @@
                     addLog("MPポーション！ これ以上回復できない", "text-slate-400");
                 }
             }
-            if (potionDerived.cleanse > 0) {
-                const removed = cleanseStatusEffects(Game.player, potionDerived.cleanse);
+            const cleanseCount = Math.floor(potionDerived.cleanse * potionEffectMultiplier);
+            if (cleanseCount > 0) {
+                const removed = cleanseStatusEffects(Game.player, cleanseCount);
                 if (removed > 0) {
                     addLog(`状態異常を${removed}個回復`, "text-purple-400");
                 }
             }
-            if (potionDerived.autoRegen > 0) {
+            const autoRegenStacks = Math.floor(potionDerived.autoRegen * potionEffectMultiplier);
+            if (autoRegenStacks > 0) {
                 const regenId = potion.target === 'mp' ? 'potionRegenMp' : 'potionRegenHp';
-                applyStatusEffect(Game.player, regenId, potionDerived.autoRegen);
+                applyStatusEffect(Game.player, regenId, autoRegenStacks);
                 addLog("再生効果を付与！", "text-emerald-400");
             }
-            if (potionDerived.barrier > 0) {
-                applyStatusEffect(Game.player, 'barrier', potionDerived.barrier);
+            const barrierStacks = Math.floor(potionDerived.barrier * potionEffectMultiplier);
+            if (barrierStacks > 0) {
+                applyStatusEffect(Game.player, 'barrier', barrierStacks);
                 addLog("バリアを付与！", "text-sky-400");
             }
             updateUI();
