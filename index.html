@@ -1296,7 +1296,7 @@
                 skills: {
                     warrior: { active: [0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
                     mage: { active: [0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
-                    thief: { active: [0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
+                    thief: { active: [0,0,0,0,0,0,0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
                     ranger: { active: [0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
                     paladin: { active: [0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
                     monk: { active: [0,0,0,0,0,0], passive: [0,0,0,0,0,0] }
@@ -1760,12 +1760,18 @@
             thief: {
                 name: "盗賊",
                 active: [
-                    { id: 0, name: "クイックスタブ", mp: 3, pow: 1.0, powGrowth: 0.15, accuracyBonus: 15, accuracyGrowth: 5, maxLevel: 50, effects: [{ target: "self", id: "haste", stacks: 1, turns: 2 }], desc: "素早い突きで迅速を得る連携起点" },
-                    { id: 1, name: "ダブルアタック", mp: 7, pow: 0.85, powGrowth: 0.1, hits: 2, maxLevel: 50, effects: [{ target: "enemy", id: "bleed", stacks: 1, turns: 2, log: "裂傷で出血した！" }], desc: "二連撃で出血を狙う" },
-                    { id: 2, name: "毒の刃", mp: 10, pow: 1.8, powGrowth: 0.25, critBonus: 5, critGrowth: 2, maxLevel: 50, effects: [{ target: "enemy", id: "poison", stacks: 1, turns: 3, log: "毒が回った！" }], desc: "急所狙いで会心率上昇、毒を付与" },
-                    { id: 3, name: "強奪", mp: 5, pow: 1.0, powGrowth: 0.1, maxLevel: 50, effects: [{ target: "enemy", id: "weaken", stacks: 1, turns: 2, log: "戦意を奪った！" }], desc: "攻撃と同時に敵の勢いを削ぐ弱体付与" },
-                    { id: 4, name: "影縫い", mp: 12, pow: 2.2, powGrowth: 0.3, maxLevel: 50, effects: [{ target: "enemy", id: "silence", stacks: 1, turns: 1, log: "影に縛られて沈黙した！" }], desc: "影で封じ、敵のスキル回転を止める" },
-                    { id: 5, name: "千手観音", mp: 30, pow: 1.1, powGrowth: 0.1, hits: 5, maxLevel: 50, desc: "圧倒的な五連撃" }
+                    { id: 0, name: "煙幕投げ", mp: 4, pow: 0.9, powGrowth: 0.12, maxLevel: 50, effects: [{ target: "enemy", id: "blind", stacks: 1, turns: 2, log: "煙で視界が奪われた！" }], desc: "煙幕で暗闇を付与し、以後の制圧連携の起点になる" },
+                    { id: 1, name: "影縫い", mp: 8, pow: 1.4, powGrowth: 0.18, maxLevel: 50, effects: [{ target: "enemy", id: "silence", stacks: 1, turns: 1, log: "影に縛られて沈黙した！" }], desc: "影で封じ、敵のスキル回転を止める制圧技" },
+                    { id: 2, name: "毒刃", mp: 10, pow: 1.7, powGrowth: 0.22, critBonus: 5, critGrowth: 2, maxLevel: 50, effects: [{ target: "enemy", id: "poison", stacks: 1, turns: 3, log: "毒が回った！" }], desc: "急所狙いの一撃で毒を付与する" },
+                    { id: 3, name: "裂傷刻み", mp: 7, pow: 0.7, powGrowth: 0.1, hits: 2, maxLevel: 50, effects: [{ target: "enemy", id: "bleed", stacks: 1, turns: 2, log: "裂傷で出血した！" }], desc: "二連撃で出血を狙う" },
+                    { id: 4, name: "戦意削ぎ", mp: 5, pow: 0.9, powGrowth: 0.1, maxLevel: 50, effects: [{ target: "enemy", id: "weaken", stacks: 1, turns: 2, log: "戦意を削がれた！" }], desc: "攻撃と同時に敵の勢いを削ぐ弱体付与" },
+                    { id: 5, name: "影踏み", mp: 12, pow: 2.0, powGrowth: 0.28, accuracyBonus: 10, accuracyGrowth: 4, maxLevel: 50, desc: "暗闇の隙を突いて踏み込み、決定打を狙う" },
+                    { id: 6, name: "クイックスタブ", mp: 3, pow: 1.0, powGrowth: 0.15, accuracyBonus: 15, accuracyGrowth: 5, maxLevel: 50, effects: [{ target: "self", id: "haste", stacks: 1, turns: 2 }], desc: "素早い突きで迅速を得る連携起点" },
+                    { id: 7, name: "ダブルアタック", mp: 7, pow: 0.85, powGrowth: 0.1, hits: 2, maxLevel: 50, desc: "二連撃で手数を稼ぐ" },
+                    { id: 8, name: "奇襲", mp: 12, pow: 2.4, powGrowth: 0.32, accuracyBonus: 10, accuracyGrowth: 4, maxLevel: 50, desc: "先手で狙い撃ち、短期決戦の主力となる一撃" },
+                    { id: 9, name: "急所穿ち", mp: 14, pow: 2.1, powGrowth: 0.3, critBonus: 12, critGrowth: 3, maxLevel: 50, desc: "急所を狙って高い会心率を得る刺突" },
+                    { id: 10, name: "影走り", mp: 9, pow: 1.2, powGrowth: 0.15, maxLevel: 50, effects: [{ target: "self", id: "haste", stacks: 1, turns: 3 }], desc: "身を滑らせて迅速を延長し、連続行動を狙う" },
+                    { id: 11, name: "断罪の一刺し", mp: 24, pow: 4.2, powGrowth: 0.55, critBonus: 8, critGrowth: 2, maxLevel: 50, desc: "狙いすました高火力の一撃でとどめを狙う" }
                 ],
                 passive: [
                     { id: 0, name: "俊敏", desc: "DEX+3/レベル", maxLevel: 50, apply: (d) => Game.player.dex += 3 * d },
