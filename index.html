@@ -5677,19 +5677,8 @@
             }
         }
 
-        const actionButton = document.getElementById('action-btn');
-        let actionRepeatTimer = null;
-        let actionRepeatActive = false;
-        let actionCooldown = false;
-        const actionCooldownMs = 350;
-
-        const handleAction = () => {
+        document.getElementById('action-btn').onclick = () => {
             if (Game.state === 'dead') return;
-            if (actionCooldown) return;
-            actionCooldown = true;
-            setTimeout(() => {
-                actionCooldown = false;
-            }, actionCooldownMs);
             if (Game.state === 'idle') {
                 const stayOnFloor = Game.stayOnFloor;
                 if (!stayOnFloor) {
@@ -5957,26 +5946,6 @@
             updateUI();
             triggerAutosave();
         };
-
-        const stopActionRepeat = () => {
-            if (actionRepeatTimer) {
-                clearInterval(actionRepeatTimer);
-                actionRepeatTimer = null;
-            }
-            actionRepeatActive = false;
-        };
-
-        const startActionRepeat = () => {
-            if (actionRepeatActive) return;
-            actionRepeatActive = true;
-            handleAction();
-            actionRepeatTimer = setInterval(handleAction, actionCooldownMs);
-        };
-
-        actionButton.addEventListener('pointerdown', startActionRepeat);
-        actionButton.addEventListener('pointerup', stopActionRepeat);
-        actionButton.addEventListener('pointercancel', stopActionRepeat);
-        actionButton.addEventListener('mouseleave', stopActionRepeat);
 
         function enemyTurn() {
             if (Game.state !== 'combat') return;
