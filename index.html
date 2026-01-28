@@ -130,6 +130,25 @@
             50% { transform: scale(1.06); }
         }
 
+        .enemy-card {
+            cursor: pointer;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+        }
+        .enemy-card.is-selected {
+            border-color: #0f172a;
+            box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.35), 0 0 18px rgba(15, 23, 42, 0.22);
+        }
+        .enemy-card.is-selected .enemy-visual {
+            text-shadow: 0 0 12px rgba(15, 23, 42, 0.35);
+            transform: scale(1.05);
+        }
+        .enemy-card .enemy-select-badge {
+            display: none;
+        }
+        .enemy-card.is-selected .enemy-select-badge {
+            display: inline-flex;
+        }
+
         .item-name-shrink {
             font-size: 0.72rem;
             line-height: 1.1;
@@ -1305,6 +1324,8 @@
             lootQueue: [],
             pendingEquip: null,
             bossRushCarryoverDamage: 0,
+            targetEnemyId: null,
+            enemyIdCounter: 0,
             enemies: [], logs: [], dropLogs: []
         };
 
@@ -1316,6 +1337,44 @@
                 Game.enemies = value ? [value] : [];
             }
         });
+
+        const getEnemyById = (id) => {
+            if (!Array.isArray(Game.enemies) || Game.enemies.length === 0) return null;
+            return Game.enemies.find((enemy) => enemy.id === id) || null;
+        };
+
+        const ensureTargetEnemy = () => {
+            const enemies = Array.isArray(Game.enemies) ? Game.enemies : [];
+            if (enemies.length === 0) {
+                Game.targetEnemyId = null;
+                return null;
+            }
+            let nextEnemyId = Number.isInteger(Game.enemyIdCounter) ? Game.enemyIdCounter : 0;
+            let updatedIds = false;
+            enemies.forEach((enemy) => {
+                if (!Number.isInteger(enemy.id)) {
+                    nextEnemyId += 1;
+                    enemy.id = nextEnemyId;
+                    updatedIds = true;
+                }
+            });
+            if (updatedIds) {
+                Game.enemyIdCounter = nextEnemyId;
+            }
+            const existing = getEnemyById(Game.targetEnemyId);
+            if (existing) return existing;
+            Game.targetEnemyId = enemies[0].id;
+            return enemies[0];
+        };
+
+        const setTargetEnemyId = (id) => {
+            const target = getEnemyById(id);
+            if (target) {
+                Game.targetEnemyId = target.id;
+                return;
+            }
+            ensureTargetEnemy();
+        };
 
         const MAX_LEVEL = 300;
         const LEVEL_UP_SKILL_POINTS = 1;
@@ -5618,7 +5677,14 @@
                 enemies[0] = buildEliteEnemy(enemies[0], eliteRank);
                 addLog(`エリートランク${eliteRank} ${enemies[0].name}が出現！`, "text-purple-500 font-black");
             }
+            const nextEnemyId = Number.isInteger(Game.enemyIdCounter) ? Game.enemyIdCounter : 0;
+            enemies = enemies.map((enemy, index) => ({
+                ...enemy,
+                id: nextEnemyId + index + 1
+            }));
+            Game.enemyIdCounter = nextEnemyId + enemies.length;
             Game.enemies = enemies;
+            Game.targetEnemyId = enemies[0]?.id ?? null;
             Game.state = 'combat';
         }
 
@@ -5794,10 +5860,15 @@
                 }
             }
 
-            const enemyStatusMods = getStatusModifiers(Game.enemy);
-            const enemyEvasion = Math.max(0, Math.floor((Game.enemy.eva || 0) * enemyStatusMods.evasionMul));
-            const bossRushDefenseMul = getBossRushEnemyDefenseMultiplier(Game.enemy);
-            const enemyDefense = Math.max(0, Math.floor((Game.enemy.def || 0) * enemyStatusMods.defMul * bossRushDefenseMul));
+            const targetEnemy = ensureTargetEnemy();
+            if (!targetEnemy) {
+                updateUI();
+                return;
+            }
+            const enemyStatusMods = getStatusModifiers(targetEnemy);
+            const enemyEvasion = Math.max(0, Math.floor((targetEnemy.eva || 0) * enemyStatusMods.evasionMul));
+            const bossRushDefenseMul = getBossRushEnemyDefenseMultiplier(targetEnemy);
+            const enemyDefense = Math.max(0, Math.floor((targetEnemy.def || 0) * enemyStatusMods.defMul * bossRushDefenseMul));
 
             if (currentSkill.hpCost) {
                 const cost = Math.floor(derived.maxHp * currentSkill.hpCost);
@@ -5824,7 +5895,7 @@
             } else {
                 const bossMods = getBossUniqueCombatModifiers({
                     player: Game.player,
-                    enemy: Game.enemy,
+                    enemy: targetEnemy,
                     derived,
                     baseHits: currentSkill.hits || 1
                 });
@@ -5857,8 +5928,8 @@
                     let isCrit = Math.random() * 100 < (derived.totals.critRate + (currentSkill.critBonus || 0) + bossMods.critRateBonus);
                     let dmg = Math.floor(currentSkill.pow * atkBase * (0.9 + Math.random() * 0.2));
                     if (isCrit) dmg = Math.floor(dmg * (derived.totals.critDamage / 100));
-                    if (isCrit && hasBossRushBuff(Game.enemy, "br_yellow_crit_def")) {
-                        const state = getBossRushBuffState(Game.enemy);
+                    if (isCrit && hasBossRushBuff(targetEnemy, "br_yellow_crit_def")) {
+                        const state = getBossRushBuffState(targetEnemy);
                         if (state) {
                             state.defenseBoostPct = Math.min(100, (state.defenseBoostPct || 0) + BossRushBuffConfig.critDefBoost * 100);
                         }
@@ -5878,7 +5949,7 @@
                     }
                     // Passive: First hit boost
                     const firstHitLevel = getPassiveLevel('thief', 5);
-                    if (firstHitLevel > 0 && Game.enemy.hp === Game.enemy.maxHp) {
+                    if (firstHitLevel > 0 && targetEnemy.hp === targetEnemy.maxHp) {
                         dmg = Math.floor(dmg * (1 + 0.25 * firstHitLevel));
                     }
 
@@ -5890,15 +5961,15 @@
                     }
                     dmg = Math.floor(dmg * playerStatusMods.damageDoneMul);
                     dmg = Math.floor(dmg * enemyStatusMods.damageTakenMul);
-                    dmg = Math.floor(dmg * getBossRushDamageTakenMultiplier(Game.enemy, Game.player));
+                    dmg = Math.floor(dmg * getBossRushDamageTakenMultiplier(targetEnemy, Game.player));
                     dmg = Math.max(0, dmg - enemyDefense);
-                    const nullifyThreshold = getBossRushDamageNullifyThreshold(Game.enemy);
+                    const nullifyThreshold = getBossRushDamageNullifyThreshold(targetEnemy);
                     if (nullifyThreshold > 0 && dmg > 0 && dmg < nullifyThreshold) {
                         nullifiedHit = true;
                         continue;
                     }
                     dmg = Math.max(1, dmg);
-                    const appliedDamage = applyDamage(Game.enemy, dmg, Game.player, { ignoreBossRushNullify: true, ignoreBossRushDamageReduction: true });
+                    const appliedDamage = applyDamage(targetEnemy, dmg, Game.player, { ignoreBossRushNullify: true, ignoreBossRushDamageReduction: true });
                     totalDamage += appliedDamage;
                     
                     // Leech
@@ -5949,7 +6020,11 @@
                 }
 
                 const primaryEnemyVisual = document.querySelector('.enemy-visual-primary');
-                if (primaryEnemyVisual) {
+                const targetEnemyVisual = document.querySelector(`[data-enemy-id="${targetEnemy.id}"] .enemy-visual`);
+                if (targetEnemyVisual) {
+                    targetEnemyVisual.classList.add('shake');
+                    setTimeout(() => targetEnemyVisual.classList.remove('shake'), 200);
+                } else if (primaryEnemyVisual) {
                     primaryEnemyVisual.classList.add('shake');
                     setTimeout(() => primaryEnemyVisual.classList.remove('shake'), 200);
                 }
@@ -5959,7 +6034,7 @@
                 const stackBonus = derived.totals.statusEffectStackBonus || 0;
                 const turnBonus = derived.totals.statusEffectTurnBonus || 0;
                 currentSkill.effects.forEach((effect) => {
-                    const target = effect.target === "self" ? Game.player : Game.enemy;
+                    const target = effect.target === "self" ? Game.player : targetEnemy;
                     let stacks = effect.stacks;
                     let turns = effect.turns;
                     if (effect.target !== "self" && NegativeStatusEffectIds.has(effect.id)) {
@@ -5992,8 +6067,22 @@
 
             advanceStatusEffects(Game.player, 'end');
             applyAutoRegen();
-            if (Game.enemy.hp <= 0) {
-                victory();
+            if (targetEnemy.hp <= 0) {
+                const defeatedIndex = Game.enemies.findIndex((enemy) => enemy.id === targetEnemy.id);
+                const remainingEnemies = Game.enemies.filter((enemy) => enemy.hp > 0);
+                if (remainingEnemies.length === 0) {
+                    victory();
+                    updateUI();
+                    triggerAutosave();
+                    return;
+                }
+                Game.enemies = remainingEnemies;
+                const nextIndex = defeatedIndex >= 0
+                    ? Math.min(defeatedIndex, remainingEnemies.length - 1)
+                    : 0;
+                const nextTarget = remainingEnemies[nextIndex] || remainingEnemies[0];
+                Game.targetEnemyId = nextTarget?.id ?? null;
+                setTimeout(enemyTurn, 300);
             } else {
                 setTimeout(enemyTurn, 300);
             }
@@ -6757,6 +6846,7 @@
                 });
             };
 
+            ensureTargetEnemy();
             const enemyList = document.getElementById('enemy-list');
             if (enemyList) {
                 enemyList.innerHTML = '';
@@ -6765,8 +6855,15 @@
                     enemyList.innerHTML = '<div class="text-[11px] text-slate-400">敵がいません</div>';
                 } else {
                     enemies.forEach((enemy, index) => {
+                        const isSelected = enemy.id === Game.targetEnemyId;
                         const card = document.createElement('div');
-                        card.className = "rounded-2xl border border-slate-200 bg-white/90 px-3 py-2 flex flex-col items-center gap-2 shadow-sm";
+                        card.className = `enemy-card rounded-2xl border bg-white/90 px-3 py-2 flex flex-col items-center gap-2 shadow-sm ${isSelected ? 'is-selected' : 'border-slate-200'}`;
+                        card.setAttribute('data-enemy-id', String(enemy.id));
+                        card.addEventListener('click', () => {
+                            if (Game.state !== 'combat') return;
+                            setTargetEnemyId(enemy.id);
+                            updateUI();
+                        });
 
                         const header = document.createElement('div');
                         header.className = "flex items-center justify-center gap-3";
@@ -6788,6 +6885,10 @@
                         enemyName.className = "enemy-name font-bold text-base";
                         enemyName.innerText = enemy.name;
 
+                        const selectionBadge = document.createElement('span');
+                        selectionBadge.className = "enemy-select-badge inline-flex items-center gap-1 rounded-full bg-slate-900 text-white text-[9px] font-black px-2 py-0.5";
+                        selectionBadge.innerHTML = '<i class="fa-solid fa-bullseye"></i> 選択中';
+
                         const bossBadge = document.createElement('span');
                         bossBadge.className = "boss-badge hidden";
                         bossBadge.innerHTML = '<i class="fas fa-crown"></i> BOSS';
@@ -6799,6 +6900,7 @@
                         }
 
                         nameRow.appendChild(enemyName);
+                        nameRow.appendChild(selectionBadge);
                         nameRow.appendChild(bossBadge);
 
                         info.appendChild(nameRow);
