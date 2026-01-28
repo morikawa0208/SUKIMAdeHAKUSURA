@@ -629,7 +629,7 @@
                     <div class="text-xs font-black">アクティブスロット</div>
                     <div class="text-[9px] text-slate-400">タップでスロット選択</div>
                 </div>
-                <div id="skill-slot-settings" class="grid grid-cols-2 gap-1.5"></div>
+                <div id="skill-slot-settings" class="grid grid-cols-4 gap-1"></div>
             </div>
             <div id="skill-list" class="flex-1 overflow-y-auto p-4 space-y-3 pb-8 min-h-0"></div>
         </section>
@@ -1299,8 +1299,8 @@
                 exp: 0, next: 100, sp: 1,
                 gold: 0,
                 weapon: null, armor: null, head: null, hands: null, feet: null, accessory1: null, accessory2: null, potion1: null, potion2: null, inventory: [],
-                skillSlots: [null, null, null, null],
-                skillSlotCooldowns: [0, 0, 0, 0],
+                skillSlots: [null, null, null, null, null, null, null, null],
+                skillSlotCooldowns: [0, 0, 0, 0, 0, 0, 0, 0],
                 skillSlotIndex: 0,
                 skillSlotTarget: 0,
                 statusEffects: [],
@@ -6976,7 +6976,7 @@
             const battleSlots = document.getElementById('battle-skill-slots');
             if (battleSlots) {
                 battleSlots.innerHTML = '';
-                battleSlots.className = 'grid grid-cols-2 gap-2';
+                battleSlots.className = 'grid grid-cols-4 gap-1.5';
                 normalizeSkillSlotCooldowns();
                 const playerStatusMods = getStatusModifiers(Game.player);
                 const slotSkillIndices = Game.player.skillSlots
@@ -7001,7 +7001,7 @@
                     const isSelected = idx === Game.selectedSkillId;
                     const button = document.createElement('button');
                     button.type = 'button';
-                    let className = "w-full rounded-xl border px-2 py-2 text-[10px] font-bold flex items-center gap-2 transition-colors";
+                    let className = "w-full rounded-lg border px-1.5 py-1.5 text-[9px] font-bold flex items-center gap-1.5 transition-colors";
                     if (availability.selectable) {
                         className += isSelected
                             ? " border-slate-800 bg-slate-800 text-white"
@@ -7017,19 +7017,19 @@
                     const mpLabel = skill ? `MP ${availability.mpCost}` : '未設定';
                     const statusLabel = availability.reason ? availability.reason : (isSelected ? '選択中' : '選択');
                     button.innerHTML = `
-                        <div class="w-8 h-8 rounded-lg flex items-center justify-center ${availability.selectable ? 'bg-slate-100 text-slate-600' : 'bg-slate-100 text-slate-300'}">
+                        <div class="w-7 h-7 rounded-md flex items-center justify-center ${availability.selectable ? 'bg-slate-100 text-slate-600' : 'bg-slate-100 text-slate-300'}">
                             <i class="fas ${icon}"></i>
                         </div>
                         <div class="flex-1 min-w-0 text-left">
                             <div class="flex items-center justify-between gap-2">
-                                <div class="text-[9px] font-black">S${idx + 1}</div>
-                                <div class="text-[9px] flex items-center gap-2">
+                                <div class="text-[8px] font-black">S${idx + 1}</div>
+                                <div class="text-[8px] flex items-center gap-1.5">
                                     <span>${mpLabel}</span>
                                     ${cooldownLabel ? `<span class="text-[8px] font-black text-rose-500">[${cooldownLabel}]</span>` : ''}
                                 </div>
                             </div>
                             <div class="truncate">${skill ? skill.name : '未設定'}</div>
-                            <div class="text-[9px] ${availability.selectable ? 'text-slate-400' : 'text-rose-400'}">${statusLabel}</div>
+                            <div class="text-[8px] ${availability.selectable ? 'text-slate-400' : 'text-rose-400'}">${statusLabel}</div>
                         </div>
                     `;
                     button.disabled = !availability.selectable;
@@ -7088,20 +7088,20 @@
                 Game.player.skillSlots.forEach((slot, idx) => {
                     const skill = getSlotSkill(slot);
                     const wrapper = document.createElement('div');
-                    wrapper.className = "flex items-center gap-2";
+                    wrapper.className = "flex items-center gap-1";
 
                     const slotButton = document.createElement('button');
-                    slotButton.className = `flex-1 text-left px-2 py-1.5 rounded-lg border text-[10px] font-bold ${
+                    slotButton.className = `flex-1 text-left px-1.5 py-1 rounded-lg border text-[9px] font-bold ${
                         Game.player.skillSlotTarget === idx ? 'border-slate-800 bg-slate-800 text-white' : 'border-slate-200 bg-slate-50 text-slate-500'
                     }`;
                     slotButton.innerHTML = `
-                        <div class="text-[9px] font-black">S${idx + 1}</div>
+                        <div class="text-[8px] font-black">S${idx + 1}</div>
                         <div class="truncate">${skill ? skill.name : '未設定'}</div>
                     `;
                     slotButton.addEventListener('click', () => setSkillSlotTarget(idx));
 
                     const clearButton = document.createElement('button');
-                    clearButton.className = `w-8 h-8 rounded-lg border flex items-center justify-center ${
+                    clearButton.className = `w-7 h-7 rounded-lg border flex items-center justify-center ${
                         skill ? 'border-slate-200 text-slate-500 bg-white' : 'border-slate-100 text-slate-300 bg-slate-50'
                     }`;
                     clearButton.innerHTML = '<i class="fas fa-xmark"></i>';
