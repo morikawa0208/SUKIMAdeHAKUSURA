@@ -7145,6 +7145,7 @@
         }
         
         // HTML→Swiftへ productId を送る（Swift側はこれだけ受ければOK）
+        /*
         function purchaseTip(productId) {
           hideDonateToast(); // ← 前の残りをまず消す
           try {
@@ -7178,6 +7179,63 @@
           // fail / unknown
           showDonateToast('購入に失敗しました。時間をおいて再度お試しください。', 2200);
         };
+        */
+        
+          // Webでのみ使う Stripe Payment Links（あなたのURLに差し替え）
+          const STRIPE_LINKS = {
+            tip_100: "https://buy.stripe.com/test_7sY14gdRs3ai0p3bzbaAw00",
+            tip_300: "https://buy.stripe.com/test_5kQ8wIfZA5iqfjX1YBaAw01",
+          };
+        
+          // iOSアプリ内（WKWebView）の判定：tip handler があるかどうか
+          function isIOSAppWebView() {
+            try {
+              return !!(window?.webkit?.messageHandlers?.tip?.postMessage);
+            } catch (e) {
+              return false;
+            }
+          }
+        
+          // WebでStripeを開く
+          function openStripeForWeb(productId) {
+            const url = STRIPE_LINKS[productId];
+        
+            if (!url) {
+              showDonateToast?.('Stripeリンクが未設定です', 1800);
+              console.warn("Stripeリンク未設定:", productId);
+              return;
+            }
+        
+            // ゲームの状態を維持したいので「新規タブ」推奨
+            const opened = window.open(url, "_blank", "noopener,noreferrer");
+        
+            // ポップアップブロック対策：開けなかったら同一タブ遷移
+            if (!opened) {
+              location.href = url;
+            }
+        
+            showDonateToast?.('決済ページを開きました', 1400);
+          }
+        
+          // 既存ロジックを保ちつつ、WebではStripeへ
+          function purchaseTip(productId) {
+            hideDonateToast(); // ← 前の残りをまず消す
+        
+            // 1) iOSアプリ内なら、今まで通りSwiftへ渡す
+            if (isIOSAppWebView()) {
+              try {
+                window.webkit.messageHandlers.tip.postMessage({ productId });
+                showDonateToast('購入画面を開いています…', 1200);
+                return;
+              } catch (e) {
+                // 万一失敗したらWeb扱いへフォールバック
+                console.warn("iOS handler postMessage failed:", e);
+              }
+            }
+        
+            // 2) それ以外（Webブラウザ）はStripeへ
+            openStripeForWeb(productId);
+          }
 
 
     </script>
