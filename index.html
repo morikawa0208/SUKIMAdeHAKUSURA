@@ -489,6 +489,7 @@
                     <div class="flex justify-between border-b border-slate-700 pb-1"><span>MP効率</span><span id="stat-mp-eff">0%</span></div>
                     <div class="flex justify-between border-b border-slate-700 pb-1"><span>HP自動回復</span><span id="stat-hp-regen">0</span></div>
                     <div class="flex justify-between border-b border-slate-700 pb-1"><span>MP自動回復</span><span id="stat-mp-regen">0</span></div>
+                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>クールダウン短縮</span><span id="stat-skill-cd-reduction">0%</span></div>
                     <div class="flex justify-between border-b border-slate-700 pb-1"><span>攻撃力</span><span id="stat-atk-flat">0</span></div>
                     <div class="flex justify-between border-b border-slate-700 pb-1"><span>攻撃効率</span><span id="stat-atk-eff">0%</span></div>
                     <div class="flex justify-between border-b border-slate-700 pb-1"><span>防御力</span><span id="stat-def-flat">0</span></div>
@@ -1095,6 +1096,7 @@
                         <li>MP効率：最大MPを%で増加。</li>
                         <li>HP自動回復：ターン終了時にHPが回復。</li>
                         <li>MP自動回復：ターン終了時にMPが回復。</li>
+                        <li>クールダウン短縮：スキルのクールダウンを短縮。</li>
                         <li>攻撃力：物理攻撃の固定増加。</li>
                         <li>攻撃効率：物理攻撃を%で増加。</li>
                         <li>防御力：防御の固定増加。</li>
@@ -1276,7 +1278,7 @@
                 critDamage: 200, damageBoost: 0, damageReduction: 0, rareFind: 0, affixFind: 0, eliteEncounter: 20,
                 skillPowerBoost: 0, statusEffectStackBonus: 0, statusEffectTurnBonus: 0,
                 poisonMaxStacksBonus: 0, poisonMinPctBonus: 0,
-                skillMpDiscount: 0, strMultiplier: 0, intMultiplier: 0, vitMultiplier: 0, dexMultiplier: 0, lukMultiplier: 0,
+                skillMpDiscount: 0, skillCooldownReduction: 0, strMultiplier: 0, intMultiplier: 0, vitMultiplier: 0, dexMultiplier: 0, lukMultiplier: 0,
                 exp: 0, next: 100, sp: 1,
                 gold: 0,
                 weapon: null, armor: null, head: null, hands: null, feet: null, accessory1: null, accessory2: null, potion1: null, potion2: null, inventory: [],
@@ -1871,6 +1873,28 @@
                 ]
             }
         };
+
+        const normalizeSkillDefinitions = () => {
+            JobKeys.forEach((job) => {
+                const data = JobData[job];
+                if (!data || !Array.isArray(data.active)) return;
+                data.active = data.active.map((skill) => {
+                    const cooldown = Number.isFinite(skill.cooldown) ? Math.max(0, skill.cooldown) : null;
+                    const cooldownMax = Number.isFinite(skill.cooldownMax) ? Math.max(0, skill.cooldownMax) : null;
+                    const resolvedCooldown = cooldown ?? cooldownMax ?? 0;
+                    const resolvedCooldownMax = cooldownMax ?? cooldown ?? 0;
+                    return {
+                        cooldown: resolvedCooldown,
+                        cooldownMax: resolvedCooldownMax,
+                        ...skill,
+                        cooldown: resolvedCooldown,
+                        cooldownMax: resolvedCooldownMax
+                    };
+                });
+            });
+        };
+
+        normalizeSkillDefinitions();
 
         const PassiveMilestoneBonuses = {
             warrior: {
@@ -2722,6 +2746,7 @@
             affixFind: "Affix率",
             eliteEncounter: "エリート遭遇率",
             goldBoost: "ゴールド増加率",
+            skillCooldownReduction: "クールダウン短縮",
             potionCapacity: "容量",
             potionCost: "消費量",
             potionCostReduction: "消費量",
@@ -2754,6 +2779,7 @@
             "affixFind",
             "eliteEncounter",
             "goldBoost",
+            "skillCooldownReduction",
             "potionHealPct",
             "poisonMinPctBonus"
         ]);
@@ -3031,6 +3057,7 @@
             { name: "採掘の", suffixName: "の拾遺", rank: 2, group: "treasure", stats: ["goldBoost", "expBoost"] },
             { name: "慈愛の", suffixName: "の安寧", rank: 2, group: "support", stats: ["hpRegen", "hpEfficiency"] },
             { name: "瞑想の", suffixName: "の月祈", rank: 2, group: "support", stats: ["mpRegen", "mpEfficiency"] },
+            { name: "時詠の", suffixName: "の刻環", rank: 2, group: "support", stats: ["skillCooldownReduction", "mpEfficiency"] },
             { name: "治癒の", suffixName: "の白灯", rank: 2, group: "support", stats: ["hpRegen", "maxHp"] },
             { name: "照準の", suffixName: "の慧眼", rank: 2, group: "precision", stats: ["accuracy", "critRate"] },
             { name: "見切りの", suffixName: "の夜隼", rank: 2, group: "precision", stats: ["accuracy", "evasionRate"] },
@@ -3112,6 +3139,7 @@
             rareFind: [4, 8, 15],
             affixFind: [5, 10, 18],
             goldBoost: [5, 10, 18],
+            skillCooldownReduction: [3, 6, 10],
             potionCapacity: [15, 30, 50],
             potionHeal: [10, 22, 38],
             potionCostReduction: [5, 10, 18],
@@ -3779,6 +3807,7 @@
                 poisonMaxStacksBonus: Game.player.poisonMaxStacksBonus + (equip.poisonMaxStacksBonus || 0),
                 poisonMinPctBonus: Game.player.poisonMinPctBonus + (equip.poisonMinPctBonus || 0),
                 skillMpDiscount: Game.player.skillMpDiscount + (equip.skillMpDiscount || 0),
+                skillCooldownReduction: Game.player.skillCooldownReduction + (equip.skillCooldownReduction || 0),
                 strMultiplier: Game.player.strMultiplier + (equip.strMultiplier || 0),
                 intMultiplier: Game.player.intMultiplier + (equip.intMultiplier || 0),
                 vitMultiplier: Game.player.vitMultiplier + (equip.vitMultiplier || 0),
@@ -3970,6 +3999,7 @@
             poisonMaxStacksBonus: (stat) => `毒上限スタック +${stat.value}`,
             poisonMinPctBonus: (stat) => `毒最低保証 +${stat.value}%`,
             skillMpDiscount: (stat) => `スキルMP消費 -${stat.value}%`,
+            skillCooldownReduction: (stat) => `クールダウン短縮 -${stat.value}%`,
             strMultiplier: (stat) => `STR倍率 +${stat.value}%`,
             vitMultiplier: (stat) => `VIT倍率 +${stat.value}%`,
             intMultiplier: (stat) => `INT倍率 +${stat.value}%`,
@@ -4401,6 +4431,16 @@
             const lv = Math.max(1, level);
             const scale = lv - 1;
             const skill = { ...base, level: lv, maxLevel: base.maxLevel || SkillMaxLevel };
+            if (base.cooldown !== undefined || base.cooldownMax !== undefined) {
+                const resolvedCooldown = Number.isFinite(base.cooldown)
+                    ? Math.max(0, base.cooldown)
+                    : Math.max(0, base.cooldownMax || 0);
+                const resolvedCooldownMax = Number.isFinite(base.cooldownMax)
+                    ? Math.max(0, base.cooldownMax)
+                    : Math.max(0, base.cooldown || 0);
+                skill.cooldown = resolvedCooldown;
+                skill.cooldownMax = resolvedCooldownMax;
+            }
             if (base.mp !== undefined) {
                 const baseMp = Math.max(0, Math.round(base.mp + (base.mpGrowth || 0) * scale));
                 if (baseMp > 0) {
@@ -4440,6 +4480,12 @@
                 Game.player.skillSlotCooldowns = Game.player.skillSlotCooldowns.map((cd) => (Number.isFinite(cd) ? Math.max(0, cd) : 0));
             }
             return Game.player.skillSlotCooldowns;
+        }
+
+        function tickSkillCooldowns(amount = 1) {
+            const cooldowns = normalizeSkillSlotCooldowns();
+            const step = Number.isFinite(amount) ? Math.max(0, amount) : 0;
+            Game.player.skillSlotCooldowns = cooldowns.map((cd) => Math.max(0, cd - step));
         }
 
         function getAdjustedSkillMpCost(skill, derived) {
@@ -5620,6 +5666,7 @@
             }
             Game.enemies = enemies;
             Game.state = 'combat';
+            tickSkillCooldowns();
         }
 
         function performEnemySkill(skill, derived) {
@@ -5755,8 +5802,7 @@
                 return;
             }
 
-            const cooldowns = normalizeSkillSlotCooldowns();
-            Game.player.skillSlotCooldowns = cooldowns.map((cd) => Math.max(0, cd - 1));
+            tickSkillCooldowns();
             const selectedSlotIndex = Number.isInteger(Game.selectedSkillId) ? Game.selectedSkillId : null;
             const selectedSlot = selectedSlotIndex !== null ? Game.player.skillSlots[selectedSlotIndex] : null;
             let currentSkill = selectedSlot ? getSlotSkill(selectedSlot) : null;
@@ -5788,9 +5834,11 @@
                 adjustedMpCost = 0;
             }
             if (selectedSlotIndex !== null && currentSkill.name !== '通常攻撃') {
-                const skillCooldown = Math.max(0, currentSkill.cooldown || 0);
+                const skillCooldown = Math.max(0, currentSkill.cooldownMax ?? currentSkill.cooldown ?? 0);
                 if (skillCooldown > 0) {
-                    Game.player.skillSlotCooldowns[selectedSlotIndex] = skillCooldown;
+                    const cooldownReduction = Math.max(0, derived.totals.skillCooldownReduction || 0);
+                    const adjustedCooldown = Math.max(0, Math.ceil(skillCooldown * (1 - cooldownReduction / 100)));
+                    Game.player.skillSlotCooldowns[selectedSlotIndex] = adjustedCooldown;
                 }
             }
 
@@ -6856,6 +6904,7 @@
                 Game.player.skillSlots.forEach((slot, idx) => {
                     const skill = getSlotSkill(slot);
                     const cooldown = Game.player.skillSlotCooldowns?.[idx] || 0;
+                    const cooldownLabel = cooldown > 0 ? `CD ${cooldown}` : '';
                     const availability = getSkillSlotAvailability({
                         skill,
                         derived,
@@ -6888,7 +6937,10 @@
                         <div class="flex-1 min-w-0 text-left">
                             <div class="flex items-center justify-between gap-2">
                                 <div class="text-[9px] font-black">S${idx + 1}</div>
-                                <div class="text-[9px]">${mpLabel}</div>
+                                <div class="text-[9px] flex items-center gap-2">
+                                    <span>${mpLabel}</span>
+                                    ${cooldownLabel ? `<span class="text-[8px] font-black text-rose-500">[${cooldownLabel}]</span>` : ''}
+                                </div>
                             </div>
                             <div class="truncate">${skill ? skill.name : '未設定'}</div>
                             <div class="text-[9px] ${availability.selectable ? 'text-slate-400' : 'text-rose-400'}">${statusLabel}</div>
@@ -7020,6 +7072,7 @@
             document.getElementById('stat-accuracy').innerText = `${totals.accuracy}%`;
             document.getElementById('stat-hp-regen').innerText = totals.hpRegen;
             document.getElementById('stat-mp-regen').innerText = totals.mpRegen;
+            document.getElementById('stat-skill-cd-reduction').innerText = `${totals.skillCooldownReduction}%`;
             document.getElementById('stat-crit-dmg').innerText = `${totals.critDamage}%`;
             document.getElementById('stat-dmg-boost').innerText = `${totals.damageBoost}%`;
             document.getElementById('stat-dmg-reduction').innerText = `${totals.damageReduction}%`;
