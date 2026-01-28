@@ -1545,11 +1545,17 @@
                     infoEl.textContent = '空';
                     continue;
                 }
-                const payload = JSON.parse(raw);
-                const timestamp = formatSaveTimestamp(payload?.savedAt);
-                const savedFloor = payload?.data?.floor ?? '-';
-                const savedLevel = payload?.data?.player?.level ?? '-';
-                infoEl.textContent = `${timestamp} / Lv.${savedLevel} / F${savedFloor}`;
+                try {
+                    const payload = JSON.parse(raw);
+                    const timestamp = formatSaveTimestamp(payload?.savedAt);
+                    const savedFloor = payload?.data?.floor ?? '-';
+                    const savedLevel = payload?.data?.player?.level ?? '-';
+                    infoEl.textContent = `${timestamp} / Lv.${savedLevel} / F${savedFloor}`;
+                } catch (error) {
+                    infoEl.textContent = '破損';
+                    localStorage.removeItem(getSaveKey(slot));
+                    continue;
+                }
             }
             document.querySelectorAll('input[name="autosave-slot"]').forEach((input) => {
                 const slotValue = Number.parseInt(input.value, 10);
@@ -1580,7 +1586,13 @@
                 resetGameForSlot(slot, `スロット${slot}は空のため新規開始しました。`, 'text-amber-600');
                 return;
             }
-            const payload = JSON.parse(raw);
+            let payload = null;
+            try {
+                payload = JSON.parse(raw);
+            } catch (error) {
+                setSaveStatus(`スロット${slot}のデータが読み込めません。`, 'text-rose-500');
+                return;
+            }
             if (!payload?.data) {
                 setSaveStatus(`スロット${slot}のデータが読み込めません。`, 'text-rose-500');
                 return;
@@ -1691,7 +1703,13 @@
         const normalizeImportedPayload = (rawText) => {
             const trimmed = rawText.trim();
             if (!trimmed) return null;
-            const parsed = JSON.parse(trimmed);
+            let parsed = null;
+            try {
+                parsed = JSON.parse(trimmed);
+            } catch (error) {
+                setSaveStatus('インポート文字列を解析できませんでした。', 'text-rose-500');
+                return null;
+            }
             if (!parsed || typeof parsed !== 'object') return null;
             if (parsed.data && typeof parsed.data === 'object') {
                 return {
