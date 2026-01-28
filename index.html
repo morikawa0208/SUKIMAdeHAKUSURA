@@ -224,19 +224,9 @@
                         ワープ
                     </button>
                 </div>
-                <div id="enemy-container" class="text-center transition-all duration-300">
-                    <div id="enemy-visual" class="text-8xl mb-4 text-slate-700"><i class="fas fa-ghost"></i></div>
-                <div id="enemy-bossrush-buffs" class="flex flex-wrap justify-center gap-1 mb-1 text-[10px]"></div>
-                <div id="enemy-name" class="font-bold text-lg mb-1">スライム</div>
-                <div id="enemy-boss-badge" class="hidden justify-center mb-2">
-                    <span class="boss-badge"><i class="fas fa-crown"></i> BOSS</span>
+                <div id="enemy-container" class="text-center transition-all duration-300 w-full">
+                    <div id="enemy-list" class="flex flex-col gap-3"></div>
                 </div>
-                <div class="w-48 bar-container mx-auto mb-1 border-0 bg-slate-200">
-                    <div id="enemy-hp-bar" class="bar-fill hp-fill"></div>
-                    <div class="bar-text">HP: <span id="enemy-hp-text">30/30</span></div>
-                </div>
-                <div id="enemy-status-effects" class="flex flex-wrap justify-center gap-1 mt-1 text-[10px]"></div>
-            </div>
                 <div id="damage-layer" class="absolute inset-0 pointer-events-none"></div>
                 <div class="absolute left-0 bottom-4 w-1/2 drop-log-box pointer-events-none text-left pl-2 text-slate-500 italic">
                     <div id="drop-log-list" class="flex flex-col-reverse gap-1"></div>
@@ -1315,8 +1305,17 @@
             lootQueue: [],
             pendingEquip: null,
             bossRushCarryoverDamage: 0,
-            enemy: null, logs: [], dropLogs: []
+            enemies: [], logs: [], dropLogs: []
         };
+
+        Object.defineProperty(Game, 'enemy', {
+            get() {
+                return Array.isArray(Game.enemies) && Game.enemies.length > 0 ? Game.enemies[0] : null;
+            },
+            set(value) {
+                Game.enemies = value ? [value] : [];
+            }
+        });
 
         const MAX_LEVEL = 300;
         const LEVEL_UP_SKILL_POINTS = 1;
@@ -5554,11 +5553,12 @@
                 bossBase = isDxBoss ? BossDefs[1000] : bossDef;
                 bossScale = getBossScale(Game.floor);
             }
+            let enemies = [];
             if (bossDef) {
                 const baseStats = bossBase || bossDef;
                 const hasBossRushUnlocked = Array.isArray(Game.defeatedBossFloors) && Game.defeatedBossFloors.includes(1000);
                 const isDxBoss = hasBossRushUnlocked && Game.floor <= 1000;
-                Game.enemy = {
+                const bossEnemy = {
                     ...bossDef,
                     floor: Game.floor,
                     maxHp: Math.floor(baseStats.hp * bossScale),
@@ -5579,41 +5579,46 @@
                     bossRushBuffState: null
                 };
                 if (Game.floor >= BossRushStartFloor) {
-                    Game.enemy.bossRushBuffs = rollBossRushBuffs(Game.floor);
-                    Game.enemy.bossRushBuffState = null;
-                    applyBossRushBuffStats(Game.enemy, Game.enemy.bossRushBuffs);
-                    applyBossRushCarryoverDamage(Game.enemy);
+                    bossEnemy.bossRushBuffs = rollBossRushBuffs(Game.floor);
+                    bossEnemy.bossRushBuffState = null;
+                    applyBossRushBuffStats(bossEnemy, bossEnemy.bossRushBuffs);
+                    applyBossRushCarryoverDamage(bossEnemy);
                 } else {
                     Game.bossRushCarryoverDamage = 0;
                 }
+                enemies = [bossEnemy];
                 addLog(`BOSS ${bossDef.name}が出現！`, "text-amber-500 font-black");
             } else {
                 const scale = getEnemyScale(Game.floor);
                 const basePool = getEnemyPool(Game.floor);
-                const base = pickRandom(basePool);
-                Game.enemy = { 
-                    ...base, 
-                    maxHp: Math.floor(base.hp * scale), 
-                    hp: Math.floor(base.hp * scale), 
-                    str: Math.floor(base.str * scale),
-                    def: Math.floor(base.def * scale),
-                    acc: Math.floor(base.acc * scale),
-                    eva: Math.floor(base.eva * scale),
-                    statusEffects: [],
-                    isBoss: false,
-                    critRate: 0,
-                    critDamage: Math.floor(BossRushBuffConfig.baseCritMultiplier * 100),
-                    bossRushBuffs: [],
-                    bossRushBuffState: null
-                };
+                const spawnCount = Math.floor(Math.random() * 3) + 1;
+                enemies = Array.from({ length: spawnCount }, () => {
+                    const base = pickRandom(basePool);
+                    return { 
+                        ...base, 
+                        maxHp: Math.floor(base.hp * scale), 
+                        hp: Math.floor(base.hp * scale), 
+                        str: Math.floor(base.str * scale),
+                        def: Math.floor(base.def * scale),
+                        acc: Math.floor(base.acc * scale),
+                        eva: Math.floor(base.eva * scale),
+                        statusEffects: [],
+                        isBoss: false,
+                        critRate: 0,
+                        critDamage: Math.floor(BossRushBuffConfig.baseCritMultiplier * 100),
+                        bossRushBuffs: [],
+                        bossRushBuffState: null
+                    };
+                });
                 Game.bossRushCarryoverDamage = 0;
             }
             const derived = getDerivedStats();
             const eliteRank = rollEliteRank(derived.totals.eliteEncounter);
-            if (eliteRank > 0) {
-                Game.enemy = buildEliteEnemy(Game.enemy, eliteRank);
-                addLog(`エリートランク${eliteRank} ${Game.enemy.name}が出現！`, "text-purple-500 font-black");
+            if (eliteRank > 0 && enemies[0]) {
+                enemies[0] = buildEliteEnemy(enemies[0], eliteRank);
+                addLog(`エリートランク${eliteRank} ${enemies[0].name}が出現！`, "text-purple-500 font-black");
             }
+            Game.enemies = enemies;
             Game.state = 'combat';
         }
 
@@ -5943,8 +5948,11 @@
                     applyLevelUps();
                 }
 
-                document.getElementById('enemy-visual').classList.add('shake');
-                setTimeout(()=>document.getElementById('enemy-visual').classList.remove('shake'), 200);
+                const primaryEnemyVisual = document.querySelector('.enemy-visual-primary');
+                if (primaryEnemyVisual) {
+                    primaryEnemyVisual.classList.add('shake');
+                    setTimeout(() => primaryEnemyVisual.classList.remove('shake'), 200);
+                }
             }
 
             if (currentSkill.effects) {
@@ -6701,34 +6709,16 @@
             document.getElementById('player-exp-text-battle').innerText = `${p.exp}/${p.next}`;
             document.getElementById('player-exp-bar-battle').style.width = (p.exp/p.next*100)+'%';
 
-            const e = Game.enemy;
-            if (e) {
-                const enemyName = document.getElementById('enemy-name');
-                const enemyVisual = document.getElementById('enemy-visual');
-                const bossBadge = document.getElementById('enemy-boss-badge');
-                enemyName.innerText = e.name;
-                document.getElementById('enemy-hp-text').innerText = `${e.hp}/${e.maxHp}`;
-                document.getElementById('enemy-hp-bar').style.width = (e.hp/e.maxHp*100)+'%';
-                enemyVisual.innerHTML = `<i class="fas ${e.icon}"></i>`;
-                if (e.isBoss) {
-                    enemyVisual.classList.add('boss-visual');
-                    enemyName.classList.add('boss-name');
-                    if (bossBadge) {
-                        bossBadge.classList.remove('hidden');
-                        bossBadge.classList.add('flex');
-                    }
-                } else {
-                    enemyVisual.classList.remove('boss-visual');
-                    enemyName.classList.remove('boss-name');
-                    if (bossBadge) {
-                        bossBadge.classList.add('hidden');
-                        bossBadge.classList.remove('flex');
-                    }
+            const resolveContainer = (containerOrId) => {
+                if (!containerOrId) return null;
+                if (typeof containerOrId === 'string') {
+                    return document.getElementById(containerOrId);
                 }
-            }
+                return containerOrId;
+            };
 
-            const renderBossRushBuffs = (enemy) => {
-                const container = document.getElementById('enemy-bossrush-buffs');
+            const renderBossRushBuffs = (enemy, containerOrId) => {
+                const container = resolveContainer(containerOrId);
                 if (!container) return;
                 container.innerHTML = '';
                 const buffs = getBossRushBuffs(enemy);
@@ -6743,8 +6733,8 @@
                 });
             };
 
-            const renderStatusEffects = (target, containerId) => {
-                const container = document.getElementById(containerId);
+            const renderStatusEffects = (target, containerOrId) => {
+                const container = resolveContainer(containerOrId);
                 if (!container) return;
                 container.innerHTML = '';
                 if (!target || !Array.isArray(target.statusEffects) || target.statusEffects.length === 0) {
@@ -6766,9 +6756,87 @@
                     container.appendChild(badge);
                 });
             };
-            renderBossRushBuffs(Game.enemy);
+
+            const enemyList = document.getElementById('enemy-list');
+            if (enemyList) {
+                enemyList.innerHTML = '';
+                const enemies = Array.isArray(Game.enemies) ? Game.enemies : (Game.enemy ? [Game.enemy] : []);
+                if (enemies.length === 0) {
+                    enemyList.innerHTML = '<div class="text-[11px] text-slate-400">敵がいません</div>';
+                } else {
+                    enemies.forEach((enemy, index) => {
+                        const card = document.createElement('div');
+                        card.className = "rounded-2xl border border-slate-200 bg-white/90 px-3 py-2 flex flex-col items-center gap-2 shadow-sm";
+
+                        const header = document.createElement('div');
+                        header.className = "flex items-center justify-center gap-3";
+
+                        const enemyVisual = document.createElement('div');
+                        enemyVisual.className = "enemy-visual text-5xl text-slate-700";
+                        enemyVisual.innerHTML = `<i class="fas ${enemy.icon}"></i>`;
+                        if (index === 0) {
+                            enemyVisual.classList.add('enemy-visual-primary');
+                        }
+
+                        const info = document.createElement('div');
+                        info.className = "flex flex-col items-center gap-1";
+
+                        const nameRow = document.createElement('div');
+                        nameRow.className = "flex items-center gap-2";
+
+                        const enemyName = document.createElement('div');
+                        enemyName.className = "enemy-name font-bold text-base";
+                        enemyName.innerText = enemy.name;
+
+                        const bossBadge = document.createElement('span');
+                        bossBadge.className = "boss-badge hidden";
+                        bossBadge.innerHTML = '<i class="fas fa-crown"></i> BOSS';
+
+                        if (enemy.isBoss) {
+                            enemyVisual.classList.add('boss-visual');
+                            enemyName.classList.add('boss-name');
+                            bossBadge.classList.remove('hidden');
+                        }
+
+                        nameRow.appendChild(enemyName);
+                        nameRow.appendChild(bossBadge);
+
+                        info.appendChild(nameRow);
+                        header.appendChild(enemyVisual);
+                        header.appendChild(info);
+
+                        const hpBarWrapper = document.createElement('div');
+                        hpBarWrapper.className = "w-full bar-container border-0 bg-slate-200";
+
+                        const hpFill = document.createElement('div');
+                        hpFill.className = "bar-fill hp-fill";
+                        hpFill.style.width = (enemy.hp / enemy.maxHp * 100) + '%';
+
+                        const hpText = document.createElement('div');
+                        hpText.className = "bar-text";
+                        hpText.innerHTML = `HP: <span>${enemy.hp}/${enemy.maxHp}</span>`;
+
+                        hpBarWrapper.appendChild(hpFill);
+                        hpBarWrapper.appendChild(hpText);
+
+                        const buffContainer = document.createElement('div');
+                        buffContainer.className = "flex flex-wrap justify-center gap-1 text-[9px]";
+                        renderBossRushBuffs(enemy, buffContainer);
+
+                        const statusContainer = document.createElement('div');
+                        statusContainer.className = "flex flex-wrap justify-center gap-1 text-[9px]";
+                        renderStatusEffects(enemy, statusContainer);
+
+                        card.appendChild(header);
+                        card.appendChild(buffContainer);
+                        card.appendChild(hpBarWrapper);
+                        card.appendChild(statusContainer);
+                        enemyList.appendChild(card);
+                    });
+                }
+            }
+
             renderStatusEffects(Game.player, 'player-status-effects');
-            renderStatusEffects(Game.enemy, 'enemy-status-effects');
 
             // Skill Slots
             const battleSlots = document.getElementById('battle-skill-slots');
