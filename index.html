@@ -1872,6 +1872,28 @@
             }
         };
 
+        const normalizeSkillDefinitions = () => {
+            JobKeys.forEach((job) => {
+                const data = JobData[job];
+                if (!data || !Array.isArray(data.active)) return;
+                data.active = data.active.map((skill) => {
+                    const cooldown = Number.isFinite(skill.cooldown) ? Math.max(0, skill.cooldown) : null;
+                    const cooldownMax = Number.isFinite(skill.cooldownMax) ? Math.max(0, skill.cooldownMax) : null;
+                    const resolvedCooldown = cooldown ?? cooldownMax ?? 0;
+                    const resolvedCooldownMax = cooldownMax ?? cooldown ?? 0;
+                    return {
+                        cooldown: resolvedCooldown,
+                        cooldownMax: resolvedCooldownMax,
+                        ...skill,
+                        cooldown: resolvedCooldown,
+                        cooldownMax: resolvedCooldownMax
+                    };
+                });
+            });
+        };
+
+        normalizeSkillDefinitions();
+
         const PassiveMilestoneBonuses = {
             warrior: {
                 0: { 10: { stats: { attackFlat: 15 } }, 30: { stats: { critRate: 5 } }, 50: { stats: { damageBoost: 10 } } },
@@ -4401,6 +4423,16 @@
             const lv = Math.max(1, level);
             const scale = lv - 1;
             const skill = { ...base, level: lv, maxLevel: base.maxLevel || SkillMaxLevel };
+            if (base.cooldown !== undefined || base.cooldownMax !== undefined) {
+                const resolvedCooldown = Number.isFinite(base.cooldown)
+                    ? Math.max(0, base.cooldown)
+                    : Math.max(0, base.cooldownMax || 0);
+                const resolvedCooldownMax = Number.isFinite(base.cooldownMax)
+                    ? Math.max(0, base.cooldownMax)
+                    : Math.max(0, base.cooldown || 0);
+                skill.cooldown = resolvedCooldown;
+                skill.cooldownMax = resolvedCooldownMax;
+            }
             if (base.mp !== undefined) {
                 const baseMp = Math.max(0, Math.round(base.mp + (base.mpGrowth || 0) * scale));
                 if (baseMp > 0) {
@@ -4440,6 +4472,12 @@
                 Game.player.skillSlotCooldowns = Game.player.skillSlotCooldowns.map((cd) => (Number.isFinite(cd) ? Math.max(0, cd) : 0));
             }
             return Game.player.skillSlotCooldowns;
+        }
+
+        function tickSkillCooldowns(amount = 1) {
+            const cooldowns = normalizeSkillSlotCooldowns();
+            const step = Number.isFinite(amount) ? Math.max(0, amount) : 0;
+            Game.player.skillSlotCooldowns = cooldowns.map((cd) => Math.max(0, cd - step));
         }
 
         function getAdjustedSkillMpCost(skill, derived) {
@@ -5620,6 +5658,7 @@
             }
             Game.enemies = enemies;
             Game.state = 'combat';
+            tickSkillCooldowns();
         }
 
         function performEnemySkill(skill, derived) {
@@ -5755,8 +5794,7 @@
                 return;
             }
 
-            const cooldowns = normalizeSkillSlotCooldowns();
-            Game.player.skillSlotCooldowns = cooldowns.map((cd) => Math.max(0, cd - 1));
+            tickSkillCooldowns();
             const selectedSlotIndex = Number.isInteger(Game.selectedSkillId) ? Game.selectedSkillId : null;
             const selectedSlot = selectedSlotIndex !== null ? Game.player.skillSlots[selectedSlotIndex] : null;
             let currentSkill = selectedSlot ? getSlotSkill(selectedSlot) : null;
@@ -5788,7 +5826,7 @@
                 adjustedMpCost = 0;
             }
             if (selectedSlotIndex !== null && currentSkill.name !== '通常攻撃') {
-                const skillCooldown = Math.max(0, currentSkill.cooldown || 0);
+                const skillCooldown = Math.max(0, currentSkill.cooldownMax ?? currentSkill.cooldown ?? 0);
                 if (skillCooldown > 0) {
                     Game.player.skillSlotCooldowns[selectedSlotIndex] = skillCooldown;
                 }
@@ -6847,6 +6885,7 @@
                 Game.player.skillSlots.forEach((slot, idx) => {
                     const skill = getSlotSkill(slot);
                     const cooldown = Game.player.skillSlotCooldowns?.[idx] || 0;
+                    const cooldownLabel = cooldown > 0 ? `CD ${cooldown}` : '';
                     const availability = getSkillSlotAvailability({
                         skill,
                         derived,
@@ -6879,7 +6918,10 @@
                         <div class="flex-1 min-w-0 text-left">
                             <div class="flex items-center justify-between gap-2">
                                 <div class="text-[9px] font-black">S${idx + 1}</div>
-                                <div class="text-[9px]">${mpLabel}</div>
+                                <div class="text-[9px] flex items-center gap-2">
+                                    <span>${mpLabel}</span>
+                                    ${cooldownLabel ? `<span class="text-[8px] font-black text-rose-500">[${cooldownLabel}]</span>` : ''}
+                                </div>
                             </div>
                             <div class="truncate">${skill ? skill.name : '未設定'}</div>
                             <div class="text-[9px] ${availability.selectable ? 'text-slate-400' : 'text-rose-400'}">${statusLabel}</div>
