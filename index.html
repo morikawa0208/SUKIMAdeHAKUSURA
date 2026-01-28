@@ -7099,19 +7099,14 @@
                     const mpLabel = skill ? `MP ${availability.mpCost}` : '未設定';
                     const statusLabel = availability.reason ? availability.reason : (isSelected ? '選択中' : '選択');
                     button.innerHTML = `
-                        <div class="w-7 h-7 rounded-md flex items-center justify-center ${availability.selectable ? 'bg-slate-100 text-slate-600' : 'bg-slate-100 text-slate-300'}">
-                            <i class="fas ${icon}"></i>
-                        </div>
                         <div class="flex-1 min-w-0 text-left">
                             <div class="flex items-center justify-between gap-2">
-                                <div class="text-[8px] font-black">S${idx + 1}</div>
                                 <div class="text-[8px] flex items-center gap-1.5">
                                     <span>${mpLabel}</span>
                                     ${cooldownLabel ? `<span class="text-[8px] font-black text-rose-500">[${cooldownLabel}]</span>` : ''}
                                 </div>
                             </div>
                             <div class="truncate">${skill ? skill.name : '未設定'}</div>
-                            <div class="text-[8px] ${availability.selectable ? 'text-slate-400' : 'text-rose-400'}">${statusLabel}</div>
                         </div>
                     `;
                     button.disabled = !availability.selectable;
