@@ -1266,6 +1266,7 @@
             defeatedBossRushMilestones: [],
             state: 'idle',
             stayOnFloor: false,
+            selectedSkillId: null,
             enhanceModal: {
                 index: null,
                 stage: 'confirm',
@@ -1290,6 +1291,7 @@
                 gold: 0,
                 weapon: null, armor: null, head: null, hands: null, feet: null, accessory1: null, accessory2: null, potion1: null, potion2: null, inventory: [],
                 skillSlots: [null, null, null, null],
+                skillSlotCooldowns: [0, 0, 0, 0],
                 skillSlotIndex: 0,
                 skillSlotTarget: 0,
                 statusEffects: [],
@@ -4428,6 +4430,46 @@
             return buildActiveSkill(slot.job, slot.idx, level);
         }
 
+        function normalizeSkillSlotCooldowns() {
+            const slotCount = Game.player.skillSlots.length;
+            if (!Array.isArray(Game.player.skillSlotCooldowns) || Game.player.skillSlotCooldowns.length !== slotCount) {
+                Game.player.skillSlotCooldowns = Array.from({ length: slotCount }, (_, idx) => {
+                    const current = Game.player.skillSlotCooldowns?.[idx] ?? 0;
+                    return Number.isFinite(current) ? Math.max(0, current) : 0;
+                });
+            } else {
+                Game.player.skillSlotCooldowns = Game.player.skillSlotCooldowns.map((cd) => (Number.isFinite(cd) ? Math.max(0, cd) : 0));
+            }
+            return Game.player.skillSlotCooldowns;
+        }
+
+        function getAdjustedSkillMpCost(skill, derived) {
+            if (!skill || skill.name === '通常攻撃') return 0;
+            let adjustedMpCost = skill.mp || 0;
+            const skillMpDiscount = derived.totals.skillMpDiscount || 0;
+            if (skillMpDiscount > 0) {
+                adjustedMpCost = Math.max(0, Math.floor(adjustedMpCost * (1 - skillMpDiscount / 100)));
+            }
+            return adjustedMpCost;
+        }
+
+        function getSkillSlotAvailability({ skill, derived, playerStatusMods, cooldown, currentMp }) {
+            if (!skill) {
+                return { selectable: false, reason: '未設定', mpCost: 0 };
+            }
+            const mpCost = getAdjustedSkillMpCost(skill, derived);
+            if ((cooldown || 0) > 0) {
+                return { selectable: false, reason: `CD${cooldown}`, mpCost };
+            }
+            if (playerStatusMods.silence && skill.name !== '通常攻撃') {
+                return { selectable: false, reason: '沈黙中', mpCost };
+            }
+            if (skill.name !== '通常攻撃' && currentMp < mpCost) {
+                return { selectable: false, reason: 'MP不足', mpCost };
+            }
+            return { selectable: true, reason: '', mpCost };
+        }
+
         function getNextSlotSkill() {
             const slots = Game.player.skillSlots;
             const start = Game.player.skillSlotIndex ?? 0;
@@ -5708,26 +5750,26 @@
                 return;
             }
 
-            const slotResult = getNextSlotSkill();
-            let currentSkill = { name: '通常攻撃', mp: 0, pow: 1.0 };
-            let isMagic = false;
-            
-            if (slotResult.skill) {
-                currentSkill = slotResult.skill;
-                if (currentSkill.isMagic) isMagic = true;
+            const cooldowns = normalizeSkillSlotCooldowns();
+            Game.player.skillSlotCooldowns = cooldowns.map((cd) => Math.max(0, cd - 1));
+            const selectedSlotIndex = Number.isInteger(Game.selectedSkillId) ? Game.selectedSkillId : null;
+            const selectedSlot = selectedSlotIndex !== null ? Game.player.skillSlots[selectedSlotIndex] : null;
+            let currentSkill = selectedSlot ? getSlotSkill(selectedSlot) : null;
+            if (!currentSkill) {
+                currentSkill = { name: '通常攻撃', mp: 0, pow: 1.0 };
             }
+            let isMagic = Boolean(currentSkill.isMagic);
 
             const derived = getDerivedStats();
-            let adjustedMpCost = currentSkill.mp || 0;
-            if (currentSkill.name !== '通常攻撃') {
-                const skillMpDiscount = derived.totals.skillMpDiscount || 0;
-                if (skillMpDiscount > 0) {
-                    adjustedMpCost = Math.max(0, Math.floor(adjustedMpCost * (1 - skillMpDiscount / 100)));
-                }
-            } else {
+            let adjustedMpCost = getAdjustedSkillMpCost(currentSkill, derived);
+            const selectedCooldown = selectedSlotIndex !== null ? (Game.player.skillSlotCooldowns?.[selectedSlotIndex] || 0) : 0;
+
+            if (selectedCooldown > 0 && currentSkill.name !== '通常攻撃') {
+                addLog("CD中でスキル不可！通常攻撃に変更", "text-slate-400");
+                currentSkill = { name: '通常攻撃', mp: 0, pow: 1.0 };
+                isMagic = false;
                 adjustedMpCost = 0;
             }
-
             if (Game.player.mp < adjustedMpCost) {
                 addLog("MP不足！通常攻撃", "text-blue-400");
                 currentSkill = { name: '通常攻撃', mp: 0, pow: 1.0 };
@@ -5740,8 +5782,12 @@
                 isMagic = false;
                 adjustedMpCost = 0;
             }
-
-            Game.player.skillSlotIndex = slotResult.nextIndex;
+            if (selectedSlotIndex !== null && currentSkill.name !== '通常攻撃') {
+                const skillCooldown = Math.max(0, currentSkill.cooldown || 0);
+                if (skillCooldown > 0) {
+                    Game.player.skillSlotCooldowns[selectedSlotIndex] = skillCooldown;
+                }
+            }
 
             const enemyStatusMods = getStatusModifiers(Game.enemy);
             const enemyEvasion = Math.max(0, Math.floor((Game.enemy.eva || 0) * enemyStatusMods.evasionMul));
@@ -6728,13 +6774,67 @@
             const battleSlots = document.getElementById('battle-skill-slots');
             if (battleSlots) {
                 battleSlots.innerHTML = '';
-                const slotResult = getNextSlotSkill();
-                const nextSkill = slotResult.skill;
-                const label = nextSkill ? `${nextSkill.name} MP ${nextSkill.mp}` : '通常攻撃 MP 0';
-                const card = document.createElement('div');
-                card.className = "rounded-xl border px-3 py-2 text-center text-[10px] font-bold border-slate-200 bg-slate-50 text-slate-700";
-                card.innerHTML = `<div class="truncate">${label}</div>`;
-                battleSlots.appendChild(card);
+                battleSlots.className = 'grid grid-cols-2 gap-2';
+                normalizeSkillSlotCooldowns();
+                const playerStatusMods = getStatusModifiers(Game.player);
+                const slotSkillIndices = Game.player.skillSlots
+                    .map((slot, idx) => (getSlotSkill(slot) ? idx : null))
+                    .filter((idx) => idx !== null);
+                const currentSelected = Number.isInteger(Game.selectedSkillId) ? Game.selectedSkillId : null;
+                if (currentSelected === null || !slotSkillIndices.includes(currentSelected)) {
+                    Game.selectedSkillId = slotSkillIndices.length ? slotSkillIndices[0] : null;
+                }
+
+                Game.player.skillSlots.forEach((slot, idx) => {
+                    const skill = getSlotSkill(slot);
+                    const cooldown = Game.player.skillSlotCooldowns?.[idx] || 0;
+                    const availability = getSkillSlotAvailability({
+                        skill,
+                        derived,
+                        playerStatusMods,
+                        cooldown,
+                        currentMp: p.mp
+                    });
+                    const isSelected = idx === Game.selectedSkillId;
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    let className = "w-full rounded-xl border px-2 py-2 text-[10px] font-bold flex items-center gap-2 transition-colors";
+                    if (availability.selectable) {
+                        className += isSelected
+                            ? " border-slate-800 bg-slate-800 text-white"
+                            : " border-slate-200 bg-white text-slate-700 hover:bg-slate-50";
+                    } else {
+                        className += " border-slate-200 bg-slate-50 text-slate-300";
+                        if (isSelected) {
+                            className += " ring-2 ring-slate-300";
+                        }
+                    }
+                    button.className = className;
+                    const icon = skill ? (skill.isMagic ? 'fa-star' : 'fa-bolt') : 'fa-plus';
+                    const mpLabel = skill ? `MP ${availability.mpCost}` : '未設定';
+                    const statusLabel = availability.reason ? availability.reason : (isSelected ? '選択中' : '選択');
+                    button.innerHTML = `
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center ${availability.selectable ? 'bg-slate-100 text-slate-600' : 'bg-slate-100 text-slate-300'}">
+                            <i class="fas ${icon}"></i>
+                        </div>
+                        <div class="flex-1 min-w-0 text-left">
+                            <div class="flex items-center justify-between gap-2">
+                                <div class="text-[9px] font-black">S${idx + 1}</div>
+                                <div class="text-[9px]">${mpLabel}</div>
+                            </div>
+                            <div class="truncate">${skill ? skill.name : '未設定'}</div>
+                            <div class="text-[9px] ${availability.selectable ? 'text-slate-400' : 'text-rose-400'}">${statusLabel}</div>
+                        </div>
+                    `;
+                    button.disabled = !availability.selectable;
+                    if (availability.selectable) {
+                        button.addEventListener('click', () => {
+                            Game.selectedSkillId = idx;
+                            updateUI();
+                        });
+                    }
+                    battleSlots.appendChild(button);
+                });
             }
 
             const potionSlots = document.getElementById('battle-potion-slots');
