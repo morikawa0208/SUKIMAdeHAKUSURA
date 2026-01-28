@@ -5645,12 +5645,20 @@
                     ? buildActiveSkill(Game.currentJobTab, idx, Math.max(1, level || 1))
                     : skill;
 
+                const skillCooldown = Game.currentSkillType === 'active'
+                    ? Math.max(0, displaySkill.cooldownMax ?? displaySkill.cooldown ?? 0)
+                    : 0;
+                const cooldownBadge = skillCooldown > 0
+                    ? `<span class="text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full font-bold">CD ${skillCooldown}</span>`
+                    : '';
+
                 card.innerHTML = `
                     <div class="flex justify-between items-center gap-4">
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-2 mb-0.5">
                                 <span class="font-black text-sm truncate">${displaySkill.name}</span>
                                 ${displaySkill.mp !== undefined ? `<span class="text-[9px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded-full font-bold">MP ${displaySkill.mp}</span>` : ''}
+                                ${cooldownBadge}
                                 <span class="text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full font-bold">Lv ${level}/${maxLevel}</span>
                             </div>
                             <p class="text-[10px] text-slate-500 leading-tight">${displaySkill.desc}</p>
@@ -7111,13 +7119,13 @@
                     button.className = className;
                     const icon = skill ? (skill.isMagic ? 'fa-star' : 'fa-bolt') : 'fa-plus';
                     const mpLabel = skill ? `MP ${availability.mpCost}` : '未設定';
+                    const mpCooldownLabel = cooldownLabel ? `${mpLabel} / ${cooldownLabel}` : mpLabel;
                     const statusLabel = availability.reason ? availability.reason : (isSelected ? '選択中' : '選択');
                     button.innerHTML = `
                         <div class="flex-1 min-w-0 text-left">
                             <div class="flex items-center justify-between gap-2">
                                 <div class="text-[8px] flex items-center gap-1.5">
-                                    <span>${mpLabel}</span>
-                                    ${cooldownLabel ? `<span class="text-[8px] font-black text-rose-500">[${cooldownLabel}]</span>` : ''}
+                                    <span>${mpCooldownLabel}</span>
                                 </div>
                             </div>
                             <div class="truncate">${skill ? skill.name : '未設定'}</div>
