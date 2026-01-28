@@ -275,7 +275,7 @@
                     </button>
                 </div>
                 <div id="enemy-container" class="text-center transition-all duration-300 w-full">
-                    <div id="enemy-list" class="flex flex-wrap justify-center gap-4"></div>
+                    <div id="enemy-list" class="flex justify-center gap-1"></div>
                 </div>
                 <div id="damage-layer" class="absolute inset-0 pointer-events-none"></div>
                 <div class="absolute left-0 bottom-4 w-1/2 drop-log-box pointer-events-none text-left pl-2 text-slate-500 italic">
@@ -6969,7 +6969,7 @@
                     enemies.forEach((enemy, index) => {
                         const isSelected = enemy.id === Game.targetEnemyId;
                         const card = document.createElement('div');
-                        card.className = `enemy-card rounded-2xl border bg-white/90 px-3 py-2 flex flex-col items-center gap-2 shadow-sm ${isSelected ? 'is-selected' : 'border-slate-200'}`;
+                        card.className = `enemy-card rounded-2xl border bg-white/90 px-1 py-3 flex flex-col items-center gap-2 shadow-sm ${isSelected ? 'is-selected' : 'border-slate-200'}`;
                         card.setAttribute('data-enemy-id', String(enemy.id));
                         card.addEventListener('click', () => {
                             if (Game.state !== 'combat') return;
@@ -7025,7 +7025,7 @@
                         nameRow.appendChild(bossBadge);
 
                         const hpBarWrapper = document.createElement('div');
-                        hpBarWrapper.className = "w-40 bar-container border-0 bg-slate-200";
+                        hpBarWrapper.className = "w-35 bar-container border-0 bg-slate-200";
 
                         const hpFill = document.createElement('div');
                         hpFill.className = "bar-fill hp-fill";
