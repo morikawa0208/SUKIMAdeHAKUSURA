@@ -148,6 +148,37 @@
         .enemy-card.is-selected .enemy-select-badge {
             display: inline-flex;
         }
+        .enemy-next-action {
+            position: absolute;
+            top: -0.55rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 6px;
+            border-radius: 9999px;
+            background: rgba(15, 23, 42, 0.95);
+            color: #f8fafc;
+            font-size: 9px;
+            font-weight: 900;
+            line-height: 1;
+            letter-spacing: 0.02em;
+            box-shadow: 0 6px 12px rgba(15, 23, 42, 0.25);
+            white-space: nowrap;
+            max-width: 120px;
+            pointer-events: none;
+        }
+        .enemy-next-action::after {
+            content: "";
+            position: absolute;
+            bottom: -4px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 4px 4px 0 4px;
+            border-style: solid;
+            border-color: rgba(15, 23, 42, 0.95) transparent transparent transparent;
+        }
 
         .item-name-shrink {
             font-size: 0.72rem;
@@ -5722,6 +5753,7 @@
             }));
             Game.enemyIdCounter = nextEnemyId + enemies.length;
             Game.enemies = enemies;
+            Game.enemies.forEach((enemy) => setEnemyNextActionPreview(enemy));
             Game.targetEnemyId = enemies[0]?.id ?? null;
             Game.state = 'combat';
             tickSkillCooldowns();
@@ -6128,6 +6160,28 @@
             triggerAutosave();
         };
 
+        function setEnemyNextActionPreview(enemy) {
+            if (!enemy) return;
+            const enemyStatusMods = getStatusModifiers(enemy);
+            if (enemyStatusMods.frozen) {
+                enemy.nextActionLabel = "凍結";
+                enemy.nextActionIcon = "fa-shield";
+                return;
+            }
+            let label = "攻撃";
+            let icon = "fa-sword";
+            if (enemy.isBoss && Array.isArray(enemy.skills) && enemy.skills.length > 0) {
+                const nextCooldown = Math.max(0, (enemy.skillCooldown ?? 0) - 1);
+                if (nextCooldown <= 0) {
+                    const nextSkill = enemy.skills[enemy.skillRotation % enemy.skills.length];
+                    label = nextSkill?.name || "スキル";
+                    icon = "fa-wand-magic-sparkles";
+                }
+            }
+            enemy.nextActionLabel = label;
+            enemy.nextActionIcon = icon;
+        }
+
         function enemyTurn() {
             if (Game.state !== 'combat') return;
 
@@ -6143,6 +6197,7 @@
                 addLog(`${Game.enemy.name}は凍結で動けない！`, "text-sky-400");
                 advanceStatusEffects(Game.enemy, 'end');
                 applyAutoRegen();
+                setEnemyNextActionPreview(Game.enemy);
                 updateUI();
                 return;
             }
@@ -6244,6 +6299,7 @@
                 return;
             }
             applyAutoRegen();
+            setEnemyNextActionPreview(Game.enemy);
             updateUI();
         }
 
@@ -6907,11 +6963,19 @@
                         header.className = "flex items-center justify-center gap-3";
 
                         const enemyVisual = document.createElement('div');
-                        enemyVisual.className = "enemy-visual text-6xl text-slate-700";
+                        enemyVisual.className = "enemy-visual relative text-6xl text-slate-700";
                         enemyVisual.innerHTML = `<i class="fas ${enemy.icon}"></i>`;
                         if (index === 0) {
                             enemyVisual.classList.add('enemy-visual-primary');
                         }
+                        const nextActionBadge = document.createElement('div');
+                        nextActionBadge.className = "enemy-next-action hidden";
+                        if (enemy.nextActionLabel) {
+                            const nextActionIcon = enemy.nextActionIcon || 'fa-sword';
+                            nextActionBadge.innerHTML = `<i class="fa-solid ${nextActionIcon}"></i><span>次:${enemy.nextActionLabel}</span>`;
+                            nextActionBadge.classList.remove('hidden');
+                        }
+                        enemyVisual.appendChild(nextActionBadge);
 
                         const buffContainer = document.createElement('div');
                         buffContainer.className = "flex flex-wrap justify-center gap-1 text-[9px]";
