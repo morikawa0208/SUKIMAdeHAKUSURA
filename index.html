@@ -7023,27 +7023,32 @@
         
         function openXShare(event) {
           if (event) event.preventDefault();
+        
           const text = "#すきまでハクスラ";
           const encoded = encodeURIComponent(text);
           const appUrl = `twitter://post?message=${encoded}`;
           const webUrl = `https://x.com/intent/tweet?text=${encoded}`;
+        
           let openedApp = false;
           const markOpened = () => { openedApp = true; };
-          const handleVisibility = () => {
-            if (document.hidden) {
-              markOpened();
-            }
-          };
+          const handleVisibility = () => { if (document.hidden) markOpened(); };
+        
           window.addEventListener("blur", markOpened, { once: true });
           document.addEventListener("visibilitychange", handleVisibility, { once: true });
-          window.location.href = appUrl;
+        
+          // まずXアプリを試す
+          location.href = appUrl;
+        
+          // フォールバック（window.open ではなく location で）
           setTimeout(() => {
             if (!openedApp) {
-              window.open(webUrl, "_blank", "noopener,noreferrer");
+              location.href = webUrl;
             }
           }, 1200);
+        
           return false;
         }
+
 
         const bottomMenuState = { open: false };
 
