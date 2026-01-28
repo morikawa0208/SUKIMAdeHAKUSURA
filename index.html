@@ -1217,16 +1217,16 @@
     
         <div class="space-y-3">
           <button class="w-full bg-white text-slate-900 border border-slate-900 font-black py-3 rounded-2xl shadow-sm flex items-center justify-center gap-2 hover:bg-slate-100 transition"
-            onclick="purchaseTip('tip_100')">
+            onclick="purchaseTip('tip_100',event)">
             ☕️ 100円（コーヒー）
           </button>
     
           <button class="w-full bg-white text-slate-900 border border-slate-900 font-black py-3 rounded-2xl shadow-sm flex items-center justify-center gap-2 hover:bg-slate-100 transition"
-            onclick="purchaseTip('tip_300')">
+            onclick="purchaseTip('tip_300',event)">
             ☕️🍪 300円（コーヒー＋お菓子）
           </button>
     
-          <button class="w-full bg-white text-slate-900 border border-slate-900 font-black py-3 rounded-2xl shadow-sm flex items-center justify-center gap-2 hover:bg-slate-100 transition"
+          <button class="w-full bg-white text-slate-900 font-black rounded-2xl flex items-center justify-center"
             >
             🔥 本当に応援ありがとうございます
           </button>
@@ -7144,43 +7144,7 @@
           if (label) label.textContent = "";
         }
         
-        // HTML→Swiftへ productId を送る（Swift側はこれだけ受ければOK）
-        /*
-        function purchaseTip(productId) {
-          hideDonateToast(); // ← 前の残りをまず消す
-          try {
-            const handler = window?.webkit?.messageHandlers?.tip;
-            if (handler?.postMessage) {
-              handler.postMessage({ productId });
-              showDonateToast('購入画面を開いています…', 1200);
-              return;
-            }
-          } catch (e) {}
-          showDonateToast('iOSアプリ内で応援できます', 1800);
-        }
-        
-        // Swift→HTML から購入結果を受け取る口（Swiftはここを呼ぶだけ）
-        window.onTipResult = function(status) {
-          // まずは前の表示を消してから出す（重なり防止）
-          hideDonateToast();
-        
-          if (status === 'success') {
-            closeDonateModal();
-            showDonateToast('応援ありがとうございます！めちゃくちゃ励みになります🔥', 2600);
-            return;
-          }
-        
-          if (status === 'cancel') {
-            // キャンセルはモーダルは閉じない方が親切（再選択できる）
-            showDonateToast('キャンセルしました', 1600);
-            return;
-          }
-        
-          // fail / unknown
-          showDonateToast('購入に失敗しました。時間をおいて再度お試しください。', 2200);
-        };
-        */
-        
+        // HTML→Swiftへ productId を送る（Swift側はこれだけ受ければOK）      
           // Webでのみ使う Stripe Payment Links（あなたのURLに差し替え）
           const STRIPE_LINKS = {
             tip_100: "https://buy.stripe.com/test_7sY14gdRs3ai0p3bzbaAw00",
@@ -7218,24 +7182,36 @@
           }
         
           // 既存ロジックを保ちつつ、WebではStripeへ
-          function purchaseTip(productId) {
-            hideDonateToast(); // ← 前の残りをまず消す
-        
-            // 1) iOSアプリ内なら、今まで通りSwiftへ渡す
-            if (isIOSAppWebView()) {
-              try {
-                window.webkit.messageHandlers.tip.postMessage({ productId });
-                showDonateToast('購入画面を開いています…', 1200);
-                return;
-              } catch (e) {
-                // 万一失敗したらWeb扱いへフォールバック
-                console.warn("iOS handler postMessage failed:", e);
+            function purchaseTip(productId, event) {
+              // ★ これで「元ページ側の遷移/親クリック」などを確実に止める
+              if (event) {
+                event.preventDefault();
+                event.stopPropagation();
               }
+            
+              hideDonateToast();
+            
+              // iOSアプリ内なら今まで通り
+              try {
+                const handler = window?.webkit?.messageHandlers?.tip;
+                if (handler?.postMessage) {
+                  handler.postMessage({ productId });
+                  showDonateToast('購入画面を開いています…', 1200);
+                  return;
+                }
+              } catch (e) {}
+            
+              // WebはStripeを「別タブのみ」で開く（同一タブ遷移はしない）
+              const url = STRIPE_LINKS?.[productId];
+              if (!url) {
+                showDonateToast('決済リンクが未設定です', 1800);
+                return;
+              }
+            
+              window.open(url, "_blank", "noopener,noreferrer");
+              showDonateToast('決済ページを開きました', 1400);
             }
-        
-            // 2) それ以外（Webブラウザ）はStripeへ
-            openStripeForWeb(productId);
-          }
+
 
 
     </script>
