@@ -1338,6 +1338,7 @@
             selectedSkillId: null,
             playerTurnStarted: false,
             playerTurnRemainingAttacks: 0,
+            pendingSkillCooldown: null,
             enhanceModal: {
                 index: null,
                 stage: 'confirm',
@@ -6064,7 +6065,7 @@
                 if (skillCooldown > 0) {
                     const cooldownReductionTurns = Math.floor((derived.totals.cooldownReduction || 0) / 100);
                     const reducedCooldown = Math.max(0, skillCooldown - cooldownReductionTurns);
-                    pendingSkillCooldown = { index: selectedSlotIndex, value: reducedCooldown };
+                    Game.pendingSkillCooldown = { index: selectedSlotIndex, value: reducedCooldown };
                 }
             }
 
@@ -6367,6 +6368,11 @@
                 advanceStatusEffects(Game.enemy, 'end');
                 applyAutoRegen();
                 setEnemyNextActionPreview(Game.enemy);
+                tickSkillCooldowns();
+                if (Game.pendingSkillCooldown) {
+                    Game.player.skillSlotCooldowns[Game.pendingSkillCooldown.index] = Game.pendingSkillCooldown.value;
+                    Game.pendingSkillCooldown = null;
+                }
                 resetPlayerTurnState();
                 updateUI();
                 return;
@@ -6471,6 +6477,11 @@
             }
             applyAutoRegen();
             setEnemyNextActionPreview(Game.enemy);
+            tickSkillCooldowns();
+            if (Game.pendingSkillCooldown) {
+                Game.player.skillSlotCooldowns[Game.pendingSkillCooldown.index] = Game.pendingSkillCooldown.value;
+                Game.pendingSkillCooldown = null;
+            }
             resetPlayerTurnState();
             updateUI();
         }
