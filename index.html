@@ -6010,7 +6010,6 @@
             const endPlayerTurn = () => {
               advanceStatusEffects(Game.player, 'end');
               applyAutoRegen();
-              tickSkillCooldowns();
             
               if (Game.pendingSkillCooldown) {
                 Game.player.skillSlotCooldowns[Game.pendingSkillCooldown.index] =
