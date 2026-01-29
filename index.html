@@ -154,6 +154,10 @@
         .enemy-card.is-clearing {
             opacity: 0;
             transform: translateY(14px) scale(0.98);
+            transition-duration: 0.6s;
+        }
+        .enemy-hp-fill {
+            transition: width 0.45s ease;
         }
         .enemy-card.is-selected {
             border-color: #0f172a;
@@ -7169,10 +7173,6 @@
                 } else {
                     const existingCards = Array.from(enemyList.querySelectorAll('.enemy-card'));
                     const cardMap = new Map(existingCards.map((card) => [Number(card.dataset.enemyId), card]));
-                    const previousRects = new Map();
-                    existingCards.forEach((card) => {
-                        previousRects.set(card.dataset.enemyId, card.getBoundingClientRect());
-                    });
                     const nextIds = new Set(enemies.map((enemy) => String(enemy.id)));
 
                     if (!existingCards.length && enemyList.children.length) {
@@ -7180,31 +7180,6 @@
                     }
 
 
-                    const animateReflow = () => {
-                      requestAnimationFrame(() => {
-                        enemyList.querySelectorAll('.enemy-card').forEach((card) => {
-                          if (card.classList.contains('is-exiting')) return;
-                    
-                          const prevRect = previousRects.get(card.dataset.enemyId);
-                          if (!prevRect) return;
-                    
-                          const nextRect = card.getBoundingClientRect();
-                          const dx = prevRect.left - nextRect.left;
-                          const dy = prevRect.top - nextRect.top;
-                    
-                          if (dx || dy) {
-                            card.animate(
-                              [
-                                { transform: `translate(${dx}px, ${dy}px)` },
-                                { transform: 'translate(0, 0)' }
-                              ],
-                              { duration: 220, easing: 'cubic-bezier(.2,.8,.2,1)' } // 少し気持ちよく
-                            );
-                          }
-                        });
-                      });
-                    };
-                    
                     if (allDefeated) {
                         if (!enemyList.dataset.clearing) {
                             enemyList.dataset.clearing = 'true';
@@ -7226,10 +7201,7 @@
                         removedCards.forEach((card) => {
                           if (card.isConnected) card.remove();
                         });
-                        animateReflow();
                       }, 180);
-                    } else {
-                      animateReflow();
                     }
 
                     
@@ -7423,7 +7395,7 @@
                                 ) {
                                     enemyList.innerHTML = '<div class="text-[11px] text-slate-400">敵がいません</div>';
                                 }
-                            }, 240);
+                            }, 600);
                         } else if (!allDefeated && isNewCard) {
                             requestAnimationFrame(() => {
                                 card.classList.remove('is-entering');
