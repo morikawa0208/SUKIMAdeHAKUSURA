@@ -7144,6 +7144,53 @@
                         enemyList.innerHTML = '';
                     }
 
+
+                    const animateReflow = () => {
+                      requestAnimationFrame(() => {
+                        enemyList.querySelectorAll('.enemy-card').forEach((card) => {
+                          if (card.classList.contains('is-exiting')) return;
+                    
+                          const prevRect = previousRects.get(card.dataset.enemyId);
+                          if (!prevRect) return;
+                    
+                          const nextRect = card.getBoundingClientRect();
+                          const dx = prevRect.left - nextRect.left;
+                          const dy = prevRect.top - nextRect.top;
+                    
+                          if (dx || dy) {
+                            card.animate(
+                              [
+                                { transform: `translate(${dx}px, ${dy}px)` },
+                                { transform: 'translate(0, 0)' }
+                              ],
+                              { duration: 220, easing: 'cubic-bezier(.2,.8,.2,1)' } // 少し気持ちよく
+                            );
+                          }
+                        });
+                      });
+                    };
+                    
+                    const removedCards = existingCards.filter((card) => !nextIds.has(card.dataset.enemyId));
+                    
+                    if (removedCards.length) {
+                      removedCards.forEach((card) => {
+                        if (card.classList.contains('is-exiting')) return;
+                        card.classList.add('is-exiting');
+                      });
+                    
+                      // 180ms後にまとめて消す → 1回だけreflow
+                      setTimeout(() => {
+                        removedCards.forEach((card) => {
+                          if (card.isConnected) card.remove();
+                        });
+                        animateReflow();
+                      }, 180);
+                    } else {
+                      animateReflow();
+                    }
+
+                    
+                    /*
                     const animateReflow = () => {
                         requestAnimationFrame(() => {
                             enemyList.querySelectorAll('.enemy-card').forEach((card) => {
@@ -7181,6 +7228,7 @@
                     } else {
                         animateReflow();
                     }
+                    */
 
                     enemies.forEach((enemy, index) => {
                         const isSelected = enemy.id === Game.targetEnemyId;
