@@ -6040,11 +6040,12 @@
                 endPlayerTurn();
                 return;
             }
-
-            // プレイヤーの行動開始（＝このターンが始まる）
-            Game.turnId = (Number.isInteger(Game.turnId) ? Game.turnId : 0) + 1;
             
             Game.pendingSkillCooldown = null;
+            
+            // プレイヤーの行動開始（＝このターンが始まる）
+            Game.turnId = (Number.isInteger(Game.turnId) ? Game.turnId : 0) + 1;
+
             const selectedSlotIndex = allowSkillSlot
                 ? (Number.isInteger(forcedSkillSlotIndex)
                     ? forcedSkillSlotIndex
@@ -6509,9 +6510,9 @@
           Game._cooldownsFinalizedTurnId = turnId;
         
           tickSkillCooldowns();
-        
           if (Game.pendingSkillCooldown) {
-            Game.player.skillSlotCooldowns[Game.pendingSkillCooldown.index] = Game.pendingSkillCooldown.value;
+            Game.player.skillSlotCooldowns[Game.pendingSkillCooldown.index] =
+              Game.pendingSkillCooldown.value;
             Game.pendingSkillCooldown = null;
           }
         }
