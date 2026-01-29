@@ -5985,18 +5985,22 @@
             }
 
             const endPlayerTurn = () => {
-                advanceStatusEffects(Game.player, 'end');
-                applyAutoRegen();
-                tickSkillCooldowns();
-                if (pendingSkillCooldown) {
-                    Game.player.skillSlotCooldowns[pendingSkillCooldown.index] = pendingSkillCooldown.value;
-                    pendingSkillCooldown = null;
-                }
-                resetPlayerTurnState();
-                setTimeout(enemyTurn, 300);
-                updateUI();
-                triggerAutosave();
+              advanceStatusEffects(Game.player, 'end');
+              applyAutoRegen();
+              tickSkillCooldowns();
+            
+              if (Game.pendingSkillCooldown) {
+                Game.player.skillSlotCooldowns[Game.pendingSkillCooldown.index] =
+                  Game.pendingSkillCooldown.value;
+                Game.pendingSkillCooldown = null;
+              }
+            
+              resetPlayerTurnState();
+              setTimeout(enemyTurn, 300);
+              updateUI();
+              triggerAutosave();
             };
+
 
             const isNewTurn = !Game.playerTurnStarted;
             if (isNewTurn) {
@@ -6025,7 +6029,7 @@
                 endPlayerTurn();
                 return;
             }
-            let pendingSkillCooldown = null;
+            Game.pendingSkillCooldown = null;
             const selectedSlotIndex = allowSkillSlot
                 ? (Number.isInteger(forcedSkillSlotIndex)
                     ? forcedSkillSlotIndex
