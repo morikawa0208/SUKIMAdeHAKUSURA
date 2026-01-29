@@ -5987,6 +5987,10 @@
                 advanceStatusEffects(Game.player, 'end');
                 applyAutoRegen();
                 tickSkillCooldowns();
+                if (pendingSkillCooldown) {
+                    Game.player.skillSlotCooldowns[pendingSkillCooldown.index] = pendingSkillCooldown.value;
+                    pendingSkillCooldown = null;
+                }
                 resetPlayerTurnState();
                 setTimeout(enemyTurn, 300);
                 updateUI();
@@ -6020,6 +6024,7 @@
                 endPlayerTurn();
                 return;
             }
+            let pendingSkillCooldown = null;
             const selectedSlotIndex = allowSkillSlot
                 ? (Number.isInteger(forcedSkillSlotIndex)
                     ? forcedSkillSlotIndex
@@ -6059,7 +6064,7 @@
                 if (skillCooldown > 0) {
                     const cooldownReductionTurns = Math.floor((derived.totals.cooldownReduction || 0) / 100);
                     const reducedCooldown = Math.max(0, skillCooldown - cooldownReductionTurns);
-                    Game.player.skillSlotCooldowns[selectedSlotIndex] = reducedCooldown;
+                    pendingSkillCooldown = { index: selectedSlotIndex, value: reducedCooldown };
                 }
             }
 
@@ -7386,6 +7391,7 @@
                 Game.player.skillSlots.forEach((slot, idx) => {
                     const skill = getSlotSkill(slot);
                     const cooldown = Game.player.skillSlotCooldowns?.[idx] || 0;
+                    const displayCooldown = skill ? Math.max(0, skill.cooldownMax ?? skill.cooldown ?? 0) : null;
                     const availability = getSkillSlotAvailability({
                         skill,
                         derived,
@@ -7416,7 +7422,7 @@
                             <div class="flex items-center justify-between gap-2">
                                 <div class="text-[8px] flex items-center gap-1.5">
                                     <span>${mpLabel}</span>
-                                    ${cooldown > 0 ? `<span class="text-slate-400">CD ${cooldown}</span>` : ''}
+                                    ${displayCooldown !== null ? `<span class="text-slate-400">CD ${displayCooldown}</span>` : ''}
                                 </div>
                             </div>
                             <div class="truncate">${skill ? skill.name : '未設定'}</div>
