@@ -7384,9 +7384,8 @@
                 }, 600);
             
                 } else if (!allDefeated && isNewCard) {
-                  // 1フレーム待って "entered" にする（transition発火）
                   requestAnimationFrame(() => {
-                    card.classList.add('is-entered');
+                    card.classList.remove('is-entering');
                   });
                 }
             });
