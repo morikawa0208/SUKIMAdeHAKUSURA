@@ -1343,6 +1343,7 @@
             playerTurnStarted: false,
             playerTurnRemainingAttacks: 0,
             pendingSkillCooldown: null,
+            clearingToNextFloor: false,
             enhanceModal: {
                 index: null,
                 stage: 'confirm',
@@ -7162,12 +7163,6 @@
             
             // --- 2) 敵がいない場合は即表示 ---
             if (enemies.length === 0) {
-              enemyList.innerHTML = '<div class="text-[11px] text-slate-400">敵がいません</div>';
-              return;
-            }
-
-            if (allDefeated) {
-              enemyList.innerHTML = '<div class="text-[11px] text-slate-400">敵がいません</div>';
               return;
             }
             
