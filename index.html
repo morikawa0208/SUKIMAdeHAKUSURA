@@ -4689,7 +4689,6 @@
         }
 
         function resetPlayerTurnState() {
-            Game.turnId = (Number.isInteger(Game.turnId) ? Game.turnId : 0) + 1;
             Game.playerTurnStarted = false;
             Game.playerTurnRemainingAttacks = 0;
         }
@@ -6041,6 +6040,10 @@
                 endPlayerTurn();
                 return;
             }
+
+            // プレイヤーの行動開始（＝このターンが始まる）
+            Game.turnId = (Number.isInteger(Game.turnId) ? Game.turnId : 0) + 1;
+            
             Game.pendingSkillCooldown = null;
             const selectedSlotIndex = allowSkillSlot
                 ? (Number.isInteger(forcedSkillSlotIndex)
