@@ -7384,11 +7384,11 @@
                 }, 600);
             
               } else if (!allDefeated && isNewCard) {
-                // --- 8) 新規追加の登場アニメ ---
-                requestAnimationFrame(() => {
-                  card.classList.remove('is-entering');
-                });
-              }
+                  // 1フレーム待って "entered" にする（transition発火）
+                  requestAnimationFrame(() => {
+                    card.classList.add('is-entered');
+                  });
+                }
             });
 
 
