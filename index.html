@@ -6082,9 +6082,13 @@
             if (!currentSkill) {
                 currentSkill = { name: '通常攻撃', mp: 0, pow: 1.0 };
             }
+            
             let isMagic = Boolean(currentSkill.isMagic);
 
             const derived = getDerivedStats();
+
+            let cooldownToApply = 0;
+            
             let adjustedMpCost = getAdjustedSkillMpCost(currentSkill, derived);
             const selectedCooldown = selectedSlotIndex !== null ? (Game.player.skillSlotCooldowns?.[selectedSlotIndex] || 0) : 0;
 
@@ -6106,14 +6110,13 @@
                 isMagic = false;
                 adjustedMpCost = 0;
             }
-            + let cooldownToApply = 0;
-            + if (selectedSlotIndex !== null && currentSkill.name !== '通常攻撃') {
-            +   const skillCooldown = Math.max(0, currentSkill.cooldownMax ?? currentSkill.cooldown ?? 0);
-            +   if (skillCooldown > 0) {
-            +     const cooldownReductionTurns = Math.floor((derived.totals.cooldownReduction || 0) / 100);
-            +     cooldownToApply = Math.max(0, skillCooldown - cooldownReductionTurns);
-            +   }
-            + }
+                if (selectedSlotIndex !== null && currentSkill.name !== '通常攻撃') {
+                  const skillCooldown = Math.max(0, currentSkill.cooldownMax ?? currentSkill.cooldown ?? 0);
+                  if (skillCooldown > 0) {
+                    const cooldownReductionTurns = Math.floor((derived.totals.cooldownReduction || 0) / 100);
+                    cooldownToApply = Math.max(0, skillCooldown - cooldownReductionTurns);
+                  }
+                }
             }
 
             const attackProfile = getWeaponAttackProfile(Game.player.weapon);
@@ -6133,7 +6136,6 @@
             if (selectedSlotIndex !== null && currentSkill.name !== '通常攻撃' && cooldownToApply > 0) {
               onPlayerUsedSkill(selectedSlotIndex, cooldownToApply);
             }
-
         
             const applyAttackToTarget = (enemy, labelPrefix = '') => {
                 const enemyStatusMods = getStatusModifiers(enemy);
