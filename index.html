@@ -136,11 +136,28 @@
         }
         .enemy-card.is-entering {
             opacity: 0;
-            transform: translateY(6px) scale(0.98);
+            transform: translateY(-12px) scale(0.98);
         }
         .enemy-card.is-exiting {
             opacity: 0;
             transform: translateY(-6px) scale(0.98);
+        }
+        .enemy-card.is-defeated {
+            opacity: 0.55;
+            filter: grayscale(0.9);
+            pointer-events: none;
+        }
+        .enemy-card.is-defeated .enemy-name,
+        .enemy-card.is-defeated .enemy-hp-text {
+            color: #94a3b8;
+        }
+        .enemy-card.is-clearing {
+            opacity: 0;
+            transform: translateY(14px) scale(0.98);
+            transition-duration: 0.6s;
+        }
+        .enemy-hp-fill {
+            transition: width 0.45s ease;
         }
         .enemy-card.is-selected {
             border-color: #0f172a;
@@ -1394,7 +1411,8 @@
 
         Object.defineProperty(Game, 'enemy', {
             get() {
-                return Array.isArray(Game.enemies) && Game.enemies.length > 0 ? Game.enemies[0] : null;
+                if (!Array.isArray(Game.enemies) || Game.enemies.length === 0) return null;
+                return Game.enemies.find((enemy) => enemy.hp > 0) || Game.enemies[0];
             },
             set(value) {
                 Game.enemies = value ? [value] : [];
@@ -1412,6 +1430,11 @@
                 Game.targetEnemyId = null;
                 return null;
             }
+            const livingEnemies = enemies.filter((enemy) => enemy.hp > 0);
+            if (livingEnemies.length === 0) {
+                Game.targetEnemyId = null;
+                return null;
+            }
             let nextEnemyId = Number.isInteger(Game.enemyIdCounter) ? Game.enemyIdCounter : 0;
             let updatedIds = false;
             enemies.forEach((enemy) => {
@@ -1425,14 +1448,14 @@
                 Game.enemyIdCounter = nextEnemyId;
             }
             const existing = getEnemyById(Game.targetEnemyId);
-            if (existing) return existing;
-            Game.targetEnemyId = enemies[0].id;
-            return enemies[0];
+            if (existing && existing.hp > 0) return existing;
+            Game.targetEnemyId = livingEnemies[0].id;
+            return livingEnemies[0];
         };
 
         const setTargetEnemyId = (id) => {
             const target = getEnemyById(id);
-            if (target) {
+            if (target && target.hp > 0) {
                 Game.targetEnemyId = target.id;
                 return;
             }
@@ -6306,7 +6329,6 @@
                 triggerAutosave();
                 return;
             }
-            Game.enemies = remainingEnemies;
             if (!remainingEnemies.some((enemy) => enemy.id === Game.targetEnemyId)) {
                 Game.targetEnemyId = remainingEnemies[0]?.id ?? null;
             }
@@ -7143,16 +7165,14 @@
             const enemyList = document.getElementById('enemy-list');
             if (enemyList) {
                 const enemies = Array.isArray(Game.enemies) ? Game.enemies : (Game.enemy ? [Game.enemy] : []);
+                const livingEnemies = enemies.filter((enemy) => enemy.hp > 0);
+                const allDefeated = enemies.length > 0 && livingEnemies.length === 0;
                 if (enemies.length === 0) {
                     enemyList.innerHTML = '';
                     enemyList.innerHTML = '<div class="text-[11px] text-slate-400">敵がいません</div>';
                 } else {
                     const existingCards = Array.from(enemyList.querySelectorAll('.enemy-card'));
                     const cardMap = new Map(existingCards.map((card) => [Number(card.dataset.enemyId), card]));
-                    const previousRects = new Map();
-                    existingCards.forEach((card) => {
-                        previousRects.set(card.dataset.enemyId, card.getBoundingClientRect());
-                    });
                     const nextIds = new Set(enemies.map((enemy) => String(enemy.id)));
 
                     if (!existingCards.length && enemyList.children.length) {
@@ -7160,31 +7180,14 @@
                     }
 
 
-                    const animateReflow = () => {
-                      requestAnimationFrame(() => {
-                        enemyList.querySelectorAll('.enemy-card').forEach((card) => {
-                          if (card.classList.contains('is-exiting')) return;
-                    
-                          const prevRect = previousRects.get(card.dataset.enemyId);
-                          if (!prevRect) return;
-                    
-                          const nextRect = card.getBoundingClientRect();
-                          const dx = prevRect.left - nextRect.left;
-                          const dy = prevRect.top - nextRect.top;
-                    
-                          if (dx || dy) {
-                            card.animate(
-                              [
-                                { transform: `translate(${dx}px, ${dy}px)` },
-                                { transform: 'translate(0, 0)' }
-                              ],
-                              { duration: 220, easing: 'cubic-bezier(.2,.8,.2,1)' } // 少し気持ちよく
-                            );
-                          }
-                        });
-                      });
-                    };
-                    
+                    if (allDefeated) {
+                        if (!enemyList.dataset.clearing) {
+                            enemyList.dataset.clearing = 'true';
+                        }
+                    } else {
+                        delete enemyList.dataset.clearing;
+                    }
+
                     const removedCards = existingCards.filter((card) => !nextIds.has(card.dataset.enemyId));
                     
                     if (removedCards.length) {
@@ -7198,10 +7201,7 @@
                         removedCards.forEach((card) => {
                           if (card.isConnected) card.remove();
                         });
-                        animateReflow();
                       }, 180);
-                    } else {
-                      animateReflow();
                     }
 
                     
@@ -7247,6 +7247,7 @@
 
                     enemies.forEach((enemy, index) => {
                         const isSelected = enemy.id === Game.targetEnemyId;
+                        const isDefeated = enemy.hp <= 0;
                         let card = cardMap.get(enemy.id);
                         let isNewCard = false;
 
@@ -7256,6 +7257,8 @@
                             card.setAttribute('data-enemy-id', String(enemy.id));
                             card.addEventListener('click', () => {
                                 if (Game.state !== 'combat') return;
+                                const currentEnemy = getEnemyById(enemy.id);
+                                if (!currentEnemy || currentEnemy.hp <= 0) return;
                                 setTargetEnemyId(enemy.id);
                                 updateUI();
                             });
@@ -7319,6 +7322,7 @@
 
                         enemyList.appendChild(card);
                         card.classList.toggle('is-selected', isSelected);
+                        card.classList.toggle('is-defeated', isDefeated);
 
                         const enemyVisual = card.querySelector('.enemy-visual');
                         if (enemyVisual) {
@@ -7336,7 +7340,7 @@
                             }
                             const nextActionBadge = enemyVisual.querySelector('.enemy-next-action');
                             if (nextActionBadge) {
-                                if (enemy.nextActionLabel) {
+                                if (enemy.nextActionLabel && !isDefeated) {
                                     const nextActionIcon = enemy.nextActionIcon || 'fa-sword';
                                     nextActionBadge.innerHTML = `<i class="fa-solid ${nextActionIcon}"></i><span>次:${enemy.nextActionLabel}</span>`;
                                     nextActionBadge.classList.remove('hidden');
@@ -7368,7 +7372,7 @@
                         }
                         const hpText = card.querySelector('.enemy-hp-text');
                         if (hpText) {
-                            hpText.innerHTML = `HP: <span>${enemy.hp}/${enemy.maxHp}</span>`;
+                            hpText.innerHTML = isDefeated ? 'HP: <span>撃破</span>' : `HP: <span>${enemy.hp}/${enemy.maxHp}</span>`;
                         }
 
                         const buffContainer = card.querySelector('.enemy-buff-container');
@@ -7377,7 +7381,22 @@
                         const statusContainer = card.querySelector('.enemy-status-container');
                         renderStatusEffects(enemy, statusContainer);
 
-                        if (isNewCard) {
+                        if (allDefeated && !card.classList.contains('is-clearing')) {
+                            card.classList.add('is-clearing');
+                            setTimeout(() => {
+                                if (card.isConnected) card.remove();
+                                if (
+                                    enemyList.dataset.clearing
+                                    && enemyList.querySelectorAll('.enemy-card').length === 0
+                                    && Game.state === 'idle'
+                                    && Array.isArray(Game.enemies)
+                                    && Game.enemies.length > 0
+                                    && Game.enemies.every((enemy) => enemy.hp <= 0)
+                                ) {
+                                    enemyList.innerHTML = '<div class="text-[11px] text-slate-400">敵がいません</div>';
+                                }
+                            }, 600);
+                        } else if (!allDefeated && isNewCard) {
                             requestAnimationFrame(() => {
                                 card.classList.remove('is-entering');
                             });
