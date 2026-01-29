@@ -185,6 +185,20 @@
             line-height: 1.1;
         }
 
+        .skill-cooldown-mask {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.55);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #f8fafc;
+            font-weight: 900;
+            font-size: 1.1rem;
+            letter-spacing: 0.04em;
+            text-shadow: 0 2px 6px rgba(15, 23, 42, 0.5);
+        }
+
         .item-stat-categories {
             display: flex;
             gap: 8px;
@@ -539,6 +553,7 @@
                     <div class="flex justify-between border-b border-slate-700 pb-1"><span>MP効率</span><span id="stat-mp-eff">0%</span></div>
                     <div class="flex justify-between border-b border-slate-700 pb-1"><span>HP自動回復</span><span id="stat-hp-regen">0</span></div>
                     <div class="flex justify-between border-b border-slate-700 pb-1"><span>MP自動回復</span><span id="stat-mp-regen">0</span></div>
+                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>クールタイム短縮率</span><span id="stat-cooldown-reduction">0%</span></div>
                     <div class="flex justify-between border-b border-slate-700 pb-1"><span>攻撃力</span><span id="stat-atk-flat">0</span></div>
                     <div class="flex justify-between border-b border-slate-700 pb-1"><span>攻撃効率</span><span id="stat-atk-eff">0%</span></div>
                     <div class="flex justify-between border-b border-slate-700 pb-1"><span>防御力</span><span id="stat-def-flat">0</span></div>
@@ -1145,6 +1160,7 @@
                         <li>MP効率：最大MPを%で増加。</li>
                         <li>HP自動回復：ターン終了時にHPが回復。</li>
                         <li>MP自動回復：ターン終了時にMPが回復。</li>
+                        <li>クールタイム短縮率：スキルのクールタイムを短縮（100%ごとに1ターン減）。INTで増加。</li>
                         <li>攻撃力：物理攻撃の固定増加。</li>
                         <li>攻撃効率：物理攻撃を%で増加。</li>
                         <li>防御力：防御の固定増加。</li>
@@ -1326,7 +1342,7 @@
                 critDamage: 200, damageBoost: 0, damageReduction: 0, rareFind: 0, affixFind: 0, eliteEncounter: 20,
                 skillPowerBoost: 0, statusEffectStackBonus: 0, statusEffectTurnBonus: 0,
                 poisonMaxStacksBonus: 0, poisonMinPctBonus: 0,
-                skillMpDiscount: 0, strMultiplier: 0, intMultiplier: 0, vitMultiplier: 0, dexMultiplier: 0, lukMultiplier: 0,
+                skillMpDiscount: 0, cooldownReduction: 0, strMultiplier: 0, intMultiplier: 0, vitMultiplier: 0, dexMultiplier: 0, lukMultiplier: 0,
                 exp: 0, next: 100, sp: 1,
                 gold: 0,
                 weapon: null, armor: null, head: null, hands: null, feet: null, accessory1: null, accessory2: null, potion1: null, potion2: null, inventory: [],
@@ -1831,18 +1847,18 @@
             warrior: {
                 name: "戦士",
                 active: [
-                    { id: 0, name: "血沸きの咆哮", mp: 6, mpGrowth: 0, pow: 1.3, powGrowth: 0.2, maxLevel: 50, effects: [{ target: "self", id: "attackUp", stacks: 1, turns: 2 }], desc: "闘志を燃やし、攻撃を底上げする咆哮" },
-                    { id: 1, name: "狂走連撃", mp: 10, mpGrowth: 0, pow: 0.95, powGrowth: 0.12, hits: 2, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "連撃で脆弱になった！" }], desc: "突進からの連撃で脆弱を刻む" },
-                    { id: 2, name: "逆境の一撃", mp: 14, pow: 2.6, powGrowth: 0.38, maxLevel: 50, critBonus: 5, critGrowth: 2, desc: "追い込まれた力を叩きつける強打" },
-                    { id: 3, name: "破滅の誓い", mp: 10, pow: 1.6, powGrowth: 0.2, maxLevel: 50, effects: [{ target: "self", id: "attackUp", stacks: 2, turns: 2 }, { target: "self", id: "vulnerable", stacks: 1, turns: 1 }], desc: "力を引き上げる代償に隙を生む誓約" },
-                    { id: 4, name: "戦鬼の反撃", mp: 16, pow: 1.4, powGrowth: 0.18, maxLevel: 50, effects: [{ target: "self", id: "reflect", stacks: 1, turns: 2 }], desc: "反射で反撃を狙う荒々しい斬撃" },
-                    { id: 5, name: "命燃やし", mp: 0, pow: 3.4, powGrowth: 0.5, hpCost: 0.12, maxLevel: 50, effects: [{ target: "self", id: "attackUp", stacks: 1, turns: 2 }], desc: "HPを燃料に爆発的な一撃を放つ" },
-                    { id: 6, name: "鎧割り", mp: 6, mpGrowth: 0, pow: 1.6, powGrowth: 0.24, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 1, turns: 2, log: "鎧が砕けた！" }], desc: "防御を削り、破砕の起点を作る" },
-                    { id: 7, name: "破城の槌", mp: 12, mpGrowth: 0, pow: 2.5, powGrowth: 0.35, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 2, turns: 2, log: "装甲が崩れた！" }], desc: "脆甲を重ねる重撃で堅牢を崩す" },
-                    { id: 8, name: "崩し打ち", mp: 10, mpGrowth: 0, pow: 1.8, powGrowth: 0.26, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "体勢が崩れた！" }], desc: "隙を作り、被ダメを引き上げる" },
-                    { id: 9, name: "震撃波", mp: 14, mpGrowth: 0, pow: 1.2, powGrowth: 0.18, hits: 2, maxLevel: 50, effects: [{ target: "enemy", id: "blind", stacks: 1, turns: 2, log: "衝撃で視界が乱れた！" }], desc: "衝撃波の連撃で命中を崩す" },
-                    { id: 10, name: "粉砕圧", mp: 16, mpGrowth: 0, pow: 2.1, powGrowth: 0.3, maxLevel: 50, effects: [{ target: "enemy", id: "attackDown", stacks: 1, turns: 2, log: "圧により衰弱した！" }], desc: "圧で敵火力を落として崩し切る" },
-                    { id: 11, name: "断罪の楔", mp: 20, mpGrowth: 0, pow: 2.9, powGrowth: 0.42, maxLevel: 50, effects: [{ target: "enemy", id: "silence", stacks: 1, turns: 1, log: "楔で沈黙した！" }], desc: "行動を封じる決定打" }
+                    { id: 0, name: "血沸きの咆哮", mp: 6, cooldown: 2, mpGrowth: 0, pow: 1.3, powGrowth: 0.2, maxLevel: 50, effects: [{ target: "self", id: "attackUp", stacks: 1, turns: 2 }], desc: "闘志を燃やし、攻撃を底上げする咆哮" },
+                    { id: 1, name: "狂走連撃", mp: 10, cooldown: 3, mpGrowth: 0, pow: 0.95, powGrowth: 0.12, hits: 2, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "連撃で脆弱になった！" }], desc: "突進からの連撃で脆弱を刻む" },
+                    { id: 2, name: "逆境の一撃", mp: 14, cooldown: 4, pow: 2.6, powGrowth: 0.38, maxLevel: 50, critBonus: 5, critGrowth: 2, desc: "追い込まれた力を叩きつける強打" },
+                    { id: 3, name: "破滅の誓い", mp: 10, cooldown: 3, pow: 1.6, powGrowth: 0.2, maxLevel: 50, effects: [{ target: "self", id: "attackUp", stacks: 2, turns: 2 }, { target: "self", id: "vulnerable", stacks: 1, turns: 1 }], desc: "力を引き上げる代償に隙を生む誓約" },
+                    { id: 4, name: "戦鬼の反撃", mp: 16, cooldown: 4, pow: 1.4, powGrowth: 0.18, maxLevel: 50, effects: [{ target: "self", id: "reflect", stacks: 1, turns: 2 }], desc: "反射で反撃を狙う荒々しい斬撃" },
+                    { id: 5, name: "命燃やし", mp: 0, cooldown: 5, pow: 3.4, powGrowth: 0.5, hpCost: 0.12, maxLevel: 50, effects: [{ target: "self", id: "attackUp", stacks: 1, turns: 2 }], desc: "HPを燃料に爆発的な一撃を放つ" },
+                    { id: 6, name: "鎧割り", mp: 6, cooldown: 2, mpGrowth: 0, pow: 1.6, powGrowth: 0.24, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 1, turns: 2, log: "鎧が砕けた！" }], desc: "防御を削り、破砕の起点を作る" },
+                    { id: 7, name: "破城の槌", mp: 12, cooldown: 4, mpGrowth: 0, pow: 2.5, powGrowth: 0.35, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 2, turns: 2, log: "装甲が崩れた！" }], desc: "脆甲を重ねる重撃で堅牢を崩す" },
+                    { id: 8, name: "崩し打ち", mp: 10, cooldown: 3, mpGrowth: 0, pow: 1.8, powGrowth: 0.26, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "体勢が崩れた！" }], desc: "隙を作り、被ダメを引き上げる" },
+                    { id: 9, name: "震撃波", mp: 14, cooldown: 3, mpGrowth: 0, pow: 1.2, powGrowth: 0.18, hits: 2, maxLevel: 50, effects: [{ target: "enemy", id: "blind", stacks: 1, turns: 2, log: "衝撃で視界が乱れた！" }], desc: "衝撃波の連撃で命中を崩す" },
+                    { id: 10, name: "粉砕圧", mp: 16, cooldown: 4, mpGrowth: 0, pow: 2.1, powGrowth: 0.3, maxLevel: 50, effects: [{ target: "enemy", id: "attackDown", stacks: 1, turns: 2, log: "圧により衰弱した！" }], desc: "圧で敵火力を落として崩し切る" },
+                    { id: 11, name: "断罪の楔", mp: 20, cooldown: 5, mpGrowth: 0, pow: 2.9, powGrowth: 0.42, maxLevel: 50, effects: [{ target: "enemy", id: "silence", stacks: 1, turns: 1, log: "楔で沈黙した！" }], desc: "行動を封じる決定打" }
                 ],
                 passive: [
                     { id: 0, name: "剛力鍛錬", desc: "STR+4/レベル", maxLevel: 50, apply: (d) => Game.player.str += 4 * d },
@@ -1856,18 +1872,18 @@
             mage: {
                 name: "魔術師",
                 active: [
-                    { id: 0, name: "火球撃", mp: 8, pow: 2.0, powGrowth: 0.3, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "weaken", stacks: 1, turns: 2, log: "炎が勢いを削いだ！" }], desc: "炎で勢いを削ぎ、連携の起点を作る基本火力" },
-                    { id: 1, name: "灼き剥がし", mp: 12, pow: 2.4, powGrowth: 0.35, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 1, turns: 2, log: "装甲が焼け落ちた！" }], desc: "防御を削り高火力スキルの下地を作る" },
-                    { id: 2, name: "熾火の符", mp: 10, pow: 0.8, powGrowth: 0.1, isMagic: true, maxLevel: 50, effects: [{ target: "self", id: "attackUp", stacks: 1, turns: 2, log: "炎の符で火力が高まった！" }], desc: "次の一撃を強める自己強化の準備術" },
-                    { id: 3, name: "黒煙纏い", mp: 14, pow: 1.4, powGrowth: 0.2, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "blind", stacks: 1, turns: 2, log: "黒煙で視界が奪われた！" }], desc: "暗闇を付与し、暗闇中に連携火力が強化される" },
-                    { id: 4, name: "盲目狩り", mp: 18, pow: 3.2, powGrowth: 0.45, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "混乱の隙に急所を突いた！" }], desc: "連携条件: 敵が暗闇中なら威力が上昇する" },
-                    { id: 5, name: "終焉の禁呪", mp: 50, pow: 10.0, powGrowth: 1.2, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "silence", stacks: 1, turns: 1, log: "禁呪で沈黙した！" }], desc: "最大火力で戦闘を決める奥義" },
-                    { id: 6, name: "アイスランス", mp: 10, pow: 2.3, powGrowth: 0.35, isMagic: true, accuracyBonus: 5, accuracyGrowth: 3, maxLevel: 50, effects: [{ target: "enemy", id: "freeze", stacks: 1, turns: 1, log: "氷槍で凍結した！" }], desc: "命中寄りの一撃で凍結を狙う" },
-                    { id: 7, name: "霜鎖", mp: 12, pow: 1.4, powGrowth: 0.2, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "attackDown", stacks: 1, turns: 2, log: "霜鎖で動きが鈍った！" }], desc: "攻撃力を抑えて被ダメを安定化" },
-                    { id: 8, name: "凍圧", mp: 14, pow: 2.2, powGrowth: 0.3, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "weaken", stacks: 1, turns: 2, log: "冷気で勢いを削いだ！" }], desc: "弱体で次の攻撃を通しやすくする" },
-                    { id: 9, name: "白霧", mp: 14, pow: 1.2, powGrowth: 0.2, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "blind", stacks: 1, turns: 2, log: "白霧で視界が奪われた！" }], desc: "暗闇を付与し、暗闇中に連携火力が強化される" },
-                    { id: 10, name: "静氷断", mp: 18, pow: 2.8, powGrowth: 0.4, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 1, turns: 2, log: "氷刃で守りが崩れた！" }], desc: "連携条件: 暗闇中で威力上昇、凍結中ならさらに上昇" },
-                    { id: 11, name: "零度封印", mp: 30, pow: 5.0, powGrowth: 0.8, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "freeze", stacks: 1, turns: 1, log: "零度の封印で凍結した！" }], desc: "強力な氷で行動を止める切り札" }
+                    { id: 0, name: "火球撃", mp: 8, cooldown: 2, pow: 2.0, powGrowth: 0.3, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "weaken", stacks: 1, turns: 2, log: "炎が勢いを削いだ！" }], desc: "炎で勢いを削ぎ、連携の起点を作る基本火力" },
+                    { id: 1, name: "灼き剥がし", mp: 12, cooldown: 3, pow: 2.4, powGrowth: 0.35, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 1, turns: 2, log: "装甲が焼け落ちた！" }], desc: "防御を削り高火力スキルの下地を作る" },
+                    { id: 2, name: "熾火の符", mp: 10, cooldown: 3, pow: 0.8, powGrowth: 0.1, isMagic: true, maxLevel: 50, effects: [{ target: "self", id: "attackUp", stacks: 1, turns: 2, log: "炎の符で火力が高まった！" }], desc: "次の一撃を強める自己強化の準備術" },
+                    { id: 3, name: "黒煙纏い", mp: 14, cooldown: 3, pow: 1.4, powGrowth: 0.2, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "blind", stacks: 1, turns: 2, log: "黒煙で視界が奪われた！" }], desc: "暗闇を付与し、暗闇中に連携火力が強化される" },
+                    { id: 4, name: "盲目狩り", mp: 18, cooldown: 4, pow: 3.2, powGrowth: 0.45, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "混乱の隙に急所を突いた！" }], desc: "連携条件: 敵が暗闇中なら威力が上昇する" },
+                    { id: 5, name: "終焉の禁呪", mp: 50, cooldown: 6, pow: 10.0, powGrowth: 1.2, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "silence", stacks: 1, turns: 1, log: "禁呪で沈黙した！" }], desc: "最大火力で戦闘を決める奥義" },
+                    { id: 6, name: "アイスランス", mp: 10, cooldown: 3, pow: 2.3, powGrowth: 0.35, isMagic: true, accuracyBonus: 5, accuracyGrowth: 3, maxLevel: 50, effects: [{ target: "enemy", id: "freeze", stacks: 1, turns: 1, log: "氷槍で凍結した！" }], desc: "命中寄りの一撃で凍結を狙う" },
+                    { id: 7, name: "霜鎖", mp: 12, cooldown: 3, pow: 1.4, powGrowth: 0.2, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "attackDown", stacks: 1, turns: 2, log: "霜鎖で動きが鈍った！" }], desc: "攻撃力を抑えて被ダメを安定化" },
+                    { id: 8, name: "凍圧", mp: 14, cooldown: 3, pow: 2.2, powGrowth: 0.3, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "weaken", stacks: 1, turns: 2, log: "冷気で勢いを削いだ！" }], desc: "弱体で次の攻撃を通しやすくする" },
+                    { id: 9, name: "白霧", mp: 14, cooldown: 3, pow: 1.2, powGrowth: 0.2, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "blind", stacks: 1, turns: 2, log: "白霧で視界が奪われた！" }], desc: "暗闇を付与し、暗闇中に連携火力が強化される" },
+                    { id: 10, name: "静氷断", mp: 18, cooldown: 4, pow: 2.8, powGrowth: 0.4, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 1, turns: 2, log: "氷刃で守りが崩れた！" }], desc: "連携条件: 暗闇中で威力上昇、凍結中ならさらに上昇" },
+                    { id: 11, name: "零度封印", mp: 30, cooldown: 5, pow: 5.0, powGrowth: 0.8, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "freeze", stacks: 1, turns: 1, log: "零度の封印で凍結した！" }], desc: "強力な氷で行動を止める切り札" }
                 ],
                 passive: [
                     { id: 0, name: "知力増強", desc: "INT+4/レベル", maxLevel: 50, apply: (d) => Game.player.int += 4 * d },
@@ -1881,18 +1897,18 @@
             thief: {
                 name: "盗賊",
                 active: [
-                    { id: 0, name: "煙幕投げ", mp: 4, pow: 0.9, powGrowth: 0.12, maxLevel: 50, effects: [{ target: "enemy", id: "blind", stacks: 1, turns: 2, log: "煙で視界が奪われた！" }], desc: "煙幕で暗闇を付与し、以後の制圧連携の起点になる" },
-                    { id: 1, name: "影縫い", mp: 8, pow: 1.4, powGrowth: 0.18, maxLevel: 50, effects: [{ target: "enemy", id: "silence", stacks: 1, turns: 1, log: "影に縛られて沈黙した！" }], desc: "影で封じ、敵のスキル回転を止める制圧技" },
-                    { id: 2, name: "毒刃", mp: 10, pow: 1.7, powGrowth: 0.22, critBonus: 5, critGrowth: 2, maxLevel: 50, effects: [{ target: "enemy", id: "poison", stacks: 1, turns: 3, log: "毒が回った！" }], desc: "急所狙いの一撃で毒を付与する" },
-                    { id: 3, name: "裂傷刻み", mp: 7, pow: 0.7, powGrowth: 0.1, hits: 2, maxLevel: 50, effects: [{ target: "enemy", id: "bleed", stacks: 1, turns: 2, log: "裂傷で出血した！" }], desc: "二連撃で出血を狙う" },
-                    { id: 4, name: "戦意削ぎ", mp: 5, pow: 0.9, powGrowth: 0.1, maxLevel: 50, effects: [{ target: "enemy", id: "weaken", stacks: 1, turns: 2, log: "戦意を削がれた！" }], desc: "攻撃と同時に敵の勢いを削ぐ弱体付与" },
-                    { id: 5, name: "影踏み", mp: 12, pow: 2.0, powGrowth: 0.28, accuracyBonus: 10, accuracyGrowth: 4, maxLevel: 50, desc: "暗闇の隙を突いて踏み込み、決定打を狙う" },
-                    { id: 6, name: "クイックスタブ", mp: 3, pow: 1.0, powGrowth: 0.15, accuracyBonus: 15, accuracyGrowth: 5, maxLevel: 50, effects: [{ target: "self", id: "haste", stacks: 1, turns: 2 }], desc: "素早い突きで迅速を得る連携起点" },
-                    { id: 7, name: "ダブルアタック", mp: 7, pow: 0.85, powGrowth: 0.1, hits: 2, maxLevel: 50, desc: "二連撃で手数を稼ぐ" },
-                    { id: 8, name: "奇襲", mp: 12, pow: 2.4, powGrowth: 0.32, accuracyBonus: 10, accuracyGrowth: 4, maxLevel: 50, desc: "先手で狙い撃ち、短期決戦の主力となる一撃" },
-                    { id: 9, name: "急所穿ち", mp: 14, pow: 2.1, powGrowth: 0.3, critBonus: 12, critGrowth: 3, maxLevel: 50, desc: "急所を狙って高い会心率を得る刺突" },
-                    { id: 10, name: "影走り", mp: 9, pow: 1.2, powGrowth: 0.15, maxLevel: 50, effects: [{ target: "self", id: "haste", stacks: 1, turns: 3 }], desc: "身を滑らせて迅速を延長し、連続行動を狙う" },
-                    { id: 11, name: "断罪の一刺し", mp: 24, pow: 4.2, powGrowth: 0.55, critBonus: 8, critGrowth: 2, maxLevel: 50, desc: "狙いすました高火力の一撃でとどめを狙う" }
+                    { id: 0, name: "煙幕投げ", mp: 4, cooldown: 2, pow: 0.9, powGrowth: 0.12, maxLevel: 50, effects: [{ target: "enemy", id: "blind", stacks: 1, turns: 2, log: "煙で視界が奪われた！" }], desc: "煙幕で暗闇を付与し、以後の制圧連携の起点になる" },
+                    { id: 1, name: "影縫い", mp: 8, cooldown: 3, pow: 1.4, powGrowth: 0.18, maxLevel: 50, effects: [{ target: "enemy", id: "silence", stacks: 1, turns: 1, log: "影に縛られて沈黙した！" }], desc: "影で封じ、敵のスキル回転を止める制圧技" },
+                    { id: 2, name: "毒刃", mp: 10, cooldown: 3, pow: 1.7, powGrowth: 0.22, critBonus: 5, critGrowth: 2, maxLevel: 50, effects: [{ target: "enemy", id: "poison", stacks: 1, turns: 3, log: "毒が回った！" }], desc: "急所狙いの一撃で毒を付与する" },
+                    { id: 3, name: "裂傷刻み", mp: 7, cooldown: 2, pow: 0.7, powGrowth: 0.1, hits: 2, maxLevel: 50, effects: [{ target: "enemy", id: "bleed", stacks: 1, turns: 2, log: "裂傷で出血した！" }], desc: "二連撃で出血を狙う" },
+                    { id: 4, name: "戦意削ぎ", mp: 5, cooldown: 2, pow: 0.9, powGrowth: 0.1, maxLevel: 50, effects: [{ target: "enemy", id: "weaken", stacks: 1, turns: 2, log: "戦意を削がれた！" }], desc: "攻撃と同時に敵の勢いを削ぐ弱体付与" },
+                    { id: 5, name: "影踏み", mp: 12, cooldown: 4, pow: 2.0, powGrowth: 0.28, accuracyBonus: 10, accuracyGrowth: 4, maxLevel: 50, desc: "暗闇の隙を突いて踏み込み、決定打を狙う" },
+                    { id: 6, name: "クイックスタブ", mp: 3, cooldown: 2, pow: 1.0, powGrowth: 0.15, accuracyBonus: 15, accuracyGrowth: 5, maxLevel: 50, effects: [{ target: "self", id: "haste", stacks: 1, turns: 2 }], desc: "素早い突きで迅速を得る連携起点" },
+                    { id: 7, name: "ダブルアタック", mp: 7, cooldown: 2, pow: 0.85, powGrowth: 0.1, hits: 2, maxLevel: 50, desc: "二連撃で手数を稼ぐ" },
+                    { id: 8, name: "奇襲", mp: 12, cooldown: 3, pow: 2.4, powGrowth: 0.32, accuracyBonus: 10, accuracyGrowth: 4, maxLevel: 50, desc: "先手で狙い撃ち、短期決戦の主力となる一撃" },
+                    { id: 9, name: "急所穿ち", mp: 14, cooldown: 4, pow: 2.1, powGrowth: 0.3, critBonus: 12, critGrowth: 3, maxLevel: 50, desc: "急所を狙って高い会心率を得る刺突" },
+                    { id: 10, name: "影走り", mp: 9, cooldown: 3, pow: 1.2, powGrowth: 0.15, maxLevel: 50, effects: [{ target: "self", id: "haste", stacks: 1, turns: 3 }], desc: "身を滑らせて迅速を延長し、連続行動を狙う" },
+                    { id: 11, name: "断罪の一刺し", mp: 24, cooldown: 5, pow: 4.2, powGrowth: 0.55, critBonus: 8, critGrowth: 2, maxLevel: 50, desc: "狙いすました高火力の一撃でとどめを狙う" }
                 ],
                 passive: [
                     { id: 0, name: "俊敏", desc: "DEX+3/レベル", maxLevel: 50, apply: (d) => Game.player.dex += 3 * d },
@@ -1906,18 +1922,18 @@
             ranger: {
                 name: "レンジャー",
                 active: [
-                    { id: 0, name: "追跡の標", mp: 6, pow: 1.1, powGrowth: 0.15, accuracyBonus: 10, accuracyGrowth: 4, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "標で狙いが定まった！" }], desc: "狙いを刻んで脆弱を与える追跡の起点" },
-                    { id: 1, name: "狩人の見切り", mp: 8, pow: 1.0, powGrowth: 0.12, maxLevel: 50, effects: [{ target: "self", id: "haste", stacks: 1, turns: 2 }], desc: "相手の癖を読み、迅速で手数を整える" },
-                    { id: 2, name: "削り射ち", mp: 9, pow: 0.9, powGrowth: 0.12, hits: 2, maxLevel: 50, effects: [{ target: "enemy", id: "bleed", stacks: 1, turns: 3, log: "傷が深く裂けた！" }], desc: "連射で確実に削り、出血を狙う" },
-                    { id: 3, name: "狩猟の足止め", mp: 12, pow: 1.5, powGrowth: 0.2, maxLevel: 50, effects: [{ target: "enemy", id: "attackDown", stacks: 1, turns: 2, log: "動きが鈍った！" }], desc: "動きを奪い、攻撃力を落として逃がさない" },
-                    { id: 4, name: "致命の一矢", mp: 18, pow: 2.9, powGrowth: 0.4, critBonus: 8, critGrowth: 3, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 1, turns: 2, log: "急所に裂傷が入った！" }], desc: "急所狙いで守りを崩す決定打" },
-                    { id: 5, name: "獣道の勘", mp: 10, pow: 0.8, powGrowth: 0.1, maxLevel: 50, effects: [{ target: "self", id: "attackUp", stacks: 1, turns: 2 }], desc: "狩りの勘を研ぎ澄まし闘志を高める" },
-                    { id: 6, name: "追撃の標", mp: 7, pow: 1.0, powGrowth: 0.12, accuracyBonus: 8, accuracyGrowth: 3, maxLevel: 50, effects: [{ target: "enemy", id: "weaken", stacks: 1, turns: 2, log: "追撃の印で勢いが削がれた！" }], desc: "追撃の合図を刻み、弱体を与える" },
-                    { id: 7, name: "連鎖射撃", mp: 12, pow: 0.75, powGrowth: 0.08, hits: 3, maxLevel: 50, effects: [{ target: "enemy", id: "weaken", stacks: 1, turns: 2, log: "連射で勢いを奪った！" }], desc: "多段連射でコンボの起点を作る" },
-                    { id: 8, name: "狩人の網", mp: 14, pow: 1.6, powGrowth: 0.22, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "網で体勢が崩れた！" }], desc: "相手の動きを抑え、脆弱を付与" },
-                    { id: 9, name: "疾風の一矢", mp: 10, pow: 1.7, powGrowth: 0.24, accuracyBonus: 12, accuracyGrowth: 4, maxLevel: 50, desc: "素早い追撃で流れを加速させる" },
-                    { id: 10, name: "穿孔撃", mp: 16, pow: 2.4, powGrowth: 0.32, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 2, turns: 2, log: "貫通で装甲が裂けた！" }], desc: "装甲を穿ち、脆甲を重ねる" },
-                    { id: 11, name: "終端の一撃", mp: 22, pow: 3.4, powGrowth: 0.45, critBonus: 6, critGrowth: 2, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "仕留めの傷が入った！" }], desc: "連携の締めに放つ高火力の仕留め技" }
+                    { id: 0, name: "追跡の標", mp: 6, cooldown: 2, pow: 1.1, powGrowth: 0.15, accuracyBonus: 10, accuracyGrowth: 4, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "標で狙いが定まった！" }], desc: "狙いを刻んで脆弱を与える追跡の起点" },
+                    { id: 1, name: "狩人の見切り", mp: 8, cooldown: 2, pow: 1.0, powGrowth: 0.12, maxLevel: 50, effects: [{ target: "self", id: "haste", stacks: 1, turns: 2 }], desc: "相手の癖を読み、迅速で手数を整える" },
+                    { id: 2, name: "削り射ち", mp: 9, cooldown: 3, pow: 0.9, powGrowth: 0.12, hits: 2, maxLevel: 50, effects: [{ target: "enemy", id: "bleed", stacks: 1, turns: 3, log: "傷が深く裂けた！" }], desc: "連射で確実に削り、出血を狙う" },
+                    { id: 3, name: "狩猟の足止め", mp: 12, cooldown: 3, pow: 1.5, powGrowth: 0.2, maxLevel: 50, effects: [{ target: "enemy", id: "attackDown", stacks: 1, turns: 2, log: "動きが鈍った！" }], desc: "動きを奪い、攻撃力を落として逃がさない" },
+                    { id: 4, name: "致命の一矢", mp: 18, cooldown: 4, pow: 2.9, powGrowth: 0.4, critBonus: 8, critGrowth: 3, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 1, turns: 2, log: "急所に裂傷が入った！" }], desc: "急所狙いで守りを崩す決定打" },
+                    { id: 5, name: "獣道の勘", mp: 10, cooldown: 2, pow: 0.8, powGrowth: 0.1, maxLevel: 50, effects: [{ target: "self", id: "attackUp", stacks: 1, turns: 2 }], desc: "狩りの勘を研ぎ澄まし闘志を高める" },
+                    { id: 6, name: "追撃の標", mp: 7, cooldown: 2, pow: 1.0, powGrowth: 0.12, accuracyBonus: 8, accuracyGrowth: 3, maxLevel: 50, effects: [{ target: "enemy", id: "weaken", stacks: 1, turns: 2, log: "追撃の印で勢いが削がれた！" }], desc: "追撃の合図を刻み、弱体を与える" },
+                    { id: 7, name: "連鎖射撃", mp: 12, cooldown: 3, pow: 0.75, powGrowth: 0.08, hits: 3, maxLevel: 50, effects: [{ target: "enemy", id: "weaken", stacks: 1, turns: 2, log: "連射で勢いを奪った！" }], desc: "多段連射でコンボの起点を作る" },
+                    { id: 8, name: "狩人の網", mp: 14, cooldown: 3, pow: 1.6, powGrowth: 0.22, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "網で体勢が崩れた！" }], desc: "相手の動きを抑え、脆弱を付与" },
+                    { id: 9, name: "疾風の一矢", mp: 10, cooldown: 4, pow: 1.7, powGrowth: 0.24, accuracyBonus: 12, accuracyGrowth: 4, maxLevel: 50, desc: "素早い追撃で流れを加速させる" },
+                    { id: 10, name: "穿孔撃", mp: 16, cooldown: 3, pow: 2.4, powGrowth: 0.32, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 2, turns: 2, log: "貫通で装甲が裂けた！" }], desc: "装甲を穿ち、脆甲を重ねる" },
+                    { id: 11, name: "終端の一撃", mp: 22, cooldown: 5, pow: 3.4, powGrowth: 0.45, critBonus: 6, critGrowth: 2, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "仕留めの傷が入った！" }], desc: "連携の締めに放つ高火力の仕留め技" }
                 ],
                 passive: [
                     { id: 0, name: "射撃訓練", desc: "命中率+3%/レベル", maxLevel: 50, apply: (d) => Game.player.accuracy += 3 * d },
@@ -1931,18 +1947,18 @@
             paladin: {
                 name: "聖騎士",
                 active: [
-                    { id: 0, name: "光盾の契約", mp: 8, pow: 0.9, powGrowth: 0.12, maxLevel: 50, effects: [{ target: "self", id: "barrier", stacks: 1, turns: 2, log: "光盾で守りが強化された！" }], desc: "小さな攻撃と同時にバリアを張る防御の起点" },
-                    { id: 1, name: "守護誓約", mp: 10, pow: 1.1, powGrowth: 0.15, maxLevel: 50, effects: [{ target: "self", id: "defenseUp", stacks: 1, turns: 2, log: "守護の誓約で守勢を得た！" }], desc: "被ダメを抑える守勢をまとい、粘り強く戦う" },
-                    { id: 2, name: "浄化の祈り", mp: 12, val: 32, valGrowth: 12, type: 'heal', isMagic: true, maxLevel: 50, effects: [{ target: "self", id: "defenseUp", stacks: 1, turns: 2 }], desc: "自己回復と守勢で安定を作る祈り" },
-                    { id: 3, name: "黒耀の誓印", mp: 10, pow: 1.2, powGrowth: 0.16, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "blind", stacks: 1, turns: 2, log: "黒耀の印で視界が奪われた！" }], desc: "暗闇を自前で付与し、防御連携の起点を作る" },
-                    { id: 4, name: "黎明の剣", mp: 14, pow: 2.2, powGrowth: 0.32, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "黎明の一閃で脆弱になった！" }], desc: "聖なる一撃で隙を作り、追撃に繋げる" },
-                    { id: 5, name: "赦しの誓い", mp: 16, val: 52, valGrowth: 18, type: 'heal', isMagic: true, maxLevel: 50, effects: [{ target: "self", id: "barrier", stacks: 1, turns: 2 }], desc: "自己回復とバリアで長期戦を支える" },
-                    { id: 6, name: "裁きの槍", mp: 10, pow: 1.8, powGrowth: 0.25, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "裁きで脆弱になった！" }], desc: "裁きの突きで脆弱を刻む制裁の一撃" },
-                    { id: 7, name: "懺悔の宣告", mp: 12, pow: 1.4, powGrowth: 0.2, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "weaken", stacks: 1, turns: 2, log: "懺悔の宣告で勢いが削がれた！" }], desc: "敵火力を抑えつつ連携の下地を作る" },
-                    { id: 8, name: "黒騎の帳", mp: 12, pow: 1.0, powGrowth: 0.14, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "blind", stacks: 1, turns: 2, log: "黒騎の帳で視界が奪われた！" }, { target: "self", id: "attackUp", stacks: 1, turns: 2 }], desc: "暗闇を付与し、自身の攻めを強化する" },
-                    { id: 9, name: "影狩り", mp: 16, pow: 2.6, powGrowth: 0.36, maxLevel: 50, critBonus: 5, critGrowth: 2, desc: "暗闇の隙を狙い撃つ高火力の追撃" },
-                    { id: 10, name: "忌光の鎖", mp: 14, pow: 1.5, powGrowth: 0.2, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "silence", stacks: 1, turns: 1, log: "忌光の鎖で沈黙した！" }], desc: "敵の行動を縛り、主導権を握る" },
-                    { id: 11, name: "天刑の宣告", mp: 24, pow: 3.4, powGrowth: 0.48, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 2, turns: 2, log: "天刑の宣告で守りが崩れた！" }], desc: "強烈な制裁で守りを崩し、とどめを狙う" }
+                    { id: 0, name: "光盾の契約", mp: 8, cooldown: 2, pow: 0.9, powGrowth: 0.12, maxLevel: 50, effects: [{ target: "self", id: "barrier", stacks: 1, turns: 2, log: "光盾で守りが強化された！" }], desc: "小さな攻撃と同時にバリアを張る防御の起点" },
+                    { id: 1, name: "守護誓約", mp: 10, cooldown: 3, pow: 1.1, powGrowth: 0.15, maxLevel: 50, effects: [{ target: "self", id: "defenseUp", stacks: 1, turns: 2, log: "守護の誓約で守勢を得た！" }], desc: "被ダメを抑える守勢をまとい、粘り強く戦う" },
+                    { id: 2, name: "浄化の祈り", mp: 12, cooldown: 3, val: 32, valGrowth: 12, type: 'heal', isMagic: true, maxLevel: 50, effects: [{ target: "self", id: "defenseUp", stacks: 1, turns: 2 }], desc: "自己回復と守勢で安定を作る祈り" },
+                    { id: 3, name: "黒耀の誓印", mp: 10, cooldown: 3, pow: 1.2, powGrowth: 0.16, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "blind", stacks: 1, turns: 2, log: "黒耀の印で視界が奪われた！" }], desc: "暗闇を自前で付与し、防御連携の起点を作る" },
+                    { id: 4, name: "黎明の剣", mp: 14, cooldown: 4, pow: 2.2, powGrowth: 0.32, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "黎明の一閃で脆弱になった！" }], desc: "聖なる一撃で隙を作り、追撃に繋げる" },
+                    { id: 5, name: "赦しの誓い", mp: 16, cooldown: 4, val: 52, valGrowth: 18, type: 'heal', isMagic: true, maxLevel: 50, effects: [{ target: "self", id: "barrier", stacks: 1, turns: 2 }], desc: "自己回復とバリアで長期戦を支える" },
+                    { id: 6, name: "裁きの槍", mp: 10, cooldown: 3, pow: 1.8, powGrowth: 0.25, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "裁きで脆弱になった！" }], desc: "裁きの突きで脆弱を刻む制裁の一撃" },
+                    { id: 7, name: "懺悔の宣告", mp: 12, cooldown: 3, pow: 1.4, powGrowth: 0.2, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "weaken", stacks: 1, turns: 2, log: "懺悔の宣告で勢いが削がれた！" }], desc: "敵火力を抑えつつ連携の下地を作る" },
+                    { id: 8, name: "黒騎の帳", mp: 12, cooldown: 3, pow: 1.0, powGrowth: 0.14, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "blind", stacks: 1, turns: 2, log: "黒騎の帳で視界が奪われた！" }, { target: "self", id: "attackUp", stacks: 1, turns: 2 }], desc: "暗闇を付与し、自身の攻めを強化する" },
+                    { id: 9, name: "影狩り", mp: 16, cooldown: 4, pow: 2.6, powGrowth: 0.36, maxLevel: 50, critBonus: 5, critGrowth: 2, desc: "暗闇の隙を狙い撃つ高火力の追撃" },
+                    { id: 10, name: "忌光の鎖", mp: 14, cooldown: 3, pow: 1.5, powGrowth: 0.2, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "silence", stacks: 1, turns: 1, log: "忌光の鎖で沈黙した！" }], desc: "敵の行動を縛り、主導権を握る" },
+                    { id: 11, name: "天刑の宣告", mp: 24, cooldown: 5, pow: 3.4, powGrowth: 0.48, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 2, turns: 2, log: "天刑の宣告で守りが崩れた！" }], desc: "強烈な制裁で守りを崩し、とどめを狙う" }
                 ],
                 passive: [
                     { id: 0, name: "信仰", desc: "最大HP+15/レベル", maxLevel: 50, apply: (d) => Game.player.maxHpFlat += 15 * d },
@@ -1956,18 +1972,18 @@
             monk: {
                 name: "拳闘士",
                 active: [
-                    { id: 0, name: "疾風連打", mp: 4, pow: 0.6, powGrowth: 0.08, hits: 4, maxLevel: 50, desc: "発動条件: 常時使用可。素早い連打で削る" },
-                    { id: 1, name: "ボディ・シフター", mp: 7, pow: 1.1, powGrowth: 0.15, maxLevel: 50, effects: [{ target: "enemy", id: "weaken", stacks: 1, turns: 2, log: "動きが鈍った！" }], desc: "発動条件: 直前の攻撃が命中。ボディ連打で相手の勢いを削ぐ" },
-                    { id: 2, name: "カウンター・スリップ", mp: 9, pow: 1.0, powGrowth: 0.12, accuracyBonus: 5, accuracyGrowth: 2, maxLevel: 50, effects: [{ target: "self", id: "haste", stacks: 1, turns: 2 }, { target: "self", id: "reflect", stacks: 1, turns: 2 }], desc: "発動条件: 敵の攻撃に合わせて使用。回避と反撃を狙う" },
-                    { id: 3, name: "ラッシュ・アッパー", mp: 12, pow: 1.6, powGrowth: 0.2, critBonus: 8, critGrowth: 2, maxLevel: 50, desc: "発動条件: 直前に拳技を使用。連携で威力が増す" },
-                    { id: 4, name: "リング・コンビネーション", mp: 14, pow: 0.9, powGrowth: 0.12, hits: 2, accuracyBonus: 10, accuracyGrowth: 3, maxLevel: 50, effects: [{ target: "enemy", id: "blind", stacks: 1, turns: 2, log: "視界が乱れた！" }], desc: "発動条件: 敵が暗闇、または自身が迅速。連撃で主導権を握る" },
-                    { id: 5, name: "フィニッシュ・ブロー", mp: 18, pow: 2.6, powGrowth: 0.35, critBonus: 12, critGrowth: 3, maxLevel: 50, desc: "発動条件: 直近で拳技が連続命中。締めの一撃" },
-                    { id: 6, name: "鉄拳衝", mp: 10, pow: 2.1, powGrowth: 0.28, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 1, turns: 2, log: "防御が削がれた！" }], desc: "発動条件: 常時使用可。防御を崩す重い一撃" },
-                    { id: 7, name: "ガード・クラッシュ", mp: 16, pow: 2.7, powGrowth: 0.35, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 2, turns: 2, log: "ガードが崩れた！" }], desc: "発動条件: 敵が防御系状態。ガードを破砕する強打" },
-                    { id: 8, name: "踏み込み破砕", mp: 14, pow: 2.3, powGrowth: 0.3, maxLevel: 50, effects: [{ target: "enemy", id: "attackDown", stacks: 1, turns: 2, log: "衝撃で動きが鈍った！" }], desc: "発動条件: 自身が闘志/強化。踏み込みで押し切る" },
-                    { id: 9, name: "震脚一撃", mp: 12, pow: 1.8, powGrowth: 0.24, accuracyBonus: 5, accuracyGrowth: 2, maxLevel: 50, effects: [{ target: "enemy", id: "blind", stacks: 1, turns: 2, log: "衝撃で視界が揺れた！" }], desc: "発動条件: 敵の命中が高い時に有効。視界を乱す衝撃拳" },
-                    { id: 10, name: "破壊の拳圧", mp: 18, pow: 2.0, powGrowth: 0.28, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "防勢が崩れた！" }, { target: "enemy", id: "defenseDown", stacks: 1, turns: 2, log: "守りが裂けた！" }], desc: "発動条件: 敵が弱体/脆弱/脆甲。圧で連携を通す" },
-                    { id: 11, name: "覇拳・極", mp: 28, pow: 4.2, powGrowth: 0.6, critBonus: 10, critGrowth: 3, maxLevel: 50, effects: [{ target: "self", id: "attackDown", stacks: 1, turns: 2 }], desc: "発動条件: 直前に被ダメ。溜めの決定打" }
+                    { id: 0, name: "疾風連打", mp: 4, cooldown: 2, pow: 0.6, powGrowth: 0.08, hits: 4, maxLevel: 50, desc: "発動条件: 常時使用可。素早い連打で削る" },
+                    { id: 1, name: "ボディ・シフター", mp: 7, cooldown: 2, pow: 1.1, powGrowth: 0.15, maxLevel: 50, effects: [{ target: "enemy", id: "weaken", stacks: 1, turns: 2, log: "動きが鈍った！" }], desc: "発動条件: 直前の攻撃が命中。ボディ連打で相手の勢いを削ぐ" },
+                    { id: 2, name: "カウンター・スリップ", mp: 9, cooldown: 3, pow: 1.0, powGrowth: 0.12, accuracyBonus: 5, accuracyGrowth: 2, maxLevel: 50, effects: [{ target: "self", id: "haste", stacks: 1, turns: 2 }, { target: "self", id: "reflect", stacks: 1, turns: 2 }], desc: "発動条件: 敵の攻撃に合わせて使用。回避と反撃を狙う" },
+                    { id: 3, name: "ラッシュ・アッパー", mp: 12, cooldown: 3, pow: 1.6, powGrowth: 0.2, critBonus: 8, critGrowth: 2, maxLevel: 50, desc: "発動条件: 直前に拳技を使用。連携で威力が増す" },
+                    { id: 4, name: "リング・コンビネーション", mp: 14, cooldown: 3, pow: 0.9, powGrowth: 0.12, hits: 2, accuracyBonus: 10, accuracyGrowth: 3, maxLevel: 50, effects: [{ target: "enemy", id: "blind", stacks: 1, turns: 2, log: "視界が乱れた！" }], desc: "発動条件: 敵が暗闇、または自身が迅速。連撃で主導権を握る" },
+                    { id: 5, name: "フィニッシュ・ブロー", mp: 18, cooldown: 4, pow: 2.6, powGrowth: 0.35, critBonus: 12, critGrowth: 3, maxLevel: 50, desc: "発動条件: 直近で拳技が連続命中。締めの一撃" },
+                    { id: 6, name: "鉄拳衝", mp: 10, cooldown: 3, pow: 2.1, powGrowth: 0.28, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 1, turns: 2, log: "防御が削がれた！" }], desc: "発動条件: 常時使用可。防御を崩す重い一撃" },
+                    { id: 7, name: "ガード・クラッシュ", mp: 16, cooldown: 4, pow: 2.7, powGrowth: 0.35, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 2, turns: 2, log: "ガードが崩れた！" }], desc: "発動条件: 敵が防御系状態。ガードを破砕する強打" },
+                    { id: 8, name: "踏み込み破砕", mp: 14, cooldown: 3, pow: 2.3, powGrowth: 0.3, maxLevel: 50, effects: [{ target: "enemy", id: "attackDown", stacks: 1, turns: 2, log: "衝撃で動きが鈍った！" }], desc: "発動条件: 自身が闘志/強化。踏み込みで押し切る" },
+                    { id: 9, name: "震脚一撃", mp: 12, cooldown: 3, pow: 1.8, powGrowth: 0.24, accuracyBonus: 5, accuracyGrowth: 2, maxLevel: 50, effects: [{ target: "enemy", id: "blind", stacks: 1, turns: 2, log: "衝撃で視界が揺れた！" }], desc: "発動条件: 敵の命中が高い時に有効。視界を乱す衝撃拳" },
+                    { id: 10, name: "破壊の拳圧", mp: 18, cooldown: 4, pow: 2.0, powGrowth: 0.28, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "防勢が崩れた！" }, { target: "enemy", id: "defenseDown", stacks: 1, turns: 2, log: "守りが裂けた！" }], desc: "発動条件: 敵が弱体/脆弱/脆甲。圧で連携を通す" },
+                    { id: 11, name: "覇拳・極", mp: 28, cooldown: 5, pow: 4.2, powGrowth: 0.6, critBonus: 10, critGrowth: 3, maxLevel: 50, effects: [{ target: "self", id: "attackDown", stacks: 1, turns: 2 }], desc: "発動条件: 直前に被ダメ。溜めの決定打" }
                 ],
                 passive: [
                     { id: 0, name: "体術鍛錬", desc: "STR+2/レベル & DEX+2/レベル", maxLevel: 50, apply: (d) => { Game.player.str += 2 * d; Game.player.dex += 2 * d; } },
@@ -2862,7 +2878,8 @@
             potionAutoRegen: "再生付与",
             potionBarrier: "バリア付与",
             poisonMaxStacksBonus: "毒上限スタック",
-            poisonMinPctBonus: "毒最低保証"
+            poisonMinPctBonus: "毒最低保証",
+            cooldownReduction: "クールタイム短縮率"
         };
 
         const PercentStats = new Set([
@@ -2885,7 +2902,8 @@
             "eliteEncounter",
             "goldBoost",
             "potionHealPct",
-            "poisonMinPctBonus"
+            "poisonMinPctBonus",
+            "cooldownReduction"
         ]);
 
         const RarityDefs = [
@@ -3134,6 +3152,7 @@
             { name: "探索の", suffixName: "の・金猫", rank: 1, group: "treasure", stats: ["rareFind"] },
             { name: "癒しの", suffixName: "の聖歌", rank: 1, group: "support", stats: ["hpRegen"] },
             { name: "調律の", suffixName: "の癒奏", rank: 1, group: "support", stats: ["mpRegen"] },
+            { name: "時詠の", suffixName: "の時守", rank: 1, group: "support", stats: ["cooldownReduction"] },
             { name: "再生の", suffixName: "の静養", rank: 1, group: "support", stats: ["hpEfficiency"] },
             { name: "精密の", suffixName: "の鷹眼", rank: 1, group: "precision", stats: ["accuracy"] },
             { name: "集中の", suffixName: "の射手", rank: 1, group: "precision", stats: ["accuracy", "critRate"] },
@@ -3242,6 +3261,7 @@
             rareFind: [4, 8, 15],
             affixFind: [5, 10, 18],
             goldBoost: [5, 10, 18],
+            cooldownReduction: [6, 12, 20],
             potionCapacity: [15, 30, 50],
             potionHeal: [10, 22, 38],
             potionCostReduction: [5, 10, 18],
@@ -3908,6 +3928,7 @@
                 statusEffectTurnBonus: Game.player.statusEffectTurnBonus + (equip.statusEffectTurnBonus || 0),
                 poisonMaxStacksBonus: Game.player.poisonMaxStacksBonus + (equip.poisonMaxStacksBonus || 0),
                 poisonMinPctBonus: Game.player.poisonMinPctBonus + (equip.poisonMinPctBonus || 0),
+                cooldownReduction: Game.player.cooldownReduction + (equip.cooldownReduction || 0),
                 skillMpDiscount: Game.player.skillMpDiscount + (equip.skillMpDiscount || 0),
                 strMultiplier: Game.player.strMultiplier + (equip.strMultiplier || 0),
                 intMultiplier: Game.player.intMultiplier + (equip.intMultiplier || 0),
@@ -4099,6 +4120,7 @@
             statusEffectTurnBonus: (stat) => `状態異常付与ターン +${stat.value}`,
             poisonMaxStacksBonus: (stat) => `毒上限スタック +${stat.value}`,
             poisonMinPctBonus: (stat) => `毒最低保証 +${stat.value}%`,
+            cooldownReduction: (stat) => `クールタイム短縮率 +${stat.value}%`,
             skillMpDiscount: (stat) => `スキルMP消費 -${stat.value}%`,
             strMultiplier: (stat) => `STR倍率 +${stat.value}%`,
             vitMultiplier: (stat) => `VIT倍率 +${stat.value}%`,
@@ -4691,6 +4713,7 @@
             const dexCritRateBonus = Math.floor(boostedTotals.dex * 0.05);
             const dexCritDamageBonus = Math.floor(boostedTotals.dex * 0.2);
             const lukBonus = Math.floor(boostedTotals.luk * 0.5);
+            const cooldownReductionBonus = Math.floor(boostedTotals.int * 0.5);
             const modifiedTotals = {
                 ...boostedTotals,
                 accuracy: Math.max(0, Math.floor((totals.accuracy + dexAccuracyBonus) * statusMods.accuracyMul)),
@@ -4702,7 +4725,8 @@
                 rareFind: totals.rareFind + lukBonus,
                 affixFind: totals.affixFind + lukBonus,
                 eliteEncounter: totals.eliteEncounter + lukBonus,
-                goldBoost: totals.goldBoost + lukBonus
+                goldBoost: totals.goldBoost + lukBonus,
+                cooldownReduction: totals.cooldownReduction + cooldownReductionBonus
             };
             return { maxHp, maxMp, atk, def, totals: modifiedTotals };
         }
@@ -5631,12 +5655,20 @@
                     ? buildActiveSkill(Game.currentJobTab, idx, Math.max(1, level || 1))
                     : skill;
 
+                const skillCooldown = Game.currentSkillType === 'active'
+                    ? Math.max(0, displaySkill.cooldownMax ?? displaySkill.cooldown ?? 0)
+                    : 0;
+                const cooldownBadge = skillCooldown > 0
+                    ? `<span class="text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full font-bold">CD ${skillCooldown}</span>`
+                    : '';
+
                 card.innerHTML = `
                     <div class="flex justify-between items-center gap-4">
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-2 mb-0.5">
                                 <span class="font-black text-sm truncate">${displaySkill.name}</span>
                                 ${displaySkill.mp !== undefined ? `<span class="text-[9px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded-full font-bold">MP ${displaySkill.mp}</span>` : ''}
+                                ${cooldownBadge}
                                 <span class="text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full font-bold">Lv ${level}/${maxLevel}</span>
                             </div>
                             <p class="text-[10px] text-slate-500 leading-tight">${displaySkill.desc}</p>
@@ -5944,7 +5976,9 @@
             if (selectedSlotIndex !== null && currentSkill.name !== '通常攻撃') {
                 const skillCooldown = Math.max(0, currentSkill.cooldownMax ?? currentSkill.cooldown ?? 0);
                 if (skillCooldown > 0) {
-                    Game.player.skillSlotCooldowns[selectedSlotIndex] = skillCooldown;
+                    const cooldownReductionTurns = Math.floor((derived.totals.cooldownReduction || 0) / 100);
+                    const reducedCooldown = Math.max(0, skillCooldown - cooldownReductionTurns);
+                    Game.player.skillSlotCooldowns[selectedSlotIndex] = reducedCooldown;
                 }
             }
 
@@ -7083,7 +7117,7 @@
                     const isSelected = idx === Game.selectedSkillId;
                     const button = document.createElement('button');
                     button.type = 'button';
-                    let className = "w-full rounded-lg border px-1.5 py-1.5 text-[9px] font-bold flex items-center gap-1.5 transition-colors";
+                    let className = "w-full rounded-lg border px-1.5 py-1.5 text-[9px] font-bold flex items-center gap-1.5 transition-colors relative overflow-hidden";
                     if (availability.selectable) {
                         className += isSelected
                             ? " border-slate-800 bg-slate-800 text-white"
@@ -7097,17 +7131,18 @@
                     button.className = className;
                     const icon = skill ? (skill.isMagic ? 'fa-star' : 'fa-bolt') : 'fa-plus';
                     const mpLabel = skill ? `MP ${availability.mpCost}` : '未設定';
+                    const mpCooldownLabel = cooldownLabel ? `${mpLabel} / ${cooldownLabel}` : mpLabel;
                     const statusLabel = availability.reason ? availability.reason : (isSelected ? '選択中' : '選択');
                     button.innerHTML = `
                         <div class="flex-1 min-w-0 text-left">
                             <div class="flex items-center justify-between gap-2">
                                 <div class="text-[8px] flex items-center gap-1.5">
-                                    <span>${mpLabel}</span>
-                                    ${cooldownLabel ? `<span class="text-[8px] font-black text-rose-500">[${cooldownLabel}]</span>` : ''}
+                                    <span>${mpCooldownLabel}</span>
                                 </div>
                             </div>
                             <div class="truncate">${skill ? skill.name : '未設定'}</div>
                         </div>
+                        ${cooldown > 0 ? `<div class="skill-cooldown-mask">${cooldown}</div>` : ''}
                     `;
                     button.disabled = !availability.selectable;
                     if (availability.selectable) {
@@ -7235,6 +7270,7 @@
             document.getElementById('stat-accuracy').innerText = `${totals.accuracy}%`;
             document.getElementById('stat-hp-regen').innerText = totals.hpRegen;
             document.getElementById('stat-mp-regen').innerText = totals.mpRegen;
+            document.getElementById('stat-cooldown-reduction').innerText = `${totals.cooldownReduction}%`;
             document.getElementById('stat-crit-dmg').innerText = `${totals.critDamage}%`;
             document.getElementById('stat-dmg-boost').innerText = `${totals.damageBoost}%`;
             document.getElementById('stat-dmg-reduction').innerText = `${totals.damageReduction}%`;
