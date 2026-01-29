@@ -4170,6 +4170,26 @@
             `;
         };
 
+        const WeaponSpeedLabels = {
+            slow: { label: "遅い", attacks: 1 },
+            normal: { label: "通常", attacks: 2 },
+            fast: { label: "速い", attacks: 4 }
+        };
+        const WeaponRangeLabels = {
+            single: "単体",
+            all: "複数"
+        };
+        const getWeaponInfoLines = (item) => {
+            if (!item || item.type !== "weapon") return [];
+            const profile = getWeaponAttackProfile(item);
+            const speedInfo = WeaponSpeedLabels[profile.speed] || WeaponSpeedLabels.normal;
+            const rangeLabel = WeaponRangeLabels[profile.range] || WeaponRangeLabels.single;
+            return [
+                `攻撃速度: ${speedInfo.label} (${speedInfo.attacks}回)`,
+                `攻撃範囲: ${rangeLabel}`
+            ];
+        };
+
         const renderItemStatsGroupedHtml = (item) => {
             if (!item) return '';
             const isPotion = item.type === "potion";
@@ -4194,6 +4214,7 @@
                 })()
                 : getEnhancedBaseStats(item);
             const baseLines = renderStatLines(baseStats);
+            baseLines.push(...getWeaponInfoLines(item));
             const prefixLines = renderStatLines((item.affixStats || []).filter((stat) => stat.source === "prefix"));
             const suffixLines = renderStatLines((item.affixStats || []).filter((stat) => stat.source === "suffix"));
             const uniqueLines = renderStatLines(item.uniqueStats || []);
@@ -6302,14 +6323,6 @@
             handlePlayerAction({ skipAttack: true });
         };
 
-        document.getElementById('action-btn').onclick = () => {
-            handlePlayerAction({ allowSkillSlot: false });
-        };
-
-        document.getElementById('end-turn-btn').onclick = () => {
-            handlePlayerAction({ skipAttack: true });
-        };
-
         function setEnemyNextActionPreview(enemy) {
             if (!enemy) return;
             const enemyStatusMods = getStatusModifiers(enemy);
@@ -7460,8 +7473,13 @@
                     btn.innerHTML = `<i class="fas fa-forward-step"></i> <span>ターン終了</span>`;
                     btn.className = "w-full bg-slate-200 text-slate-700 font-black py-4 rounded-2xl shadow-lg active:scale-95 transition-transform text-base flex items-center justify-center gap-2";
                 } else {
-                    btn.innerHTML = `<i class="fas fa-sword"></i> <span>通常攻撃</span>`;
-                    btn.className = "w-full bg-slate-800 text-white font-black py-4 rounded-2xl shadow-lg active:scale-95 transition-transform text-base flex items-center justify-center gap-2";
+                    const attackProfile = getWeaponAttackProfile(Game.player.weapon);
+                    const remainingAttacks = Game.playerTurnStarted ? Game.playerTurnRemainingAttacks : attackProfile.maxAttacks;
+                    btn.innerHTML = `
+                        <i class="fas fa-sword"></i> <span>通常攻撃</span>
+                        <span class="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow">残${remainingAttacks}</span>
+                    `;
+                    btn.className = "w-full bg-slate-800 text-white font-black py-4 rounded-2xl shadow-lg active:scale-95 transition-transform text-base flex items-center justify-center gap-2 relative";
                 }
                 if (endTurnBtn) {
                     endTurnBtn.disabled = false;
