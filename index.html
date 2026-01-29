@@ -5247,6 +5247,8 @@
             const stats = [];
             if (type === 'active') {
                 if (displaySkill.mp !== undefined) stats.push(`MP消費: ${displaySkill.mp}`);
+                const detailCooldown = Math.max(0, displaySkill.cooldownMax ?? displaySkill.cooldown ?? 0);
+                if (detailCooldown > 0) stats.push(`クールタイム: ${detailCooldown}ターン`);
                 if (displaySkill.pow !== undefined) stats.push(`威力倍率: ${displaySkill.pow}`);
                 if (displaySkill.hits) stats.push(`ヒット数: ${displaySkill.hits}`);
                 if (displaySkill.accuracyBonus) stats.push(`命中補正: +${displaySkill.accuracyBonus}%`);
