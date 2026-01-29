@@ -553,6 +553,7 @@
                     <div class="flex justify-between border-b border-slate-700 pb-1"><span>MP効率</span><span id="stat-mp-eff">0%</span></div>
                     <div class="flex justify-between border-b border-slate-700 pb-1"><span>HP自動回復</span><span id="stat-hp-regen">0</span></div>
                     <div class="flex justify-between border-b border-slate-700 pb-1"><span>MP自動回復</span><span id="stat-mp-regen">0</span></div>
+                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>クールタイム短縮率</span><span id="stat-cooldown-reduction">0%</span></div>
                     <div class="flex justify-between border-b border-slate-700 pb-1"><span>攻撃力</span><span id="stat-atk-flat">0</span></div>
                     <div class="flex justify-between border-b border-slate-700 pb-1"><span>攻撃効率</span><span id="stat-atk-eff">0%</span></div>
                     <div class="flex justify-between border-b border-slate-700 pb-1"><span>防御力</span><span id="stat-def-flat">0</span></div>
@@ -1159,6 +1160,7 @@
                         <li>MP効率：最大MPを%で増加。</li>
                         <li>HP自動回復：ターン終了時にHPが回復。</li>
                         <li>MP自動回復：ターン終了時にMPが回復。</li>
+                        <li>クールタイム短縮率：スキルのクールタイムを短縮（100%ごとに1ターン減）。INTで増加。</li>
                         <li>攻撃力：物理攻撃の固定増加。</li>
                         <li>攻撃効率：物理攻撃を%で増加。</li>
                         <li>防御力：防御の固定増加。</li>
@@ -1340,7 +1342,7 @@
                 critDamage: 200, damageBoost: 0, damageReduction: 0, rareFind: 0, affixFind: 0, eliteEncounter: 20,
                 skillPowerBoost: 0, statusEffectStackBonus: 0, statusEffectTurnBonus: 0,
                 poisonMaxStacksBonus: 0, poisonMinPctBonus: 0,
-                skillMpDiscount: 0, strMultiplier: 0, intMultiplier: 0, vitMultiplier: 0, dexMultiplier: 0, lukMultiplier: 0,
+                skillMpDiscount: 0, cooldownReduction: 0, strMultiplier: 0, intMultiplier: 0, vitMultiplier: 0, dexMultiplier: 0, lukMultiplier: 0,
                 exp: 0, next: 100, sp: 1,
                 gold: 0,
                 weapon: null, armor: null, head: null, hands: null, feet: null, accessory1: null, accessory2: null, potion1: null, potion2: null, inventory: [],
@@ -2876,7 +2878,8 @@
             potionAutoRegen: "再生付与",
             potionBarrier: "バリア付与",
             poisonMaxStacksBonus: "毒上限スタック",
-            poisonMinPctBonus: "毒最低保証"
+            poisonMinPctBonus: "毒最低保証",
+            cooldownReduction: "クールタイム短縮率"
         };
 
         const PercentStats = new Set([
@@ -2899,7 +2902,8 @@
             "eliteEncounter",
             "goldBoost",
             "potionHealPct",
-            "poisonMinPctBonus"
+            "poisonMinPctBonus",
+            "cooldownReduction"
         ]);
 
         const RarityDefs = [
@@ -3148,6 +3152,7 @@
             { name: "探索の", suffixName: "の・金猫", rank: 1, group: "treasure", stats: ["rareFind"] },
             { name: "癒しの", suffixName: "の聖歌", rank: 1, group: "support", stats: ["hpRegen"] },
             { name: "調律の", suffixName: "の癒奏", rank: 1, group: "support", stats: ["mpRegen"] },
+            { name: "時詠の", suffixName: "の時守", rank: 1, group: "support", stats: ["cooldownReduction"] },
             { name: "再生の", suffixName: "の静養", rank: 1, group: "support", stats: ["hpEfficiency"] },
             { name: "精密の", suffixName: "の鷹眼", rank: 1, group: "precision", stats: ["accuracy"] },
             { name: "集中の", suffixName: "の射手", rank: 1, group: "precision", stats: ["accuracy", "critRate"] },
@@ -3256,6 +3261,7 @@
             rareFind: [4, 8, 15],
             affixFind: [5, 10, 18],
             goldBoost: [5, 10, 18],
+            cooldownReduction: [6, 12, 20],
             potionCapacity: [15, 30, 50],
             potionHeal: [10, 22, 38],
             potionCostReduction: [5, 10, 18],
@@ -3922,6 +3928,7 @@
                 statusEffectTurnBonus: Game.player.statusEffectTurnBonus + (equip.statusEffectTurnBonus || 0),
                 poisonMaxStacksBonus: Game.player.poisonMaxStacksBonus + (equip.poisonMaxStacksBonus || 0),
                 poisonMinPctBonus: Game.player.poisonMinPctBonus + (equip.poisonMinPctBonus || 0),
+                cooldownReduction: Game.player.cooldownReduction + (equip.cooldownReduction || 0),
                 skillMpDiscount: Game.player.skillMpDiscount + (equip.skillMpDiscount || 0),
                 strMultiplier: Game.player.strMultiplier + (equip.strMultiplier || 0),
                 intMultiplier: Game.player.intMultiplier + (equip.intMultiplier || 0),
@@ -4113,6 +4120,7 @@
             statusEffectTurnBonus: (stat) => `状態異常付与ターン +${stat.value}`,
             poisonMaxStacksBonus: (stat) => `毒上限スタック +${stat.value}`,
             poisonMinPctBonus: (stat) => `毒最低保証 +${stat.value}%`,
+            cooldownReduction: (stat) => `クールタイム短縮率 +${stat.value}%`,
             skillMpDiscount: (stat) => `スキルMP消費 -${stat.value}%`,
             strMultiplier: (stat) => `STR倍率 +${stat.value}%`,
             vitMultiplier: (stat) => `VIT倍率 +${stat.value}%`,
@@ -4705,6 +4713,7 @@
             const dexCritRateBonus = Math.floor(boostedTotals.dex * 0.05);
             const dexCritDamageBonus = Math.floor(boostedTotals.dex * 0.2);
             const lukBonus = Math.floor(boostedTotals.luk * 0.5);
+            const cooldownReductionBonus = Math.floor(boostedTotals.int * 0.5);
             const modifiedTotals = {
                 ...boostedTotals,
                 accuracy: Math.max(0, Math.floor((totals.accuracy + dexAccuracyBonus) * statusMods.accuracyMul)),
@@ -4716,7 +4725,8 @@
                 rareFind: totals.rareFind + lukBonus,
                 affixFind: totals.affixFind + lukBonus,
                 eliteEncounter: totals.eliteEncounter + lukBonus,
-                goldBoost: totals.goldBoost + lukBonus
+                goldBoost: totals.goldBoost + lukBonus,
+                cooldownReduction: totals.cooldownReduction + cooldownReductionBonus
             };
             return { maxHp, maxMp, atk, def, totals: modifiedTotals };
         }
@@ -5966,7 +5976,9 @@
             if (selectedSlotIndex !== null && currentSkill.name !== '通常攻撃') {
                 const skillCooldown = Math.max(0, currentSkill.cooldownMax ?? currentSkill.cooldown ?? 0);
                 if (skillCooldown > 0) {
-                    Game.player.skillSlotCooldowns[selectedSlotIndex] = skillCooldown;
+                    const cooldownReductionTurns = Math.floor((derived.totals.cooldownReduction || 0) / 100);
+                    const reducedCooldown = Math.max(0, skillCooldown - cooldownReductionTurns);
+                    Game.player.skillSlotCooldowns[selectedSlotIndex] = reducedCooldown;
                 }
             }
 
@@ -7258,6 +7270,7 @@
             document.getElementById('stat-accuracy').innerText = `${totals.accuracy}%`;
             document.getElementById('stat-hp-regen').innerText = totals.hpRegen;
             document.getElementById('stat-mp-regen').innerText = totals.mpRegen;
+            document.getElementById('stat-cooldown-reduction').innerText = `${totals.cooldownReduction}%`;
             document.getElementById('stat-crit-dmg').innerText = `${totals.critDamage}%`;
             document.getElementById('stat-dmg-boost').innerText = `${totals.damageBoost}%`;
             document.getElementById('stat-dmg-reduction').innerText = `${totals.damageReduction}%`;
