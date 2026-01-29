@@ -5986,6 +5986,7 @@
             const endPlayerTurn = () => {
                 advanceStatusEffects(Game.player, 'end');
                 applyAutoRegen();
+                tickSkillCooldowns();
                 resetPlayerTurnState();
                 setTimeout(enemyTurn, 300);
                 updateUI();
@@ -6010,7 +6011,6 @@
             }
 
             if (isNewTurn) {
-                tickSkillCooldowns();
                 const attackProfile = getWeaponAttackProfile(Game.player.weapon);
                 Game.playerTurnRemainingAttacks = attackProfile.maxAttacks;
                 Game.playerTurnStarted = true;
@@ -7338,7 +7338,6 @@
                 Game.player.skillSlots.forEach((slot, idx) => {
                     const skill = getSlotSkill(slot);
                     const cooldown = Game.player.skillSlotCooldowns?.[idx] || 0;
-                    const cooldownLabel = cooldown > 0 ? `CD ${cooldown}` : '';
                     const availability = getSkillSlotAvailability({
                         skill,
                         derived,
@@ -7363,13 +7362,13 @@
                     button.className = className;
                     const icon = skill ? (skill.isMagic ? 'fa-star' : 'fa-bolt') : 'fa-plus';
                     const mpLabel = skill ? `MP ${availability.mpCost}` : '未設定';
-                    const mpCooldownLabel = cooldownLabel ? `${mpLabel} / ${cooldownLabel}` : mpLabel;
                     const statusLabel = availability.reason ? availability.reason : (isSelected ? '選択中' : '選択');
                     button.innerHTML = `
                         <div class="flex-1 min-w-0 text-left">
                             <div class="flex items-center justify-between gap-2">
                                 <div class="text-[8px] flex items-center gap-1.5">
-                                    <span>${mpCooldownLabel}</span>
+                                    <span>${mpLabel}</span>
+                                    ${cooldown > 0 ? `<span class="text-slate-400">CD ${cooldown}</span>` : ''}
                                 </div>
                             </div>
                             <div class="truncate">${skill ? skill.name : '未設定'}</div>
