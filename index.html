@@ -7292,8 +7292,9 @@
                 card.appendChild(nameRow);
                 card.appendChild(hpBarWrapper);
                 card.appendChild(statusContainer);
-            
-                enemyList.appendChild(card);
+
+                if (isNewCard) enemyList.appendChild(card);
+                /*enemyList.appendChild(card);*/
                 isNewCard = true;
               }
             
