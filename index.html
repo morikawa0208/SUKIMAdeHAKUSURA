@@ -1342,7 +1342,6 @@
             selectedSkillId: null,
             playerTurnStarted: false,
             playerTurnRemainingAttacks: 0,
-            pendingSkillCooldown: null,
             clearingToNextFloor: false,
             enhanceModal: {
                 index: null,
@@ -5987,6 +5986,35 @@
             }
         }
 
+
+        function beginPlayerTurn() {
+          Game.turnId = (Number.isInteger(Game.turnId) ? Game.turnId : 0) + 1;
+          Game.turn = Game.turn || {};
+          Game.turn.usedSlots = new Set();
+          Game.turn.finalizedTurnId = Game.turn.finalizedTurnId ?? -1;
+        }
+        
+        function onPlayerUsedSkill(slotIndex, cooldownTurns) {
+          normalizeSkillSlotCooldowns();
+          Game.player.skillSlotCooldowns[slotIndex] = Math.max(0, cooldownTurns | 0);
+          Game.turn.usedSlots.add(slotIndex); // ★このターンは減らさない対象
+        }
+        
+        function endTurnCooldownPhase() {
+          const tid = Number.isInteger(Game.turnId) ? Game.turnId : 0;
+          Game.turn = Game.turn || {};
+          if (Game.turn.finalizedTurnId === tid) return; // 二重呼び防止
+          Game.turn.finalizedTurnId = tid;
+        
+          const cds = normalizeSkillSlotCooldowns();
+          const used = Game.turn.usedSlots || new Set();
+          Game.player.skillSlotCooldowns = cds.map((cd, i) => {
+            if (used.has(i)) return cd;   // ★使ったターンは減らさない
+            return Math.max(0, cd - 1);
+          });
+        }
+
+        
         const handlePlayerAction = ({ forcedSkillSlotIndex = null, allowSkillSlot = true, skipAttack = false } = {}) => {
             if (Game.state === 'dead') return;
             if (Game.state === 'idle') {
@@ -6006,6 +6034,8 @@
               advanceStatusEffects(Game.player, 'end');
               applyAutoRegen();
 
+            　endTurnCooldownPhase(); // ★ターン終了でここだけがCDを進める
+                
               resetPlayerTurnState();
               setTimeout(enemyTurn, 300);
               updateUI();
@@ -6015,6 +6045,7 @@
 
             const isNewTurn = !Game.playerTurnStarted;
             if (isNewTurn) {
+                beginPlayerTurn(); // ★ここでのみ turnId++ & usedSlots初期化
                 tickFreezeDecayForCombatants();
                 advanceStatusEffects(Game.player, 'start');
                 if (Game.player.hp <= 0) {
@@ -6041,11 +6072,6 @@
                 return;
             }
             
-            Game.pendingSkillCooldown = null;
-            
-            // プレイヤーの行動開始（＝このターンが始まる）
-            Game.turnId = (Number.isInteger(Game.turnId) ? Game.turnId : 0) + 1;
-
             const selectedSlotIndex = allowSkillSlot
                 ? (Number.isInteger(forcedSkillSlotIndex)
                     ? forcedSkillSlotIndex
@@ -6080,13 +6106,14 @@
                 isMagic = false;
                 adjustedMpCost = 0;
             }
-            if (selectedSlotIndex !== null && currentSkill.name !== '通常攻撃') {
-                const skillCooldown = Math.max(0, currentSkill.cooldownMax ?? currentSkill.cooldown ?? 0);
-                if (skillCooldown > 0) {
-                    const cooldownReductionTurns = Math.floor((derived.totals.cooldownReduction || 0) / 100);
-                    const reducedCooldown = Math.max(0, skillCooldown - cooldownReductionTurns);
-                    Game.pendingSkillCooldown = { index: selectedSlotIndex, value: reducedCooldown };
-                }
+            + let cooldownToApply = 0;
+            + if (selectedSlotIndex !== null && currentSkill.name !== '通常攻撃') {
+            +   const skillCooldown = Math.max(0, currentSkill.cooldownMax ?? currentSkill.cooldown ?? 0);
+            +   if (skillCooldown > 0) {
+            +     const cooldownReductionTurns = Math.floor((derived.totals.cooldownReduction || 0) / 100);
+            +     cooldownToApply = Math.max(0, skillCooldown - cooldownReductionTurns);
+            +   }
+            + }
             }
 
             const attackProfile = getWeaponAttackProfile(Game.player.weapon);
@@ -6103,6 +6130,11 @@
                 return;
             }
 
+            if (selectedSlotIndex !== null && currentSkill.name !== '通常攻撃' && cooldownToApply > 0) {
+              onPlayerUsedSkill(selectedSlotIndex, cooldownToApply);
+            }
+
+        
             const applyAttackToTarget = (enemy, labelPrefix = '') => {
                 const enemyStatusMods = getStatusModifiers(enemy);
                 const enemyEvasion = Math.max(0, Math.floor((enemy.eva || 0) * enemyStatusMods.evasionMul));
@@ -6389,7 +6421,6 @@
                 advanceStatusEffects(Game.enemy, 'end');
                 applyAutoRegen();
                 setEnemyNextActionPreview(Game.enemy);
-                finalizeTurnCooldowns();
                 resetPlayerTurnState();
                 updateUI();
                 return;
@@ -6499,30 +6530,15 @@
             }
             applyAutoRegen();
             setEnemyNextActionPreview(Game.enemy);
-            finalizeTurnCooldowns();
             resetPlayerTurnState();
             updateUI();
-        }
-
-        function finalizeTurnCooldowns() {
-          const turnId = Number.isInteger(Game.turnId) ? Game.turnId : 0;
-          if (Game._cooldownsFinalizedTurnId === turnId) return;
-          Game._cooldownsFinalizedTurnId = turnId;
-        
-          tickSkillCooldowns();
-          if (Game.pendingSkillCooldown) {
-            Game.player.skillSlotCooldowns[Game.pendingSkillCooldown.index] =
-              Game.pendingSkillCooldown.value;
-            Game.pendingSkillCooldown = null;
-          }
         }
 
         
         function victory() {
             Game.state = 'idle';
-            
-              // ★敵ターンが発生しない勝利でも「ターン終了」としてCD処理を必ず進める
-              finalizeTurnCooldowns();
+
+            endTurnCooldownPhase(); // ★敵ターン無しでもターン終了扱いにする
             
             const shouldOpenBossRushModal = Boolean(
                 Game.enemy?.isBoss
