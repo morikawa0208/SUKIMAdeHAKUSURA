@@ -1865,6 +1865,7 @@
 
         const startAutosaveTimer = () => {
             setInterval(() => {
+                
                 const slot = getAutosaveSlot();
                 saveToSlot(slot, true);
             }, SaveConfig.autosaveIntervalMs);
@@ -6014,13 +6015,7 @@
             const endPlayerTurn = () => {
               advanceStatusEffects(Game.player, 'end');
               applyAutoRegen();
-            /*
-              if (Game.pendingSkillCooldown) {
-                Game.player.skillSlotCooldowns[Game.pendingSkillCooldown.index] =
-                  Game.pendingSkillCooldown.value;
-                Game.pendingSkillCooldown = null;
-              }
-            */
+
               resetPlayerTurnState();
               setTimeout(enemyTurn, 300);
               updateUI();
@@ -6380,6 +6375,8 @@
             enemy.nextActionIcon = icon;
         }
 
+
+        
         function enemyTurn() {
             if (Game.state !== 'combat') return;
 
@@ -6397,11 +6394,7 @@
                 advanceStatusEffects(Game.enemy, 'end');
                 applyAutoRegen();
                 setEnemyNextActionPreview(Game.enemy);
-                tickSkillCooldowns();
-                if (Game.pendingSkillCooldown) {
-                    Game.player.skillSlotCooldowns[Game.pendingSkillCooldown.index] = Game.pendingSkillCooldown.value;
-                    Game.pendingSkillCooldown = null;
-                }
+                finalizeTurnCooldowns();
                 resetPlayerTurnState();
                 updateUI();
                 return;
@@ -6506,17 +6499,29 @@
             }
             applyAutoRegen();
             setEnemyNextActionPreview(Game.enemy);
-            tickSkillCooldowns();
-            if (Game.pendingSkillCooldown) {
-                Game.player.skillSlotCooldowns[Game.pendingSkillCooldown.index] = Game.pendingSkillCooldown.value;
-                Game.pendingSkillCooldown = null;
-            }
+            finalizeTurnCooldowns();
             resetPlayerTurnState();
             updateUI();
         }
 
+        function finalizeTurnCooldowns() {
+          // ターン終了で全体を1進める
+          tickSkillCooldowns();
+        
+          // 今ターン使ったスキルは「減らない」扱いにしたいので、後から確定値で上書き
+          if (Game.pendingSkillCooldown) {
+            Game.player.skillSlotCooldowns[Game.pendingSkillCooldown.index] = Game.pendingSkillCooldown.value;
+            Game.pendingSkillCooldown = null;
+          }
+        }
+
+        
         function victory() {
             Game.state = 'idle';
+            
+              // ★敵ターンが発生しない勝利でも「ターン終了」としてCD処理を必ず進める
+              finalizeTurnCooldowns();
+            
             const shouldOpenBossRushModal = Boolean(
                 Game.enemy?.isBoss
                 && Game.enemy.floor === 1000
