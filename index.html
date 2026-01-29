@@ -341,9 +341,14 @@
                     <div id="battle-skill-slots"></div>
                 </div>
                 <div id="battle-potion-slots" class="grid grid-cols-2 gap-2"></div>
-                <button id="action-btn" class="w-full bg-slate-800 text-white font-black py-4 rounded-2xl shadow-lg active:scale-95 transition-transform text-lg flex items-center justify-center gap-2">
-                    <i class="fas fa-sword"></i> <span>攻撃</span>
-                </button>
+                <div class="grid grid-cols-2 gap-2">
+                    <button id="end-turn-btn" class="w-full bg-slate-200 text-slate-700 font-black py-4 rounded-2xl shadow-lg active:scale-95 transition-transform text-base flex items-center justify-center gap-2">
+                        <i class="fas fa-forward-step"></i> <span>ターン終了</span>
+                    </button>
+                    <button id="action-btn" class="w-full bg-slate-800 text-white font-black py-4 rounded-2xl shadow-lg active:scale-95 transition-transform text-base flex items-center justify-center gap-2">
+                        <i class="fas fa-sword"></i> <span>通常攻撃</span>
+                    </button>
+                </div>
             </div>
             
             <div id="death-overlay" class="absolute inset-0 bg-red-900/40 backdrop-blur-[2px] hidden items-center justify-center z-50">
@@ -5921,9 +5926,10 @@
             }
         }
 
-        document.getElementById('action-btn').onclick = () => {
+        const handlePlayerAction = ({ forcedSkillSlotIndex = null, allowSkillSlot = true, skipAttack = false } = {}) => {
             if (Game.state === 'dead') return;
             if (Game.state === 'idle') {
+                if (skipAttack) return;
                 const stayOnFloor = Game.stayOnFloor;
                 if (!stayOnFloor) {
                     Game.floor++;
@@ -5953,7 +5959,19 @@
             }
 
             tickSkillCooldowns();
-            const selectedSlotIndex = Number.isInteger(Game.selectedSkillId) ? Game.selectedSkillId : null;
+            if (skipAttack) {
+                advanceStatusEffects(Game.player, 'end');
+                applyAutoRegen();
+                setTimeout(enemyTurn, 300);
+                updateUI();
+                triggerAutosave();
+                return;
+            }
+            const selectedSlotIndex = allowSkillSlot
+                ? (Number.isInteger(forcedSkillSlotIndex)
+                    ? forcedSkillSlotIndex
+                    : (Number.isInteger(Game.selectedSkillId) ? Game.selectedSkillId : null))
+                : null;
             const selectedSlot = selectedSlotIndex !== null ? Game.player.skillSlots[selectedSlotIndex] : null;
             let currentSkill = selectedSlot ? getSlotSkill(selectedSlot) : null;
             if (!currentSkill) {
@@ -6220,6 +6238,14 @@
             }
             updateUI();
             triggerAutosave();
+        };
+
+        document.getElementById('action-btn').onclick = () => {
+            handlePlayerAction({ allowSkillSlot: false });
+        };
+
+        document.getElementById('end-turn-btn').onclick = () => {
+            handlePlayerAction({ skipAttack: true });
         };
 
         function setEnemyNextActionPreview(enemy) {
@@ -7276,6 +7302,10 @@
                     if (availability.selectable) {
                         button.addEventListener('click', () => {
                             Game.selectedSkillId = idx;
+                            if (Game.state === 'combat') {
+                                handlePlayerAction({ forcedSkillSlotIndex: idx });
+                                return;
+                            }
                             updateUI();
                         });
                     }
@@ -7359,14 +7389,23 @@
 
             // Button Control
             const btn = document.getElementById('action-btn');
+            const endTurnBtn = document.getElementById('end-turn-btn');
             if (Game.state === 'combat') {
-                btn.innerHTML = `<i class="fas fa-sword"></i> <span>攻撃</span>`;
-                btn.className = "w-full bg-slate-800 text-white font-black py-4 rounded-2xl shadow-lg active:scale-95 transition-transform text-lg flex items-center justify-center gap-2";
+                btn.innerHTML = `<i class="fas fa-sword"></i> <span>通常攻撃</span>`;
+                btn.className = "w-full bg-slate-800 text-white font-black py-4 rounded-2xl shadow-lg active:scale-95 transition-transform text-base flex items-center justify-center gap-2";
+                if (endTurnBtn) {
+                    endTurnBtn.disabled = false;
+                    endTurnBtn.className = "w-full bg-slate-200 text-slate-700 font-black py-4 rounded-2xl shadow-lg active:scale-95 transition-transform text-base flex items-center justify-center gap-2";
+                }
             } else {
                 const idleLabel = Game.stayOnFloor ? '再戦' : '次の階層へ';
                 const idleIcon = Game.stayOnFloor ? 'fa-rotate-right' : 'fa-shoe-prints';
                 btn.innerHTML = `<i class="fas ${idleIcon}"></i> <span>${idleLabel}</span>`;
-                btn.className = "w-full bg-blue-600 text-white font-black py-4 rounded-2xl shadow-lg active:scale-95 transition-transform text-lg flex items-center justify-center gap-2";
+                btn.className = "w-full bg-blue-600 text-white font-black py-4 rounded-2xl shadow-lg active:scale-95 transition-transform text-base flex items-center justify-center gap-2";
+                if (endTurnBtn) {
+                    endTurnBtn.disabled = true;
+                    endTurnBtn.className = "w-full bg-slate-100 text-slate-300 font-black py-4 rounded-2xl shadow-lg transition-transform text-base flex items-center justify-center gap-2";
+                }
             }
 
             // Status Details
