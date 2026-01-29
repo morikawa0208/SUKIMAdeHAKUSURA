@@ -1336,6 +1336,8 @@
             state: 'idle',
             stayOnFloor: false,
             selectedSkillId: null,
+            playerTurnStarted: false,
+            playerTurnRemainingAttacks: 0,
             enhanceModal: {
                 index: null,
                 stage: 'confirm',
@@ -2745,12 +2747,12 @@
 
         const BossLootTables = {
             10: [
-                { name: "毒牙の短剣", type: "weapon", rarity: "epic", stats: [{ key: "attackFlat", value: 26 }, { key: "dex", value: 9 }, { key: "leechRate", value: 3 }], uniqueStats: [] },
+                { name: "毒牙の短剣", type: "weapon", rarity: "epic", attackSpeed: "fast", attackRange: "single", stats: [{ key: "attackFlat", value: 26 }, { key: "dex", value: 9 }, { key: "leechRate", value: 3 }], uniqueStats: [] },
                 { name: "毒沼のヘルム", type: "head", rarity: "epic", stats: [{ key: "defenseFlat", value: 18 }, { key: "maxHp", value: 24 }], uniqueStats: [] },
                 { name: "湿毒のローブ", type: "armor", rarity: "epic", stats: [{ key: "hpRegen", value: 4 }, { key: "damageReduction", value: 2 }], uniqueStats: [] }
             ],
             50: [
-                { name: "疾風の爪剣", type: "weapon", rarity: "epic", stats: [{ key: "attackFlat", value: 38 }, { key: "dex", value: 13 }, { key: "accuracy", value: 9 }], uniqueStats: [] },
+                { name: "疾風の爪剣", type: "weapon", rarity: "epic", attackSpeed: "fast", attackRange: "single", stats: [{ key: "attackFlat", value: 38 }, { key: "dex", value: 13 }, { key: "accuracy", value: 9 }], uniqueStats: [] },
                 { name: "風走りのブーツ", type: "feet", rarity: "epic", stats: [{ key: "evasionRate", value: 10 }, { key: "dex", value: 9 }, { key: "hpEfficiency", value: 13 }], uniqueStats: [] },
                 { name: "疾風の籠手", type: "hands", rarity: "epic", stats: [{ key: "attackFlat", value: 12 }, { key: "evasionRate", value: 5 }], uniqueStats: [] }
             ],
@@ -2760,32 +2762,32 @@
                 { name: "岩脈の護符", type: "accessory", rarity: "epic", stats: [{ key: "maxHp", value: 36 }, { key: "damageReduction", value: 3 }], uniqueStats: [] }
             ],
             200: [
-                { name: "氷晶の杖", type: "weapon", rarity: "epic", stats: [{ key: "attackFlat", value: 42 }, { key: "int", value: 13 }, { key: "mPen", value: 9 }], uniqueStats: [] },
+                { name: "氷晶の杖", type: "weapon", rarity: "epic", attackSpeed: "slow", attackRange: "single", stats: [{ key: "attackFlat", value: 42 }, { key: "int", value: 13 }, { key: "mPen", value: 9 }], uniqueStats: [] },
                 { name: "氷牢の指輪", type: "accessory", rarity: "epic", stats: [{ key: "mpEfficiency", value: 6 }, { key: "critRate", value: 5 }, { key: "maxMp", value: 30 }], uniqueStats: [] },
                 { name: "凍霧の手甲", type: "hands", rarity: "epic", stats: [{ key: "int", value: 8 }, { key: "mPen", value: 5 }], uniqueStats: [] }
             ],
             300: [
                 { name: "宵闇のマント", type: "armor", rarity: "epic", stats: [{ key: "evasionRate", value: 10 }, { key: "dex", value: 12 }, { key: "damageBoost", value: 5 }], uniqueStats: [] },
-                { name: "闇狩りの短剣", type: "weapon", rarity: "epic", stats: [{ key: "attackFlat", value: 47 }, { key: "critRate", value: 7 }, { key: "dex", value: 9 }], uniqueStats: [] },
+                { name: "闇狩りの短剣", type: "weapon", rarity: "epic", attackSpeed: "fast", attackRange: "single", stats: [{ key: "attackFlat", value: 47 }, { key: "critRate", value: 7 }, { key: "dex", value: 9 }], uniqueStats: [] },
                 { name: "闇縫いの兜", type: "head", rarity: "epic", stats: [{ key: "dex", value: 9 }, { key: "critRate", value: 4 }], uniqueStats: [] },
             ],
             400: [
-                { name: "熾火の大剣", type: "weapon", rarity: "epic", stats: [{ key: "attackFlat", value: 55 }, { key: "str", value: 13 }, { key: "critDamage", value: 13 }], uniqueStats: [] },
+                { name: "熾火の大剣", type: "weapon", rarity: "epic", attackSpeed: "slow", attackRange: "all", stats: [{ key: "attackFlat", value: 55 }, { key: "str", value: 13 }, { key: "critDamage", value: 13 }], uniqueStats: [] },
                 { name: "炎護の手甲", type: "hands", rarity: "epic", stats: [{ key: "attackFlat", value: 13 }, { key: "str", value: 9 }, { key: "damageBoost", value: 5 }], uniqueStats: [] },
                 { name: "灼炎の護衣", type: "armor", rarity: "epic", stats: [{ key: "defenseFlat", value: 30 }, { key: "str", value: 8 }], uniqueStats: [] },
             ],
             500: [
-                { name: "雷鳴の戦槌", type: "weapon", rarity: "epic", stats: [{ key: "attackFlat", value: 59 }, { key: "str", value: 16 }, { key: "accuracy", value: 9 }], uniqueStats: [] },
+                { name: "雷鳴の戦槌", type: "weapon", rarity: "epic", attackSpeed: "slow", attackRange: "all", stats: [{ key: "attackFlat", value: 59 }, { key: "str", value: 16 }, { key: "accuracy", value: 9 }], uniqueStats: [] },
                 { name: "帯電の護符", type: "accessory", rarity: "epic", stats: [{ key: "critRate", value: 7 }, { key: "damageBoost", value: 7 }, { key: "maxHp", value: 53 }], uniqueStats: [] },
                 { name: "雷影の兜", type: "head", rarity: "epic", stats: [{ key: "accuracy", value: 7 }, { key: "critRate", value: 4 }], uniqueStats: [] },
             ],
             600: [
                 { name: "聖紋のローブ", type: "armor", rarity: "epic", stats: [{ key: "defenseFlat", value: 48 }, { key: "int", value: 13 }, { key: "mpEfficiency", value: 8 }], uniqueStats: [] },
                 { name: "聖祈の護符", type: "accessory", rarity: "epic", stats: [{ key: "hpRegen", value: 11 }, { key: "mpRegen", value: 3 }, { key: "damageReduction", value: 4 }], uniqueStats: [] },
-                { name: "聖光の杖", type: "weapon", rarity: "epic", stats: [{ key: "attackFlat", value: 28 }, { key: "int", value: 10 }], uniqueStats: [] }
+                { name: "聖光の杖", type: "weapon", rarity: "epic", attackSpeed: "slow", attackRange: "single", stats: [{ key: "attackFlat", value: 28 }, { key: "int", value: 10 }], uniqueStats: [] }
             ],
             700: [
-                { name: "疫毒の鎌", type: "weapon", rarity: "epic", stats: [{ key: "attackFlat", value: 63 }, { key: "dex", value: 13 }, { key: "mPen", value: 9 }], uniqueStats: [] },
+                { name: "疫毒の鎌", type: "weapon", rarity: "epic", attackSpeed: "slow", attackRange: "all", stats: [{ key: "attackFlat", value: 63 }, { key: "dex", value: 13 }, { key: "mPen", value: 9 }], uniqueStats: [] },
                 { name: "腐蝕の指輪", type: "accessory", rarity: "epic", stats: [{ key: "damageBoost", value: 7 }, { key: "leechRate", value: 5 }, { key: "maxHp", value: 53 }], uniqueStats: [] },
                 { name: "腐蝕の脚甲", type: "feet", rarity: "epic", stats: [{ key: "evasionRate", value: 6 }, { key: "dex", value: 8 }], uniqueStats: [] }
             ],
@@ -2795,12 +2797,12 @@
                 { name: "鉄壁の護符", type: "accessory", rarity: "epic", stats: [{ key: "maxHp", value: 40 }, { key: "damageReduction", value: 3 }], uniqueStats: [] }
             ],
             900: [
-                { name: "影刃の忍刀", type: "weapon", rarity: "epic", stats: [{ key: "attackFlat", value: 68 }, { key: "dex", value: 17 }, { key: "critRate", value: 9 }], uniqueStats: [] },
+                { name: "影刃の忍刀", type: "weapon", rarity: "epic", attackSpeed: "normal", attackRange: "single", stats: [{ key: "attackFlat", value: 68 }, { key: "dex", value: 17 }, { key: "critRate", value: 9 }], uniqueStats: [] },
                 { name: "夜走りの足袋", type: "feet", rarity: "epic", stats: [{ key: "evasionRate", value: 11 }, { key: "dex", value: 12 }, { key: "accuracy", value: 9 }], uniqueStats: [] },
                 { name: "影刃の護符", type: "accessory", rarity: "epic", stats: [{ key: "critRate", value: 5 }, { key: "damageBoost", value: 4 }], uniqueStats: [] }
             ],
             1000: [
-                { name: "終焉の竜槍", type: "weapon", rarity: "legendary", stats: [{ key: "attackFlat", value: 84 }, { key: "str", value: 21 }, { key: "damageBoost", value: 12 }], uniqueStats: [] },
+                { name: "終焉の竜槍", type: "weapon", rarity: "legendary", attackSpeed: "slow", attackRange: "all", stats: [{ key: "attackFlat", value: 84 }, { key: "str", value: 21 }, { key: "damageBoost", value: 12 }], uniqueStats: [] },
                 { name: "竜鱗の護鎧", type: "armor", rarity: "legendary", stats: [{ key: "defenseFlat", value: 80 }, { key: "vit", value: 27 }, { key: "maxHp", value: 105 }], uniqueStats: [] },
                 { name: "終焉の護符", type: "accessory", rarity: "legendary", stats: [{ key: "luck", value: 36 }, { key: "rareFind", value: 34 }, { key: "affixFind", value: 32 }], uniqueStats: [] }
             ],
@@ -4633,6 +4635,24 @@
             return adjustedMpCost;
         }
 
+        const NormalAttackSpeedConfig = {
+            slow: 1,
+            normal: 2,
+            fast: 4
+        };
+
+        function getWeaponAttackProfile(weapon) {
+            const speed = weapon?.attackSpeed || 'normal';
+            const range = weapon?.attackRange || 'single';
+            const maxAttacks = NormalAttackSpeedConfig[speed] ?? NormalAttackSpeedConfig.normal;
+            return { speed, range, maxAttacks };
+        }
+
+        function resetPlayerTurnState() {
+            Game.playerTurnStarted = false;
+            Game.playerTurnRemainingAttacks = 0;
+        }
+
         function getSkillSlotAvailability({ skill, derived, playerStatusMods, cooldown, currentMp }) {
             if (!skill) {
                 return { selectable: false, reason: '未設定', mpCost: 0 };
@@ -5821,6 +5841,7 @@
             Game.enemies.forEach((enemy) => setEnemyNextActionPreview(enemy));
             Game.targetEnemyId = enemies[0]?.id ?? null;
             Game.state = 'combat';
+            resetPlayerTurnState();
             tickSkillCooldowns();
         }
 
@@ -5941,30 +5962,41 @@
                 return;
             }
 
-            tickFreezeDecayForCombatants();
-            advanceStatusEffects(Game.player, 'start');
-            if (Game.player.hp <= 0) {
-                die();
-                updateUI();
-                return;
-            }
-            const playerStatusMods = getStatusModifiers(Game.player);
-            if (playerStatusMods.frozen) {
-                addLog("凍結で行動不能！", "text-sky-400");
+            const endPlayerTurn = () => {
                 advanceStatusEffects(Game.player, 'end');
                 applyAutoRegen();
-                setTimeout(enemyTurn, 300);
-                updateUI();
-                return;
-            }
-
-            tickSkillCooldowns();
-            if (skipAttack) {
-                advanceStatusEffects(Game.player, 'end');
-                applyAutoRegen();
+                resetPlayerTurnState();
                 setTimeout(enemyTurn, 300);
                 updateUI();
                 triggerAutosave();
+            };
+
+            const isNewTurn = !Game.playerTurnStarted;
+            if (isNewTurn) {
+                tickFreezeDecayForCombatants();
+                advanceStatusEffects(Game.player, 'start');
+                if (Game.player.hp <= 0) {
+                    die();
+                    updateUI();
+                    return;
+                }
+            }
+            const playerStatusMods = getStatusModifiers(Game.player);
+            if (isNewTurn && playerStatusMods.frozen) {
+                addLog("凍結で行動不能！", "text-sky-400");
+                endPlayerTurn();
+                return;
+            }
+
+            if (isNewTurn) {
+                tickSkillCooldowns();
+                const attackProfile = getWeaponAttackProfile(Game.player.weapon);
+                Game.playerTurnRemainingAttacks = attackProfile.maxAttacks;
+                Game.playerTurnStarted = true;
+            }
+
+            if (skipAttack) {
+                endPlayerTurn();
                 return;
             }
             const selectedSlotIndex = allowSkillSlot
@@ -6010,17 +6042,163 @@
                 }
             }
 
+            const attackProfile = getWeaponAttackProfile(Game.player.weapon);
+            const isNormalAttack = currentSkill.name === '通常攻撃';
+            const isMultiTarget = isNormalAttack && attackProfile.range === 'all';
+            if (isNormalAttack && Game.playerTurnRemainingAttacks <= 0) {
+                endPlayerTurn();
+                return;
+            }
+
             const targetEnemy = ensureTargetEnemy();
             if (!targetEnemy) {
                 updateUI();
                 return;
             }
-            const enemyStatusMods = getStatusModifiers(targetEnemy);
-            const enemyEvasion = Math.max(0, Math.floor((targetEnemy.eva || 0) * enemyStatusMods.evasionMul));
-            const bossRushDefenseMul = getBossRushEnemyDefenseMultiplier(targetEnemy);
-            const enemyDefense = Math.max(0, Math.floor((targetEnemy.def || 0) * enemyStatusMods.defMul * bossRushDefenseMul));
-            const primaryEnemyVisual = document.querySelector('.enemy-visual-primary');
-            const targetEnemyVisual = document.querySelector(`[data-enemy-id="${targetEnemy.id}"] .enemy-visual`) || primaryEnemyVisual;
+
+            const applyAttackToTarget = (enemy, labelPrefix = '') => {
+                const enemyStatusMods = getStatusModifiers(enemy);
+                const enemyEvasion = Math.max(0, Math.floor((enemy.eva || 0) * enemyStatusMods.evasionMul));
+                const bossRushDefenseMul = getBossRushEnemyDefenseMultiplier(enemy);
+                const enemyDefense = Math.max(0, Math.floor((enemy.def || 0) * enemyStatusMods.defMul * bossRushDefenseMul));
+                const bossMods = getBossUniqueCombatModifiers({
+                    player: Game.player,
+                    enemy,
+                    derived,
+                    baseHits: currentSkill.hits || 1
+                });
+                if (bossMods.logs.length) {
+                    bossMods.logs.forEach((line) => addLog(line, "text-amber-400"));
+                }
+                let hits = currentSkill.hits || 1;
+                hits += bossMods.bonusHits || 0;
+                let totalDamage = 0;
+                let totalLeechApplied = 0;
+                let landedHit = false;
+                let nullifiedHit = false;
+
+                for (let i = 0; i < hits; i++) {
+                    const baseAccuracy = Math.max(0, derived.totals.accuracy + (currentSkill.accuracyBonus || 0) + bossMods.accuracyBonus);
+                    const evasionValue = Math.max(0, enemyEvasion);
+                    const ratioDenominator = baseAccuracy + evasionValue;
+                    let hitChance = ratioDenominator > 0
+                        ? (baseAccuracy / ratioDenominator) * 100
+                        : 0;
+                    hitChance = Math.min(95, Math.max(10, hitChance));
+                    if (Math.random() * 100 > hitChance) {
+                        continue;
+                    }
+                    landedHit = true;
+                    // Base Attack Power Calculation
+                    let atkBase = isMagic ? (derived.totals.int * 2) : derived.atk;
+
+                    // Critical Check
+                    let isCrit = Math.random() * 100 < (derived.totals.critRate + (currentSkill.critBonus || 0) + bossMods.critRateBonus);
+                    let dmg = Math.floor(currentSkill.pow * atkBase * (0.9 + Math.random() * 0.2));
+                    if (isCrit) dmg = Math.floor(dmg * (derived.totals.critDamage / 100));
+                    if (isCrit && hasBossRushBuff(enemy, "br_yellow_crit_def")) {
+                        const state = getBossRushBuffState(enemy);
+                        if (state) {
+                            state.defenseBoostPct = Math.min(100, (state.defenseBoostPct || 0) + BossRushBuffConfig.critDefBoost * 100);
+                        }
+                    }
+
+                    if (currentSkill.name !== '通常攻撃' && derived.totals.skillPowerBoost > 0) {
+                        dmg = Math.floor(dmg * (1 + derived.totals.skillPowerBoost / 100));
+                    }
+                    if (i >= (currentSkill.hits || 1) && bossMods.bonusHitMultiplier !== 1) {
+                        dmg = Math.floor(dmg * bossMods.bonusHitMultiplier);
+                    }
+
+                    // Passive: Low HP boost
+                    const lowHpLevel = getPassiveLevel('warrior', 5);
+                    if (lowHpLevel > 0 && Game.player.hp < derived.maxHp * 0.3) {
+                        dmg = Math.floor(dmg * (1 + 0.1 * lowHpLevel));
+                    }
+                    // Passive: First hit boost
+                    const firstHitLevel = getPassiveLevel('thief', 5);
+                    if (firstHitLevel > 0 && enemy.hp === enemy.maxHp) {
+                        dmg = Math.floor(dmg * (1 + 0.25 * firstHitLevel));
+                    }
+
+                    if (derived.totals.damageBoost > 0) {
+                        dmg = Math.floor(dmg * (1 + derived.totals.damageBoost / 100));
+                    }
+                    if (bossMods.damageMultiplier !== 1) {
+                        dmg = Math.floor(dmg * bossMods.damageMultiplier);
+                    }
+                    dmg = Math.floor(dmg * playerStatusMods.damageDoneMul);
+                    dmg = Math.floor(dmg * enemyStatusMods.damageTakenMul);
+                    dmg = Math.floor(dmg * getBossRushDamageTakenMultiplier(enemy, Game.player));
+                    dmg = Math.max(0, dmg - enemyDefense);
+                    const nullifyThreshold = getBossRushDamageNullifyThreshold(enemy);
+                    if (nullifyThreshold > 0 && dmg > 0 && dmg < nullifyThreshold) {
+                        nullifiedHit = true;
+                        continue;
+                    }
+                    dmg = Math.max(1, dmg);
+                    const appliedDamage = applyDamage(enemy, dmg, Game.player, { ignoreBossRushNullify: true, ignoreBossRushDamageReduction: true });
+                    totalDamage += appliedDamage;
+
+                    // Leech
+                    const totalLeech = derived.totals.leechRate + (currentSkill.leech || 0);
+                    if (totalLeech > 0 && appliedDamage > 0) {
+                        let l = Math.floor(appliedDamage * (totalLeech / 100));
+                        if (l > 0) {
+                            const beforeHp = Game.player.hp;
+                            Game.player.hp = Math.min(derived.maxHp, Game.player.hp + l);
+                            totalLeechApplied += (Game.player.hp - beforeHp);
+                        }
+                    }
+                }
+
+                if (totalDamage === 0) {
+                    if (landedHit) {
+                        const msg = nullifiedHit ? "ダメージが無効化された！" : "バリアに防がれた！";
+                        addLog(labelPrefix ? `${labelPrefix}${msg}` : msg, "text-slate-400");
+                        dmgText(0, false);
+                    } else {
+                        const missMsg = "攻撃が外れた！";
+                        addLog(labelPrefix ? `${labelPrefix}${missMsg}` : missMsg, "text-slate-400");
+                        dmgText("MISS", false);
+                        triggerBossRushMistakeReaction();
+                    }
+                } else {
+                    addLog(`${labelPrefix}${currentSkill.name}！ ${totalDamage}のダメージ`);
+                    dmgText(totalDamage);
+                }
+
+                if (currentSkill.mpHeal && totalDamage > 0) {
+                    const mHeal = Math.floor(totalDamage * currentSkill.mpHeal);
+                    const beforeMp = Game.player.mp;
+                    Game.player.mp = Math.min(derived.maxMp, Game.player.mp + mHeal);
+                    const actual = Game.player.mp - beforeMp;
+                    if (actual > 0) {
+                        addLog(`MP吸収 +${actual}`, "text-blue-400");
+                        triggerBossRushHealReaction(actual, "回復反撃");
+                    }
+                }
+                if (totalLeechApplied > 0) {
+                    addLog(`吸血でHPが${totalLeechApplied}回復`, "text-emerald-400");
+                    triggerBossRushHealReaction(totalLeechApplied, "回復反撃");
+                }
+                if (currentSkill.expBonus && totalDamage > 0) {
+                    let b = Math.floor(Game.player.next * (currentSkill.expBonus / 100));
+                    Game.player.exp += b;
+                    addLog(`EXP +${b} 奪取！`);
+                    applyLevelUps();
+                }
+
+                const primaryEnemyVisual = document.querySelector('.enemy-visual-primary');
+                const targetEnemyVisual = document.querySelector(`[data-enemy-id="${enemy.id}"] .enemy-visual`);
+                if (targetEnemyVisual) {
+                    targetEnemyVisual.classList.add('shake');
+                    setTimeout(() => targetEnemyVisual.classList.remove('shake'), 200);
+                } else if (primaryEnemyVisual) {
+                    primaryEnemyVisual.classList.add('shake');
+                    setTimeout(() => primaryEnemyVisual.classList.remove('shake'), 200);
+                }
+            };
 
             if (currentSkill.hpCost) {
                 const cost = Math.floor(derived.maxHp * currentSkill.hpCost);
@@ -6045,139 +6223,13 @@
                 dmgText(amt, true);
                 triggerBossRushHealReaction(amt, "回復反撃");
             } else {
-                const bossMods = getBossUniqueCombatModifiers({
-                    player: Game.player,
-                    enemy: targetEnemy,
-                    derived,
-                    baseHits: currentSkill.hits || 1
+                const targets = isMultiTarget
+                    ? Game.enemies.filter((enemy) => enemy.hp > 0)
+                    : [targetEnemy];
+                targets.forEach((enemy) => {
+                    const labelPrefix = isMultiTarget ? `${enemy.name}：` : '';
+                    applyAttackToTarget(enemy, labelPrefix);
                 });
-                if (bossMods.logs.length) {
-                    bossMods.logs.forEach((line) => addLog(line, "text-amber-400"));
-                }
-                let hits = currentSkill.hits || 1;
-                hits += bossMods.bonusHits || 0;
-                let totalDamage = 0;
-                let totalLeechApplied = 0;
-                let landedHit = false;
-                let nullifiedHit = false;
-                
-                for(let i=0; i<hits; i++){
-                    const baseAccuracy = Math.max(0, derived.totals.accuracy + (currentSkill.accuracyBonus || 0) + bossMods.accuracyBonus);
-                    const evasionValue = Math.max(0, enemyEvasion);
-                    const ratioDenominator = baseAccuracy + evasionValue;
-                    let hitChance = ratioDenominator > 0
-                        ? (baseAccuracy / ratioDenominator) * 100
-                        : 0;
-                    hitChance = Math.min(95, Math.max(10, hitChance));
-                    if (Math.random() * 100 > hitChance) {
-                        continue;
-                    }
-                    landedHit = true;
-                    // Base Attack Power Calculation
-                    let atkBase = isMagic ? (derived.totals.int * 2) : derived.atk;
-                    
-                    // Critical Check
-                    let isCrit = Math.random() * 100 < (derived.totals.critRate + (currentSkill.critBonus || 0) + bossMods.critRateBonus);
-                    let dmg = Math.floor(currentSkill.pow * atkBase * (0.9 + Math.random() * 0.2));
-                    if (isCrit) dmg = Math.floor(dmg * (derived.totals.critDamage / 100));
-                    if (isCrit && hasBossRushBuff(targetEnemy, "br_yellow_crit_def")) {
-                        const state = getBossRushBuffState(targetEnemy);
-                        if (state) {
-                            state.defenseBoostPct = Math.min(100, (state.defenseBoostPct || 0) + BossRushBuffConfig.critDefBoost * 100);
-                        }
-                    }
-
-                    if (currentSkill.name !== '通常攻撃' && derived.totals.skillPowerBoost > 0) {
-                        dmg = Math.floor(dmg * (1 + derived.totals.skillPowerBoost / 100));
-                    }
-                    if (i >= (currentSkill.hits || 1) && bossMods.bonusHitMultiplier !== 1) {
-                        dmg = Math.floor(dmg * bossMods.bonusHitMultiplier);
-                    }
-
-                    // Passive: Low HP boost
-                    const lowHpLevel = getPassiveLevel('warrior', 5);
-                    if (lowHpLevel > 0 && Game.player.hp < derived.maxHp * 0.3) {
-                        dmg = Math.floor(dmg * (1 + 0.1 * lowHpLevel));
-                    }
-                    // Passive: First hit boost
-                    const firstHitLevel = getPassiveLevel('thief', 5);
-                    if (firstHitLevel > 0 && targetEnemy.hp === targetEnemy.maxHp) {
-                        dmg = Math.floor(dmg * (1 + 0.25 * firstHitLevel));
-                    }
-
-                    if (derived.totals.damageBoost > 0) {
-                        dmg = Math.floor(dmg * (1 + derived.totals.damageBoost / 100));
-                    }
-                    if (bossMods.damageMultiplier !== 1) {
-                        dmg = Math.floor(dmg * bossMods.damageMultiplier);
-                    }
-                    dmg = Math.floor(dmg * playerStatusMods.damageDoneMul);
-                    dmg = Math.floor(dmg * enemyStatusMods.damageTakenMul);
-                    dmg = Math.floor(dmg * getBossRushDamageTakenMultiplier(targetEnemy, Game.player));
-                    dmg = Math.max(0, dmg - enemyDefense);
-                    const nullifyThreshold = getBossRushDamageNullifyThreshold(targetEnemy);
-                    if (nullifyThreshold > 0 && dmg > 0 && dmg < nullifyThreshold) {
-                        nullifiedHit = true;
-                        continue;
-                    }
-                    dmg = Math.max(1, dmg);
-                    const appliedDamage = applyDamage(targetEnemy, dmg, Game.player, { ignoreBossRushNullify: true, ignoreBossRushDamageReduction: true });
-                    totalDamage += appliedDamage;
-                    
-                    // Leech
-                    const totalLeech = derived.totals.leechRate + (currentSkill.leech || 0);
-                    if (totalLeech > 0 && appliedDamage > 0) {
-                        let l = Math.floor(appliedDamage * (totalLeech / 100));
-                        if (l > 0) {
-                            const beforeHp = Game.player.hp;
-                            Game.player.hp = Math.min(derived.maxHp, Game.player.hp + l);
-                            totalLeechApplied += (Game.player.hp - beforeHp);
-                        }
-                    }
-                }
-                
-                if (totalDamage === 0) {
-                    if (landedHit) {
-                        addLog(nullifiedHit ? "ダメージが無効化された！" : "バリアに防がれた！", "text-slate-400");
-                        dmgText(0, false, targetEnemyVisual);
-                    } else {
-                        addLog("攻撃が外れた！", "text-slate-400");
-                        dmgText("MISS", false, targetEnemyVisual);
-                        triggerBossRushMistakeReaction();
-                    }
-                } else {
-                    addLog(`${currentSkill.name}！ ${totalDamage}のダメージ`);
-                    dmgText(totalDamage, false, targetEnemyVisual);
-                }
-
-                if (currentSkill.mpHeal && totalDamage > 0) {
-                    const mHeal = Math.floor(totalDamage * currentSkill.mpHeal);
-                    const beforeMp = Game.player.mp;
-                    Game.player.mp = Math.min(derived.maxMp, Game.player.mp + mHeal);
-                    const actual = Game.player.mp - beforeMp;
-                    if (actual > 0) {
-                        addLog(`MP吸収 +${actual}`, "text-blue-400");
-                        triggerBossRushHealReaction(actual, "回復反撃");
-                    }
-                }
-                if (totalLeechApplied > 0) {
-                    addLog(`吸血でHPが${totalLeechApplied}回復`, "text-emerald-400");
-                    triggerBossRushHealReaction(totalLeechApplied, "回復反撃");
-                }
-                if (currentSkill.expBonus && totalDamage > 0) {
-                    let b = Math.floor(Game.player.next * (currentSkill.expBonus / 100));
-                    Game.player.exp += b;
-                    addLog(`EXP +${b} 奪取！`);
-                    applyLevelUps();
-                }
-
-                if (targetEnemyVisual) {
-                    targetEnemyVisual.classList.add('shake');
-                    setTimeout(() => targetEnemyVisual.classList.remove('shake'), 200);
-                } else if (primaryEnemyVisual) {
-                    primaryEnemyVisual.classList.add('shake');
-                    setTimeout(() => primaryEnemyVisual.classList.remove('shake'), 200);
-                }
             }
 
             if (currentSkill.effects) {
@@ -6215,29 +6267,39 @@
                 });
             }
 
-            advanceStatusEffects(Game.player, 'end');
-            applyAutoRegen();
-            if (targetEnemy.hp <= 0) {
-                const defeatedIndex = Game.enemies.findIndex((enemy) => enemy.id === targetEnemy.id);
-                const remainingEnemies = Game.enemies.filter((enemy) => enemy.hp > 0);
-                if (remainingEnemies.length === 0) {
-                    victory();
-                    updateUI();
-                    triggerAutosave();
-                    return;
-                }
-                Game.enemies = remainingEnemies;
-                const nextIndex = defeatedIndex >= 0
-                    ? Math.min(defeatedIndex, remainingEnemies.length - 1)
-                    : 0;
-                const nextTarget = remainingEnemies[nextIndex] || remainingEnemies[0];
-                Game.targetEnemyId = nextTarget?.id ?? null;
-                setTimeout(enemyTurn, 300);
-            } else {
-                setTimeout(enemyTurn, 300);
+            const remainingEnemies = Game.enemies.filter((enemy) => enemy.hp > 0);
+            if (remainingEnemies.length === 0) {
+                victory();
+                resetPlayerTurnState();
+                updateUI();
+                triggerAutosave();
+                return;
             }
-            updateUI();
-            triggerAutosave();
+            Game.enemies = remainingEnemies;
+            if (!remainingEnemies.some((enemy) => enemy.id === Game.targetEnemyId)) {
+                Game.targetEnemyId = remainingEnemies[0]?.id ?? null;
+            }
+
+            if (isNormalAttack) {
+                Game.playerTurnRemainingAttacks = Math.max(0, Game.playerTurnRemainingAttacks - 1);
+                updateUI();
+                triggerAutosave();
+                return;
+            }
+
+            endPlayerTurn();
+        };
+
+        document.getElementById('action-btn').onclick = () => {
+            if (Game.state === 'combat' && Game.playerTurnStarted && Game.playerTurnRemainingAttacks <= 0) {
+                handlePlayerAction({ skipAttack: true });
+                return;
+            }
+            handlePlayerAction({ allowSkillSlot: false });
+        };
+
+        document.getElementById('end-turn-btn').onclick = () => {
+            handlePlayerAction({ skipAttack: true });
         };
 
         document.getElementById('action-btn').onclick = () => {
@@ -6277,6 +6339,7 @@
             advanceStatusEffects(Game.enemy, 'start');
             if (Game.enemy.hp <= 0) {
                 victory();
+                resetPlayerTurnState();
                 updateUI();
                 return;
             }
@@ -6286,6 +6349,7 @@
                 advanceStatusEffects(Game.enemy, 'end');
                 applyAutoRegen();
                 setEnemyNextActionPreview(Game.enemy);
+                resetPlayerTurnState();
                 updateUI();
                 return;
             }
@@ -6389,6 +6453,7 @@
             }
             applyAutoRegen();
             setEnemyNextActionPreview(Game.enemy);
+            resetPlayerTurnState();
             updateUI();
         }
 
@@ -7391,8 +7456,13 @@
             const btn = document.getElementById('action-btn');
             const endTurnBtn = document.getElementById('end-turn-btn');
             if (Game.state === 'combat') {
-                btn.innerHTML = `<i class="fas fa-sword"></i> <span>通常攻撃</span>`;
-                btn.className = "w-full bg-slate-800 text-white font-black py-4 rounded-2xl shadow-lg active:scale-95 transition-transform text-base flex items-center justify-center gap-2";
+                if (Game.playerTurnStarted && Game.playerTurnRemainingAttacks <= 0) {
+                    btn.innerHTML = `<i class="fas fa-forward-step"></i> <span>ターン終了</span>`;
+                    btn.className = "w-full bg-slate-200 text-slate-700 font-black py-4 rounded-2xl shadow-lg active:scale-95 transition-transform text-base flex items-center justify-center gap-2";
+                } else {
+                    btn.innerHTML = `<i class="fas fa-sword"></i> <span>通常攻撃</span>`;
+                    btn.className = "w-full bg-slate-800 text-white font-black py-4 rounded-2xl shadow-lg active:scale-95 transition-transform text-base flex items-center justify-center gap-2";
+                }
                 if (endTurnBtn) {
                     endTurnBtn.disabled = false;
                     endTurnBtn.className = "w-full bg-slate-200 text-slate-700 font-black py-4 rounded-2xl shadow-lg active:scale-95 transition-transform text-base flex items-center justify-center gap-2";
