@@ -7477,7 +7477,7 @@
                     const remainingAttacks = Game.playerTurnStarted ? Game.playerTurnRemainingAttacks : attackProfile.maxAttacks;
                     btn.innerHTML = `
                         <i class="fas fa-sword"></i> <span>通常攻撃</span>
-                        <span class="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow">残${remainingAttacks}</span>
+                        <span class="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow">${remainingAttacks}</span>
                     `;
                     btn.className = "w-full bg-slate-800 text-white font-black py-4 rounded-2xl shadow-lg active:scale-95 transition-transform text-base flex items-center justify-center gap-2 relative";
                 }
