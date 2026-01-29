@@ -5993,6 +5993,8 @@
             const enemyEvasion = Math.max(0, Math.floor((targetEnemy.eva || 0) * enemyStatusMods.evasionMul));
             const bossRushDefenseMul = getBossRushEnemyDefenseMultiplier(targetEnemy);
             const enemyDefense = Math.max(0, Math.floor((targetEnemy.def || 0) * enemyStatusMods.defMul * bossRushDefenseMul));
+            const primaryEnemyVisual = document.querySelector('.enemy-visual-primary');
+            const targetEnemyVisual = document.querySelector(`[data-enemy-id="${targetEnemy.id}"] .enemy-visual`) || primaryEnemyVisual;
 
             if (currentSkill.hpCost) {
                 const cost = Math.floor(derived.maxHp * currentSkill.hpCost);
@@ -6111,15 +6113,15 @@
                 if (totalDamage === 0) {
                     if (landedHit) {
                         addLog(nullifiedHit ? "ダメージが無効化された！" : "バリアに防がれた！", "text-slate-400");
-                        dmgText(0, false);
+                        dmgText(0, false, targetEnemyVisual);
                     } else {
                         addLog("攻撃が外れた！", "text-slate-400");
-                        dmgText("MISS", false);
+                        dmgText("MISS", false, targetEnemyVisual);
                         triggerBossRushMistakeReaction();
                     }
                 } else {
                     addLog(`${currentSkill.name}！ ${totalDamage}のダメージ`);
-                    dmgText(totalDamage);
+                    dmgText(totalDamage, false, targetEnemyVisual);
                 }
 
                 if (currentSkill.mpHeal && totalDamage > 0) {
@@ -6143,8 +6145,6 @@
                     applyLevelUps();
                 }
 
-                const primaryEnemyVisual = document.querySelector('.enemy-visual-primary');
-                const targetEnemyVisual = document.querySelector(`[data-enemy-id="${targetEnemy.id}"] .enemy-visual`);
                 if (targetEnemyVisual) {
                     targetEnemyVisual.classList.add('shake');
                     setTimeout(() => targetEnemyVisual.classList.remove('shake'), 200);
@@ -6342,7 +6342,8 @@
                 let cdmg = Math.floor(derived.totals.str * (0.2 + 0.1 * counterLevel));
                 Game.enemy.hp = Math.max(0, Game.enemy.hp - cdmg);
                 addLog(`カウンター！ ${cdmg}ダメージ`, "text-orange-500");
-                dmgText(cdmg);
+                const counterTarget = document.querySelector(`[data-enemy-id="${Game.enemy?.id}"] .enemy-visual`) || document.querySelector('.enemy-visual-primary');
+                dmgText(cdmg, false, counterTarget);
                 if (Game.enemy.hp <= 0) victory();
             }
 
@@ -6464,13 +6465,25 @@
             });
         }
 
-        function dmgText(v, isH=false) {
+        function dmgText(v, isH=false, targetEl=null) {
             const el = document.createElement('div');
             el.className = `damage-text ${isH?'text-green-500':'text-red-600'}`;
             el.innerText = v;
-            el.style.left = (35 + Math.random()*30) + '%';
-            el.style.top = (35 + Math.random()*30) + '%';
-            document.getElementById('damage-layer').appendChild(el);
+            const layer = document.getElementById('damage-layer');
+            if (layer && targetEl) {
+                const layerRect = layer.getBoundingClientRect();
+                const targetRect = targetEl.getBoundingClientRect();
+                const centerX = targetRect.left + targetRect.width / 2;
+                const centerY = targetRect.top + targetRect.height / 2;
+                const jitterX = (Math.random() * 20) - 10;
+                const jitterY = (Math.random() * 20) - 10;
+                el.style.left = `${Math.max(0, centerX - layerRect.left + jitterX)}px`;
+                el.style.top = `${Math.max(0, centerY - layerRect.top + jitterY)}px`;
+            } else {
+                el.style.left = (35 + Math.random()*30) + '%';
+                el.style.top = (35 + Math.random()*30) + '%';
+            }
+            layer.appendChild(el);
             setTimeout(()=>el.remove(), 800);
         }
 
@@ -6997,93 +7010,147 @@
             ensureTargetEnemy();
             const enemyList = document.getElementById('enemy-list');
             if (enemyList) {
-                enemyList.innerHTML = '';
                 const enemies = Array.isArray(Game.enemies) ? Game.enemies : (Game.enemy ? [Game.enemy] : []);
                 if (enemies.length === 0) {
+                    enemyList.innerHTML = '';
                     enemyList.innerHTML = '<div class="text-[11px] text-slate-400">敵がいません</div>';
                 } else {
+                    const existingCards = Array.from(enemyList.querySelectorAll('.enemy-card'));
+                    const canReuseCards = existingCards.length === enemies.length
+                        && existingCards.every((card, idx) => Number(card.dataset.enemyId) === enemies[idx].id);
+
+                    if (!canReuseCards) {
+                        enemyList.innerHTML = '';
+                    }
+
                     enemies.forEach((enemy, index) => {
                         const isSelected = enemy.id === Game.targetEnemyId;
-                        const card = document.createElement('div');
-                        card.className = `enemy-card rounded-2xl border bg-white/90 px-1 py-3 flex flex-col items-center gap-2 shadow-sm ${isSelected ? 'is-selected' : 'border-slate-200'}`;
-                        card.setAttribute('data-enemy-id', String(enemy.id));
-                        card.addEventListener('click', () => {
-                            if (Game.state !== 'combat') return;
-                            setTargetEnemyId(enemy.id);
-                            updateUI();
-                        });
+                        let card = canReuseCards ? existingCards[index] : null;
 
-                        const header = document.createElement('div');
-                        header.className = "flex items-center justify-center gap-3";
+                        if (!card) {
+                            card = document.createElement('div');
+                            card.className = "enemy-card rounded-2xl border bg-white/90 px-1 py-3 flex flex-col items-center gap-2 shadow-sm border-slate-200";
+                            card.setAttribute('data-enemy-id', String(enemy.id));
+                            card.addEventListener('click', () => {
+                                if (Game.state !== 'combat') return;
+                                setTargetEnemyId(enemy.id);
+                                updateUI();
+                            });
 
-                        const enemyVisual = document.createElement('div');
-                        enemyVisual.className = "enemy-visual relative text-6xl text-slate-700";
-                        enemyVisual.innerHTML = `<i class="fas ${enemy.icon}"></i>`;
-                        if (index === 0) {
-                            enemyVisual.classList.add('enemy-visual-primary');
+                            const enemyVisual = document.createElement('div');
+                            enemyVisual.className = "enemy-visual relative text-6xl text-slate-700";
+                            const enemyIcon = document.createElement('i');
+                            enemyIcon.className = `fas ${enemy.icon} enemy-icon`;
+                            enemyVisual.appendChild(enemyIcon);
+                            if (index === 0) {
+                                enemyVisual.classList.add('enemy-visual-primary');
+                            }
+                            const nextActionBadge = document.createElement('div');
+                            nextActionBadge.className = "enemy-next-action hidden";
+                            enemyVisual.appendChild(nextActionBadge);
+
+                            const buffContainer = document.createElement('div');
+                            buffContainer.className = "enemy-buff-container flex flex-wrap justify-center gap-1 text-[9px]";
+
+                            const nameRow = document.createElement('div');
+                            nameRow.className = "flex items-center gap-2";
+
+                            const enemyName = document.createElement('div');
+                            enemyName.className = "enemy-name font-bold text-base";
+
+                            const selectionBadge = document.createElement('span');
+                            selectionBadge.className = "enemy-select-badge inline-flex items-center gap-1 rounded-full bg-slate-900 text-white text-[9px] font-black px-2 py-0.5";
+                            selectionBadge.innerHTML = '<i class="fa-solid fa-bullseye"></i> 選択中';
+
+                            const bossBadge = document.createElement('span');
+                            bossBadge.className = "boss-badge hidden";
+                            bossBadge.innerHTML = '<i class="fas fa-crown"></i> BOSS';
+
+                            nameRow.appendChild(enemyName);
+                            nameRow.appendChild(selectionBadge);
+                            nameRow.appendChild(bossBadge);
+
+                            const hpBarWrapper = document.createElement('div');
+                            hpBarWrapper.className = "w-38 bar-container border-0 bg-slate-200";
+
+                            const hpFill = document.createElement('div');
+                            hpFill.className = "bar-fill hp-fill enemy-hp-fill";
+
+                            const hpText = document.createElement('div');
+                            hpText.className = "bar-text enemy-hp-text";
+
+                            hpBarWrapper.appendChild(hpFill);
+                            hpBarWrapper.appendChild(hpText);
+
+                            const statusContainer = document.createElement('div');
+                            statusContainer.className = "enemy-status-container flex flex-wrap justify-center gap-1 text-[9px]";
+
+                            card.appendChild(enemyVisual);
+                            card.appendChild(buffContainer);
+                            card.appendChild(nameRow);
+                            card.appendChild(hpBarWrapper);
+                            card.appendChild(statusContainer);
+                            enemyList.appendChild(card);
                         }
-                        const nextActionBadge = document.createElement('div');
-                        nextActionBadge.className = "enemy-next-action hidden";
-                        if (enemy.nextActionLabel) {
-                            const nextActionIcon = enemy.nextActionIcon || 'fa-sword';
-                            nextActionBadge.innerHTML = `<i class="fa-solid ${nextActionIcon}"></i><span>次:${enemy.nextActionLabel}</span>`;
-                            nextActionBadge.classList.remove('hidden');
-                        }
-                        enemyVisual.appendChild(nextActionBadge);
 
-                        const buffContainer = document.createElement('div');
-                        buffContainer.className = "flex flex-wrap justify-center gap-1 text-[9px]";
+                        card.classList.toggle('is-selected', isSelected);
+
+                        const enemyVisual = card.querySelector('.enemy-visual');
+                        if (enemyVisual) {
+                            let enemyIcon = enemyVisual.querySelector('.enemy-icon');
+                            if (!enemyIcon) {
+                                enemyIcon = document.createElement('i');
+                                enemyIcon.className = "enemy-icon";
+                                enemyVisual.prepend(enemyIcon);
+                            }
+                            enemyIcon.className = `fas ${enemy.icon} enemy-icon`;
+                            if (index === 0) {
+                                enemyVisual.classList.add('enemy-visual-primary');
+                            } else {
+                                enemyVisual.classList.remove('enemy-visual-primary');
+                            }
+                            const nextActionBadge = enemyVisual.querySelector('.enemy-next-action');
+                            if (nextActionBadge) {
+                                if (enemy.nextActionLabel) {
+                                    const nextActionIcon = enemy.nextActionIcon || 'fa-sword';
+                                    nextActionBadge.innerHTML = `<i class="fa-solid ${nextActionIcon}"></i><span>次:${enemy.nextActionLabel}</span>`;
+                                    nextActionBadge.classList.remove('hidden');
+                                } else {
+                                    nextActionBadge.classList.add('hidden');
+                                    nextActionBadge.innerHTML = '';
+                                }
+                            }
+                        }
+
+                        const enemyName = card.querySelector('.enemy-name');
+                        if (enemyName) {
+                            enemyName.innerText = enemy.name;
+                            enemyName.classList.toggle('boss-name', Boolean(enemy.isBoss));
+                        }
+
+                        const bossBadge = card.querySelector('.boss-badge');
+                        if (bossBadge) {
+                            bossBadge.classList.toggle('hidden', !enemy.isBoss);
+                        }
+
+                        if (enemyVisual) {
+                            enemyVisual.classList.toggle('boss-visual', Boolean(enemy.isBoss));
+                        }
+
+                        const hpFill = card.querySelector('.enemy-hp-fill');
+                        if (hpFill) {
+                            hpFill.style.width = (enemy.hp / enemy.maxHp * 100) + '%';
+                        }
+                        const hpText = card.querySelector('.enemy-hp-text');
+                        if (hpText) {
+                            hpText.innerHTML = `HP: <span>${enemy.hp}/${enemy.maxHp}</span>`;
+                        }
+
+                        const buffContainer = card.querySelector('.enemy-buff-container');
                         renderBossRushBuffs(enemy, buffContainer);
 
-                        const nameRow = document.createElement('div');
-                        nameRow.className = "flex items-center gap-2";
-
-                        const enemyName = document.createElement('div');
-                        enemyName.className = "enemy-name font-bold text-base";
-                        enemyName.innerText = enemy.name;
-
-                        const selectionBadge = document.createElement('span');
-                        selectionBadge.className = "enemy-select-badge inline-flex items-center gap-1 rounded-full bg-slate-900 text-white text-[9px] font-black px-2 py-0.5";
-                        selectionBadge.innerHTML = '<i class="fa-solid fa-bullseye"></i> 選択中';
-
-                        const bossBadge = document.createElement('span');
-                        bossBadge.className = "boss-badge hidden";
-                        bossBadge.innerHTML = '<i class="fas fa-crown"></i> BOSS';
-
-                        if (enemy.isBoss) {
-                            enemyVisual.classList.add('boss-visual');
-                            enemyName.classList.add('boss-name');
-                            bossBadge.classList.remove('hidden');
-                        }
-
-                        nameRow.appendChild(enemyName);
-                        nameRow.appendChild(selectionBadge);
-                        nameRow.appendChild(bossBadge);
-
-                        const hpBarWrapper = document.createElement('div');
-                        hpBarWrapper.className = "w-38 bar-container border-0 bg-slate-200";
-
-                        const hpFill = document.createElement('div');
-                        hpFill.className = "bar-fill hp-fill";
-                        hpFill.style.width = (enemy.hp / enemy.maxHp * 100) + '%';
-
-                        const hpText = document.createElement('div');
-                        hpText.className = "bar-text";
-                        hpText.innerHTML = `HP: <span>${enemy.hp}/${enemy.maxHp}</span>`;
-
-                        hpBarWrapper.appendChild(hpFill);
-                        hpBarWrapper.appendChild(hpText);
-
-                        const statusContainer = document.createElement('div');
-                        statusContainer.className = "flex flex-wrap justify-center gap-1 text-[9px]";
+                        const statusContainer = card.querySelector('.enemy-status-container');
                         renderStatusEffects(enemy, statusContainer);
-
-                        card.appendChild(enemyVisual);
-                        card.appendChild(buffContainer);
-                        card.appendChild(nameRow);
-                        card.appendChild(hpBarWrapper);
-                        card.appendChild(statusContainer);
-                        enemyList.appendChild(card);
                     });
                 }
             }
