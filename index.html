@@ -4664,13 +4664,6 @@
           });
         }
 
-        /*
-        function tickSkillCooldowns(amount = 1) {
-            const cooldowns = normalizeSkillSlotCooldowns();
-            const step = Number.isFinite(amount) ? Math.max(0, amount) : 0;
-            Game.player.skillSlotCooldowns = cooldowns.map((cd) => Math.max(0, cd - step));
-        }
-        */
 
         function getAdjustedSkillMpCost(skill, derived) {
             if (!skill || skill.name === '通常攻撃') return 0;
@@ -5890,9 +5883,6 @@
             Game.state = 'combat';
             
             resetPlayerTurnState();
-            /*
-            tickSkillCooldowns();
-            */
         }
 
         function performEnemySkill(skill, derived) {
@@ -6488,7 +6478,12 @@
                 addLog(`カウンター！ ${cdmg}ダメージ`, "text-orange-500");
                 const counterTarget = document.querySelector(`[data-enemy-id="${Game.enemy?.id}"] .enemy-visual`) || document.querySelector('.enemy-visual-primary');
                 dmgText(cdmg, false, counterTarget);
-                if (Game.enemy.hp <= 0) victory();
+                if (Game.enemy.hp <= 0) {
+                  victory();
+                  resetPlayerTurnState();
+                  updateUI();
+                  return;
+                }
             }
 
             advanceStatusEffects(Game.enemy, 'end');
@@ -6505,16 +6500,15 @@
         }
 
         function finalizeTurnCooldowns() {
-          // ターン終了で全体を1進める
-          tickSkillCooldowns();
+          if (Game._cooldownsFinalized) return;
+          Game._cooldownsFinalized = true;
         
-          // 今ターン使ったスキルは「減らない」扱いにしたいので、後から確定値で上書き
+          tickSkillCooldowns();
           if (Game.pendingSkillCooldown) {
             Game.player.skillSlotCooldowns[Game.pendingSkillCooldown.index] = Game.pendingSkillCooldown.value;
             Game.pendingSkillCooldown = null;
           }
         }
-
         
         function victory() {
             Game.state = 'idle';
