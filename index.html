@@ -7292,13 +7292,14 @@
                 card.appendChild(nameRow);
                 card.appendChild(hpBarWrapper);
                 card.appendChild(statusContainer);
-                  
+            
                 enemyList.appendChild(card);
                 isNewCard = true;
               }
             
               // --- 6-2) 順序を enemies の並びに合わせる ---
-              enemyList.appendChild(card);
+              /*enemyList.appendChild(card);*/
+                if (isNewCard) enemyList.appendChild(card);
             
               // --- 6-3) カード状態クラス ---
               card.classList.toggle('is-selected', isSelected);
@@ -7384,11 +7385,11 @@
                 }, 600);
             
               } else if (!allDefeated && isNewCard) {
-                  // 1フレーム待って "entered" にする（transition発火）
-                  requestAnimationFrame(() => {
-                    card.classList.add('is-entered');
-                  });
-                }
+                // --- 8) 新規追加の登場アニメ ---
+                requestAnimationFrame(() => {
+                  card.classList.remove('is-entering');
+                });
+              }
             });
 
 
