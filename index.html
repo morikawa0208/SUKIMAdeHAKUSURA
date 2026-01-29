@@ -4689,6 +4689,7 @@
         }
 
         function resetPlayerTurnState() {
+            Game.turnId = (Number.isInteger(Game.turnId) ? Game.turnId : 0) + 1;
             Game.playerTurnStarted = false;
             Game.playerTurnRemainingAttacks = 0;
         }
@@ -6500,15 +6501,18 @@
         }
 
         function finalizeTurnCooldowns() {
-          if (Game._cooldownsFinalized) return;
-          Game._cooldownsFinalized = true;
+          const turnId = Number.isInteger(Game.turnId) ? Game.turnId : 0;
+          if (Game._cooldownsFinalizedTurnId === turnId) return;
+          Game._cooldownsFinalizedTurnId = turnId;
         
           tickSkillCooldowns();
+        
           if (Game.pendingSkillCooldown) {
             Game.player.skillSlotCooldowns[Game.pendingSkillCooldown.index] = Game.pendingSkillCooldown.value;
             Game.pendingSkillCooldown = null;
           }
         }
+
         
         function victory() {
             Game.state = 'idle';
