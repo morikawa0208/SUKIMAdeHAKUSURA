@@ -132,7 +132,15 @@
 
         .enemy-card {
             cursor: pointer;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
+        }
+        .enemy-card.is-entering {
+            opacity: 0;
+            transform: translateY(6px) scale(0.98);
+        }
+        .enemy-card.is-exiting {
+            opacity: 0;
+            transform: translateY(-6px) scale(0.98);
         }
         .enemy-card.is-selected {
             border-color: #0f172a;
@@ -7042,20 +7050,63 @@
                     enemyList.innerHTML = '<div class="text-[11px] text-slate-400">敵がいません</div>';
                 } else {
                     const existingCards = Array.from(enemyList.querySelectorAll('.enemy-card'));
-                    const canReuseCards = existingCards.length === enemies.length
-                        && existingCards.every((card, idx) => Number(card.dataset.enemyId) === enemies[idx].id);
+                    const cardMap = new Map(existingCards.map((card) => [Number(card.dataset.enemyId), card]));
+                    const previousRects = new Map();
+                    existingCards.forEach((card) => {
+                        previousRects.set(card.dataset.enemyId, card.getBoundingClientRect());
+                    });
+                    const nextIds = new Set(enemies.map((enemy) => String(enemy.id)));
 
-                    if (!canReuseCards) {
+                    if (!existingCards.length && enemyList.children.length) {
                         enemyList.innerHTML = '';
+                    }
+
+                    const animateReflow = () => {
+                        requestAnimationFrame(() => {
+                            enemyList.querySelectorAll('.enemy-card').forEach((card) => {
+                                if (card.classList.contains('is-exiting')) return;
+                                const prevRect = previousRects.get(card.dataset.enemyId);
+                                if (!prevRect) return;
+                                const nextRect = card.getBoundingClientRect();
+                                const dx = prevRect.left - nextRect.left;
+                                const dy = prevRect.top - nextRect.top;
+                                if (dx || dy) {
+                                    card.animate(
+                                        [
+                                            { transform: `translate(${dx}px, ${dy}px)` },
+                                            { transform: 'translate(0, 0)' }
+                                        ],
+                                        { duration: 220, easing: 'ease-out' }
+                                    );
+                                }
+                            });
+                        });
+                    };
+
+                    const removedCards = existingCards.filter((card) => !nextIds.has(card.dataset.enemyId));
+                    if (removedCards.length) {
+                        removedCards.forEach((card) => {
+                            if (card.classList.contains('is-exiting')) return;
+                            card.classList.add('is-exiting');
+                            setTimeout(() => {
+                                if (card.isConnected) {
+                                    card.remove();
+                                }
+                                animateReflow();
+                            }, 180);
+                        });
+                    } else {
+                        animateReflow();
                     }
 
                     enemies.forEach((enemy, index) => {
                         const isSelected = enemy.id === Game.targetEnemyId;
-                        let card = canReuseCards ? existingCards[index] : null;
+                        let card = cardMap.get(enemy.id);
+                        let isNewCard = false;
 
                         if (!card) {
                             card = document.createElement('div');
-                            card.className = "enemy-card rounded-2xl border bg-white/90 px-1 py-3 flex flex-col items-center gap-2 shadow-sm border-slate-200";
+                            card.className = "enemy-card is-entering rounded-2xl border bg-white/90 px-1 py-3 flex flex-col items-center gap-2 shadow-sm border-slate-200";
                             card.setAttribute('data-enemy-id', String(enemy.id));
                             card.addEventListener('click', () => {
                                 if (Game.state !== 'combat') return;
@@ -7117,8 +7168,10 @@
                             card.appendChild(hpBarWrapper);
                             card.appendChild(statusContainer);
                             enemyList.appendChild(card);
+                            isNewCard = true;
                         }
 
+                        enemyList.appendChild(card);
                         card.classList.toggle('is-selected', isSelected);
 
                         const enemyVisual = card.querySelector('.enemy-visual');
@@ -7177,6 +7230,12 @@
 
                         const statusContainer = card.querySelector('.enemy-status-container');
                         renderStatusEffects(enemy, statusContainer);
+
+                        if (isNewCard) {
+                            requestAnimationFrame(() => {
+                                card.classList.remove('is-entering');
+                            });
+                        }
                     });
                 }
             }
