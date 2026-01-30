@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUKIMAdeHAKUSURA</title>
+    <title>White Dungeon - Professional Build System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -130,85 +130,9 @@
             50% { transform: scale(1.06); }
         }
 
-        .enemy-card {
-            cursor: pointer;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
-        }
-        .enemy-card.is-defeated {
-            opacity: 0.55;
-            filter: grayscale(0.9);
-            pointer-events: none;
-        }
-        .enemy-card.is-defeated .enemy-name,
-        .enemy-card.is-defeated .enemy-hp-text {
-            color: #94a3b8;
-        }
-        .enemy-hp-fill {
-            transition: width 0.45s ease;
-        }
-        .enemy-card.is-selected {
-            border-color: #0f172a;
-            box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.35), 0 0 18px rgba(15, 23, 42, 0.22);
-        }
-        .enemy-card.is-selected .enemy-visual {
-            text-shadow: 0 0 12px rgba(15, 23, 42, 0.35);
-            transform: scale(1.05);
-        }
-        .enemy-card .enemy-select-badge {
-            display: none;
-        }
-        .enemy-card.is-selected .enemy-select-badge {
-            display: inline-flex;
-        }
-        .enemy-next-action {
-            position: absolute;
-            top: -0.55rem;
-            left: 50%;
-            transform: translateX(-50%);
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 2px 6px;
-            border-radius: 9999px;
-            background: rgba(15, 23, 42, 0.95);
-            color: #f8fafc;
-            font-size: 9px;
-            font-weight: 900;
-            line-height: 1;
-            letter-spacing: 0.02em;
-            box-shadow: 0 6px 12px rgba(15, 23, 42, 0.25);
-            white-space: nowrap;
-            max-width: 120px;
-            pointer-events: none;
-        }
-        .enemy-next-action::after {
-            content: "";
-            position: absolute;
-            bottom: -4px;
-            left: 50%;
-            transform: translateX(-50%);
-            border-width: 4px 4px 0 4px;
-            border-style: solid;
-            border-color: rgba(15, 23, 42, 0.95) transparent transparent transparent;
-        }
-
         .item-name-shrink {
             font-size: 0.72rem;
             line-height: 1.1;
-        }
-
-        .skill-cooldown-mask {
-            position: absolute;
-            inset: 0;
-            background: rgba(15, 23, 42, 0.55);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #f8fafc;
-            font-weight: 900;
-            font-size: 1.1rem;
-            letter-spacing: 0.04em;
-            text-shadow: 0 2px 6px rgba(15, 23, 42, 0.5);
         }
 
         .item-stat-categories {
@@ -289,7 +213,7 @@
         
         <!-- BATTLE PAGE -->
         <section id="page-battle" class="page active p-4" style="padding-top: 4px">
-            <div class="flex-1 flex flex-col items-center justify-center relative min-h-[170px]">
+            <div class="flex-1 flex flex-col items-center justify-center relative min-h-[200px]">
                 <div class="absolute right-2 top-2 z-10 flex items-center gap-2">
                     <label class="flex items-center gap-1.5 bg-white/90 text-slate-600 text-[12px] font-bold px-3 py-2 rounded-full shadow border border-slate-200">
                         <input id="rematch-toggle" type="checkbox" class="accent-slate-800">
@@ -300,9 +224,19 @@
                         ワープ
                     </button>
                 </div>
-                <div id="enemy-container" class="text-center transition-all duration-300 w-full">
-                    <div id="enemy-list" class="flex justify-center gap-1"></div>
+                <div id="enemy-container" class="text-center transition-all duration-300">
+                    <div id="enemy-visual" class="text-8xl mb-4 text-slate-700"><i class="fas fa-ghost"></i></div>
+                <div id="enemy-bossrush-buffs" class="flex flex-wrap justify-center gap-1 mb-1 text-[10px]"></div>
+                <div id="enemy-name" class="font-bold text-lg mb-1">スライム</div>
+                <div id="enemy-boss-badge" class="hidden justify-center mb-2">
+                    <span class="boss-badge"><i class="fas fa-crown"></i> BOSS</span>
                 </div>
+                <div class="w-48 bar-container mx-auto mb-1 border-0 bg-slate-200">
+                    <div id="enemy-hp-bar" class="bar-fill hp-fill"></div>
+                    <div class="bar-text">HP: <span id="enemy-hp-text">30/30</span></div>
+                </div>
+                <div id="enemy-status-effects" class="flex flex-wrap justify-center gap-1 mt-1 text-[10px]"></div>
+            </div>
                 <div id="damage-layer" class="absolute inset-0 pointer-events-none"></div>
                 <div class="absolute left-0 bottom-4 w-1/2 drop-log-box pointer-events-none text-left pl-2 text-slate-500 italic">
                     <div id="drop-log-list" class="flex flex-col-reverse gap-1"></div>
@@ -322,8 +256,8 @@
             </div>
 
             <!-- Player Status Section -->
-            <div class="bg-white border rounded-2xl p-2 shadow-sm space-y-1 mb-2">
-                <div class="space-y-0.5">
+            <div class="bg-white border rounded-2xl p-4 shadow-sm space-y-3 mb-2">
+                <div class="space-y-1.5">
                     <div class="bar-container">
                         <div id="player-hp-bar" class="bar-fill hp-fill"></div>
                         <div class="bar-text">HP: <span id="player-hp-text">100/100</span></div>
@@ -345,14 +279,9 @@
                     <div id="battle-skill-slots"></div>
                 </div>
                 <div id="battle-potion-slots" class="grid grid-cols-2 gap-2"></div>
-                <div class="grid grid-cols-2 gap-2">
-                    <button id="end-turn-btn" class="w-full bg-slate-200 text-slate-700 font-black py-4 rounded-2xl shadow-lg active:scale-95 transition-transform text-base flex items-center justify-center gap-2">
-                        <i class="fas fa-forward-step"></i> <span>ターン終了</span>
-                    </button>
-                    <button id="action-btn" class="w-full bg-slate-800 text-white font-black py-4 rounded-2xl shadow-lg active:scale-95 transition-transform text-base flex items-center justify-center gap-2">
-                        <i class="fas fa-sword"></i> <span>通常攻撃</span>
-                    </button>
-                </div>
+                <button id="action-btn" class="w-full bg-slate-800 text-white font-black py-4 rounded-2xl shadow-lg active:scale-95 transition-transform text-lg flex items-center justify-center gap-2">
+                    <i class="fas fa-sword"></i> <span>攻撃</span>
+                </button>
             </div>
             
             <div id="death-overlay" class="absolute inset-0 bg-red-900/40 backdrop-blur-[2px] hidden items-center justify-center z-50">
@@ -570,7 +499,6 @@
                     <div class="flex justify-between border-b border-slate-700 pb-1"><span>MP効率</span><span id="stat-mp-eff">0%</span></div>
                     <div class="flex justify-between border-b border-slate-700 pb-1"><span>HP自動回復</span><span id="stat-hp-regen">0</span></div>
                     <div class="flex justify-between border-b border-slate-700 pb-1"><span>MP自動回復</span><span id="stat-mp-regen">0</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>クールタイム短縮率</span><span id="stat-cooldown-reduction">0%</span></div>
                     <div class="flex justify-between border-b border-slate-700 pb-1"><span>攻撃力</span><span id="stat-atk-flat">0</span></div>
                     <div class="flex justify-between border-b border-slate-700 pb-1"><span>攻撃効率</span><span id="stat-atk-eff">0%</span></div>
                     <div class="flex justify-between border-b border-slate-700 pb-1"><span>防御力</span><span id="stat-def-flat">0</span></div>
@@ -692,7 +620,7 @@
                     <div class="text-xs font-black">アクティブスロット</div>
                     <div class="text-[9px] text-slate-400">タップでスロット選択</div>
                 </div>
-                <div id="skill-slot-settings" class="grid grid-cols-4 gap-1"></div>
+                <div id="skill-slot-settings" class="grid grid-cols-2 gap-1.5"></div>
             </div>
             <div id="skill-list" class="flex-1 overflow-y-auto p-4 space-y-3 pb-8 min-h-0"></div>
         </section>
@@ -1177,7 +1105,6 @@
                         <li>MP効率：最大MPを%で増加。</li>
                         <li>HP自動回復：ターン終了時にHPが回復。</li>
                         <li>MP自動回復：ターン終了時にMPが回復。</li>
-                        <li>クールタイム短縮率：スキルのクールタイムを短縮（100%ごとに1ターン減）。INTで増加。</li>
                         <li>攻撃力：物理攻撃の固定増加。</li>
                         <li>攻撃効率：物理攻撃を%で増加。</li>
                         <li>防御力：防御の固定増加。</li>
@@ -1339,10 +1266,6 @@
             defeatedBossRushMilestones: [],
             state: 'idle',
             stayOnFloor: false,
-            selectedSkillId: null,
-            playerTurnStarted: false,
-            playerTurnRemainingAttacks: 0,
-            clearingToNextFloor: false,
             enhanceModal: {
                 index: null,
                 stage: 'confirm',
@@ -1362,12 +1285,11 @@
                 critDamage: 200, damageBoost: 0, damageReduction: 0, rareFind: 0, affixFind: 0, eliteEncounter: 20,
                 skillPowerBoost: 0, statusEffectStackBonus: 0, statusEffectTurnBonus: 0,
                 poisonMaxStacksBonus: 0, poisonMinPctBonus: 0,
-                skillMpDiscount: 0, cooldownReduction: 0, strMultiplier: 0, intMultiplier: 0, vitMultiplier: 0, dexMultiplier: 0, lukMultiplier: 0,
+                skillMpDiscount: 0, strMultiplier: 0, intMultiplier: 0, vitMultiplier: 0, dexMultiplier: 0, lukMultiplier: 0,
                 exp: 0, next: 100, sp: 1,
                 gold: 0,
                 weapon: null, armor: null, head: null, hands: null, feet: null, accessory1: null, accessory2: null, potion1: null, potion2: null, inventory: [],
-                skillSlots: [null, null, null, null, null, null, null, null],
-                skillSlotCooldowns: [0, 0, 0, 0, 0, 0, 0, 0],
+                skillSlots: [null, null, null, null],
                 skillSlotIndex: 0,
                 skillSlotTarget: 0,
                 statusEffects: [],
@@ -1391,62 +1313,7 @@
             lootQueue: [],
             pendingEquip: null,
             bossRushCarryoverDamage: 0,
-            targetEnemyId: null,
-            enemyIdCounter: 0,
-            enemies: [], logs: [], dropLogs: []
-        };
-
-        Object.defineProperty(Game, 'enemy', {
-            get() {
-                if (!Array.isArray(Game.enemies) || Game.enemies.length === 0) return null;
-                return Game.enemies.find((enemy) => enemy.hp > 0) || Game.enemies[0];
-            },
-            set(value) {
-                Game.enemies = value ? [value] : [];
-            }
-        });
-
-        const getEnemyById = (id) => {
-            if (!Array.isArray(Game.enemies) || Game.enemies.length === 0) return null;
-            return Game.enemies.find((enemy) => enemy.id === id) || null;
-        };
-
-        const ensureTargetEnemy = () => {
-            const enemies = Array.isArray(Game.enemies) ? Game.enemies : [];
-            if (enemies.length === 0) {
-                Game.targetEnemyId = null;
-                return null;
-            }
-            const livingEnemies = enemies.filter((enemy) => enemy.hp > 0);
-            if (livingEnemies.length === 0) {
-                Game.targetEnemyId = null;
-                return null;
-            }
-            let nextEnemyId = Number.isInteger(Game.enemyIdCounter) ? Game.enemyIdCounter : 0;
-            let updatedIds = false;
-            enemies.forEach((enemy) => {
-                if (!Number.isInteger(enemy.id)) {
-                    nextEnemyId += 1;
-                    enemy.id = nextEnemyId;
-                    updatedIds = true;
-                }
-            });
-            if (updatedIds) {
-                Game.enemyIdCounter = nextEnemyId;
-            }
-            const existing = getEnemyById(Game.targetEnemyId);
-            if (existing && existing.hp > 0) return existing;
-            Game.targetEnemyId = livingEnemies[0].id;
-            return livingEnemies[0];
-        };
-
-        const setTargetEnemyId = (id) => {
-            const target = getEnemyById(id);
-            if (target && target.hp > 0) {
-                Game.targetEnemyId = target.id;
-                return;
-            }
-            ensureTargetEnemy();
+            enemy: null, logs: [], dropLogs: []
         };
 
         const MAX_LEVEL = 300;
@@ -1587,17 +1454,11 @@
                     infoEl.textContent = '空';
                     continue;
                 }
-                try {
-                    const payload = JSON.parse(raw);
-                    const timestamp = formatSaveTimestamp(payload?.savedAt);
-                    const savedFloor = payload?.data?.floor ?? '-';
-                    const savedLevel = payload?.data?.player?.level ?? '-';
-                    infoEl.textContent = `${timestamp} / Lv.${savedLevel} / F${savedFloor}`;
-                } catch (error) {
-                    infoEl.textContent = '破損';
-                    localStorage.removeItem(getSaveKey(slot));
-                    continue;
-                }
+                const payload = JSON.parse(raw);
+                const timestamp = formatSaveTimestamp(payload?.savedAt);
+                const savedFloor = payload?.data?.floor ?? '-';
+                const savedLevel = payload?.data?.player?.level ?? '-';
+                infoEl.textContent = `${timestamp} / Lv.${savedLevel} / F${savedFloor}`;
             }
             document.querySelectorAll('input[name="autosave-slot"]').forEach((input) => {
                 const slotValue = Number.parseInt(input.value, 10);
@@ -1628,13 +1489,7 @@
                 resetGameForSlot(slot, `スロット${slot}は空のため新規開始しました。`, 'text-amber-600');
                 return;
             }
-            let payload = null;
-            try {
-                payload = JSON.parse(raw);
-            } catch (error) {
-                setSaveStatus(`スロット${slot}のデータが読み込めません。`, 'text-rose-500');
-                return;
-            }
+            const payload = JSON.parse(raw);
             if (!payload?.data) {
                 setSaveStatus(`スロット${slot}のデータが読み込めません。`, 'text-rose-500');
                 return;
@@ -1745,13 +1600,7 @@
         const normalizeImportedPayload = (rawText) => {
             const trimmed = rawText.trim();
             if (!trimmed) return null;
-            let parsed = null;
-            try {
-                parsed = JSON.parse(trimmed);
-            } catch (error) {
-                setSaveStatus('インポート文字列を解析できませんでした。', 'text-rose-500');
-                return null;
-            }
+            const parsed = JSON.parse(trimmed);
             if (!parsed || typeof parsed !== 'object') return null;
             if (parsed.data && typeof parsed.data === 'object') {
                 return {
@@ -1864,7 +1713,6 @@
 
         const startAutosaveTimer = () => {
             setInterval(() => {
-                
                 const slot = getAutosaveSlot();
                 saveToSlot(slot, true);
             }, SaveConfig.autosaveIntervalMs);
@@ -1874,18 +1722,18 @@
             warrior: {
                 name: "戦士",
                 active: [
-                    { id: 0, name: "血沸きの咆哮", mp: 6, cooldown: 2, mpGrowth: 0, pow: 1.3, powGrowth: 0.2, maxLevel: 50, effects: [{ target: "self", id: "attackUp", stacks: 1, turns: 2 }], desc: "闘志を燃やし、攻撃を底上げする咆哮" },
-                    { id: 1, name: "狂走連撃", mp: 10, cooldown: 3, mpGrowth: 0, pow: 0.95, powGrowth: 0.12, hits: 2, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "連撃で脆弱になった！" }], desc: "突進からの連撃で脆弱を刻む" },
-                    { id: 2, name: "逆境の一撃", mp: 14, cooldown: 4, pow: 2.6, powGrowth: 0.38, maxLevel: 50, critBonus: 5, critGrowth: 2, desc: "追い込まれた力を叩きつける強打" },
-                    { id: 3, name: "破滅の誓い", mp: 10, cooldown: 3, pow: 1.6, powGrowth: 0.2, maxLevel: 50, effects: [{ target: "self", id: "attackUp", stacks: 2, turns: 2 }, { target: "self", id: "vulnerable", stacks: 1, turns: 1 }], desc: "力を引き上げる代償に隙を生む誓約" },
-                    { id: 4, name: "戦鬼の反撃", mp: 16, cooldown: 4, pow: 1.4, powGrowth: 0.18, maxLevel: 50, effects: [{ target: "self", id: "reflect", stacks: 1, turns: 2 }], desc: "反射で反撃を狙う荒々しい斬撃" },
-                    { id: 5, name: "命燃やし", mp: 0, cooldown: 5, pow: 3.4, powGrowth: 0.5, hpCost: 0.12, maxLevel: 50, effects: [{ target: "self", id: "attackUp", stacks: 1, turns: 2 }], desc: "HPを燃料に爆発的な一撃を放つ" },
-                    { id: 6, name: "鎧割り", mp: 6, cooldown: 2, mpGrowth: 0, pow: 1.6, powGrowth: 0.24, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 1, turns: 2, log: "鎧が砕けた！" }], desc: "防御を削り、破砕の起点を作る" },
-                    { id: 7, name: "破城の槌", mp: 12, cooldown: 4, mpGrowth: 0, pow: 2.5, powGrowth: 0.35, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 2, turns: 2, log: "装甲が崩れた！" }], desc: "脆甲を重ねる重撃で堅牢を崩す" },
-                    { id: 8, name: "崩し打ち", mp: 10, cooldown: 3, mpGrowth: 0, pow: 1.8, powGrowth: 0.26, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "体勢が崩れた！" }], desc: "隙を作り、被ダメを引き上げる" },
-                    { id: 9, name: "震撃波", mp: 14, cooldown: 3, mpGrowth: 0, pow: 1.2, powGrowth: 0.18, hits: 2, maxLevel: 50, effects: [{ target: "enemy", id: "blind", stacks: 1, turns: 2, log: "衝撃で視界が乱れた！" }], desc: "衝撃波の連撃で命中を崩す" },
-                    { id: 10, name: "粉砕圧", mp: 16, cooldown: 4, mpGrowth: 0, pow: 2.1, powGrowth: 0.3, maxLevel: 50, effects: [{ target: "enemy", id: "attackDown", stacks: 1, turns: 2, log: "圧により衰弱した！" }], desc: "圧で敵火力を落として崩し切る" },
-                    { id: 11, name: "断罪の楔", mp: 20, cooldown: 5, mpGrowth: 0, pow: 2.9, powGrowth: 0.42, maxLevel: 50, effects: [{ target: "enemy", id: "silence", stacks: 1, turns: 1, log: "楔で沈黙した！" }], desc: "行動を封じる決定打" }
+                    { id: 0, name: "血沸きの咆哮", mp: 6, mpGrowth: 0, pow: 1.3, powGrowth: 0.2, maxLevel: 50, effects: [{ target: "self", id: "attackUp", stacks: 1, turns: 2 }], desc: "闘志を燃やし、攻撃を底上げする咆哮" },
+                    { id: 1, name: "狂走連撃", mp: 10, mpGrowth: 0, pow: 0.95, powGrowth: 0.12, hits: 2, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "連撃で脆弱になった！" }], desc: "突進からの連撃で脆弱を刻む" },
+                    { id: 2, name: "逆境の一撃", mp: 14, pow: 2.6, powGrowth: 0.38, maxLevel: 50, critBonus: 5, critGrowth: 2, desc: "追い込まれた力を叩きつける強打" },
+                    { id: 3, name: "破滅の誓い", mp: 10, pow: 1.6, powGrowth: 0.2, maxLevel: 50, effects: [{ target: "self", id: "attackUp", stacks: 2, turns: 2 }, { target: "self", id: "vulnerable", stacks: 1, turns: 1 }], desc: "力を引き上げる代償に隙を生む誓約" },
+                    { id: 4, name: "戦鬼の反撃", mp: 16, pow: 1.4, powGrowth: 0.18, maxLevel: 50, effects: [{ target: "self", id: "reflect", stacks: 1, turns: 2 }], desc: "反射で反撃を狙う荒々しい斬撃" },
+                    { id: 5, name: "命燃やし", mp: 0, pow: 3.4, powGrowth: 0.5, hpCost: 0.12, maxLevel: 50, effects: [{ target: "self", id: "attackUp", stacks: 1, turns: 2 }], desc: "HPを燃料に爆発的な一撃を放つ" },
+                    { id: 6, name: "鎧割り", mp: 6, mpGrowth: 0, pow: 1.6, powGrowth: 0.24, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 1, turns: 2, log: "鎧が砕けた！" }], desc: "防御を削り、破砕の起点を作る" },
+                    { id: 7, name: "破城の槌", mp: 12, mpGrowth: 0, pow: 2.5, powGrowth: 0.35, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 2, turns: 2, log: "装甲が崩れた！" }], desc: "脆甲を重ねる重撃で堅牢を崩す" },
+                    { id: 8, name: "崩し打ち", mp: 10, mpGrowth: 0, pow: 1.8, powGrowth: 0.26, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "体勢が崩れた！" }], desc: "隙を作り、被ダメを引き上げる" },
+                    { id: 9, name: "震撃波", mp: 14, mpGrowth: 0, pow: 1.2, powGrowth: 0.18, hits: 2, maxLevel: 50, effects: [{ target: "enemy", id: "blind", stacks: 1, turns: 2, log: "衝撃で視界が乱れた！" }], desc: "衝撃波の連撃で命中を崩す" },
+                    { id: 10, name: "粉砕圧", mp: 16, mpGrowth: 0, pow: 2.1, powGrowth: 0.3, maxLevel: 50, effects: [{ target: "enemy", id: "attackDown", stacks: 1, turns: 2, log: "圧により衰弱した！" }], desc: "圧で敵火力を落として崩し切る" },
+                    { id: 11, name: "断罪の楔", mp: 20, mpGrowth: 0, pow: 2.9, powGrowth: 0.42, maxLevel: 50, effects: [{ target: "enemy", id: "silence", stacks: 1, turns: 1, log: "楔で沈黙した！" }], desc: "行動を封じる決定打" }
                 ],
                 passive: [
                     { id: 0, name: "剛力鍛錬", desc: "STR+4/レベル", maxLevel: 50, apply: (d) => Game.player.str += 4 * d },
@@ -1899,18 +1747,18 @@
             mage: {
                 name: "魔術師",
                 active: [
-                    { id: 0, name: "火球撃", mp: 8, cooldown: 2, pow: 2.0, powGrowth: 0.3, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "weaken", stacks: 1, turns: 2, log: "炎が勢いを削いだ！" }], desc: "炎で勢いを削ぎ、連携の起点を作る基本火力" },
-                    { id: 1, name: "灼き剥がし", mp: 12, cooldown: 3, pow: 2.4, powGrowth: 0.35, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 1, turns: 2, log: "装甲が焼け落ちた！" }], desc: "防御を削り高火力スキルの下地を作る" },
-                    { id: 2, name: "熾火の符", mp: 10, cooldown: 3, pow: 0.8, powGrowth: 0.1, isMagic: true, maxLevel: 50, effects: [{ target: "self", id: "attackUp", stacks: 1, turns: 2, log: "炎の符で火力が高まった！" }], desc: "次の一撃を強める自己強化の準備術" },
-                    { id: 3, name: "黒煙纏い", mp: 14, cooldown: 3, pow: 1.4, powGrowth: 0.2, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "blind", stacks: 1, turns: 2, log: "黒煙で視界が奪われた！" }], desc: "暗闇を付与し、暗闇中に連携火力が強化される" },
-                    { id: 4, name: "盲目狩り", mp: 18, cooldown: 4, pow: 3.2, powGrowth: 0.45, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "混乱の隙に急所を突いた！" }], desc: "連携条件: 敵が暗闇中なら威力が上昇する" },
-                    { id: 5, name: "終焉の禁呪", mp: 50, cooldown: 6, pow: 10.0, powGrowth: 1.2, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "silence", stacks: 1, turns: 1, log: "禁呪で沈黙した！" }], desc: "最大火力で戦闘を決める奥義" },
-                    { id: 6, name: "アイスランス", mp: 10, cooldown: 3, pow: 2.3, powGrowth: 0.35, isMagic: true, accuracyBonus: 5, accuracyGrowth: 3, maxLevel: 50, effects: [{ target: "enemy", id: "freeze", stacks: 1, turns: 1, log: "氷槍で凍結した！" }], desc: "命中寄りの一撃で凍結を狙う" },
-                    { id: 7, name: "霜鎖", mp: 12, cooldown: 3, pow: 1.4, powGrowth: 0.2, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "attackDown", stacks: 1, turns: 2, log: "霜鎖で動きが鈍った！" }], desc: "攻撃力を抑えて被ダメを安定化" },
-                    { id: 8, name: "凍圧", mp: 14, cooldown: 3, pow: 2.2, powGrowth: 0.3, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "weaken", stacks: 1, turns: 2, log: "冷気で勢いを削いだ！" }], desc: "弱体で次の攻撃を通しやすくする" },
-                    { id: 9, name: "白霧", mp: 14, cooldown: 3, pow: 1.2, powGrowth: 0.2, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "blind", stacks: 1, turns: 2, log: "白霧で視界が奪われた！" }], desc: "暗闇を付与し、暗闇中に連携火力が強化される" },
-                    { id: 10, name: "静氷断", mp: 18, cooldown: 4, pow: 2.8, powGrowth: 0.4, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 1, turns: 2, log: "氷刃で守りが崩れた！" }], desc: "連携条件: 暗闇中で威力上昇、凍結中ならさらに上昇" },
-                    { id: 11, name: "零度封印", mp: 30, cooldown: 5, pow: 5.0, powGrowth: 0.8, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "freeze", stacks: 1, turns: 1, log: "零度の封印で凍結した！" }], desc: "強力な氷で行動を止める切り札" }
+                    { id: 0, name: "火球撃", mp: 8, pow: 2.0, powGrowth: 0.3, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "weaken", stacks: 1, turns: 2, log: "炎が勢いを削いだ！" }], desc: "炎で勢いを削ぎ、連携の起点を作る基本火力" },
+                    { id: 1, name: "灼き剥がし", mp: 12, pow: 2.4, powGrowth: 0.35, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 1, turns: 2, log: "装甲が焼け落ちた！" }], desc: "防御を削り高火力スキルの下地を作る" },
+                    { id: 2, name: "熾火の符", mp: 10, pow: 0.8, powGrowth: 0.1, isMagic: true, maxLevel: 50, effects: [{ target: "self", id: "attackUp", stacks: 1, turns: 2, log: "炎の符で火力が高まった！" }], desc: "次の一撃を強める自己強化の準備術" },
+                    { id: 3, name: "黒煙纏い", mp: 14, pow: 1.4, powGrowth: 0.2, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "blind", stacks: 1, turns: 2, log: "黒煙で視界が奪われた！" }], desc: "暗闇を付与し、暗闇中に連携火力が強化される" },
+                    { id: 4, name: "盲目狩り", mp: 18, pow: 3.2, powGrowth: 0.45, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "混乱の隙に急所を突いた！" }], desc: "連携条件: 敵が暗闇中なら威力が上昇する" },
+                    { id: 5, name: "終焉の禁呪", mp: 50, pow: 10.0, powGrowth: 1.2, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "silence", stacks: 1, turns: 1, log: "禁呪で沈黙した！" }], desc: "最大火力で戦闘を決める奥義" },
+                    { id: 6, name: "アイスランス", mp: 10, pow: 2.3, powGrowth: 0.35, isMagic: true, accuracyBonus: 5, accuracyGrowth: 3, maxLevel: 50, effects: [{ target: "enemy", id: "freeze", stacks: 1, turns: 1, log: "氷槍で凍結した！" }], desc: "命中寄りの一撃で凍結を狙う" },
+                    { id: 7, name: "霜鎖", mp: 12, pow: 1.4, powGrowth: 0.2, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "attackDown", stacks: 1, turns: 2, log: "霜鎖で動きが鈍った！" }], desc: "攻撃力を抑えて被ダメを安定化" },
+                    { id: 8, name: "凍圧", mp: 14, pow: 2.2, powGrowth: 0.3, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "weaken", stacks: 1, turns: 2, log: "冷気で勢いを削いだ！" }], desc: "弱体で次の攻撃を通しやすくする" },
+                    { id: 9, name: "白霧", mp: 14, pow: 1.2, powGrowth: 0.2, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "blind", stacks: 1, turns: 2, log: "白霧で視界が奪われた！" }], desc: "暗闇を付与し、暗闇中に連携火力が強化される" },
+                    { id: 10, name: "静氷断", mp: 18, pow: 2.8, powGrowth: 0.4, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 1, turns: 2, log: "氷刃で守りが崩れた！" }], desc: "連携条件: 暗闇中で威力上昇、凍結中ならさらに上昇" },
+                    { id: 11, name: "零度封印", mp: 30, pow: 5.0, powGrowth: 0.8, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "freeze", stacks: 1, turns: 1, log: "零度の封印で凍結した！" }], desc: "強力な氷で行動を止める切り札" }
                 ],
                 passive: [
                     { id: 0, name: "知力増強", desc: "INT+4/レベル", maxLevel: 50, apply: (d) => Game.player.int += 4 * d },
@@ -1924,18 +1772,18 @@
             thief: {
                 name: "盗賊",
                 active: [
-                    { id: 0, name: "煙幕投げ", mp: 4, cooldown: 2, pow: 0.9, powGrowth: 0.12, maxLevel: 50, effects: [{ target: "enemy", id: "blind", stacks: 1, turns: 2, log: "煙で視界が奪われた！" }], desc: "煙幕で暗闇を付与し、以後の制圧連携の起点になる" },
-                    { id: 1, name: "影縫い", mp: 8, cooldown: 3, pow: 1.4, powGrowth: 0.18, maxLevel: 50, effects: [{ target: "enemy", id: "silence", stacks: 1, turns: 1, log: "影に縛られて沈黙した！" }], desc: "影で封じ、敵のスキル回転を止める制圧技" },
-                    { id: 2, name: "毒刃", mp: 10, cooldown: 3, pow: 1.7, powGrowth: 0.22, critBonus: 5, critGrowth: 2, maxLevel: 50, effects: [{ target: "enemy", id: "poison", stacks: 1, turns: 3, log: "毒が回った！" }], desc: "急所狙いの一撃で毒を付与する" },
-                    { id: 3, name: "裂傷刻み", mp: 7, cooldown: 2, pow: 0.7, powGrowth: 0.1, hits: 2, maxLevel: 50, effects: [{ target: "enemy", id: "bleed", stacks: 1, turns: 2, log: "裂傷で出血した！" }], desc: "二連撃で出血を狙う" },
-                    { id: 4, name: "戦意削ぎ", mp: 5, cooldown: 2, pow: 0.9, powGrowth: 0.1, maxLevel: 50, effects: [{ target: "enemy", id: "weaken", stacks: 1, turns: 2, log: "戦意を削がれた！" }], desc: "攻撃と同時に敵の勢いを削ぐ弱体付与" },
-                    { id: 5, name: "影踏み", mp: 12, cooldown: 4, pow: 2.0, powGrowth: 0.28, accuracyBonus: 10, accuracyGrowth: 4, maxLevel: 50, desc: "暗闇の隙を突いて踏み込み、決定打を狙う" },
-                    { id: 6, name: "クイックスタブ", mp: 3, cooldown: 2, pow: 1.0, powGrowth: 0.15, accuracyBonus: 15, accuracyGrowth: 5, maxLevel: 50, effects: [{ target: "self", id: "haste", stacks: 1, turns: 2 }], desc: "素早い突きで迅速を得る連携起点" },
-                    { id: 7, name: "ダブルアタック", mp: 7, cooldown: 2, pow: 0.85, powGrowth: 0.1, hits: 2, maxLevel: 50, desc: "二連撃で手数を稼ぐ" },
-                    { id: 8, name: "奇襲", mp: 12, cooldown: 3, pow: 2.4, powGrowth: 0.32, accuracyBonus: 10, accuracyGrowth: 4, maxLevel: 50, desc: "先手で狙い撃ち、短期決戦の主力となる一撃" },
-                    { id: 9, name: "急所穿ち", mp: 14, cooldown: 4, pow: 2.1, powGrowth: 0.3, critBonus: 12, critGrowth: 3, maxLevel: 50, desc: "急所を狙って高い会心率を得る刺突" },
-                    { id: 10, name: "影走り", mp: 9, cooldown: 3, pow: 1.2, powGrowth: 0.15, maxLevel: 50, effects: [{ target: "self", id: "haste", stacks: 1, turns: 3 }], desc: "身を滑らせて迅速を延長し、連続行動を狙う" },
-                    { id: 11, name: "断罪の一刺し", mp: 24, cooldown: 5, pow: 4.2, powGrowth: 0.55, critBonus: 8, critGrowth: 2, maxLevel: 50, desc: "狙いすました高火力の一撃でとどめを狙う" }
+                    { id: 0, name: "煙幕投げ", mp: 4, pow: 0.9, powGrowth: 0.12, maxLevel: 50, effects: [{ target: "enemy", id: "blind", stacks: 1, turns: 2, log: "煙で視界が奪われた！" }], desc: "煙幕で暗闇を付与し、以後の制圧連携の起点になる" },
+                    { id: 1, name: "影縫い", mp: 8, pow: 1.4, powGrowth: 0.18, maxLevel: 50, effects: [{ target: "enemy", id: "silence", stacks: 1, turns: 1, log: "影に縛られて沈黙した！" }], desc: "影で封じ、敵のスキル回転を止める制圧技" },
+                    { id: 2, name: "毒刃", mp: 10, pow: 1.7, powGrowth: 0.22, critBonus: 5, critGrowth: 2, maxLevel: 50, effects: [{ target: "enemy", id: "poison", stacks: 1, turns: 3, log: "毒が回った！" }], desc: "急所狙いの一撃で毒を付与する" },
+                    { id: 3, name: "裂傷刻み", mp: 7, pow: 0.7, powGrowth: 0.1, hits: 2, maxLevel: 50, effects: [{ target: "enemy", id: "bleed", stacks: 1, turns: 2, log: "裂傷で出血した！" }], desc: "二連撃で出血を狙う" },
+                    { id: 4, name: "戦意削ぎ", mp: 5, pow: 0.9, powGrowth: 0.1, maxLevel: 50, effects: [{ target: "enemy", id: "weaken", stacks: 1, turns: 2, log: "戦意を削がれた！" }], desc: "攻撃と同時に敵の勢いを削ぐ弱体付与" },
+                    { id: 5, name: "影踏み", mp: 12, pow: 2.0, powGrowth: 0.28, accuracyBonus: 10, accuracyGrowth: 4, maxLevel: 50, desc: "暗闇の隙を突いて踏み込み、決定打を狙う" },
+                    { id: 6, name: "クイックスタブ", mp: 3, pow: 1.0, powGrowth: 0.15, accuracyBonus: 15, accuracyGrowth: 5, maxLevel: 50, effects: [{ target: "self", id: "haste", stacks: 1, turns: 2 }], desc: "素早い突きで迅速を得る連携起点" },
+                    { id: 7, name: "ダブルアタック", mp: 7, pow: 0.85, powGrowth: 0.1, hits: 2, maxLevel: 50, desc: "二連撃で手数を稼ぐ" },
+                    { id: 8, name: "奇襲", mp: 12, pow: 2.4, powGrowth: 0.32, accuracyBonus: 10, accuracyGrowth: 4, maxLevel: 50, desc: "先手で狙い撃ち、短期決戦の主力となる一撃" },
+                    { id: 9, name: "急所穿ち", mp: 14, pow: 2.1, powGrowth: 0.3, critBonus: 12, critGrowth: 3, maxLevel: 50, desc: "急所を狙って高い会心率を得る刺突" },
+                    { id: 10, name: "影走り", mp: 9, pow: 1.2, powGrowth: 0.15, maxLevel: 50, effects: [{ target: "self", id: "haste", stacks: 1, turns: 3 }], desc: "身を滑らせて迅速を延長し、連続行動を狙う" },
+                    { id: 11, name: "断罪の一刺し", mp: 24, pow: 4.2, powGrowth: 0.55, critBonus: 8, critGrowth: 2, maxLevel: 50, desc: "狙いすました高火力の一撃でとどめを狙う" }
                 ],
                 passive: [
                     { id: 0, name: "俊敏", desc: "DEX+3/レベル", maxLevel: 50, apply: (d) => Game.player.dex += 3 * d },
@@ -1949,18 +1797,18 @@
             ranger: {
                 name: "レンジャー",
                 active: [
-                    { id: 0, name: "追跡の標", mp: 6, cooldown: 2, pow: 1.1, powGrowth: 0.15, accuracyBonus: 10, accuracyGrowth: 4, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "標で狙いが定まった！" }], desc: "狙いを刻んで脆弱を与える追跡の起点" },
-                    { id: 1, name: "狩人の見切り", mp: 8, cooldown: 2, pow: 1.0, powGrowth: 0.12, maxLevel: 50, effects: [{ target: "self", id: "haste", stacks: 1, turns: 2 }], desc: "相手の癖を読み、迅速で手数を整える" },
-                    { id: 2, name: "削り射ち", mp: 9, cooldown: 3, pow: 0.9, powGrowth: 0.12, hits: 2, maxLevel: 50, effects: [{ target: "enemy", id: "bleed", stacks: 1, turns: 3, log: "傷が深く裂けた！" }], desc: "連射で確実に削り、出血を狙う" },
-                    { id: 3, name: "狩猟の足止め", mp: 12, cooldown: 3, pow: 1.5, powGrowth: 0.2, maxLevel: 50, effects: [{ target: "enemy", id: "attackDown", stacks: 1, turns: 2, log: "動きが鈍った！" }], desc: "動きを奪い、攻撃力を落として逃がさない" },
-                    { id: 4, name: "致命の一矢", mp: 18, cooldown: 4, pow: 2.9, powGrowth: 0.4, critBonus: 8, critGrowth: 3, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 1, turns: 2, log: "急所に裂傷が入った！" }], desc: "急所狙いで守りを崩す決定打" },
-                    { id: 5, name: "獣道の勘", mp: 10, cooldown: 2, pow: 0.8, powGrowth: 0.1, maxLevel: 50, effects: [{ target: "self", id: "attackUp", stacks: 1, turns: 2 }], desc: "狩りの勘を研ぎ澄まし闘志を高める" },
-                    { id: 6, name: "追撃の標", mp: 7, cooldown: 2, pow: 1.0, powGrowth: 0.12, accuracyBonus: 8, accuracyGrowth: 3, maxLevel: 50, effects: [{ target: "enemy", id: "weaken", stacks: 1, turns: 2, log: "追撃の印で勢いが削がれた！" }], desc: "追撃の合図を刻み、弱体を与える" },
-                    { id: 7, name: "連鎖射撃", mp: 12, cooldown: 3, pow: 0.75, powGrowth: 0.08, hits: 3, maxLevel: 50, effects: [{ target: "enemy", id: "weaken", stacks: 1, turns: 2, log: "連射で勢いを奪った！" }], desc: "多段連射でコンボの起点を作る" },
-                    { id: 8, name: "狩人の網", mp: 14, cooldown: 3, pow: 1.6, powGrowth: 0.22, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "網で体勢が崩れた！" }], desc: "相手の動きを抑え、脆弱を付与" },
-                    { id: 9, name: "疾風の一矢", mp: 10, cooldown: 4, pow: 1.7, powGrowth: 0.24, accuracyBonus: 12, accuracyGrowth: 4, maxLevel: 50, desc: "素早い追撃で流れを加速させる" },
-                    { id: 10, name: "穿孔撃", mp: 16, cooldown: 3, pow: 2.4, powGrowth: 0.32, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 2, turns: 2, log: "貫通で装甲が裂けた！" }], desc: "装甲を穿ち、脆甲を重ねる" },
-                    { id: 11, name: "終端の一撃", mp: 22, cooldown: 5, pow: 3.4, powGrowth: 0.45, critBonus: 6, critGrowth: 2, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "仕留めの傷が入った！" }], desc: "連携の締めに放つ高火力の仕留め技" }
+                    { id: 0, name: "追跡の標", mp: 6, pow: 1.1, powGrowth: 0.15, accuracyBonus: 10, accuracyGrowth: 4, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "標で狙いが定まった！" }], desc: "狙いを刻んで脆弱を与える追跡の起点" },
+                    { id: 1, name: "狩人の見切り", mp: 8, pow: 1.0, powGrowth: 0.12, maxLevel: 50, effects: [{ target: "self", id: "haste", stacks: 1, turns: 2 }], desc: "相手の癖を読み、迅速で手数を整える" },
+                    { id: 2, name: "削り射ち", mp: 9, pow: 0.9, powGrowth: 0.12, hits: 2, maxLevel: 50, effects: [{ target: "enemy", id: "bleed", stacks: 1, turns: 3, log: "傷が深く裂けた！" }], desc: "連射で確実に削り、出血を狙う" },
+                    { id: 3, name: "狩猟の足止め", mp: 12, pow: 1.5, powGrowth: 0.2, maxLevel: 50, effects: [{ target: "enemy", id: "attackDown", stacks: 1, turns: 2, log: "動きが鈍った！" }], desc: "動きを奪い、攻撃力を落として逃がさない" },
+                    { id: 4, name: "致命の一矢", mp: 18, pow: 2.9, powGrowth: 0.4, critBonus: 8, critGrowth: 3, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 1, turns: 2, log: "急所に裂傷が入った！" }], desc: "急所狙いで守りを崩す決定打" },
+                    { id: 5, name: "獣道の勘", mp: 10, pow: 0.8, powGrowth: 0.1, maxLevel: 50, effects: [{ target: "self", id: "attackUp", stacks: 1, turns: 2 }], desc: "狩りの勘を研ぎ澄まし闘志を高める" },
+                    { id: 6, name: "追撃の標", mp: 7, pow: 1.0, powGrowth: 0.12, accuracyBonus: 8, accuracyGrowth: 3, maxLevel: 50, effects: [{ target: "enemy", id: "weaken", stacks: 1, turns: 2, log: "追撃の印で勢いが削がれた！" }], desc: "追撃の合図を刻み、弱体を与える" },
+                    { id: 7, name: "連鎖射撃", mp: 12, pow: 0.75, powGrowth: 0.08, hits: 3, maxLevel: 50, effects: [{ target: "enemy", id: "weaken", stacks: 1, turns: 2, log: "連射で勢いを奪った！" }], desc: "多段連射でコンボの起点を作る" },
+                    { id: 8, name: "狩人の網", mp: 14, pow: 1.6, powGrowth: 0.22, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "網で体勢が崩れた！" }], desc: "相手の動きを抑え、脆弱を付与" },
+                    { id: 9, name: "疾風の一矢", mp: 10, pow: 1.7, powGrowth: 0.24, accuracyBonus: 12, accuracyGrowth: 4, maxLevel: 50, desc: "素早い追撃で流れを加速させる" },
+                    { id: 10, name: "穿孔撃", mp: 16, pow: 2.4, powGrowth: 0.32, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 2, turns: 2, log: "貫通で装甲が裂けた！" }], desc: "装甲を穿ち、脆甲を重ねる" },
+                    { id: 11, name: "終端の一撃", mp: 22, pow: 3.4, powGrowth: 0.45, critBonus: 6, critGrowth: 2, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "仕留めの傷が入った！" }], desc: "連携の締めに放つ高火力の仕留め技" }
                 ],
                 passive: [
                     { id: 0, name: "射撃訓練", desc: "命中率+3%/レベル", maxLevel: 50, apply: (d) => Game.player.accuracy += 3 * d },
@@ -1974,18 +1822,18 @@
             paladin: {
                 name: "聖騎士",
                 active: [
-                    { id: 0, name: "光盾の契約", mp: 8, cooldown: 2, pow: 0.9, powGrowth: 0.12, maxLevel: 50, effects: [{ target: "self", id: "barrier", stacks: 1, turns: 2, log: "光盾で守りが強化された！" }], desc: "小さな攻撃と同時にバリアを張る防御の起点" },
-                    { id: 1, name: "守護誓約", mp: 10, cooldown: 3, pow: 1.1, powGrowth: 0.15, maxLevel: 50, effects: [{ target: "self", id: "defenseUp", stacks: 1, turns: 2, log: "守護の誓約で守勢を得た！" }], desc: "被ダメを抑える守勢をまとい、粘り強く戦う" },
-                    { id: 2, name: "浄化の祈り", mp: 12, cooldown: 3, val: 32, valGrowth: 12, type: 'heal', isMagic: true, maxLevel: 50, effects: [{ target: "self", id: "defenseUp", stacks: 1, turns: 2 }], desc: "自己回復と守勢で安定を作る祈り" },
-                    { id: 3, name: "黒耀の誓印", mp: 10, cooldown: 3, pow: 1.2, powGrowth: 0.16, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "blind", stacks: 1, turns: 2, log: "黒耀の印で視界が奪われた！" }], desc: "暗闇を自前で付与し、防御連携の起点を作る" },
-                    { id: 4, name: "黎明の剣", mp: 14, cooldown: 4, pow: 2.2, powGrowth: 0.32, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "黎明の一閃で脆弱になった！" }], desc: "聖なる一撃で隙を作り、追撃に繋げる" },
-                    { id: 5, name: "赦しの誓い", mp: 16, cooldown: 4, val: 52, valGrowth: 18, type: 'heal', isMagic: true, maxLevel: 50, effects: [{ target: "self", id: "barrier", stacks: 1, turns: 2 }], desc: "自己回復とバリアで長期戦を支える" },
-                    { id: 6, name: "裁きの槍", mp: 10, cooldown: 3, pow: 1.8, powGrowth: 0.25, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "裁きで脆弱になった！" }], desc: "裁きの突きで脆弱を刻む制裁の一撃" },
-                    { id: 7, name: "懺悔の宣告", mp: 12, cooldown: 3, pow: 1.4, powGrowth: 0.2, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "weaken", stacks: 1, turns: 2, log: "懺悔の宣告で勢いが削がれた！" }], desc: "敵火力を抑えつつ連携の下地を作る" },
-                    { id: 8, name: "黒騎の帳", mp: 12, cooldown: 3, pow: 1.0, powGrowth: 0.14, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "blind", stacks: 1, turns: 2, log: "黒騎の帳で視界が奪われた！" }, { target: "self", id: "attackUp", stacks: 1, turns: 2 }], desc: "暗闇を付与し、自身の攻めを強化する" },
-                    { id: 9, name: "影狩り", mp: 16, cooldown: 4, pow: 2.6, powGrowth: 0.36, maxLevel: 50, critBonus: 5, critGrowth: 2, desc: "暗闇の隙を狙い撃つ高火力の追撃" },
-                    { id: 10, name: "忌光の鎖", mp: 14, cooldown: 3, pow: 1.5, powGrowth: 0.2, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "silence", stacks: 1, turns: 1, log: "忌光の鎖で沈黙した！" }], desc: "敵の行動を縛り、主導権を握る" },
-                    { id: 11, name: "天刑の宣告", mp: 24, cooldown: 5, pow: 3.4, powGrowth: 0.48, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 2, turns: 2, log: "天刑の宣告で守りが崩れた！" }], desc: "強烈な制裁で守りを崩し、とどめを狙う" }
+                    { id: 0, name: "光盾の契約", mp: 8, pow: 0.9, powGrowth: 0.12, maxLevel: 50, effects: [{ target: "self", id: "barrier", stacks: 1, turns: 2, log: "光盾で守りが強化された！" }], desc: "小さな攻撃と同時にバリアを張る防御の起点" },
+                    { id: 1, name: "守護誓約", mp: 10, pow: 1.1, powGrowth: 0.15, maxLevel: 50, effects: [{ target: "self", id: "defenseUp", stacks: 1, turns: 2, log: "守護の誓約で守勢を得た！" }], desc: "被ダメを抑える守勢をまとい、粘り強く戦う" },
+                    { id: 2, name: "浄化の祈り", mp: 12, val: 32, valGrowth: 12, type: 'heal', isMagic: true, maxLevel: 50, effects: [{ target: "self", id: "defenseUp", stacks: 1, turns: 2 }], desc: "自己回復と守勢で安定を作る祈り" },
+                    { id: 3, name: "黒耀の誓印", mp: 10, pow: 1.2, powGrowth: 0.16, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "blind", stacks: 1, turns: 2, log: "黒耀の印で視界が奪われた！" }], desc: "暗闇を自前で付与し、防御連携の起点を作る" },
+                    { id: 4, name: "黎明の剣", mp: 14, pow: 2.2, powGrowth: 0.32, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "黎明の一閃で脆弱になった！" }], desc: "聖なる一撃で隙を作り、追撃に繋げる" },
+                    { id: 5, name: "赦しの誓い", mp: 16, val: 52, valGrowth: 18, type: 'heal', isMagic: true, maxLevel: 50, effects: [{ target: "self", id: "barrier", stacks: 1, turns: 2 }], desc: "自己回復とバリアで長期戦を支える" },
+                    { id: 6, name: "裁きの槍", mp: 10, pow: 1.8, powGrowth: 0.25, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "裁きで脆弱になった！" }], desc: "裁きの突きで脆弱を刻む制裁の一撃" },
+                    { id: 7, name: "懺悔の宣告", mp: 12, pow: 1.4, powGrowth: 0.2, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "weaken", stacks: 1, turns: 2, log: "懺悔の宣告で勢いが削がれた！" }], desc: "敵火力を抑えつつ連携の下地を作る" },
+                    { id: 8, name: "黒騎の帳", mp: 12, pow: 1.0, powGrowth: 0.14, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "blind", stacks: 1, turns: 2, log: "黒騎の帳で視界が奪われた！" }, { target: "self", id: "attackUp", stacks: 1, turns: 2 }], desc: "暗闇を付与し、自身の攻めを強化する" },
+                    { id: 9, name: "影狩り", mp: 16, pow: 2.6, powGrowth: 0.36, maxLevel: 50, critBonus: 5, critGrowth: 2, desc: "暗闇の隙を狙い撃つ高火力の追撃" },
+                    { id: 10, name: "忌光の鎖", mp: 14, pow: 1.5, powGrowth: 0.2, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "silence", stacks: 1, turns: 1, log: "忌光の鎖で沈黙した！" }], desc: "敵の行動を縛り、主導権を握る" },
+                    { id: 11, name: "天刑の宣告", mp: 24, pow: 3.4, powGrowth: 0.48, isMagic: true, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 2, turns: 2, log: "天刑の宣告で守りが崩れた！" }], desc: "強烈な制裁で守りを崩し、とどめを狙う" }
                 ],
                 passive: [
                     { id: 0, name: "信仰", desc: "最大HP+15/レベル", maxLevel: 50, apply: (d) => Game.player.maxHpFlat += 15 * d },
@@ -1999,18 +1847,18 @@
             monk: {
                 name: "拳闘士",
                 active: [
-                    { id: 0, name: "疾風連打", mp: 4, cooldown: 2, pow: 0.6, powGrowth: 0.08, hits: 4, maxLevel: 50, desc: "発動条件: 常時使用可。素早い連打で削る" },
-                    { id: 1, name: "ボディ・シフター", mp: 7, cooldown: 2, pow: 1.1, powGrowth: 0.15, maxLevel: 50, effects: [{ target: "enemy", id: "weaken", stacks: 1, turns: 2, log: "動きが鈍った！" }], desc: "発動条件: 直前の攻撃が命中。ボディ連打で相手の勢いを削ぐ" },
-                    { id: 2, name: "カウンター・スリップ", mp: 9, cooldown: 3, pow: 1.0, powGrowth: 0.12, accuracyBonus: 5, accuracyGrowth: 2, maxLevel: 50, effects: [{ target: "self", id: "haste", stacks: 1, turns: 2 }, { target: "self", id: "reflect", stacks: 1, turns: 2 }], desc: "発動条件: 敵の攻撃に合わせて使用。回避と反撃を狙う" },
-                    { id: 3, name: "ラッシュ・アッパー", mp: 12, cooldown: 3, pow: 1.6, powGrowth: 0.2, critBonus: 8, critGrowth: 2, maxLevel: 50, desc: "発動条件: 直前に拳技を使用。連携で威力が増す" },
-                    { id: 4, name: "リング・コンビネーション", mp: 14, cooldown: 3, pow: 0.9, powGrowth: 0.12, hits: 2, accuracyBonus: 10, accuracyGrowth: 3, maxLevel: 50, effects: [{ target: "enemy", id: "blind", stacks: 1, turns: 2, log: "視界が乱れた！" }], desc: "発動条件: 敵が暗闇、または自身が迅速。連撃で主導権を握る" },
-                    { id: 5, name: "フィニッシュ・ブロー", mp: 18, cooldown: 4, pow: 2.6, powGrowth: 0.35, critBonus: 12, critGrowth: 3, maxLevel: 50, desc: "発動条件: 直近で拳技が連続命中。締めの一撃" },
-                    { id: 6, name: "鉄拳衝", mp: 10, cooldown: 3, pow: 2.1, powGrowth: 0.28, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 1, turns: 2, log: "防御が削がれた！" }], desc: "発動条件: 常時使用可。防御を崩す重い一撃" },
-                    { id: 7, name: "ガード・クラッシュ", mp: 16, cooldown: 4, pow: 2.7, powGrowth: 0.35, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 2, turns: 2, log: "ガードが崩れた！" }], desc: "発動条件: 敵が防御系状態。ガードを破砕する強打" },
-                    { id: 8, name: "踏み込み破砕", mp: 14, cooldown: 3, pow: 2.3, powGrowth: 0.3, maxLevel: 50, effects: [{ target: "enemy", id: "attackDown", stacks: 1, turns: 2, log: "衝撃で動きが鈍った！" }], desc: "発動条件: 自身が闘志/強化。踏み込みで押し切る" },
-                    { id: 9, name: "震脚一撃", mp: 12, cooldown: 3, pow: 1.8, powGrowth: 0.24, accuracyBonus: 5, accuracyGrowth: 2, maxLevel: 50, effects: [{ target: "enemy", id: "blind", stacks: 1, turns: 2, log: "衝撃で視界が揺れた！" }], desc: "発動条件: 敵の命中が高い時に有効。視界を乱す衝撃拳" },
-                    { id: 10, name: "破壊の拳圧", mp: 18, cooldown: 4, pow: 2.0, powGrowth: 0.28, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "防勢が崩れた！" }, { target: "enemy", id: "defenseDown", stacks: 1, turns: 2, log: "守りが裂けた！" }], desc: "発動条件: 敵が弱体/脆弱/脆甲。圧で連携を通す" },
-                    { id: 11, name: "覇拳・極", mp: 28, cooldown: 5, pow: 4.2, powGrowth: 0.6, critBonus: 10, critGrowth: 3, maxLevel: 50, effects: [{ target: "self", id: "attackDown", stacks: 1, turns: 2 }], desc: "発動条件: 直前に被ダメ。溜めの決定打" }
+                    { id: 0, name: "疾風連打", mp: 4, pow: 0.6, powGrowth: 0.08, hits: 4, maxLevel: 50, desc: "発動条件: 常時使用可。素早い連打で削る" },
+                    { id: 1, name: "ボディ・シフター", mp: 7, pow: 1.1, powGrowth: 0.15, maxLevel: 50, effects: [{ target: "enemy", id: "weaken", stacks: 1, turns: 2, log: "動きが鈍った！" }], desc: "発動条件: 直前の攻撃が命中。ボディ連打で相手の勢いを削ぐ" },
+                    { id: 2, name: "カウンター・スリップ", mp: 9, pow: 1.0, powGrowth: 0.12, accuracyBonus: 5, accuracyGrowth: 2, maxLevel: 50, effects: [{ target: "self", id: "haste", stacks: 1, turns: 2 }, { target: "self", id: "reflect", stacks: 1, turns: 2 }], desc: "発動条件: 敵の攻撃に合わせて使用。回避と反撃を狙う" },
+                    { id: 3, name: "ラッシュ・アッパー", mp: 12, pow: 1.6, powGrowth: 0.2, critBonus: 8, critGrowth: 2, maxLevel: 50, desc: "発動条件: 直前に拳技を使用。連携で威力が増す" },
+                    { id: 4, name: "リング・コンビネーション", mp: 14, pow: 0.9, powGrowth: 0.12, hits: 2, accuracyBonus: 10, accuracyGrowth: 3, maxLevel: 50, effects: [{ target: "enemy", id: "blind", stacks: 1, turns: 2, log: "視界が乱れた！" }], desc: "発動条件: 敵が暗闇、または自身が迅速。連撃で主導権を握る" },
+                    { id: 5, name: "フィニッシュ・ブロー", mp: 18, pow: 2.6, powGrowth: 0.35, critBonus: 12, critGrowth: 3, maxLevel: 50, desc: "発動条件: 直近で拳技が連続命中。締めの一撃" },
+                    { id: 6, name: "鉄拳衝", mp: 10, pow: 2.1, powGrowth: 0.28, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 1, turns: 2, log: "防御が削がれた！" }], desc: "発動条件: 常時使用可。防御を崩す重い一撃" },
+                    { id: 7, name: "ガード・クラッシュ", mp: 16, pow: 2.7, powGrowth: 0.35, maxLevel: 50, effects: [{ target: "enemy", id: "defenseDown", stacks: 2, turns: 2, log: "ガードが崩れた！" }], desc: "発動条件: 敵が防御系状態。ガードを破砕する強打" },
+                    { id: 8, name: "踏み込み破砕", mp: 14, pow: 2.3, powGrowth: 0.3, maxLevel: 50, effects: [{ target: "enemy", id: "attackDown", stacks: 1, turns: 2, log: "衝撃で動きが鈍った！" }], desc: "発動条件: 自身が闘志/強化。踏み込みで押し切る" },
+                    { id: 9, name: "震脚一撃", mp: 12, pow: 1.8, powGrowth: 0.24, accuracyBonus: 5, accuracyGrowth: 2, maxLevel: 50, effects: [{ target: "enemy", id: "blind", stacks: 1, turns: 2, log: "衝撃で視界が揺れた！" }], desc: "発動条件: 敵の命中が高い時に有効。視界を乱す衝撃拳" },
+                    { id: 10, name: "破壊の拳圧", mp: 18, pow: 2.0, powGrowth: 0.28, maxLevel: 50, effects: [{ target: "enemy", id: "vulnerable", stacks: 1, turns: 2, log: "防勢が崩れた！" }, { target: "enemy", id: "defenseDown", stacks: 1, turns: 2, log: "守りが裂けた！" }], desc: "発動条件: 敵が弱体/脆弱/脆甲。圧で連携を通す" },
+                    { id: 11, name: "覇拳・極", mp: 28, pow: 4.2, powGrowth: 0.6, critBonus: 10, critGrowth: 3, maxLevel: 50, effects: [{ target: "self", id: "attackDown", stacks: 1, turns: 2 }], desc: "発動条件: 直前に被ダメ。溜めの決定打" }
                 ],
                 passive: [
                     { id: 0, name: "体術鍛錬", desc: "STR+2/レベル & DEX+2/レベル", maxLevel: 50, apply: (d) => { Game.player.str += 2 * d; Game.player.dex += 2 * d; } },
@@ -2022,28 +1870,6 @@
                 ]
             }
         };
-
-        const normalizeSkillDefinitions = () => {
-            JobKeys.forEach((job) => {
-                const data = JobData[job];
-                if (!data || !Array.isArray(data.active)) return;
-                data.active = data.active.map((skill) => {
-                    const cooldown = Number.isFinite(skill.cooldown) ? Math.max(0, skill.cooldown) : null;
-                    const cooldownMax = Number.isFinite(skill.cooldownMax) ? Math.max(0, skill.cooldownMax) : null;
-                    const resolvedCooldown = cooldown ?? cooldownMax ?? 0;
-                    const resolvedCooldownMax = cooldownMax ?? cooldown ?? 0;
-                    return {
-                        cooldown: resolvedCooldown,
-                        cooldownMax: resolvedCooldownMax,
-                        ...skill,
-                        cooldown: resolvedCooldown,
-                        cooldownMax: resolvedCooldownMax
-                    };
-                });
-            });
-        };
-
-        normalizeSkillDefinitions();
 
         const PassiveMilestoneBonuses = {
             warrior: {
@@ -2220,8 +2046,8 @@
         ];
         const BossRushStartFloor = 1001;
         const BossRushNoDropStartFloor = BossRushStartFloor;
-        const BossRushBaseScale = 3;
-        const BossRushScaleStep = 5;
+        const BossRushBaseScale = 5;
+        const BossRushScaleStep = 10;
         const BossRushBaseStats = {
             hp: 561543,
             str: 34846,
@@ -2759,12 +2585,12 @@
 
         const BossLootTables = {
             10: [
-                { name: "毒牙の短剣", type: "weapon", rarity: "epic", attackSpeed: "fast", attackRange: "single", stats: [{ key: "attackFlat", value: 26 }, { key: "dex", value: 9 }, { key: "leechRate", value: 3 }], uniqueStats: [] },
+                { name: "毒牙の短剣", type: "weapon", rarity: "epic", stats: [{ key: "attackFlat", value: 26 }, { key: "dex", value: 9 }, { key: "leechRate", value: 3 }], uniqueStats: [] },
                 { name: "毒沼のヘルム", type: "head", rarity: "epic", stats: [{ key: "defenseFlat", value: 18 }, { key: "maxHp", value: 24 }], uniqueStats: [] },
                 { name: "湿毒のローブ", type: "armor", rarity: "epic", stats: [{ key: "hpRegen", value: 4 }, { key: "damageReduction", value: 2 }], uniqueStats: [] }
             ],
             50: [
-                { name: "疾風の爪剣", type: "weapon", rarity: "epic", attackSpeed: "fast", attackRange: "single", stats: [{ key: "attackFlat", value: 38 }, { key: "dex", value: 13 }, { key: "accuracy", value: 9 }], uniqueStats: [] },
+                { name: "疾風の爪剣", type: "weapon", rarity: "epic", stats: [{ key: "attackFlat", value: 38 }, { key: "dex", value: 13 }, { key: "accuracy", value: 9 }], uniqueStats: [] },
                 { name: "風走りのブーツ", type: "feet", rarity: "epic", stats: [{ key: "evasionRate", value: 10 }, { key: "dex", value: 9 }, { key: "hpEfficiency", value: 13 }], uniqueStats: [] },
                 { name: "疾風の籠手", type: "hands", rarity: "epic", stats: [{ key: "attackFlat", value: 12 }, { key: "evasionRate", value: 5 }], uniqueStats: [] }
             ],
@@ -2774,32 +2600,32 @@
                 { name: "岩脈の護符", type: "accessory", rarity: "epic", stats: [{ key: "maxHp", value: 36 }, { key: "damageReduction", value: 3 }], uniqueStats: [] }
             ],
             200: [
-                { name: "氷晶の杖", type: "weapon", rarity: "epic", attackSpeed: "slow", attackRange: "single", stats: [{ key: "attackFlat", value: 42 }, { key: "int", value: 13 }, { key: "mPen", value: 9 }], uniqueStats: [] },
+                { name: "氷晶の杖", type: "weapon", rarity: "epic", stats: [{ key: "attackFlat", value: 42 }, { key: "int", value: 13 }, { key: "mPen", value: 9 }], uniqueStats: [] },
                 { name: "氷牢の指輪", type: "accessory", rarity: "epic", stats: [{ key: "mpEfficiency", value: 6 }, { key: "critRate", value: 5 }, { key: "maxMp", value: 30 }], uniqueStats: [] },
                 { name: "凍霧の手甲", type: "hands", rarity: "epic", stats: [{ key: "int", value: 8 }, { key: "mPen", value: 5 }], uniqueStats: [] }
             ],
             300: [
                 { name: "宵闇のマント", type: "armor", rarity: "epic", stats: [{ key: "evasionRate", value: 10 }, { key: "dex", value: 12 }, { key: "damageBoost", value: 5 }], uniqueStats: [] },
-                { name: "闇狩りの短剣", type: "weapon", rarity: "epic", attackSpeed: "fast", attackRange: "single", stats: [{ key: "attackFlat", value: 47 }, { key: "critRate", value: 7 }, { key: "dex", value: 9 }], uniqueStats: [] },
+                { name: "闇狩りの短剣", type: "weapon", rarity: "epic", stats: [{ key: "attackFlat", value: 47 }, { key: "critRate", value: 7 }, { key: "dex", value: 9 }], uniqueStats: [] },
                 { name: "闇縫いの兜", type: "head", rarity: "epic", stats: [{ key: "dex", value: 9 }, { key: "critRate", value: 4 }], uniqueStats: [] },
             ],
             400: [
-                { name: "熾火の大剣", type: "weapon", rarity: "epic", attackSpeed: "slow", attackRange: "all", stats: [{ key: "attackFlat", value: 55 }, { key: "str", value: 13 }, { key: "critDamage", value: 13 }], uniqueStats: [] },
+                { name: "熾火の大剣", type: "weapon", rarity: "epic", stats: [{ key: "attackFlat", value: 55 }, { key: "str", value: 13 }, { key: "critDamage", value: 13 }], uniqueStats: [] },
                 { name: "炎護の手甲", type: "hands", rarity: "epic", stats: [{ key: "attackFlat", value: 13 }, { key: "str", value: 9 }, { key: "damageBoost", value: 5 }], uniqueStats: [] },
                 { name: "灼炎の護衣", type: "armor", rarity: "epic", stats: [{ key: "defenseFlat", value: 30 }, { key: "str", value: 8 }], uniqueStats: [] },
             ],
             500: [
-                { name: "雷鳴の戦槌", type: "weapon", rarity: "epic", attackSpeed: "slow", attackRange: "all", stats: [{ key: "attackFlat", value: 59 }, { key: "str", value: 16 }, { key: "accuracy", value: 9 }], uniqueStats: [] },
+                { name: "雷鳴の戦槌", type: "weapon", rarity: "epic", stats: [{ key: "attackFlat", value: 59 }, { key: "str", value: 16 }, { key: "accuracy", value: 9 }], uniqueStats: [] },
                 { name: "帯電の護符", type: "accessory", rarity: "epic", stats: [{ key: "critRate", value: 7 }, { key: "damageBoost", value: 7 }, { key: "maxHp", value: 53 }], uniqueStats: [] },
                 { name: "雷影の兜", type: "head", rarity: "epic", stats: [{ key: "accuracy", value: 7 }, { key: "critRate", value: 4 }], uniqueStats: [] },
             ],
             600: [
                 { name: "聖紋のローブ", type: "armor", rarity: "epic", stats: [{ key: "defenseFlat", value: 48 }, { key: "int", value: 13 }, { key: "mpEfficiency", value: 8 }], uniqueStats: [] },
                 { name: "聖祈の護符", type: "accessory", rarity: "epic", stats: [{ key: "hpRegen", value: 11 }, { key: "mpRegen", value: 3 }, { key: "damageReduction", value: 4 }], uniqueStats: [] },
-                { name: "聖光の杖", type: "weapon", rarity: "epic", attackSpeed: "slow", attackRange: "single", stats: [{ key: "attackFlat", value: 28 }, { key: "int", value: 10 }], uniqueStats: [] }
+                { name: "聖光の杖", type: "weapon", rarity: "epic", stats: [{ key: "attackFlat", value: 28 }, { key: "int", value: 10 }], uniqueStats: [] }
             ],
             700: [
-                { name: "疫毒の鎌", type: "weapon", rarity: "epic", attackSpeed: "slow", attackRange: "all", stats: [{ key: "attackFlat", value: 63 }, { key: "dex", value: 13 }, { key: "mPen", value: 9 }], uniqueStats: [] },
+                { name: "疫毒の鎌", type: "weapon", rarity: "epic", stats: [{ key: "attackFlat", value: 63 }, { key: "dex", value: 13 }, { key: "mPen", value: 9 }], uniqueStats: [] },
                 { name: "腐蝕の指輪", type: "accessory", rarity: "epic", stats: [{ key: "damageBoost", value: 7 }, { key: "leechRate", value: 5 }, { key: "maxHp", value: 53 }], uniqueStats: [] },
                 { name: "腐蝕の脚甲", type: "feet", rarity: "epic", stats: [{ key: "evasionRate", value: 6 }, { key: "dex", value: 8 }], uniqueStats: [] }
             ],
@@ -2809,12 +2635,12 @@
                 { name: "鉄壁の護符", type: "accessory", rarity: "epic", stats: [{ key: "maxHp", value: 40 }, { key: "damageReduction", value: 3 }], uniqueStats: [] }
             ],
             900: [
-                { name: "影刃の忍刀", type: "weapon", rarity: "epic", attackSpeed: "normal", attackRange: "single", stats: [{ key: "attackFlat", value: 68 }, { key: "dex", value: 17 }, { key: "critRate", value: 9 }], uniqueStats: [] },
+                { name: "影刃の忍刀", type: "weapon", rarity: "epic", stats: [{ key: "attackFlat", value: 68 }, { key: "dex", value: 17 }, { key: "critRate", value: 9 }], uniqueStats: [] },
                 { name: "夜走りの足袋", type: "feet", rarity: "epic", stats: [{ key: "evasionRate", value: 11 }, { key: "dex", value: 12 }, { key: "accuracy", value: 9 }], uniqueStats: [] },
                 { name: "影刃の護符", type: "accessory", rarity: "epic", stats: [{ key: "critRate", value: 5 }, { key: "damageBoost", value: 4 }], uniqueStats: [] }
             ],
             1000: [
-                { name: "終焉の竜槍", type: "weapon", rarity: "legendary", attackSpeed: "slow", attackRange: "all", stats: [{ key: "attackFlat", value: 84 }, { key: "str", value: 21 }, { key: "damageBoost", value: 12 }], uniqueStats: [] },
+                { name: "終焉の竜槍", type: "weapon", rarity: "legendary", stats: [{ key: "attackFlat", value: 84 }, { key: "str", value: 21 }, { key: "damageBoost", value: 12 }], uniqueStats: [] },
                 { name: "竜鱗の護鎧", type: "armor", rarity: "legendary", stats: [{ key: "defenseFlat", value: 80 }, { key: "vit", value: 27 }, { key: "maxHp", value: 105 }], uniqueStats: [] },
                 { name: "終焉の護符", type: "accessory", rarity: "legendary", stats: [{ key: "luck", value: 36 }, { key: "rareFind", value: 34 }, { key: "affixFind", value: 32 }], uniqueStats: [] }
             ],
@@ -2905,8 +2731,7 @@
             potionAutoRegen: "再生付与",
             potionBarrier: "バリア付与",
             poisonMaxStacksBonus: "毒上限スタック",
-            poisonMinPctBonus: "毒最低保証",
-            cooldownReduction: "クールタイム短縮率"
+            poisonMinPctBonus: "毒最低保証"
         };
 
         const PercentStats = new Set([
@@ -2929,8 +2754,7 @@
             "eliteEncounter",
             "goldBoost",
             "potionHealPct",
-            "poisonMinPctBonus",
-            "cooldownReduction"
+            "poisonMinPctBonus"
         ]);
 
         const RarityDefs = [
@@ -3179,7 +3003,6 @@
             { name: "探索の", suffixName: "の・金猫", rank: 1, group: "treasure", stats: ["rareFind"] },
             { name: "癒しの", suffixName: "の聖歌", rank: 1, group: "support", stats: ["hpRegen"] },
             { name: "調律の", suffixName: "の癒奏", rank: 1, group: "support", stats: ["mpRegen"] },
-            { name: "時詠の", suffixName: "の時守", rank: 1, group: "support", stats: ["cooldownReduction"] },
             { name: "再生の", suffixName: "の静養", rank: 1, group: "support", stats: ["hpEfficiency"] },
             { name: "精密の", suffixName: "の鷹眼", rank: 1, group: "precision", stats: ["accuracy"] },
             { name: "集中の", suffixName: "の射手", rank: 1, group: "precision", stats: ["accuracy", "critRate"] },
@@ -3288,7 +3111,6 @@
             rareFind: [4, 8, 15],
             affixFind: [5, 10, 18],
             goldBoost: [5, 10, 18],
-            cooldownReduction: [6, 12, 20],
             potionCapacity: [15, 30, 50],
             potionHeal: [10, 22, 38],
             potionCostReduction: [5, 10, 18],
@@ -3955,7 +3777,6 @@
                 statusEffectTurnBonus: Game.player.statusEffectTurnBonus + (equip.statusEffectTurnBonus || 0),
                 poisonMaxStacksBonus: Game.player.poisonMaxStacksBonus + (equip.poisonMaxStacksBonus || 0),
                 poisonMinPctBonus: Game.player.poisonMinPctBonus + (equip.poisonMinPctBonus || 0),
-                cooldownReduction: Game.player.cooldownReduction + (equip.cooldownReduction || 0),
                 skillMpDiscount: Game.player.skillMpDiscount + (equip.skillMpDiscount || 0),
                 strMultiplier: Game.player.strMultiplier + (equip.strMultiplier || 0),
                 intMultiplier: Game.player.intMultiplier + (equip.intMultiplier || 0),
@@ -4147,7 +3968,6 @@
             statusEffectTurnBonus: (stat) => `状態異常付与ターン +${stat.value}`,
             poisonMaxStacksBonus: (stat) => `毒上限スタック +${stat.value}`,
             poisonMinPctBonus: (stat) => `毒最低保証 +${stat.value}%`,
-            cooldownReduction: (stat) => `クールタイム短縮率 +${stat.value}%`,
             skillMpDiscount: (stat) => `スキルMP消費 -${stat.value}%`,
             strMultiplier: (stat) => `STR倍率 +${stat.value}%`,
             vitMultiplier: (stat) => `VIT倍率 +${stat.value}%`,
@@ -4182,26 +4002,6 @@
             `;
         };
 
-        const WeaponSpeedLabels = {
-            slow: { label: "遅い", attacks: 1 },
-            normal: { label: "通常", attacks: 2 },
-            fast: { label: "速い", attacks: 4 }
-        };
-        const WeaponRangeLabels = {
-            single: "単体",
-            all: "複数"
-        };
-        const getWeaponInfoLines = (item) => {
-            if (!item || item.type !== "weapon") return [];
-            const profile = getWeaponAttackProfile(item);
-            const speedInfo = WeaponSpeedLabels[profile.speed] || WeaponSpeedLabels.normal;
-            const rangeLabel = WeaponRangeLabels[profile.range] || WeaponRangeLabels.single;
-            return [
-                `攻撃速度: ${speedInfo.label} (${speedInfo.attacks}回)`,
-                `攻撃範囲: ${rangeLabel}`
-            ];
-        };
-
         const renderItemStatsGroupedHtml = (item) => {
             if (!item) return '';
             const isPotion = item.type === "potion";
@@ -4226,7 +4026,6 @@
                 })()
                 : getEnhancedBaseStats(item);
             const baseLines = renderStatLines(baseStats);
-            baseLines.push(...getWeaponInfoLines(item));
             const prefixLines = renderStatLines((item.affixStats || []).filter((stat) => stat.source === "prefix"));
             const suffixLines = renderStatLines((item.affixStats || []).filter((stat) => stat.source === "suffix"));
             const uniqueLines = renderStatLines(item.uniqueStats || []);
@@ -4601,16 +4400,6 @@
             const lv = Math.max(1, level);
             const scale = lv - 1;
             const skill = { ...base, level: lv, maxLevel: base.maxLevel || SkillMaxLevel };
-            if (base.cooldown !== undefined || base.cooldownMax !== undefined) {
-                const resolvedCooldown = Number.isFinite(base.cooldown)
-                    ? Math.max(0, base.cooldown)
-                    : Math.max(0, base.cooldownMax || 0);
-                const resolvedCooldownMax = Number.isFinite(base.cooldownMax)
-                    ? Math.max(0, base.cooldownMax)
-                    : Math.max(0, base.cooldown || 0);
-                skill.cooldown = resolvedCooldown;
-                skill.cooldownMax = resolvedCooldownMax;
-            }
             if (base.mp !== undefined) {
                 const baseMp = Math.max(0, Math.round(base.mp + (base.mpGrowth || 0) * scale));
                 if (baseMp > 0) {
@@ -4637,76 +4426,6 @@
             const level = getSkillLevel(slot.job, 'active', slot.idx);
             if (level <= 0) return null;
             return buildActiveSkill(slot.job, slot.idx, level);
-        }
-
-        function normalizeSkillSlotCooldowns() {
-            const slotCount = Game.player.skillSlots.length;
-            if (!Array.isArray(Game.player.skillSlotCooldowns) || Game.player.skillSlotCooldowns.length !== slotCount) {
-                Game.player.skillSlotCooldowns = Array.from({ length: slotCount }, (_, idx) => {
-                    const current = Game.player.skillSlotCooldowns?.[idx] ?? 0;
-                    return Number.isFinite(current) ? Math.max(0, current) : 0;
-                });
-            } else {
-                Game.player.skillSlotCooldowns = Game.player.skillSlotCooldowns.map((cd) => (Number.isFinite(cd) ? Math.max(0, cd) : 0));
-            }
-            return Game.player.skillSlotCooldowns;
-        }
-
-
-        function tickSkillCooldowns(amount = 1, skipIndex = null) {
-          const cooldowns = normalizeSkillSlotCooldowns();
-          const step = Number.isFinite(amount) ? Math.max(0, amount) : 0;
-        
-          Game.player.skillSlotCooldowns = cooldowns.map((cd, i) => {
-            if (skipIndex !== null && i === skipIndex) return cd; // 今ターン使ったスロットは減らさない
-            return Math.max(0, cd - step);
-          });
-        }
-
-
-        function getAdjustedSkillMpCost(skill, derived) {
-            if (!skill || skill.name === '通常攻撃') return 0;
-            let adjustedMpCost = skill.mp || 0;
-            const skillMpDiscount = derived.totals.skillMpDiscount || 0;
-            if (skillMpDiscount > 0) {
-                adjustedMpCost = Math.max(0, Math.floor(adjustedMpCost * (1 - skillMpDiscount / 100)));
-            }
-            return adjustedMpCost;
-        }
-
-        const NormalAttackSpeedConfig = {
-            slow: 1,
-            normal: 2,
-            fast: 4
-        };
-
-        function getWeaponAttackProfile(weapon) {
-            const speed = weapon?.attackSpeed || 'normal';
-            const range = weapon?.attackRange || 'single';
-            const maxAttacks = NormalAttackSpeedConfig[speed] ?? NormalAttackSpeedConfig.normal;
-            return { speed, range, maxAttacks };
-        }
-
-        function resetPlayerTurnState() {
-            Game.playerTurnStarted = false;
-            Game.playerTurnRemainingAttacks = 0;
-        }
-
-        function getSkillSlotAvailability({ skill, derived, playerStatusMods, cooldown, currentMp }) {
-            if (!skill) {
-                return { selectable: false, reason: '未設定', mpCost: 0 };
-            }
-            const mpCost = getAdjustedSkillMpCost(skill, derived);
-            if ((cooldown || 0) > 0) {
-                return { selectable: false, reason: `CD${cooldown}`, mpCost };
-            }
-            if (playerStatusMods.silence && skill.name !== '通常攻撃') {
-                return { selectable: false, reason: '沈黙中', mpCost };
-            }
-            if (skill.name !== '通常攻撃' && currentMp < mpCost) {
-                return { selectable: false, reason: 'MP不足', mpCost };
-            }
-            return { selectable: true, reason: '', mpCost };
         }
 
         function getNextSlotSkill() {
@@ -4785,7 +4504,6 @@
             const dexCritRateBonus = Math.floor(boostedTotals.dex * 0.05);
             const dexCritDamageBonus = Math.floor(boostedTotals.dex * 0.2);
             const lukBonus = Math.floor(boostedTotals.luk * 0.5);
-            const cooldownReductionBonus = Math.floor(boostedTotals.int * 0.5);
             const modifiedTotals = {
                 ...boostedTotals,
                 accuracy: Math.max(0, Math.floor((totals.accuracy + dexAccuracyBonus) * statusMods.accuracyMul)),
@@ -4797,8 +4515,7 @@
                 rareFind: totals.rareFind + lukBonus,
                 affixFind: totals.affixFind + lukBonus,
                 eliteEncounter: totals.eliteEncounter + lukBonus,
-                goldBoost: totals.goldBoost + lukBonus,
-                cooldownReduction: totals.cooldownReduction + cooldownReductionBonus
+                goldBoost: totals.goldBoost + lukBonus
             };
             return { maxHp, maxMp, atk, def, totals: modifiedTotals };
         }
@@ -5319,8 +5036,6 @@
             const stats = [];
             if (type === 'active') {
                 if (displaySkill.mp !== undefined) stats.push(`MP消費: ${displaySkill.mp}`);
-                const detailCooldown = Math.max(0, displaySkill.cooldownMax ?? displaySkill.cooldown ?? 0);
-                if (detailCooldown > 0) stats.push(`クールタイム: ${detailCooldown}ターン`);
                 if (displaySkill.pow !== undefined) stats.push(`威力倍率: ${displaySkill.pow}`);
                 if (displaySkill.hits) stats.push(`ヒット数: ${displaySkill.hits}`);
                 if (displaySkill.accuracyBonus) stats.push(`命中補正: +${displaySkill.accuracyBonus}%`);
@@ -5729,20 +5444,12 @@
                     ? buildActiveSkill(Game.currentJobTab, idx, Math.max(1, level || 1))
                     : skill;
 
-                const skillCooldown = Game.currentSkillType === 'active'
-                    ? Math.max(0, displaySkill.cooldownMax ?? displaySkill.cooldown ?? 0)
-                    : 0;
-                const cooldownBadge = skillCooldown > 0
-                    ? `<span class="text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full font-bold">CD ${skillCooldown}</span>`
-                    : '';
-
                 card.innerHTML = `
                     <div class="flex justify-between items-center gap-4">
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-2 mb-0.5">
                                 <span class="font-black text-sm truncate">${displaySkill.name}</span>
                                 ${displaySkill.mp !== undefined ? `<span class="text-[9px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded-full font-bold">MP ${displaySkill.mp}</span>` : ''}
-                                ${cooldownBadge}
                                 <span class="text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full font-bold">Lv ${level}/${maxLevel}</span>
                             </div>
                             <p class="text-[10px] text-slate-500 leading-tight">${displaySkill.desc}</p>
@@ -5805,12 +5512,11 @@
                 bossBase = isDxBoss ? BossDefs[1000] : bossDef;
                 bossScale = getBossScale(Game.floor);
             }
-            let enemies = [];
             if (bossDef) {
                 const baseStats = bossBase || bossDef;
                 const hasBossRushUnlocked = Array.isArray(Game.defeatedBossFloors) && Game.defeatedBossFloors.includes(1000);
                 const isDxBoss = hasBossRushUnlocked && Game.floor <= 1000;
-                const bossEnemy = {
+                Game.enemy = {
                     ...bossDef,
                     floor: Game.floor,
                     maxHp: Math.floor(baseStats.hp * bossScale),
@@ -5831,57 +5537,42 @@
                     bossRushBuffState: null
                 };
                 if (Game.floor >= BossRushStartFloor) {
-                    bossEnemy.bossRushBuffs = rollBossRushBuffs(Game.floor);
-                    bossEnemy.bossRushBuffState = null;
-                    applyBossRushBuffStats(bossEnemy, bossEnemy.bossRushBuffs);
-                    applyBossRushCarryoverDamage(bossEnemy);
+                    Game.enemy.bossRushBuffs = rollBossRushBuffs(Game.floor);
+                    Game.enemy.bossRushBuffState = null;
+                    applyBossRushBuffStats(Game.enemy, Game.enemy.bossRushBuffs);
+                    applyBossRushCarryoverDamage(Game.enemy);
                 } else {
                     Game.bossRushCarryoverDamage = 0;
                 }
-                enemies = [bossEnemy];
                 addLog(`BOSS ${bossDef.name}が出現！`, "text-amber-500 font-black");
             } else {
                 const scale = getEnemyScale(Game.floor);
                 const basePool = getEnemyPool(Game.floor);
-                const spawnCount = Math.floor(Math.random() * 3) + 1;
-                enemies = Array.from({ length: spawnCount }, () => {
-                    const base = pickRandom(basePool);
-                    return { 
-                        ...base, 
-                        maxHp: Math.floor(base.hp * scale), 
-                        hp: Math.floor(base.hp * scale), 
-                        str: Math.floor(base.str * scale),
-                        def: Math.floor(base.def * scale),
-                        acc: Math.floor(base.acc * scale),
-                        eva: Math.floor(base.eva * scale),
-                        statusEffects: [],
-                        isBoss: false,
-                        critRate: 0,
-                        critDamage: Math.floor(BossRushBuffConfig.baseCritMultiplier * 100),
-                        bossRushBuffs: [],
-                        bossRushBuffState: null
-                    };
-                });
+                const base = pickRandom(basePool);
+                Game.enemy = { 
+                    ...base, 
+                    maxHp: Math.floor(base.hp * scale), 
+                    hp: Math.floor(base.hp * scale), 
+                    str: Math.floor(base.str * scale),
+                    def: Math.floor(base.def * scale),
+                    acc: Math.floor(base.acc * scale),
+                    eva: Math.floor(base.eva * scale),
+                    statusEffects: [],
+                    isBoss: false,
+                    critRate: 0,
+                    critDamage: Math.floor(BossRushBuffConfig.baseCritMultiplier * 100),
+                    bossRushBuffs: [],
+                    bossRushBuffState: null
+                };
                 Game.bossRushCarryoverDamage = 0;
             }
             const derived = getDerivedStats();
             const eliteRank = rollEliteRank(derived.totals.eliteEncounter);
-            if (eliteRank > 0 && enemies[0]) {
-                enemies[0] = buildEliteEnemy(enemies[0], eliteRank);
-                addLog(`エリートランク${eliteRank} ${enemies[0].name}が出現！`, "text-purple-500 font-black");
+            if (eliteRank > 0) {
+                Game.enemy = buildEliteEnemy(Game.enemy, eliteRank);
+                addLog(`エリートランク${eliteRank} ${Game.enemy.name}が出現！`, "text-purple-500 font-black");
             }
-            const nextEnemyId = Number.isInteger(Game.enemyIdCounter) ? Game.enemyIdCounter : 0;
-            enemies = enemies.map((enemy, index) => ({
-                ...enemy,
-                id: nextEnemyId + index + 1
-            }));
-            Game.enemyIdCounter = nextEnemyId + enemies.length;
-            Game.enemies = enemies;
-            Game.enemies.forEach((enemy) => setEnemyNextActionPreview(enemy));
-            Game.targetEnemyId = enemies[0]?.id ?? null;
             Game.state = 'combat';
-            
-            resetPlayerTurnState();
         }
 
         function performEnemySkill(skill, derived) {
@@ -5986,39 +5677,20 @@
             }
         }
 
+        const actionButton = document.getElementById('action-btn');
+        let actionRepeatTimer = null;
+        let actionRepeatActive = false;
+        let actionCooldown = false;
+        const actionCooldownMs = 350;
 
-        function beginPlayerTurn() {
-          Game.turnId = (Number.isInteger(Game.turnId) ? Game.turnId : 0) + 1;
-          Game.turn = Game.turn || {};
-          Game.turn.usedSlots = new Set();
-          Game.turn.finalizedTurnId = Game.turn.finalizedTurnId ?? -1;
-        }
-        
-        function onPlayerUsedSkill(slotIndex, cooldownTurns) {
-          normalizeSkillSlotCooldowns();
-          Game.player.skillSlotCooldowns[slotIndex] = Math.max(0, cooldownTurns | 0);
-          Game.turn.usedSlots.add(slotIndex); // ★このターンは減らさない対象
-        }
-        
-        function endTurnCooldownPhase() {
-          const tid = Number.isInteger(Game.turnId) ? Game.turnId : 0;
-          Game.turn = Game.turn || {};
-          if (Game.turn.finalizedTurnId === tid) return; // 二重呼び防止
-          Game.turn.finalizedTurnId = tid;
-        
-          const cds = normalizeSkillSlotCooldowns();
-          const used = Game.turn.usedSlots || new Set();
-          Game.player.skillSlotCooldowns = cds.map((cd, i) => {
-            if (used.has(i)) return cd;   // ★使ったターンは減らさない
-            return Math.max(0, cd - 1);
-          });
-        }
-
-        
-        const handlePlayerAction = ({ forcedSkillSlotIndex = null, allowSkillSlot = true, skipAttack = false } = {}) => {
+        const handleAction = () => {
             if (Game.state === 'dead') return;
+            if (actionCooldown) return;
+            actionCooldown = true;
+            setTimeout(() => {
+                actionCooldown = false;
+            }, actionCooldownMs);
             if (Game.state === 'idle') {
-                if (skipAttack) return;
                 const stayOnFloor = Game.stayOnFloor;
                 if (!stayOnFloor) {
                     Game.floor++;
@@ -6030,74 +5702,43 @@
                 return;
             }
 
-            const endPlayerTurn = () => {
-              advanceStatusEffects(Game.player, 'end');
-              applyAutoRegen();
-
-            　endTurnCooldownPhase(); // ★ターン終了でここだけがCDを進める
-                
-              resetPlayerTurnState();
-              setTimeout(enemyTurn, 300);
-              updateUI();
-              triggerAutosave();
-            };
-
-
-            const isNewTurn = !Game.playerTurnStarted;
-            if (isNewTurn) {
-                beginPlayerTurn(); // ★ここでのみ turnId++ & usedSlots初期化
-                tickFreezeDecayForCombatants();
-                advanceStatusEffects(Game.player, 'start');
-                if (Game.player.hp <= 0) {
-                    die();
-                    updateUI();
-                    return;
-                }
+            tickFreezeDecayForCombatants();
+            advanceStatusEffects(Game.player, 'start');
+            if (Game.player.hp <= 0) {
+                die();
+                updateUI();
+                return;
             }
             const playerStatusMods = getStatusModifiers(Game.player);
-            if (isNewTurn && playerStatusMods.frozen) {
+            if (playerStatusMods.frozen) {
                 addLog("凍結で行動不能！", "text-sky-400");
-                endPlayerTurn();
+                advanceStatusEffects(Game.player, 'end');
+                applyAutoRegen();
+                setTimeout(enemyTurn, 300);
+                updateUI();
                 return;
             }
 
-            if (isNewTurn) {
-                const attackProfile = getWeaponAttackProfile(Game.player.weapon);
-                Game.playerTurnRemainingAttacks = attackProfile.maxAttacks;
-                Game.playerTurnStarted = true;
-            }
-
-            if (skipAttack) {
-                endPlayerTurn();
-                return;
-            }
+            const slotResult = getNextSlotSkill();
+            let currentSkill = { name: '通常攻撃', mp: 0, pow: 1.0 };
+            let isMagic = false;
             
-            const selectedSlotIndex = allowSkillSlot
-                ? (Number.isInteger(forcedSkillSlotIndex)
-                    ? forcedSkillSlotIndex
-                    : (Number.isInteger(Game.selectedSkillId) ? Game.selectedSkillId : null))
-                : null;
-            const selectedSlot = selectedSlotIndex !== null ? Game.player.skillSlots[selectedSlotIndex] : null;
-            let currentSkill = selectedSlot ? getSlotSkill(selectedSlot) : null;
-            if (!currentSkill) {
-                currentSkill = { name: '通常攻撃', mp: 0, pow: 1.0 };
+            if (slotResult.skill) {
+                currentSkill = slotResult.skill;
+                if (currentSkill.isMagic) isMagic = true;
             }
-            
-            let isMagic = Boolean(currentSkill.isMagic);
 
             const derived = getDerivedStats();
-
-            let cooldownToApply = 0;
-            
-            let adjustedMpCost = getAdjustedSkillMpCost(currentSkill, derived);
-            const selectedCooldown = selectedSlotIndex !== null ? (Game.player.skillSlotCooldowns?.[selectedSlotIndex] || 0) : 0;
-
-            if (selectedCooldown > 0 && currentSkill.name !== '通常攻撃') {
-                addLog("CD中でスキル不可！通常攻撃に変更", "text-slate-400");
-                currentSkill = { name: '通常攻撃', mp: 0, pow: 1.0 };
-                isMagic = false;
+            let adjustedMpCost = currentSkill.mp || 0;
+            if (currentSkill.name !== '通常攻撃') {
+                const skillMpDiscount = derived.totals.skillMpDiscount || 0;
+                if (skillMpDiscount > 0) {
+                    adjustedMpCost = Math.max(0, Math.floor(adjustedMpCost * (1 - skillMpDiscount / 100)));
+                }
+            } else {
                 adjustedMpCost = 0;
             }
+
             if (Game.player.mp < adjustedMpCost) {
                 addLog("MP不足！通常攻撃", "text-blue-400");
                 currentSkill = { name: '通常攻撃', mp: 0, pow: 1.0 };
@@ -6110,175 +5751,13 @@
                 isMagic = false;
                 adjustedMpCost = 0;
             }
-                if (selectedSlotIndex !== null && currentSkill.name !== '通常攻撃') {
-                  const skillCooldown = Math.max(0, currentSkill.cooldownMax ?? currentSkill.cooldown ?? 0);
-                  if (skillCooldown > 0) {
-                    const cooldownReductionTurns = Math.floor((derived.totals.cooldownReduction || 0) / 100);
-                    cooldownToApply = Math.max(0, skillCooldown - cooldownReductionTurns);
-                  }
-            }
 
-            const attackProfile = getWeaponAttackProfile(Game.player.weapon);
-            const isNormalAttack = currentSkill.name === '通常攻撃';
-            const isMultiTarget = isNormalAttack && attackProfile.range === 'all';
-            if (isNormalAttack && Game.playerTurnRemainingAttacks <= 0) {
-                endPlayerTurn();
-                return;
-            }
+            Game.player.skillSlotIndex = slotResult.nextIndex;
 
-            const targetEnemy = ensureTargetEnemy();
-            if (!targetEnemy) {
-                updateUI();
-                return;
-            }
-
-            if (selectedSlotIndex !== null && currentSkill.name !== '通常攻撃' && cooldownToApply > 0) {
-              onPlayerUsedSkill(selectedSlotIndex, cooldownToApply);
-            }
-        
-            const applyAttackToTarget = (enemy, labelPrefix = '') => {
-                const enemyStatusMods = getStatusModifiers(enemy);
-                const enemyEvasion = Math.max(0, Math.floor((enemy.eva || 0) * enemyStatusMods.evasionMul));
-                const bossRushDefenseMul = getBossRushEnemyDefenseMultiplier(enemy);
-                const enemyDefense = Math.max(0, Math.floor((enemy.def || 0) * enemyStatusMods.defMul * bossRushDefenseMul));
-                const bossMods = getBossUniqueCombatModifiers({
-                    player: Game.player,
-                    enemy,
-                    derived,
-                    baseHits: currentSkill.hits || 1
-                });
-                if (bossMods.logs.length) {
-                    bossMods.logs.forEach((line) => addLog(line, "text-amber-400"));
-                }
-                let hits = currentSkill.hits || 1;
-                hits += bossMods.bonusHits || 0;
-                let totalDamage = 0;
-                let totalLeechApplied = 0;
-                let landedHit = false;
-                let nullifiedHit = false;
-
-                for (let i = 0; i < hits; i++) {
-                    const baseAccuracy = Math.max(0, derived.totals.accuracy + (currentSkill.accuracyBonus || 0) + bossMods.accuracyBonus);
-                    const evasionValue = Math.max(0, enemyEvasion);
-                    const ratioDenominator = baseAccuracy + evasionValue;
-                    let hitChance = ratioDenominator > 0
-                        ? (baseAccuracy / ratioDenominator) * 100
-                        : 0;
-                    hitChance = Math.min(95, Math.max(10, hitChance));
-                    if (Math.random() * 100 > hitChance) {
-                        continue;
-                    }
-                    landedHit = true;
-                    // Base Attack Power Calculation
-                    let atkBase = isMagic ? (derived.totals.int * 2) : derived.atk;
-
-                    // Critical Check
-                    let isCrit = Math.random() * 100 < (derived.totals.critRate + (currentSkill.critBonus || 0) + bossMods.critRateBonus);
-                    let dmg = Math.floor(currentSkill.pow * atkBase * (0.9 + Math.random() * 0.2));
-                    if (isCrit) dmg = Math.floor(dmg * (derived.totals.critDamage / 100));
-                    if (isCrit && hasBossRushBuff(enemy, "br_yellow_crit_def")) {
-                        const state = getBossRushBuffState(enemy);
-                        if (state) {
-                            state.defenseBoostPct = Math.min(100, (state.defenseBoostPct || 0) + BossRushBuffConfig.critDefBoost * 100);
-                        }
-                    }
-
-                    if (currentSkill.name !== '通常攻撃' && derived.totals.skillPowerBoost > 0) {
-                        dmg = Math.floor(dmg * (1 + derived.totals.skillPowerBoost / 100));
-                    }
-                    if (i >= (currentSkill.hits || 1) && bossMods.bonusHitMultiplier !== 1) {
-                        dmg = Math.floor(dmg * bossMods.bonusHitMultiplier);
-                    }
-
-                    // Passive: Low HP boost
-                    const lowHpLevel = getPassiveLevel('warrior', 5);
-                    if (lowHpLevel > 0 && Game.player.hp < derived.maxHp * 0.3) {
-                        dmg = Math.floor(dmg * (1 + 0.1 * lowHpLevel));
-                    }
-                    // Passive: First hit boost
-                    const firstHitLevel = getPassiveLevel('thief', 5);
-                    if (firstHitLevel > 0 && enemy.hp === enemy.maxHp) {
-                        dmg = Math.floor(dmg * (1 + 0.25 * firstHitLevel));
-                    }
-
-                    if (derived.totals.damageBoost > 0) {
-                        dmg = Math.floor(dmg * (1 + derived.totals.damageBoost / 100));
-                    }
-                    if (bossMods.damageMultiplier !== 1) {
-                        dmg = Math.floor(dmg * bossMods.damageMultiplier);
-                    }
-                    dmg = Math.floor(dmg * playerStatusMods.damageDoneMul);
-                    dmg = Math.floor(dmg * enemyStatusMods.damageTakenMul);
-                    dmg = Math.floor(dmg * getBossRushDamageTakenMultiplier(enemy, Game.player));
-                    dmg = Math.max(0, dmg - enemyDefense);
-                    const nullifyThreshold = getBossRushDamageNullifyThreshold(enemy);
-                    if (nullifyThreshold > 0 && dmg > 0 && dmg < nullifyThreshold) {
-                        nullifiedHit = true;
-                        continue;
-                    }
-                    dmg = Math.max(1, dmg);
-                    const appliedDamage = applyDamage(enemy, dmg, Game.player, { ignoreBossRushNullify: true, ignoreBossRushDamageReduction: true });
-                    totalDamage += appliedDamage;
-
-                    // Leech
-                    const totalLeech = derived.totals.leechRate + (currentSkill.leech || 0);
-                    if (totalLeech > 0 && appliedDamage > 0) {
-                        let l = Math.floor(appliedDamage * (totalLeech / 100));
-                        if (l > 0) {
-                            const beforeHp = Game.player.hp;
-                            Game.player.hp = Math.min(derived.maxHp, Game.player.hp + l);
-                            totalLeechApplied += (Game.player.hp - beforeHp);
-                        }
-                    }
-                }
-
-                if (totalDamage === 0) {
-                    if (landedHit) {
-                        const msg = nullifiedHit ? "ダメージが無効化された！" : "バリアに防がれた！";
-                        addLog(labelPrefix ? `${labelPrefix}${msg}` : msg, "text-slate-400");
-                        dmgText(0, false);
-                    } else {
-                        const missMsg = "攻撃が外れた！";
-                        addLog(labelPrefix ? `${labelPrefix}${missMsg}` : missMsg, "text-slate-400");
-                        dmgText("MISS", false);
-                        triggerBossRushMistakeReaction();
-                    }
-                } else {
-                    addLog(`${labelPrefix}${currentSkill.name}！ ${totalDamage}のダメージ`);
-                    dmgText(totalDamage);
-                }
-
-                if (currentSkill.mpHeal && totalDamage > 0) {
-                    const mHeal = Math.floor(totalDamage * currentSkill.mpHeal);
-                    const beforeMp = Game.player.mp;
-                    Game.player.mp = Math.min(derived.maxMp, Game.player.mp + mHeal);
-                    const actual = Game.player.mp - beforeMp;
-                    if (actual > 0) {
-                        addLog(`MP吸収 +${actual}`, "text-blue-400");
-                        triggerBossRushHealReaction(actual, "回復反撃");
-                    }
-                }
-                if (totalLeechApplied > 0) {
-                    addLog(`吸血でHPが${totalLeechApplied}回復`, "text-emerald-400");
-                    triggerBossRushHealReaction(totalLeechApplied, "回復反撃");
-                }
-                if (currentSkill.expBonus && totalDamage > 0) {
-                    let b = Math.floor(Game.player.next * (currentSkill.expBonus / 100));
-                    Game.player.exp += b;
-                    addLog(`EXP +${b} 奪取！`);
-                    applyLevelUps();
-                }
-
-                const primaryEnemyVisual = document.querySelector('.enemy-visual-primary');
-                const targetEnemyVisual = document.querySelector(`[data-enemy-id="${enemy.id}"] .enemy-visual`);
-                if (targetEnemyVisual) {
-                    targetEnemyVisual.classList.add('shake');
-                    setTimeout(() => targetEnemyVisual.classList.remove('shake'), 200);
-                } else if (primaryEnemyVisual) {
-                    primaryEnemyVisual.classList.add('shake');
-                    setTimeout(() => primaryEnemyVisual.classList.remove('shake'), 200);
-                }
-            };
+            const enemyStatusMods = getStatusModifiers(Game.enemy);
+            const enemyEvasion = Math.max(0, Math.floor((Game.enemy.eva || 0) * enemyStatusMods.evasionMul));
+            const bossRushDefenseMul = getBossRushEnemyDefenseMultiplier(Game.enemy);
+            const enemyDefense = Math.max(0, Math.floor((Game.enemy.def || 0) * enemyStatusMods.defMul * bossRushDefenseMul));
 
             if (currentSkill.hpCost) {
                 const cost = Math.floor(derived.maxHp * currentSkill.hpCost);
@@ -6303,20 +5782,141 @@
                 dmgText(amt, true);
                 triggerBossRushHealReaction(amt, "回復反撃");
             } else {
-                const targets = isMultiTarget
-                    ? Game.enemies.filter((enemy) => enemy.hp > 0)
-                    : [targetEnemy];
-                targets.forEach((enemy) => {
-                    const labelPrefix = isMultiTarget ? `${enemy.name}：` : '';
-                    applyAttackToTarget(enemy, labelPrefix);
+                const bossMods = getBossUniqueCombatModifiers({
+                    player: Game.player,
+                    enemy: Game.enemy,
+                    derived,
+                    baseHits: currentSkill.hits || 1
                 });
+                if (bossMods.logs.length) {
+                    bossMods.logs.forEach((line) => addLog(line, "text-amber-400"));
+                }
+                let hits = currentSkill.hits || 1;
+                hits += bossMods.bonusHits || 0;
+                let totalDamage = 0;
+                let totalLeechApplied = 0;
+                let landedHit = false;
+                let nullifiedHit = false;
+                
+                for(let i=0; i<hits; i++){
+                    const baseAccuracy = Math.max(0, derived.totals.accuracy + (currentSkill.accuracyBonus || 0) + bossMods.accuracyBonus);
+                    const evasionValue = Math.max(0, enemyEvasion);
+                    const ratioDenominator = baseAccuracy + evasionValue;
+                    let hitChance = ratioDenominator > 0
+                        ? (baseAccuracy / ratioDenominator) * 100
+                        : 0;
+                    hitChance = Math.min(95, Math.max(10, hitChance));
+                    if (Math.random() * 100 > hitChance) {
+                        continue;
+                    }
+                    landedHit = true;
+                    // Base Attack Power Calculation
+                    let atkBase = isMagic ? (derived.totals.int * 2) : derived.atk;
+                    
+                    // Critical Check
+                    let isCrit = Math.random() * 100 < (derived.totals.critRate + (currentSkill.critBonus || 0) + bossMods.critRateBonus);
+                    let dmg = Math.floor(currentSkill.pow * atkBase * (0.9 + Math.random() * 0.2));
+                    if (isCrit) dmg = Math.floor(dmg * (derived.totals.critDamage / 100));
+                    if (isCrit && hasBossRushBuff(Game.enemy, "br_yellow_crit_def")) {
+                        const state = getBossRushBuffState(Game.enemy);
+                        if (state) {
+                            state.defenseBoostPct = Math.min(100, (state.defenseBoostPct || 0) + BossRushBuffConfig.critDefBoost * 100);
+                        }
+                    }
+
+                    if (currentSkill.name !== '通常攻撃' && derived.totals.skillPowerBoost > 0) {
+                        dmg = Math.floor(dmg * (1 + derived.totals.skillPowerBoost / 100));
+                    }
+                    if (i >= (currentSkill.hits || 1) && bossMods.bonusHitMultiplier !== 1) {
+                        dmg = Math.floor(dmg * bossMods.bonusHitMultiplier);
+                    }
+
+                    // Passive: Low HP boost
+                    const lowHpLevel = getPassiveLevel('warrior', 5);
+                    if (lowHpLevel > 0 && Game.player.hp < derived.maxHp * 0.3) {
+                        dmg = Math.floor(dmg * (1 + 0.1 * lowHpLevel));
+                    }
+                    // Passive: First hit boost
+                    const firstHitLevel = getPassiveLevel('thief', 5);
+                    if (firstHitLevel > 0 && Game.enemy.hp === Game.enemy.maxHp) {
+                        dmg = Math.floor(dmg * (1 + 0.25 * firstHitLevel));
+                    }
+
+                    if (derived.totals.damageBoost > 0) {
+                        dmg = Math.floor(dmg * (1 + derived.totals.damageBoost / 100));
+                    }
+                    if (bossMods.damageMultiplier !== 1) {
+                        dmg = Math.floor(dmg * bossMods.damageMultiplier);
+                    }
+                    dmg = Math.floor(dmg * playerStatusMods.damageDoneMul);
+                    dmg = Math.floor(dmg * enemyStatusMods.damageTakenMul);
+                    dmg = Math.floor(dmg * getBossRushDamageTakenMultiplier(Game.enemy, Game.player));
+                    dmg = Math.max(0, dmg - enemyDefense);
+                    const nullifyThreshold = getBossRushDamageNullifyThreshold(Game.enemy);
+                    if (nullifyThreshold > 0 && dmg > 0 && dmg < nullifyThreshold) {
+                        nullifiedHit = true;
+                        continue;
+                    }
+                    dmg = Math.max(1, dmg);
+                    const appliedDamage = applyDamage(Game.enemy, dmg, Game.player, { ignoreBossRushNullify: true, ignoreBossRushDamageReduction: true });
+                    totalDamage += appliedDamage;
+                    
+                    // Leech
+                    const totalLeech = derived.totals.leechRate + (currentSkill.leech || 0);
+                    if (totalLeech > 0 && appliedDamage > 0) {
+                        let l = Math.floor(appliedDamage * (totalLeech / 100));
+                        if (l > 0) {
+                            const beforeHp = Game.player.hp;
+                            Game.player.hp = Math.min(derived.maxHp, Game.player.hp + l);
+                            totalLeechApplied += (Game.player.hp - beforeHp);
+                        }
+                    }
+                }
+                
+                if (totalDamage === 0) {
+                    if (landedHit) {
+                        addLog(nullifiedHit ? "ダメージが無効化された！" : "バリアに防がれた！", "text-slate-400");
+                        dmgText(0, false);
+                    } else {
+                        addLog("攻撃が外れた！", "text-slate-400");
+                        dmgText("MISS", false);
+                        triggerBossRushMistakeReaction();
+                    }
+                } else {
+                    addLog(`${currentSkill.name}！ ${totalDamage}のダメージ`);
+                    dmgText(totalDamage);
+                }
+
+                if (currentSkill.mpHeal && totalDamage > 0) {
+                    const mHeal = Math.floor(totalDamage * currentSkill.mpHeal);
+                    const beforeMp = Game.player.mp;
+                    Game.player.mp = Math.min(derived.maxMp, Game.player.mp + mHeal);
+                    const actual = Game.player.mp - beforeMp;
+                    if (actual > 0) {
+                        addLog(`MP吸収 +${actual}`, "text-blue-400");
+                        triggerBossRushHealReaction(actual, "回復反撃");
+                    }
+                }
+                if (totalLeechApplied > 0) {
+                    addLog(`吸血でHPが${totalLeechApplied}回復`, "text-emerald-400");
+                    triggerBossRushHealReaction(totalLeechApplied, "回復反撃");
+                }
+                if (currentSkill.expBonus && totalDamage > 0) {
+                    let b = Math.floor(Game.player.next * (currentSkill.expBonus / 100));
+                    Game.player.exp += b;
+                    addLog(`EXP +${b} 奪取！`);
+                    applyLevelUps();
+                }
+
+                document.getElementById('enemy-visual').classList.add('shake');
+                setTimeout(()=>document.getElementById('enemy-visual').classList.remove('shake'), 200);
             }
 
             if (currentSkill.effects) {
                 const stackBonus = derived.totals.statusEffectStackBonus || 0;
                 const turnBonus = derived.totals.statusEffectTurnBonus || 0;
                 currentSkill.effects.forEach((effect) => {
-                    const target = effect.target === "self" ? Game.player : targetEnemy;
+                    const target = effect.target === "self" ? Game.player : Game.enemy;
                     let stacks = effect.stacks;
                     let turns = effect.turns;
                     if (effect.target !== "self" && NegativeStatusEffectIds.has(effect.id)) {
@@ -6347,64 +5947,37 @@
                 });
             }
 
-            const remainingEnemies = Game.enemies.filter((enemy) => enemy.hp > 0);
-            if (remainingEnemies.length === 0) {
+            advanceStatusEffects(Game.player, 'end');
+            applyAutoRegen();
+            if (Game.enemy.hp <= 0) {
                 victory();
-                resetPlayerTurnState();
-                updateUI();
-                triggerAutosave();
-                return;
+            } else {
+                setTimeout(enemyTurn, 300);
             }
-            if (!remainingEnemies.some((enemy) => enemy.id === Game.targetEnemyId)) {
-                Game.targetEnemyId = remainingEnemies[0]?.id ?? null;
-            }
-
-            if (isNormalAttack) {
-                Game.playerTurnRemainingAttacks = Math.max(0, Game.playerTurnRemainingAttacks - 1);
-                updateUI();
-                triggerAutosave();
-                return;
-            }
-
-            endPlayerTurn();
+            updateUI();
+            triggerAutosave();
         };
 
-        document.getElementById('action-btn').onclick = () => {
-            if (Game.state === 'combat' && Game.playerTurnStarted && Game.playerTurnRemainingAttacks <= 0) {
-                handlePlayerAction({ skipAttack: true });
-                return;
+        const stopActionRepeat = () => {
+            if (actionRepeatTimer) {
+                clearInterval(actionRepeatTimer);
+                actionRepeatTimer = null;
             }
-            handlePlayerAction({ allowSkillSlot: false });
+            actionRepeatActive = false;
         };
 
-        document.getElementById('end-turn-btn').onclick = () => {
-            handlePlayerAction({ skipAttack: true });
+        const startActionRepeat = () => {
+            if (actionRepeatActive) return;
+            actionRepeatActive = true;
+            handleAction();
+            actionRepeatTimer = setInterval(handleAction, actionCooldownMs);
         };
 
-        function setEnemyNextActionPreview(enemy) {
-            if (!enemy) return;
-            const enemyStatusMods = getStatusModifiers(enemy);
-            if (enemyStatusMods.frozen) {
-                enemy.nextActionLabel = "凍結";
-                enemy.nextActionIcon = "fa-shield";
-                return;
-            }
-            let label = "攻撃";
-            let icon = "fa-sword";
-            if (enemy.isBoss && Array.isArray(enemy.skills) && enemy.skills.length > 0) {
-                const nextCooldown = Math.max(0, (enemy.skillCooldown ?? 0) - 1);
-                if (nextCooldown <= 0) {
-                    const nextSkill = enemy.skills[enemy.skillRotation % enemy.skills.length];
-                    label = nextSkill?.name || "スキル";
-                    icon = "fa-wand-magic-sparkles";
-                }
-            }
-            enemy.nextActionLabel = label;
-            enemy.nextActionIcon = icon;
-        }
+        actionButton.addEventListener('pointerdown', startActionRepeat);
+        actionButton.addEventListener('pointerup', stopActionRepeat);
+        actionButton.addEventListener('pointercancel', stopActionRepeat);
+        actionButton.addEventListener('mouseleave', stopActionRepeat);
 
-
-        
         function enemyTurn() {
             if (Game.state !== 'combat') return;
 
@@ -6412,7 +5985,6 @@
             advanceStatusEffects(Game.enemy, 'start');
             if (Game.enemy.hp <= 0) {
                 victory();
-                resetPlayerTurnState();
                 updateUI();
                 return;
             }
@@ -6421,8 +5993,6 @@
                 addLog(`${Game.enemy.name}は凍結で動けない！`, "text-sky-400");
                 advanceStatusEffects(Game.enemy, 'end');
                 applyAutoRegen();
-                setEnemyNextActionPreview(Game.enemy);
-                resetPlayerTurnState();
                 updateUI();
                 return;
             }
@@ -6513,14 +6083,8 @@
                 let cdmg = Math.floor(derived.totals.str * (0.2 + 0.1 * counterLevel));
                 Game.enemy.hp = Math.max(0, Game.enemy.hp - cdmg);
                 addLog(`カウンター！ ${cdmg}ダメージ`, "text-orange-500");
-                const counterTarget = document.querySelector(`[data-enemy-id="${Game.enemy?.id}"] .enemy-visual`) || document.querySelector('.enemy-visual-primary');
-                dmgText(cdmg, false, counterTarget);
-                if (Game.enemy.hp <= 0) {
-                  victory();
-                  resetPlayerTurnState();
-                  updateUI();
-                  return;
-                }
+                dmgText(cdmg);
+                if (Game.enemy.hp <= 0) victory();
             }
 
             advanceStatusEffects(Game.enemy, 'end');
@@ -6530,17 +6094,11 @@
                 return;
             }
             applyAutoRegen();
-            setEnemyNextActionPreview(Game.enemy);
-            resetPlayerTurnState();
             updateUI();
         }
 
-        
         function victory() {
             Game.state = 'idle';
-
-            endTurnCooldownPhase(); // ★敵ターン無しでもターン終了扱いにする
-            
             const shouldOpenBossRushModal = Boolean(
                 Game.enemy?.isBoss
                 && Game.enemy.floor === 1000
@@ -6646,25 +6204,13 @@
             });
         }
 
-        function dmgText(v, isH=false, targetEl=null) {
+        function dmgText(v, isH=false) {
             const el = document.createElement('div');
             el.className = `damage-text ${isH?'text-green-500':'text-red-600'}`;
             el.innerText = v;
-            const layer = document.getElementById('damage-layer');
-            if (layer && targetEl) {
-                const layerRect = layer.getBoundingClientRect();
-                const targetRect = targetEl.getBoundingClientRect();
-                const centerX = targetRect.left + targetRect.width / 2;
-                const centerY = targetRect.top + targetRect.height / 2;
-                const jitterX = (Math.random() * 20) - 10;
-                const jitterY = (Math.random() * 20) - 10;
-                el.style.left = `${Math.max(0, centerX - layerRect.left + jitterX)}px`;
-                el.style.top = `${Math.max(0, centerY - layerRect.top + jitterY)}px`;
-            } else {
-                el.style.left = (35 + Math.random()*30) + '%';
-                el.style.top = (35 + Math.random()*30) + '%';
-            }
-            layer.appendChild(el);
+            el.style.left = (35 + Math.random()*30) + '%';
+            el.style.top = (35 + Math.random()*30) + '%';
+            document.getElementById('damage-layer').appendChild(el);
             setTimeout(()=>el.remove(), 800);
         }
 
@@ -7140,16 +6686,34 @@
             document.getElementById('player-exp-text-battle').innerText = `${p.exp}/${p.next}`;
             document.getElementById('player-exp-bar-battle').style.width = (p.exp/p.next*100)+'%';
 
-            const resolveContainer = (containerOrId) => {
-                if (!containerOrId) return null;
-                if (typeof containerOrId === 'string') {
-                    return document.getElementById(containerOrId);
+            const e = Game.enemy;
+            if (e) {
+                const enemyName = document.getElementById('enemy-name');
+                const enemyVisual = document.getElementById('enemy-visual');
+                const bossBadge = document.getElementById('enemy-boss-badge');
+                enemyName.innerText = e.name;
+                document.getElementById('enemy-hp-text').innerText = `${e.hp}/${e.maxHp}`;
+                document.getElementById('enemy-hp-bar').style.width = (e.hp/e.maxHp*100)+'%';
+                enemyVisual.innerHTML = `<i class="fas ${e.icon}"></i>`;
+                if (e.isBoss) {
+                    enemyVisual.classList.add('boss-visual');
+                    enemyName.classList.add('boss-name');
+                    if (bossBadge) {
+                        bossBadge.classList.remove('hidden');
+                        bossBadge.classList.add('flex');
+                    }
+                } else {
+                    enemyVisual.classList.remove('boss-visual');
+                    enemyName.classList.remove('boss-name');
+                    if (bossBadge) {
+                        bossBadge.classList.add('hidden');
+                        bossBadge.classList.remove('flex');
+                    }
                 }
-                return containerOrId;
-            };
+            }
 
-            const renderBossRushBuffs = (enemy, containerOrId) => {
-                const container = resolveContainer(containerOrId);
+            const renderBossRushBuffs = (enemy) => {
+                const container = document.getElementById('enemy-bossrush-buffs');
                 if (!container) return;
                 container.innerHTML = '';
                 const buffs = getBossRushBuffs(enemy);
@@ -7164,8 +6728,8 @@
                 });
             };
 
-            const renderStatusEffects = (target, containerOrId) => {
-                const container = resolveContainer(containerOrId);
+            const renderStatusEffects = (target, containerId) => {
+                const container = document.getElementById(containerId);
                 if (!container) return;
                 container.innerHTML = '';
                 if (!target || !Array.isArray(target.statusEffects) || target.statusEffects.length === 0) {
@@ -7187,258 +6751,21 @@
                     container.appendChild(badge);
                 });
             };
-
-            ensureTargetEnemy();
-            
-            const enemyList = document.getElementById('enemy-list');
-            if (!enemyList) return;
-            
-            // --- 1) 敵配列の正規化 ---
-            const enemies = Array.isArray(Game.enemies)
-              ? Game.enemies
-              : (Game.enemy ? [Game.enemy] : []);
-            
-            const livingEnemies = enemies.filter((enemy) => enemy.hp > 0);
-            const allDefeated = enemies.length > 0 && livingEnemies.length === 0;
-            
-            // --- 2) 敵がいない場合は即表示 ---
-            if (enemies.length === 0) {
-              return;
-            }
-            
-            // --- 3) 既存カードの収集（差分更新の準備） ---
-            const existingCards = Array.from(enemyList.querySelectorAll('.enemy-card'));
-            const cardMap = new Map(existingCards.map((card) => [Number(card.dataset.enemyId), card]));
-            const nextIds = new Set(enemies.map((enemy) => String(enemy.id)));
-            
-            // 変なゴミDOMが残っている場合の掃除（元コードの意図維持）
-            if (!existingCards.length && enemyList.children.length) {
-              enemyList.innerHTML = '';
-            }
-            
-            // --- 4) 「差分で消えるカード」削除 ---
-            const removedCards = existingCards.filter((card) => !nextIds.has(card.dataset.enemyId));
-            removedCards.forEach((card) => {
-              if (card.isConnected) card.remove();
-            });
-            
-            // --- 5) カード作成/更新 ---
-            enemies.forEach((enemy, index) => {
-              const isSelected = enemy.id === Game.targetEnemyId;
-              const isDefeated = enemy.hp <= 0;
-            
-              let card = cardMap.get(enemy.id);
-            
-              // --- 6-1) カードが無ければ新規作成 ---
-              if (!card) {
-                card = document.createElement('div');
-                card.className =
-                  "enemy-card rounded-2xl border bg-white/90 px-1 py-3 flex flex-col items-center gap-2 shadow-sm border-slate-200";
-                card.setAttribute('data-enemy-id', String(enemy.id));
-            
-                card.addEventListener('click', () => {
-                  if (Game.state !== 'combat') return;
-                  const currentEnemy = getEnemyById(enemy.id);
-                  if (!currentEnemy || currentEnemy.hp <= 0) return;
-                  setTargetEnemyId(enemy.id);
-                  updateUI();
-                });
-            
-                const enemyVisual = document.createElement('div');
-                enemyVisual.className = "enemy-visual relative text-6xl text-slate-700";
-            
-                const enemyIcon = document.createElement('i');
-                enemyIcon.className = `fas ${enemy.icon} enemy-icon`;
-                enemyVisual.appendChild(enemyIcon);
-            
-                const nextActionBadge = document.createElement('div');
-                nextActionBadge.className = "enemy-next-action hidden";
-                enemyVisual.appendChild(nextActionBadge);
-            
-                const buffContainer = document.createElement('div');
-                buffContainer.className = "enemy-buff-container flex flex-wrap justify-center gap-1 text-[9px]";
-            
-                const nameRow = document.createElement('div');
-                nameRow.className = "flex items-center gap-2";
-            
-                const enemyName = document.createElement('div');
-                enemyName.className = "enemy-name font-bold text-base";
-            
-                const selectionBadge = document.createElement('span');
-                selectionBadge.className =
-                  "enemy-select-badge inline-flex items-center gap-1 rounded-full bg-slate-900 text-white text-[9px] font-black px-2 py-0.5";
-                selectionBadge.innerHTML = '<i class="fa-solid fa-bullseye"></i> 選択中';
-            
-                const bossBadge = document.createElement('span');
-                bossBadge.className = "boss-badge hidden";
-                bossBadge.innerHTML = '<i class="fas fa-crown"></i> BOSS';
-            
-                nameRow.appendChild(enemyName);
-                nameRow.appendChild(selectionBadge);
-                nameRow.appendChild(bossBadge);
-            
-                const hpBarWrapper = document.createElement('div');
-                hpBarWrapper.className = "w-38 bar-container border-0 bg-slate-200";
-            
-                const hpFill = document.createElement('div');
-                hpFill.className = "bar-fill hp-fill enemy-hp-fill";
-            
-                const hpText = document.createElement('div');
-                hpText.className = "bar-text enemy-hp-text";
-            
-                hpBarWrapper.appendChild(hpFill);
-                hpBarWrapper.appendChild(hpText);
-            
-                const statusContainer = document.createElement('div');
-                statusContainer.className = "enemy-status-container flex flex-wrap justify-center gap-1 text-[9px]";
-            
-                card.appendChild(enemyVisual);
-                card.appendChild(buffContainer);
-                card.appendChild(nameRow);
-                card.appendChild(hpBarWrapper);
-                card.appendChild(statusContainer);
-            
-                enemyList.appendChild(card);
-              }
-            
-              // --- 6-2) 順序を enemies の並びに合わせる ---
-              enemyList.appendChild(card);
-            
-              // --- 6-3) カード状態クラス ---
-              card.classList.toggle('is-selected', isSelected);
-              card.classList.toggle('is-defeated', isDefeated);
-            
-              // --- 6-4) Visual 更新 ---
-              const enemyVisual = card.querySelector('.enemy-visual');
-              if (enemyVisual) {
-                let enemyIcon = enemyVisual.querySelector('.enemy-icon');
-                if (!enemyIcon) {
-                  enemyIcon = document.createElement('i');
-                  enemyIcon.className = "enemy-icon";
-                  enemyVisual.prepend(enemyIcon);
-                }
-                enemyIcon.className = `fas ${enemy.icon} enemy-icon`;
-            
-                enemyVisual.classList.toggle('enemy-visual-primary', index === 0);
-                enemyVisual.classList.toggle('boss-visual', Boolean(enemy.isBoss));
-            
-                const nextActionBadge = enemyVisual.querySelector('.enemy-next-action');
-                if (nextActionBadge) {
-                  if (enemy.nextActionLabel && !isDefeated) {
-                    const nextActionIcon = enemy.nextActionIcon || 'fa-sword';
-                    nextActionBadge.innerHTML = `<i class="fa-solid ${nextActionIcon}"></i><span>次:${enemy.nextActionLabel}</span>`;
-                    nextActionBadge.classList.remove('hidden');
-                  } else {
-                    nextActionBadge.classList.add('hidden');
-                    nextActionBadge.innerHTML = '';
-                  }
-                }
-              }
-            
-              // --- 6-5) 名前 / BOSS バッジ ---
-              const enemyName = card.querySelector('.enemy-name');
-              if (enemyName) {
-                enemyName.innerText = enemy.name;
-                enemyName.classList.toggle('boss-name', Boolean(enemy.isBoss));
-              }
-            
-              const bossBadge = card.querySelector('.boss-badge');
-              if (bossBadge) {
-                bossBadge.classList.toggle('hidden', !enemy.isBoss);
-              }
-            
-              // --- 6-6) HPバー ---
-              const hpFill = card.querySelector('.enemy-hp-fill');
-              if (hpFill) {
-                hpFill.style.width = (enemy.hp / enemy.maxHp * 100) + '%';
-              }
-            
-              const hpText = card.querySelector('.enemy-hp-text');
-              if (hpText) {
-                hpText.innerHTML = isDefeated
-                  ? 'HP: <span>撃破</span>'
-                  : `HP: <span>${enemy.hp}/${enemy.maxHp}</span>`;
-              }
-            
-              // --- 6-7) バフ/状態異常 ---
-              const buffContainer = card.querySelector('.enemy-buff-container');
-              renderBossRushBuffs(enemy, buffContainer);
-            
-              const statusContainer = card.querySelector('.enemy-status-container');
-              renderStatusEffects(enemy, statusContainer);
-            });
-            
+            renderBossRushBuffs(Game.enemy);
             renderStatusEffects(Game.player, 'player-status-effects');
+            renderStatusEffects(Game.enemy, 'enemy-status-effects');
 
             // Skill Slots
             const battleSlots = document.getElementById('battle-skill-slots');
             if (battleSlots) {
                 battleSlots.innerHTML = '';
-                battleSlots.className = 'grid grid-cols-4 gap-1.5';
-                normalizeSkillSlotCooldowns();
-                const playerStatusMods = getStatusModifiers(Game.player);
-                const slotSkillIndices = Game.player.skillSlots
-                    .map((slot, idx) => (getSlotSkill(slot) ? idx : null))
-                    .filter((idx) => idx !== null);
-                const currentSelected = Number.isInteger(Game.selectedSkillId) ? Game.selectedSkillId : null;
-                if (currentSelected === null || !slotSkillIndices.includes(currentSelected)) {
-                    Game.selectedSkillId = slotSkillIndices.length ? slotSkillIndices[0] : null;
-                }
-
-                Game.player.skillSlots.forEach((slot, idx) => {
-                    const skill = getSlotSkill(slot);
-                    const cooldown = Game.player.skillSlotCooldowns?.[idx] || 0;
-                    const displayCooldown = skill ? Math.max(0, skill.cooldownMax ?? skill.cooldown ?? 0) : null;
-                    const availability = getSkillSlotAvailability({
-                        skill,
-                        derived,
-                        playerStatusMods,
-                        cooldown,
-                        currentMp: p.mp
-                    });
-                    const isSelected = idx === Game.selectedSkillId;
-                    const button = document.createElement('button');
-                    button.type = 'button';
-                    let className = "w-full rounded-lg border px-1.5 py-1.5 text-[9px] font-bold flex items-center gap-1.5 transition-colors relative overflow-hidden";
-                    if (availability.selectable) {
-                        className += isSelected
-                            ? " border-slate-800 bg-slate-800 text-white"
-                            : " border-slate-200 bg-white text-slate-700 hover:bg-slate-50";
-                    } else {
-                        className += " border-slate-200 bg-slate-50 text-slate-300";
-                        if (isSelected) {
-                            className += " ring-2 ring-slate-300";
-                        }
-                    }
-                    button.className = className;
-                    const icon = skill ? (skill.isMagic ? 'fa-star' : 'fa-bolt') : 'fa-plus';
-                    const mpLabel = skill ? `MP ${availability.mpCost}` : '未設定';
-                    const statusLabel = availability.reason ? availability.reason : (isSelected ? '選択中' : '選択');
-                    button.innerHTML = `
-                        <div class="flex-1 min-w-0 text-left">
-                            <div class="flex items-center justify-between gap-2">
-                                <div class="text-[8px] flex items-center gap-1.5">
-                                    <span>${mpLabel}</span>
-                                    ${displayCooldown !== null ? `<span class="text-slate-400">CD ${displayCooldown}</span>` : ''}
-                                </div>
-                            </div>
-                            <div class="truncate">${skill ? skill.name : '未設定'}</div>
-                        </div>
-                        ${cooldown > 0 ? `<div class="skill-cooldown-mask">${cooldown}</div>` : ''}
-                    `;
-                    button.disabled = !availability.selectable;
-                    if (availability.selectable) {
-                        button.addEventListener('click', () => {
-                            Game.selectedSkillId = idx;
-                            if (Game.state === 'combat') {
-                                handlePlayerAction({ forcedSkillSlotIndex: idx });
-                                return;
-                            }
-                            updateUI();
-                        });
-                    }
-                    battleSlots.appendChild(button);
-                });
+                const slotResult = getNextSlotSkill();
+                const nextSkill = slotResult.skill;
+                const label = nextSkill ? `${nextSkill.name} MP ${nextSkill.mp}` : '通常攻撃 MP 0';
+                const card = document.createElement('div');
+                card.className = "rounded-xl border px-3 py-2 text-center text-[10px] font-bold border-slate-200 bg-slate-50 text-slate-700";
+                card.innerHTML = `<div class="truncate">${label}</div>`;
+                battleSlots.appendChild(card);
             }
 
             const potionSlots = document.getElementById('battle-potion-slots');
@@ -7486,20 +6813,20 @@
                 Game.player.skillSlots.forEach((slot, idx) => {
                     const skill = getSlotSkill(slot);
                     const wrapper = document.createElement('div');
-                    wrapper.className = "flex items-center gap-1";
+                    wrapper.className = "flex items-center gap-2";
 
                     const slotButton = document.createElement('button');
-                    slotButton.className = `flex-1 text-left px-1.5 py-1 rounded-lg border text-[9px] font-bold ${
+                    slotButton.className = `flex-1 text-left px-2 py-1.5 rounded-lg border text-[10px] font-bold ${
                         Game.player.skillSlotTarget === idx ? 'border-slate-800 bg-slate-800 text-white' : 'border-slate-200 bg-slate-50 text-slate-500'
                     }`;
                     slotButton.innerHTML = `
-                        <div class="text-[8px] font-black">S${idx + 1}</div>
+                        <div class="text-[9px] font-black">S${idx + 1}</div>
                         <div class="truncate">${skill ? skill.name : '未設定'}</div>
                     `;
                     slotButton.addEventListener('click', () => setSkillSlotTarget(idx));
 
                     const clearButton = document.createElement('button');
-                    clearButton.className = `w-7 h-7 rounded-lg border flex items-center justify-center ${
+                    clearButton.className = `w-8 h-8 rounded-lg border flex items-center justify-center ${
                         skill ? 'border-slate-200 text-slate-500 bg-white' : 'border-slate-100 text-slate-300 bg-slate-50'
                     }`;
                     clearButton.innerHTML = '<i class="fas fa-xmark"></i>';
@@ -7517,33 +6844,14 @@
 
             // Button Control
             const btn = document.getElementById('action-btn');
-            const endTurnBtn = document.getElementById('end-turn-btn');
             if (Game.state === 'combat') {
-                if (Game.playerTurnStarted && Game.playerTurnRemainingAttacks <= 0) {
-                    btn.innerHTML = `<i class="fas fa-forward-step"></i> <span>ターン終了</span>`;
-                    btn.className = "w-full bg-slate-200 text-slate-700 font-black py-4 rounded-2xl shadow-lg active:scale-95 transition-transform text-base flex items-center justify-center gap-2";
-                } else {
-                    const attackProfile = getWeaponAttackProfile(Game.player.weapon);
-                    const remainingAttacks = Game.playerTurnStarted ? Game.playerTurnRemainingAttacks : attackProfile.maxAttacks;
-                    btn.innerHTML = `
-                        <i class="fas fa-sword"></i> <span>通常攻撃</span>
-                        <span class="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow">${remainingAttacks}</span>
-                    `;
-                    btn.className = "w-full bg-slate-800 text-white font-black py-4 rounded-2xl shadow-lg active:scale-95 transition-transform text-base flex items-center justify-center gap-2 relative";
-                }
-                if (endTurnBtn) {
-                    endTurnBtn.disabled = false;
-                    endTurnBtn.className = "w-full bg-slate-200 text-slate-700 font-black py-4 rounded-2xl shadow-lg active:scale-95 transition-transform text-base flex items-center justify-center gap-2";
-                }
+                btn.innerHTML = `<i class="fas fa-sword"></i> <span>攻撃</span>`;
+                btn.className = "w-full bg-slate-800 text-white font-black py-4 rounded-2xl shadow-lg active:scale-95 transition-transform text-lg flex items-center justify-center gap-2";
             } else {
                 const idleLabel = Game.stayOnFloor ? '再戦' : '次の階層へ';
                 const idleIcon = Game.stayOnFloor ? 'fa-rotate-right' : 'fa-shoe-prints';
                 btn.innerHTML = `<i class="fas ${idleIcon}"></i> <span>${idleLabel}</span>`;
-                btn.className = "w-full bg-blue-600 text-white font-black py-4 rounded-2xl shadow-lg active:scale-95 transition-transform text-base flex items-center justify-center gap-2";
-                if (endTurnBtn) {
-                    endTurnBtn.disabled = true;
-                    endTurnBtn.className = "w-full bg-slate-100 text-slate-300 font-black py-4 rounded-2xl shadow-lg transition-transform text-base flex items-center justify-center gap-2";
-                }
+                btn.className = "w-full bg-blue-600 text-white font-black py-4 rounded-2xl shadow-lg active:scale-95 transition-transform text-lg flex items-center justify-center gap-2";
             }
 
             // Status Details
@@ -7575,7 +6883,6 @@
             document.getElementById('stat-accuracy').innerText = `${totals.accuracy}%`;
             document.getElementById('stat-hp-regen').innerText = totals.hpRegen;
             document.getElementById('stat-mp-regen').innerText = totals.mpRegen;
-            document.getElementById('stat-cooldown-reduction').innerText = `${totals.cooldownReduction}%`;
             document.getElementById('stat-crit-dmg').innerText = `${totals.critDamage}%`;
             document.getElementById('stat-dmg-boost').innerText = `${totals.damageBoost}%`;
             document.getElementById('stat-dmg-reduction').innerText = `${totals.damageReduction}%`;
