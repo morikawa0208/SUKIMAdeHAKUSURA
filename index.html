@@ -2093,6 +2093,8 @@
         ];
         const BossRushStartFloor = 1001;
         const BossRushNoDropStartFloor = BossRushStartFloor;
+        const BossDropChance = 0.015;
+        const NormalDropChance = 0.95;
         const BossRushBaseScale = 1;
         const BossRushScaleStep = 3;
         const BossRushBaseStats = {
@@ -3424,10 +3426,12 @@
             return potion;
         };
 
-        const buildBossItem = (base, floor, index) => {
+        const buildBossItem = (base, floor, index, options = {}) => {
             const totals = getTotalStats();
             const eliteRank = Game.enemy?.elite?.rank || 0;
-            const rarity = rollRarity(totals.rareFind, eliteRank);
+            const rarity = options.forceLegendary
+                ? (RarityDefs.find((def) => def.key === "legendary") || RarityDefs[RarityDefs.length - 1])
+                : rollRarity(totals.rareFind, eliteRank);
             const affixRate = totals.affixFind + eliteRank * 8;
             const affixChance = Math.min(100, 2 + affixRate);
             const prefixRank = Math.random() * 100 < affixChance ? rollAffixRank(affixRate, eliteRank) : 0;
@@ -6214,11 +6218,24 @@
                 let dropChance = Math.min(0.95, totals.luck / 100);
                 dropChance = Math.min(0.95, dropChance * eliteLootMultiplier);
                 const isDxBoss = Boolean(Game.enemy?.isBoss && Game.enemy?.isDxBoss);
-                if (Math.random() < dropChance) queueLoot(buildEquipmentLoot());
+                const rollBossDropMode = () => {
+                    if (!Game.enemy?.isBoss) return false;
+                    const roll = Math.random();
+                    if (roll < BossDropChance) return true;
+                    if (roll < BossDropChance + NormalDropChance) return false;
+                    return false;
+                };
+                if (Math.random() < dropChance) {
+                    const forceBossDrop = rollBossDropMode();
+                    queueLoot(buildEquipmentLoot({ forceBossDrop }));
+                }
                 if (!isDxBoss && Math.random() < dropChance) queueLoot(buildPotionLoot());
                 const bonusRolls = Game.enemy?.elite ? Math.floor(Game.enemy.elite.rank / 2) : 0;
                 for (let i = 0; i < bonusRolls; i++) {
-                    if (Math.random() < dropChance) queueLoot(buildEquipmentLoot());
+                    if (Math.random() < dropChance) {
+                        const forceBossDrop = rollBossDropMode();
+                        queueLoot(buildEquipmentLoot({ forceBossDrop }));
+                    }
                     if (!isDxBoss && Math.random() < dropChance) queueLoot(buildPotionLoot());
                 }
             }
@@ -6301,15 +6318,19 @@
             setTimeout(()=>el.remove(), 800);
         }
 
-        function buildEquipmentLoot() {
-            if (Game.enemy?.isBoss && Game.enemy.floor <= 1000) {
+        function buildEquipmentLoot(options = {}) {
+            const forceBossDrop = options.forceBossDrop;
+            const useBossTable = forceBossDrop === true
+                ? true
+                : (forceBossDrop === false ? false : (Game.enemy?.isBoss && Game.enemy.floor <= 1000));
+            if (useBossTable) {
                 const bossTable = Game.enemy.isDxBoss
                     ? buildDxBossLootTable(Game.enemy.floor)
                     : (BossRushLootTables[Game.enemy.floor] || BossLootTables[Game.enemy.floor]);
                 if (bossTable && bossTable.length > 0) {
                     const base = pickRandom(bossTable);
                     const index = Math.max(0, bossTable.indexOf(base));
-                    return buildBossItem(base, Game.enemy.floor, index);
+                    return buildBossItem(base, Game.enemy.floor, index, { forceLegendary: true });
                 }
             }
             const tier = EquipmentTiers[getTierIndex(Game.floor)];
