@@ -1266,7 +1266,7 @@
             },
             player: {
                 level: 1,
-                hp: 100, maxHp: 100, baseMaxHp: 100, mp: 30, maxMp: 30, baseMaxMp: 30,
+                hp: 100, maxHp: 100, baseMaxHp: 100, mp: 30, maxMp: 30,
                 // Primary Stats
                 str: 10, vit: 5, int: 5, dex: 5, luk: 5,
                 // Secondary Stats (calculated)
@@ -1356,20 +1356,33 @@
             return mpAtCap + Math.floor(K * Math.sqrt(extra));
         };
 
+        const calcMaxHpByLevel = (lv, baseHp) => {
+            const r = 0.025;
+            const flat = 10;
+            const capLv = 100;
+            const safeLv = Math.max(1, lv);
+            const safeBaseHp = Math.max(1, baseHp);
+
+            const hpLinear = Math.floor(safeBaseHp * (1 + r * (safeLv - 1)) + flat * (safeLv - 1));
+            if (safeLv <= capLv) return hpLinear;
+
+            const hpAtCap = Math.floor(safeBaseHp * (1 + r * (capLv - 1)) + flat * (capLv - 1));
+            const extra = safeLv - capLv;
+            const K = 80;
+            return hpAtCap + Math.floor(K * Math.sqrt(extra));
+        };
+
         const applyLevelUps = ({ log = true } = {}) => {
             let leveledUp = false;
             if (!Number.isFinite(Game.player.baseMaxHp)) {
                 Game.player.baseMaxHp = Game.player.maxHp || 1;
-            }
-            if (!Number.isFinite(Game.player.baseMaxMp)) {
-                Game.player.baseMaxMp = Game.player.maxMp || 1;
             }
             while (Game.player.exp >= Game.player.next && Game.player.level < MAX_LEVEL) {
                 Game.player.level++;
                 Game.player.exp -= Game.player.next;
                 Game.player.next = getNextExpRequirement(Game.player.level);
                 Game.player.maxHp = calcMaxHpByLevel(Game.player.level, Game.player.baseMaxHp);
-                Game.player.maxMp = calcMaxMpByLevel(Game.player.level, Game.player.baseMaxMp);
+                Game.player.maxMp += 15;
                 const derived = getDerivedStats();
                 Game.player.hp = derived.maxHp;
                 Game.player.mp = derived.maxMp;
@@ -1467,11 +1480,7 @@
                 if (!Number.isFinite(Game.player.baseMaxHp)) {
                     Game.player.baseMaxHp = Game.player.maxHp || 1;
                 }
-                if (!Number.isFinite(Game.player.baseMaxMp)) {
-                    Game.player.baseMaxMp = Game.player.maxMp || 1;
-                }
                 Game.player.maxHp = calcMaxHpByLevel(Game.player.level, Game.player.baseMaxHp);
-                Game.player.maxMp = calcMaxMpByLevel(Game.player.level, Game.player.baseMaxMp);
                 Game.player.sp = Math.min(MAX_SKILL_POINTS, Game.player.sp ?? 1);
                 Game.player.next = getNextExpRequirement(Game.player.level);
                 applyLevelUps({ log: false });
