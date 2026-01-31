@@ -2093,6 +2093,10 @@
         ];
         const BossRushStartFloor = 1001;
         const BossRushNoDropStartFloor = BossRushStartFloor;
+        const BossDropChance = 0.015;
+        const NormalDropChance = 0.95;
+        const RoadLegendaryDropChance = 0.01;
+        const RoadLegendaryNormalChance = 0.99;
         const BossRushBaseScale = 1;
         const BossRushScaleStep = 3;
         const BossRushBaseStats = {
@@ -2733,6 +2737,102 @@
             "終焉の護符": { type: "levelRatioBoost", stat: "luk", randomize: true, stepRange: [1, 5], gainRange: [1, 2], label: "終焉の護符：LUK成長" },
         };
 
+        const RoadLegendaryUniqueEffects = {
+            "黎明の短剣": { type: "damageBoost", condition: { type: "playerHpAbove", threshold: 0.8 }, value: 25, label: "黎明の短剣：HP80%以上で与ダメ+25%" },
+            "晨光の護符": { type: "damageTakenReduction", condition: { type: "playerHpAbove", threshold: 0.7 }, value: 15, label: "晨光の護符：HP70%以上で被ダメ-15%" },
+            "灰燼の手甲": { type: "critBoost", value: 25, label: "灰燼の手甲：会心率+25%" },
+            "砂縛りのブーツ": { type: "extraTurnChance", condition: { type: "enemyHpBelow", threshold: 0.5 }, chance: 12, hitMultiplier: 0.6, label: "砂縛りのブーツ：敵HP50%以下で12%で追加行動(60%)" },
+            "月影のマント": { type: "damageTakenReduction", value: 20, label: "月影のマント：被ダメ-20%" },
+            "白霧の指輪": { type: "damageTakenReduction", condition: { type: "playerHpBelow", threshold: 0.5 }, value: 35, label: "白霧の指輪：HP50%以下で被ダメ-35%" },
+            "雷迅の戦槌": { type: "bonusHitsChance", chance: 15, hits: 1, hitMultiplier: 0.6, label: "雷迅の戦槌：15%で追加ヒット+1(60%)" },
+            "静電の兜": { type: "accuracyBoost", value: 12, label: "静電の兜：命中+12" },
+            "深潭のローブ": { type: "statBonus", stats: [ { key: "mpRegen", value: 8 }, { key: "maxMp", value: 60 } ], label: "深潭のローブ：MP自動回復+8 / 最大MP+60" },
+            "濡刃の短剣": { type: "damageBoost", condition: { type: "enemyStatus", status: "poison" }, value: 30, label: "濡刃の短剣：毒の敵に与ダメ+30%" },
+            "熾火の大剣": { type: "statMultiplier", stat: "str", value: 20, label: "熾火の大剣：STR倍率 +20%" },
+            "紅炎の護符": { type: "damageBoost", condition: { type: "playerHpAbove", threshold: 0.9 }, value: 30, label: "紅炎の護符：HP90%以上で与ダメ+30%" },
+            "霜刻の杖": { type: "statMultiplier", stat: "int", value: 20, label: "霜刻の杖：INT倍率 +20%" },
+            "氷牢の肩当て": { type: "damageTakenReduction", condition: { type: "enemyStatus", status: "freeze" }, value: 25, label: "氷牢の肩当て：凍結中の敵から被ダメ-25%" },
+            "夜叉の爪剣": { type: "bonusHitsChance", chance: 18, hits: 1, hitMultiplier: 0.7, label: "夜叉の爪剣：18%で追加ヒット+1(70%)" },
+            "影討ちの足袋": { type: "accuracyBoost", condition: { type: "playerHpAbove", threshold: 0.7 }, value: 15, label: "影討ちの足袋：HP70%以上で命中+15" },
+            "封印の書": { type: "statBonus", stats: [ { key: "skillPowerBoost", value: 20 } ], label: "封印の書：スキル威力 +20%" },
+            "禁術の護符": { type: "statBonus", stats: [ { key: "skillMpDiscount", value: 20 }, { key: "maxMp", value: 80 } ], label: "禁術の護符：スキルMP消費-20% / 最大MP+80" },
+            "終末前夜の剣": { type: "riskBoost", condition: { type: "playerHpBelow", threshold: 0.35 }, value: 45, penalty: 20, label: "終末前夜の剣：HP35%以下で与ダメ+45%/被ダメ+20%" },
+            "刻印の護符": { type: "damageBoost", condition: { type: "enemyHpBelow", threshold: 0.5 }, value: 35, label: "刻印の護符：敵HP50%以下で与ダメ+35%" }
+        };
+
+        const RoadLegendaryLootTables = [
+            {
+                floorStart: 1,
+                items: [
+                    { name: "黎明の短剣", type: "weapon", stats: [{ key: "attackFlat", value: 24 }, { key: "dex", value: 10 }, { key: "critRate", value: 4 }], uniqueStats: [] },
+                    { name: "晨光の護符", type: "accessory", stats: [{ key: "maxHp", value: 35 }, { key: "damageReduction", value: 4 }, { key: "luk", value: 3 }], uniqueStats: [] }
+                ]
+            },
+            {
+                floorStart: 101,
+                items: [
+                    { name: "灰燼の手甲", type: "hands", stats: [{ key: "attackFlat", value: 12 }, { key: "str", value: 8 }, { key: "critRate", value: 6 }], uniqueStats: [] },
+                    { name: "砂縛りのブーツ", type: "feet", stats: [{ key: "defenseFlat", value: 12 }, { key: "evasionRate", value: 8 }, { key: "dex", value: 10 }], uniqueStats: [] }
+                ]
+            },
+            {
+                floorStart: 201,
+                items: [
+                    { name: "月影のマント", type: "armor", stats: [{ key: "defenseFlat", value: 28 }, { key: "evasionRate", value: 10 }, { key: "dex", value: 8 }], uniqueStats: [] },
+                    { name: "白霧の指輪", type: "accessory", stats: [{ key: "maxHp", value: 60 }, { key: "damageReduction", value: 6 }, { key: "luk", value: 5 }], uniqueStats: [] }
+                ]
+            },
+            {
+                floorStart: 301,
+                items: [
+                    { name: "雷迅の戦槌", type: "weapon", stats: [{ key: "attackFlat", value: 48 }, { key: "str", value: 16 }, { key: "accuracy", value: 8 }], uniqueStats: [] },
+                    { name: "静電の兜", type: "head", stats: [{ key: "defenseFlat", value: 24 }, { key: "vit", value: 12 }, { key: "critRate", value: 6 }], uniqueStats: [] }
+                ]
+            },
+            {
+                floorStart: 401,
+                items: [
+                    { name: "深潭のローブ", type: "armor", stats: [{ key: "defenseFlat", value: 36 }, { key: "int", value: 14 }, { key: "maxMp", value: 60 }], uniqueStats: [] },
+                    { name: "濡刃の短剣", type: "weapon", stats: [{ key: "attackFlat", value: 52 }, { key: "dex", value: 18 }, { key: "leechRate", value: 6 }], uniqueStats: [] }
+                ]
+            },
+            {
+                floorStart: 501,
+                items: [
+                    { name: "熾火の大剣", type: "weapon", stats: [{ key: "attackFlat", value: 70 }, { key: "str", value: 22 }, { key: "critDamage", value: 12 }], uniqueStats: [] },
+                    { name: "紅炎の護符", type: "accessory", stats: [{ key: "damageBoost", value: 10 }, { key: "maxHp", value: 80 }, { key: "luk", value: 8 }], uniqueStats: [] }
+                ]
+            },
+            {
+                floorStart: 601,
+                items: [
+                    { name: "霜刻の杖", type: "weapon", stats: [{ key: "attackFlat", value: 76 }, { key: "int", value: 24 }, { key: "mPen", value: 10 }], uniqueStats: [] },
+                    { name: "氷牢の肩当て", type: "armor", stats: [{ key: "defenseFlat", value: 48 }, { key: "vit", value: 20 }, { key: "damageReduction", value: 8 }], uniqueStats: [] }
+                ]
+            },
+            {
+                floorStart: 701,
+                items: [
+                    { name: "夜叉の爪剣", type: "weapon", stats: [{ key: "attackFlat", value: 86 }, { key: "dex", value: 26 }, { key: "critRate", value: 8 }], uniqueStats: [] },
+                    { name: "影討ちの足袋", type: "feet", stats: [{ key: "evasionRate", value: 14 }, { key: "dex", value: 20 }, { key: "accuracy", value: 10 }], uniqueStats: [] }
+                ]
+            },
+            {
+                floorStart: 801,
+                items: [
+                    { name: "封印の書", type: "weapon", stats: [{ key: "attackFlat", value: 90 }, { key: "int", value: 26 }, { key: "maxMp", value: 90 }], uniqueStats: [] },
+                    { name: "禁術の護符", type: "accessory", stats: [{ key: "skillMpDiscount", value: 12 }, { key: "maxMp", value: 100 }, { key: "int", value: 12 }], uniqueStats: [] }
+                ]
+            },
+            {
+                floorStart: 901,
+                items: [
+                    { name: "終末前夜の剣", type: "weapon", stats: [{ key: "attackFlat", value: 110 }, { key: "str", value: 30 }, { key: "damageBoost", value: 12 }], uniqueStats: [] },
+                    { name: "刻印の護符", type: "accessory", stats: [{ key: "damageBoost", value: 12 }, { key: "maxHp", value: 120 }, { key: "luk", value: 12 }], uniqueStats: [] }
+                ]
+            }
+        ];
+
         const BossRushLootTables = {};
 
         const StatLabels = {
@@ -2829,8 +2929,10 @@
 
         const getEquipmentTypeLabel = (item) => {
             const baseLabel = EquipmentTypeLabels[item?.type] ?? "";
-            if (!item?.isBossDrop || !baseLabel) return baseLabel;
-            return `${baseLabel} ボスドロップ`;
+            if (!baseLabel) return baseLabel;
+            if (item?.isBossDrop) return `${baseLabel} ボスドロップ`;
+            if (item?.isRoadLegendary) return `${baseLabel} 道中レジェンダリー`;
+            return baseLabel;
         };
 
         const InventorySortDefs = {
@@ -3278,14 +3380,27 @@
             return 0;
         };
 
-        const rollRarity = (rareFind, eliteRank = 0) => {
-            const weights = [
+        const getRoadLegendaryTable = (floor) => {
+            for (let i = RoadLegendaryLootTables.length - 1; i >= 0; i--) {
+                if (floor >= RoadLegendaryLootTables[i].floorStart) return RoadLegendaryLootTables[i];
+            }
+            return RoadLegendaryLootTables[0];
+        };
+
+        const rollRarity = (rareFind, eliteRank = 0, options = {}) => {
+            let weights = [
                 { key: "normal", weight: 60 },
                 { key: "magic", weight: 25 },
                 { key: "rare", weight: 10 },
                 { key: "epic", weight: 4 },
                 { key: "legendary", weight: 1 }
             ];
+            if (options.maxRarityKey) {
+                const maxIndex = weights.findIndex((rarity) => rarity.key === options.maxRarityKey);
+                if (maxIndex >= 0) {
+                    weights = weights.slice(0, maxIndex + 1);
+                }
+            }
             const bonus = Math.max(0, rareFind) / 100;
             const eliteBonus = Math.max(0, eliteRank) * 0.12;
             const adjusted = weights.map((rarity, idx) => ({
@@ -3338,10 +3453,12 @@
             return { name: affix.name, rank, stats };
         };
 
-        const buildItem = (base, type) => {
+        const buildItem = (base, type, options = {}) => {
             const totals = getTotalStats();
             const eliteRank = Game.enemy?.elite?.rank || 0;
-            const rarity = rollRarity(totals.rareFind, eliteRank);
+            const rarity = options.forceLegendary
+                ? (RarityDefs.find((def) => def.key === "legendary") || RarityDefs[RarityDefs.length - 1])
+                : rollRarity(totals.rareFind, eliteRank, { maxRarityKey: options.maxRarityKey });
             const affixRate = totals.affixFind + eliteRank * 8;
             const affixChance = Math.min(100, 2 + affixRate);
             const prefixRank = Math.random() * 100 < affixChance ? rollAffixRank(affixRate, eliteRank) : 0;
@@ -3424,10 +3541,12 @@
             return potion;
         };
 
-        const buildBossItem = (base, floor, index) => {
+        const buildBossItem = (base, floor, index, options = {}) => {
             const totals = getTotalStats();
             const eliteRank = Game.enemy?.elite?.rank || 0;
-            const rarity = rollRarity(totals.rareFind, eliteRank);
+            const rarity = options.forceLegendary
+                ? (RarityDefs.find((def) => def.key === "legendary") || RarityDefs[RarityDefs.length - 1])
+                : rollRarity(totals.rareFind, eliteRank);
             const affixRate = totals.affixFind + eliteRank * 8;
             const affixChance = Math.min(100, 2 + affixRate);
             const prefixRank = Math.random() * 100 < affixChance ? rollAffixRank(affixRate, eliteRank) : 0;
@@ -3490,6 +3609,57 @@
                 item.isBroken = false;
             }
             return item;
+        };
+
+        const buildRoadLegendaryItem = (base) => {
+            const totals = getTotalStats();
+            const eliteRank = Game.enemy?.elite?.rank || 0;
+            const rarity = (RarityDefs.find((def) => def.key === "legendary") || RarityDefs[RarityDefs.length - 1]);
+            const affixRate = totals.affixFind + eliteRank * 8;
+            const affixChance = Math.min(100, 2 + affixRate);
+            const prefixRank = Math.random() * 100 < affixChance ? rollAffixRank(affixRate, eliteRank) : 0;
+            const suffixRank = Math.random() * 100 < affixChance ? rollAffixRank(affixRate, eliteRank) : 0;
+            const prefix = prefixRank ? rollAffix(PrefixAffixes, prefixRank) : null;
+            const suffix = suffixRank ? rollAffix(SuffixAffixes, suffixRank) : null;
+            const prefixStars = prefix ? "☆".repeat(prefix.rank) : "";
+            const suffixStars = suffix ? "☆".repeat(suffix.rank) : "";
+            const baseStats = base.stats.map((stat) => {
+                const scaledValue = Math.max(1, Math.ceil(stat.value * rarity.mul * 1.5));
+                return { key: stat.key, value: rollStatValue(scaledValue, 0.12) };
+            });
+            const affixStats = [
+                ...(prefix ? prefix.stats.map((stat) => ({ ...stat, source: "prefix" })) : []),
+                ...(suffix ? suffix.stats.map((stat) => ({ ...stat, source: "suffix" })) : [])
+            ];
+            const uniqueStats = (base.uniqueStats || []).map((stat) => ({ ...stat }));
+            const effect = RoadLegendaryUniqueEffects[base.name];
+            if (effect) {
+                uniqueStats.push({ key: "bossUniqueEffect", value: 0, effect });
+            }
+            const item = {
+                name: `${prefixStars}${prefix ? prefix.name : ""}${base.name}${suffix ? suffix.name : ""}${suffixStars}`,
+                type: base.type,
+                rarity: rarity.key,
+                rarityMul: rarity.mul,
+                baseStats,
+                affixStats,
+                uniqueStats,
+                prefix,
+                suffix,
+                isRoadLegendary: true
+            };
+            if (item.type !== "potion") {
+                item.enhancementLevel = 0;
+                item.isBroken = false;
+            }
+            return item;
+        };
+
+        const buildRoadLegendaryLoot = () => {
+            const table = getRoadLegendaryTable(Game.floor);
+            if (!table || !table.items || table.items.length === 0) return null;
+            const base = pickRandom(table.items);
+            return buildRoadLegendaryItem(base);
         };
 
         const buildDxBossLootTable = (floor) => {
@@ -6214,11 +6384,41 @@
                 let dropChance = Math.min(0.95, totals.luck / 100);
                 dropChance = Math.min(0.95, dropChance * eliteLootMultiplier);
                 const isDxBoss = Boolean(Game.enemy?.isBoss && Game.enemy?.isDxBoss);
-                if (Math.random() < dropChance) queueLoot(buildEquipmentLoot());
+                const rollBossDropMode = () => {
+                    if (!Game.enemy?.isBoss) return false;
+                    const roll = Math.random();
+                    if (roll < BossDropChance) return true;
+                    if (roll < BossDropChance + NormalDropChance) return false;
+                    return false;
+                };
+                const rollRoadLegendaryMode = () => {
+                    if (Game.enemy?.isBoss) return false;
+                    const roll = Math.random();
+                    if (roll < RoadLegendaryDropChance) return true;
+                    if (roll < RoadLegendaryDropChance + RoadLegendaryNormalChance) return false;
+                    return false;
+                };
+                if (Math.random() < dropChance) {
+                    if (Game.enemy?.isBoss) {
+                        const forceBossDrop = rollBossDropMode();
+                        queueLoot(buildEquipmentLoot({ forceBossDrop }));
+                    } else {
+                        const isRoadLegendary = rollRoadLegendaryMode();
+                        queueLoot(isRoadLegendary ? buildRoadLegendaryLoot() : buildEquipmentLoot({ forceBossDrop: false }));
+                    }
+                }
                 if (!isDxBoss && Math.random() < dropChance) queueLoot(buildPotionLoot());
                 const bonusRolls = Game.enemy?.elite ? Math.floor(Game.enemy.elite.rank / 2) : 0;
                 for (let i = 0; i < bonusRolls; i++) {
-                    if (Math.random() < dropChance) queueLoot(buildEquipmentLoot());
+                    if (Math.random() < dropChance) {
+                        if (Game.enemy?.isBoss) {
+                            const forceBossDrop = rollBossDropMode();
+                            queueLoot(buildEquipmentLoot({ forceBossDrop }));
+                        } else {
+                            const isRoadLegendary = rollRoadLegendaryMode();
+                            queueLoot(isRoadLegendary ? buildRoadLegendaryLoot() : buildEquipmentLoot({ forceBossDrop: false }));
+                        }
+                    }
                     if (!isDxBoss && Math.random() < dropChance) queueLoot(buildPotionLoot());
                 }
             }
@@ -6301,15 +6501,19 @@
             setTimeout(()=>el.remove(), 800);
         }
 
-        function buildEquipmentLoot() {
-            if (Game.enemy?.isBoss && Game.enemy.floor <= 1000) {
+        function buildEquipmentLoot(options = {}) {
+            const forceBossDrop = options.forceBossDrop;
+            const useBossTable = forceBossDrop === true
+                ? true
+                : (forceBossDrop === false ? false : (Game.enemy?.isBoss && Game.enemy.floor <= 1000));
+            if (useBossTable) {
                 const bossTable = Game.enemy.isDxBoss
                     ? buildDxBossLootTable(Game.enemy.floor)
                     : (BossRushLootTables[Game.enemy.floor] || BossLootTables[Game.enemy.floor]);
                 if (bossTable && bossTable.length > 0) {
                     const base = pickRandom(bossTable);
                     const index = Math.max(0, bossTable.indexOf(base));
-                    return buildBossItem(base, Game.enemy.floor, index);
+                    return buildBossItem(base, Game.enemy.floor, index, { forceLegendary: true });
                 }
             }
             const tier = EquipmentTiers[getTierIndex(Game.floor)];
@@ -6317,7 +6521,7 @@
             const type = pickRandom(types);
             const poolKey = EquipmentTypePools[type];
             const base = pickRandom(tier[poolKey]);
-            return buildItem(base, type);
+            return buildItem(base, type, { maxRarityKey: "epic" });
         }
 
         function buildPotionLoot() {
