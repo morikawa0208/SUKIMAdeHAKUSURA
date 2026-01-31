@@ -1175,6 +1175,9 @@
                 </button>
             </div>
 
+            <button id="warp-bossrush-enter" class="mt-3 w-full bg-rose-600 text-white text-xs font-black py-2 rounded-xl hover:bg-rose-500 transition flex items-center justify-center gap-2">
+                <i class="fas fa-flag-checkered"></i> ボスラッシュ入場
+            </button>
             <button id="warp-bossrush-info" class="mt-3 hidden w-full bg-amber-100 text-amber-700 text-xs font-black py-2 rounded-xl hover:bg-amber-200 transition">
                 ボスラッシュ仕様を見る
             </button>
@@ -1266,7 +1269,7 @@
             },
             player: {
                 level: 1,
-                hp: 100, maxHp: 100, baseMaxHp: 100, mp: 30, maxMp: 30,
+                hp: 100, maxHp: 100, baseMaxHp: 100, mp: 30, maxMp: 30, baseMaxMp: 30,
                 // Primary Stats
                 str: 10, vit: 5, int: 5, dex: 5, luk: 5,
                 // Secondary Stats (calculated)
@@ -1305,6 +1308,8 @@
             lootQueue: [],
             pendingEquip: null,
             bossRushCarryoverDamage: 0,
+            isBossRush: false,
+            maxBossRushFloor: 0,
             enemy: null, logs: [], dropLogs: []
         };
 
@@ -1356,33 +1361,20 @@
             return mpAtCap + Math.floor(K * Math.sqrt(extra));
         };
 
-        const calcMaxHpByLevel = (lv, baseHp) => {
-            const r = 0.025;
-            const flat = 10;
-            const capLv = 100;
-            const safeLv = Math.max(1, lv);
-            const safeBaseHp = Math.max(1, baseHp);
-
-            const hpLinear = Math.floor(safeBaseHp * (1 + r * (safeLv - 1)) + flat * (safeLv - 1));
-            if (safeLv <= capLv) return hpLinear;
-
-            const hpAtCap = Math.floor(safeBaseHp * (1 + r * (capLv - 1)) + flat * (capLv - 1));
-            const extra = safeLv - capLv;
-            const K = 80;
-            return hpAtCap + Math.floor(K * Math.sqrt(extra));
-        };
-
         const applyLevelUps = ({ log = true } = {}) => {
             let leveledUp = false;
             if (!Number.isFinite(Game.player.baseMaxHp)) {
                 Game.player.baseMaxHp = Game.player.maxHp || 1;
+            }
+            if (!Number.isFinite(Game.player.baseMaxMp)) {
+                Game.player.baseMaxMp = Game.player.maxMp || 1;
             }
             while (Game.player.exp >= Game.player.next && Game.player.level < MAX_LEVEL) {
                 Game.player.level++;
                 Game.player.exp -= Game.player.next;
                 Game.player.next = getNextExpRequirement(Game.player.level);
                 Game.player.maxHp = calcMaxHpByLevel(Game.player.level, Game.player.baseMaxHp);
-                Game.player.maxMp += 15;
+                Game.player.maxMp = calcMaxMpByLevel(Game.player.level, Game.player.baseMaxMp);
                 const derived = getDerivedStats();
                 Game.player.hp = derived.maxHp;
                 Game.player.mp = derived.maxMp;
@@ -1480,11 +1472,19 @@
                 if (!Number.isFinite(Game.player.baseMaxHp)) {
                     Game.player.baseMaxHp = Game.player.maxHp || 1;
                 }
+                if (!Number.isFinite(Game.player.baseMaxMp)) {
+                    Game.player.baseMaxMp = Game.player.maxMp || 1;
+                }
                 Game.player.maxHp = calcMaxHpByLevel(Game.player.level, Game.player.baseMaxHp);
+                Game.player.maxMp = calcMaxMpByLevel(Game.player.level, Game.player.baseMaxMp);
                 Game.player.sp = Math.min(MAX_SKILL_POINTS, Game.player.sp ?? 1);
                 Game.player.next = getNextExpRequirement(Game.player.level);
                 applyLevelUps({ log: false });
             }
+            if (!Number.isFinite(Game.maxBossRushFloor)) {
+                Game.maxBossRushFloor = 0;
+            }
+            Game.isBossRush = Boolean(Game.isBossRush);
         };
 
         const renderSaveSlots = () => {
@@ -2216,7 +2216,7 @@
         ];
 
         const getBossRushBuffCount = (floor) => {
-            if (floor < BossRushStartFloor) return 0;
+            if (!Game.isBossRush || floor < BossRushStartFloor) return 0;
             if (floor <= 1010) return 1;
             if (floor <= 1020) return 2;
             if (floor <= 1030) return 3;
@@ -2381,7 +2381,7 @@
 
         const applyBossRushCarryoverDamage = (enemy) => {
             if (!enemy) return;
-            if (Game.floor < BossRushStartFloor) {
+            if (!Game.isBossRush) {
                 Game.bossRushCarryoverDamage = 0;
                 return;
             }
@@ -3218,20 +3218,40 @@
             };
         };
 
-        const getEnemyScale = (floor) => {
-            const base = 1 + (floor * 0.16);
-            if (floor <= 1000) return base;
-            const surge = (floor - 1000) * 0.18;
-            const spike = Math.floor((floor - 1000) / 500) * 5;
-            return base + surge + spike;
+        const EnemyArchetypes = {
+            balanced: { id: "balanced", label: "標準", hp: 1, str: 1, def: 1, acc: 1, eva: 1 },
+            speed: { id: "speed", label: "速度型", hp: 0.85, str: 1, def: 0.95, acc: 1.1, eva: 1.25 },
+            attack: { id: "attack", label: "攻撃型", hp: 0.9, str: 1.25, def: 0.9, acc: 1.05, eva: 1 },
+            defense: { id: "defense", label: "防御型", hp: 1.25, str: 0.85, def: 1.2, acc: 0.95, eva: 0.95 }
+        };
+        const EnemyArchetypePool = ["balanced", "speed", "attack", "defense"];
+
+        const getEnemyArchetypeId = (enemy) => enemy?.archetype || pickRandom(EnemyArchetypePool);
+
+        const calcEnemyStatsByFloor = (floor, base, archetypeId = "balanced") => {
+            const archetype = EnemyArchetypes[archetypeId] || EnemyArchetypes.balanced;
+            const hpScale = 1 + (floor * 0.015) + (floor * floor * 0.00015);
+            const strScale = 1 + (floor * 0.012) + (floor * floor * 0.0001);
+            const defScale = 1 + (floor * 0.01) + (floor * floor * 0.00008);
+            const accScale = 1 + (floor * 0.006);
+            const evaScale = 1 + (floor * 0.006);
+            const expScale = 1 + (floor * 0.01) + (floor * floor * 0.00005);
+            return {
+                maxHp: Math.floor(base.hp * hpScale * archetype.hp),
+                hp: Math.floor(base.hp * hpScale * archetype.hp),
+                str: Math.floor(base.str * strScale * archetype.str),
+                def: Math.floor(base.def * defScale * archetype.def),
+                acc: Math.floor(base.acc * accScale * archetype.acc),
+                eva: Math.floor(base.eva * evaScale * archetype.eva),
+                exp: Math.floor(base.exp * expScale),
+                archetypeId: archetype.id,
+                archetypeLabel: archetype.label
+            };
         };
 
         const getBossScale = (floor) => {
-            const base = 1 + (floor * 0.16);
-            if (floor <= 1000) return base;
-            const surge = (floor - 1000) * 0.21;
-            const spike = Math.floor((floor - 1000) / 500) * 6;
-            return base + surge + spike;
+            const hpScale = 1 + (floor * 0.015) + (floor * floor * 0.00015);
+            return hpScale;
         };
 
         const getBossRushScale = (floor) => {
@@ -4116,13 +4136,21 @@
             if (!Number.isFinite(Game.maxFloor)) {
                 Game.maxFloor = Game.floor || 1;
             }
+            if (!Number.isFinite(Game.maxBossRushFloor)) {
+                Game.maxBossRushFloor = Game.isBossRush ? (Game.floor || BossRushStartFloor) : 0;
+            }
             if (!Array.isArray(Game.defeatedBossFloors)) {
                 Game.defeatedBossFloors = [];
             }
             if (!Array.isArray(Game.defeatedBossRushMilestones)) {
                 Game.defeatedBossRushMilestones = [];
             }
-            Game.maxFloor = Math.max(1, Game.maxFloor, Game.floor);
+            if (!Game.isBossRush) {
+                Game.maxFloor = Math.max(1, Game.maxFloor, Game.floor);
+            }
+            if (Game.isBossRush) {
+                Game.maxBossRushFloor = Math.max(Game.maxBossRushFloor, Game.floor);
+            }
         };
 
         const getWarpMaxFloor = () => {
@@ -4131,12 +4159,13 @@
         };
 
         const normalizeWarpFloor = (value, options = {}) => {
-            const allowBossRush = options.allowBossRush ?? false;
-            const maxFloor = getWarpMaxFloor();
-            const upperLimit = allowBossRush ? maxFloor : Math.min(maxFloor, BossRushStartFloor - 1);
+            const isBossRush = options.isBossRush ?? false;
+            const maxFloor = isBossRush ? Math.max(BossRushStartFloor, Game.maxBossRushFloor || BossRushStartFloor) : getWarpMaxFloor();
+            const upperLimit = maxFloor;
             const parsed = Number.parseInt(value, 10);
             if (Number.isNaN(parsed)) return null;
-            return Math.min(upperLimit, Math.max(1, parsed));
+            const lowerLimit = isBossRush ? BossRushStartFloor : 1;
+            return Math.min(upperLimit, Math.max(lowerLimit, parsed));
         };
 
         const renderWarpBossButtons = () => {
@@ -4165,9 +4194,7 @@
             const empty = document.getElementById('warp-bossrush-empty');
             if (!container) return;
             container.innerHTML = '';
-            const floors = (Game.defeatedBossRushMilestones || [])
-                .filter((floor) => floor >= BossRushStartFloor)
-                .sort((a, b) => a - b);
+            const floors = (Game.defeatedBossRushMilestones || []).sort((a, b) => a - b);
             if (floors.length === 0) {
                 if (empty) empty.classList.remove('hidden');
                 return;
@@ -4178,7 +4205,7 @@
                 button.type = 'button';
                 button.className = 'bg-amber-50 text-amber-700 text-[10px] font-black px-2 py-2 rounded-xl flex items-center justify-center gap-1 hover:bg-amber-100 transition';
                 button.innerHTML = `<i class="fas fa-flag-checkered"></i> ${floor}F`;
-                button.addEventListener('click', () => performWarp(floor, { allowBossRush: true }));
+                button.addEventListener('click', () => performWarp(floor, { isBossRush: true }));
                 container.appendChild(button);
             });
         };
@@ -4188,19 +4215,22 @@
             const maxFloorEl = document.getElementById('warp-max-floor');
             const input = document.getElementById('warp-input');
             const infoButton = document.getElementById('warp-bossrush-info');
+            const bossRushEnter = document.getElementById('warp-bossrush-enter');
             if (maxFloorEl) {
                 maxFloorEl.textContent = maxFloor;
             }
             if (input) {
-                const inputMax = Math.min(maxFloor, BossRushStartFloor - 1);
-                input.max = inputMax;
-                const normalized = normalizeWarpFloor(input.value || Game.floor, { allowBossRush: false });
+                input.max = maxFloor;
+                const normalized = normalizeWarpFloor(input.value || Game.floor, { isBossRush: false });
                 if (normalized !== null) {
                     input.value = normalized;
                 }
             }
             if (infoButton) {
                 infoButton.classList.toggle('hidden', maxFloor < 1000);
+            }
+            if (bossRushEnter) {
+                bossRushEnter.classList.toggle('hidden', maxFloor < 1000);
             }
             renderWarpBossButtons();
             renderWarpBossRushButtons();
@@ -4232,7 +4262,7 @@
         const recordBossDefeat = (floor) => {
             if (!floor) return;
             ensureWarpState();
-            if (floor >= BossRushStartFloor) {
+            if (Game.isBossRush) {
                 const milestones = Game.defeatedBossRushMilestones;
                 if (floor % 500 === 0 && !milestones.includes(floor)) {
                     milestones.push(floor);
@@ -4249,10 +4279,30 @@
             const target = normalizeWarpFloor(value, options);
             if (!target) return;
             Game.floor = target;
-            Game.maxFloor = Math.max(Game.maxFloor, Game.floor);
+            Game.isBossRush = Boolean(options.isBossRush);
+            if (Game.isBossRush) {
+                Game.maxBossRushFloor = Math.max(Game.maxBossRushFloor || BossRushStartFloor, Game.floor);
+            } else {
+                Game.maxFloor = Math.max(Game.maxFloor, Game.floor);
+                Game.bossRushCarryoverDamage = 0;
+            }
             closeWarpModal();
             spawn();
             addLog(`B${Game.floor}へワープ...`, "text-sky-500");
+            updateUI();
+            triggerAutosave();
+        };
+
+        const enterBossRush = () => {
+            if (Game.state === 'combat') return;
+            if (getWarpMaxFloor() < 1000) return;
+            Game.isBossRush = true;
+            Game.floor = BossRushStartFloor;
+            Game.maxBossRushFloor = Math.max(Game.maxBossRushFloor || BossRushStartFloor, Game.floor);
+            Game.bossRushCarryoverDamage = 0;
+            closeWarpModal();
+            spawn();
+            addLog("ボスラッシュに挑戦！", "text-rose-500 font-black");
             updateUI();
             triggerAutosave();
         };
@@ -4264,6 +4314,7 @@
             const warpInput = document.getElementById('warp-input');
             const warpModal = document.getElementById('warp-modal');
             const warpBossRushInfo = document.getElementById('warp-bossrush-info');
+            const warpBossRushEnter = document.getElementById('warp-bossrush-enter');
             if (warpBtn) {
                 warpBtn.addEventListener('click', openWarpModal);
             }
@@ -4281,7 +4332,7 @@
                     }
                 });
                 warpInput.addEventListener('blur', () => {
-                    const normalized = normalizeWarpFloor(warpInput.value, { allowBossRush: false });
+                    const normalized = normalizeWarpFloor(warpInput.value, { isBossRush: false });
                     if (normalized !== null) {
                         warpInput.value = normalized;
                     }
@@ -4296,6 +4347,9 @@
             }
             if (warpBossRushInfo) {
                 warpBossRushInfo.addEventListener('click', openBossRushModal);
+            }
+            if (warpBossRushEnter) {
+                warpBossRushEnter.addEventListener('click', enterBossRush);
             }
         };
 
@@ -4789,7 +4843,7 @@
                 return;
             }
             const potionDerived = syncPotionCapacity(potion);
-            const potionEffectMultiplier = Game.floor >= BossRushStartFloor ? 0.5 : 1;
+            const potionEffectMultiplier = Game.isBossRush ? 0.5 : 1;
             if (potion.currentCapacity < potionDerived.cost) {
                 addLog("ポーション容量が足りない！", "text-slate-400");
                 return;
@@ -5526,7 +5580,7 @@
             let bossDef = null;
             let bossBase = null;
             let bossScale = 1;
-            if (Game.floor >= BossRushStartFloor) {
+            if (Game.isBossRush) {
                 const pool = Object.values(BossDefs);
                 const picked = pickRandom(pool);
                 bossDef = picked ? { ...picked, originFloor: picked.floor } : null;
@@ -5543,16 +5597,21 @@
                 const baseStats = bossBase || bossDef;
                 const hasBossRushUnlocked = Array.isArray(Game.defeatedBossFloors) && Game.defeatedBossFloors.includes(1000);
                 const isDxBoss = hasBossRushUnlocked && Game.floor <= 1000;
+                const bossStats = Game.isBossRush
+                    ? {
+                        maxHp: Math.floor(baseStats.hp * bossScale),
+                        hp: Math.floor(baseStats.hp * bossScale),
+                        str: Math.floor(baseStats.str * bossScale),
+                        def: Math.floor(baseStats.def * bossScale),
+                        acc: Math.floor(baseStats.acc * bossScale),
+                        eva: Math.floor(baseStats.eva * bossScale),
+                        exp: Math.floor(baseStats.exp * bossScale)
+                    }
+                    : calcEnemyStatsByFloor(Game.floor, baseStats, "balanced");
                 Game.enemy = {
                     ...bossDef,
                     floor: Game.floor,
-                    maxHp: Math.floor(baseStats.hp * bossScale),
-                    hp: Math.floor(baseStats.hp * bossScale),
-                    str: Math.floor(baseStats.str * bossScale),
-                    def: Math.floor(baseStats.def * bossScale),
-                    acc: Math.floor(baseStats.acc * bossScale),
-                    eva: Math.floor(baseStats.eva * bossScale),
-                    exp: Math.floor(baseStats.exp * bossScale),
+                    ...bossStats,
                     statusEffects: [],
                     isBoss: true,
                     isDxBoss,
@@ -5563,7 +5622,7 @@
                     bossRushBuffs: [],
                     bossRushBuffState: null
                 };
-                if (Game.floor >= BossRushStartFloor) {
+                if (Game.isBossRush) {
                     Game.enemy.bossRushBuffs = rollBossRushBuffs(Game.floor);
                     Game.enemy.bossRushBuffState = null;
                     applyBossRushBuffStats(Game.enemy, Game.enemy.bossRushBuffs);
@@ -5573,17 +5632,13 @@
                 }
                 addLog(`BOSS ${bossDef.name}が出現！`, "text-amber-500 font-black");
             } else {
-                const scale = getEnemyScale(Game.floor);
                 const basePool = getEnemyPool(Game.floor);
                 const base = pickRandom(basePool);
+                const archetypeId = getEnemyArchetypeId(base);
+                const scaled = calcEnemyStatsByFloor(Game.floor, base, archetypeId);
                 Game.enemy = { 
-                    ...base, 
-                    maxHp: Math.floor(base.hp * scale), 
-                    hp: Math.floor(base.hp * scale), 
-                    str: Math.floor(base.str * scale),
-                    def: Math.floor(base.def * scale),
-                    acc: Math.floor(base.acc * scale),
-                    eva: Math.floor(base.eva * scale),
+                    ...base,
+                    ...scaled,
                     statusEffects: [],
                     isBoss: false,
                     critRate: 0,
@@ -5721,6 +5776,11 @@
                 const stayOnFloor = Game.stayOnFloor;
                 if (!stayOnFloor) {
                     Game.floor++;
+                    if (Game.isBossRush) {
+                        Game.maxBossRushFloor = Math.max(Game.maxBossRushFloor || BossRushStartFloor, Game.floor);
+                    } else {
+                        Game.maxFloor = Math.max(Game.maxFloor, Game.floor);
+                    }
                 }
                 spawn();
                 addLog(stayOnFloor ? `B${Game.floor}へ再戦...` : `B${Game.floor}へ潜入...`);
@@ -6148,7 +6208,7 @@
             restorePotionCapacity(Game.player.potion1);
             restorePotionCapacity(Game.player.potion2);
             // Drop Luck Check
-            if (Game.floor < BossRushNoDropStartFloor) {
+            if (!Game.isBossRush || Game.floor < BossRushNoDropStartFloor) {
                 const eliteLootMultiplier = Game.enemy?.elite?.lootMultiplier ?? 1;
                 const totals = getTotalStats();
                 let dropChance = Math.min(0.95, totals.luck / 100);
@@ -6893,26 +6953,30 @@
             document.getElementById('status-exp-bar').style.width = (p.exp/p.next*100)+'%';
             
             // Secondary Stats Display
-            document.getElementById('stat-max-hp').innerText = totals.maxHpFlat;
-            document.getElementById('stat-max-mp').innerText = totals.maxMpFlat;
-            document.getElementById('stat-atk-flat').innerText = totals.attackFlat;
-            document.getElementById('stat-def-flat').innerText = totals.defenseFlat;
-            document.getElementById('stat-crit').innerText = totals.critRate + "%";
-            document.getElementById('stat-eva').innerText = totals.evasionRate + "%";
-            document.getElementById('stat-leech').innerText = totals.leechRate + "%";
-            document.getElementById('stat-exp-boost').innerText = totals.expBoost + "%";
-            document.getElementById('stat-m-pen').innerText = totals.mPen + "%";
-            document.getElementById('stat-luck').innerText = `${totals.luck}%`;
-            document.getElementById('stat-accuracy').innerText = `${totals.accuracy}%`;
-            document.getElementById('stat-hp-regen').innerText = totals.hpRegen;
-            document.getElementById('stat-mp-regen').innerText = totals.mpRegen;
-            document.getElementById('stat-crit-dmg').innerText = `${totals.critDamage}%`;
-            document.getElementById('stat-dmg-boost').innerText = `${totals.damageBoost}%`;
-            document.getElementById('stat-dmg-reduction').innerText = `${totals.damageReduction}%`;
-            document.getElementById('stat-rare-find').innerText = `${totals.rareFind}%`;
-            document.getElementById('stat-affix-find').innerText = `${totals.affixFind}%`;
-            document.getElementById('stat-elite-encounter').innerText = `${totals.eliteEncounter}%`;
-            document.getElementById('stat-gold-boost').innerText = `${totals.goldBoost}%`;
+            const setStatusText = (id, value) => {
+                const el = document.getElementById(id);
+                if (el) el.innerText = value;
+            };
+            setStatusText('stat-max-hp', totals.maxHpFlat);
+            setStatusText('stat-max-mp', totals.maxMpFlat);
+            setStatusText('stat-atk-flat', totals.attackFlat);
+            setStatusText('stat-def-flat', totals.defenseFlat);
+            setStatusText('stat-crit', `${totals.critRate}%`);
+            setStatusText('stat-eva', `${totals.evasionRate}%`);
+            setStatusText('stat-leech', `${totals.leechRate}%`);
+            setStatusText('stat-exp-boost', `${totals.expBoost}%`);
+            setStatusText('stat-m-pen', `${totals.mPen}%`);
+            setStatusText('stat-luck', `${totals.luck}%`);
+            setStatusText('stat-accuracy', `${totals.accuracy}%`);
+            setStatusText('stat-hp-regen', totals.hpRegen);
+            setStatusText('stat-mp-regen', totals.mpRegen);
+            setStatusText('stat-crit-dmg', `${totals.critDamage}%`);
+            setStatusText('stat-dmg-boost', `${totals.damageBoost}%`);
+            setStatusText('stat-dmg-reduction', `${totals.damageReduction}%`);
+            setStatusText('stat-rare-find', `${totals.rareFind}%`);
+            setStatusText('stat-affix-find', `${totals.affixFind}%`);
+            setStatusText('stat-elite-encounter', `${totals.eliteEncounter}%`);
+            setStatusText('stat-gold-boost', `${totals.goldBoost}%`);
 
             updateEquipNameDisplay('equip-weapon', p.weapon);
             document.getElementById('weapon-val').innerHTML = p.weapon ? renderItemStatsGroupedHtml(p.weapon) : "";
