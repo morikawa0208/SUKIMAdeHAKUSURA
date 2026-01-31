@@ -494,15 +494,11 @@
                 </div>
                 <div class="grid grid-cols-2 gap-4 text-xs">
                     <div class="flex justify-between border-b border-slate-700 pb-1"><span>最大HP</span><span id="stat-max-hp">0</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>HP効率</span><span id="stat-hp-eff">0%</span></div>
                     <div class="flex justify-between border-b border-slate-700 pb-1"><span>最大MP</span><span id="stat-max-mp">0</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>MP効率</span><span id="stat-mp-eff">0%</span></div>
                     <div class="flex justify-between border-b border-slate-700 pb-1"><span>HP自動回復</span><span id="stat-hp-regen">0</span></div>
                     <div class="flex justify-between border-b border-slate-700 pb-1"><span>MP自動回復</span><span id="stat-mp-regen">0</span></div>
                     <div class="flex justify-between border-b border-slate-700 pb-1"><span>攻撃力</span><span id="stat-atk-flat">0</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>攻撃効率</span><span id="stat-atk-eff">0%</span></div>
                     <div class="flex justify-between border-b border-slate-700 pb-1"><span>防御力</span><span id="stat-def-flat">0</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-1"><span>防御効率</span><span id="stat-def-eff">0%</span></div>
                     <div class="flex justify-between border-b border-slate-700 pb-1"><span>命中率</span><span id="stat-accuracy">95%</span></div>
                     <div class="flex justify-between border-b border-slate-700 pb-1"><span>会心率</span><span id="stat-crit">5%</span></div>
                     <div class="flex justify-between border-b border-slate-700 pb-1"><span>会心ダメージ</span><span id="stat-crit-dmg">200%</span></div>
@@ -1100,15 +1096,11 @@
                     <div class="text-[10px] font-black text-slate-400 uppercase">Secondary</div>
                     <ul class="mt-2 space-y-1">
                         <li>最大HP：HPを固定値で増加。</li>
-                        <li>HP効率：最大HPを%で増加。</li>
                         <li>最大MP：MPを固定値で増加。</li>
-                        <li>MP効率：最大MPを%で増加。</li>
                         <li>HP自動回復：ターン終了時にHPが回復。</li>
                         <li>MP自動回復：ターン終了時にMPが回復。</li>
                         <li>攻撃力：物理攻撃の固定増加。</li>
-                        <li>攻撃効率：物理攻撃を%で増加。</li>
                         <li>防御力：防御の固定増加。</li>
-                        <li>防御効率：防御を%で増加。</li>
                         <li>命中率：攻撃が命中する確率。</li>
                         <li>会心率：クリティカルが発生する確率。</li>
                         <li>会心ダメージ：会心時のダメージ倍率。</li>
@@ -1274,12 +1266,12 @@
             },
             player: {
                 level: 1,
-                hp: 100, maxHp: 100, mp: 30, maxMp: 30,
+                hp: 100, maxHp: 100, baseMaxHp: 100, mp: 30, maxMp: 30,
                 // Primary Stats
                 str: 10, vit: 5, int: 5, dex: 5, luk: 5,
                 // Secondary Stats (calculated)
-                maxHpFlat: 0, hpEfficiency: 0, maxMpFlat: 0, mpEfficiency: 0,
-                attackFlat: 0, attackEfficiency: 0, defenseFlat: 0, defenseEfficiency: 0,
+                maxHpFlat: 0, maxMpFlat: 0,
+                attackFlat: 0, defenseFlat: 0,
                 hpRegen: 0, mpRegen: 0, goldBoost: 0,
                 critRate: 5, evasionRate: 3, leechRate: 0, expBoost: 0, mPen: 0, luck: 50, accuracy: 95,
                 critDamage: 200, damageBoost: 0, damageReduction: 0, rareFind: 0, affixFind: 0, eliteEncounter: 20,
@@ -1316,7 +1308,7 @@
             enemy: null, logs: [], dropLogs: []
         };
 
-        const MAX_LEVEL = 1000;
+        const MAX_LEVEL = Number.MAX_SAFE_INTEGER;
         const LEVEL_UP_SKILL_POINTS = 1;
         const MAX_SKILL_POINTS = 1000;
         const FreezeDecayConfig = {
@@ -1331,14 +1323,32 @@
             return Math.floor(base + linear + quadratic);
         };
 
+        const calcMaxHpByLevel = (lv, baseHp) => {
+            const r = 0.025;
+            const flat = 10;
+            const capLv = 100;
+            const safeLv = Math.max(1, lv);
+            const safeBaseHp = Math.max(1, baseHp);
+
+            const hpLinear = Math.floor(safeBaseHp * (1 + r * (safeLv - 1)) + flat * (safeLv - 1));
+            if (safeLv <= capLv) return hpLinear;
+
+            const hpAtCap = Math.floor(safeBaseHp * (1 + r * (capLv - 1)) + flat * (capLv - 1));
+            const extra = safeLv - capLv;
+            const K = 80;
+            return hpAtCap + Math.floor(K * Math.sqrt(extra));
+        };
+
         const applyLevelUps = ({ log = true } = {}) => {
             let leveledUp = false;
+            if (!Number.isFinite(Game.player.baseMaxHp)) {
+                Game.player.baseMaxHp = Game.player.maxHp || 1;
+            }
             while (Game.player.exp >= Game.player.next && Game.player.level < MAX_LEVEL) {
                 Game.player.level++;
                 Game.player.exp -= Game.player.next;
                 Game.player.next = getNextExpRequirement(Game.player.level);
-                const hpGain = Math.floor(Game.player.maxHp * 0.025) + 10;
-                Game.player.maxHp += hpGain;
+                Game.player.maxHp = calcMaxHpByLevel(Game.player.level, Game.player.baseMaxHp);
                 Game.player.maxMp += 15;
                 const derived = getDerivedStats();
                 Game.player.hp = derived.maxHp;
@@ -1434,6 +1444,10 @@
             mergeSaveData(Game, snapshot);
             if (Game.player) {
                 Game.player.level = Math.min(MAX_LEVEL, Game.player.level || 1);
+                if (!Number.isFinite(Game.player.baseMaxHp)) {
+                    Game.player.baseMaxHp = Game.player.maxHp || 1;
+                }
+                Game.player.maxHp = calcMaxHpByLevel(Game.player.level, Game.player.baseMaxHp);
                 Game.player.sp = Math.min(MAX_SKILL_POINTS, Game.player.sp ?? 1);
                 Game.player.next = getNextExpRequirement(Game.player.level);
                 applyLevelUps({ log: false });
@@ -1741,7 +1755,7 @@
                     { id: 2, name: "破壊本能", desc: "与ダメ増加+2%/レベル", maxLevel: 50, apply: (d) => Game.player.damageBoost += 2 * d },
                     { id: 3, name: "武器の極意", desc: "会心ダメージ+6%/レベル", maxLevel: 50, apply: (d) => Game.player.critDamage += 6 * d },
                     { id: 4, name: "戦線維持", desc: "最大HP+20/レベル", maxLevel: 50, apply: (d) => Game.player.maxHpFlat += 20 * d },
-                    { id: 5, name: "猛進", desc: "攻撃効率+2%/レベル", maxLevel: 50, apply: (d) => Game.player.attackEfficiency += 2 * d }
+                    { id: 5, name: "猛進", desc: "攻撃力+2/レベル", maxLevel: 50, apply: (d) => Game.player.attackFlat += 2 * d }
                 ]
             },
             mage: {
@@ -1841,7 +1855,7 @@
                     { id: 2, name: "聖癒力", desc: "HP自動回復+2/レベル", maxLevel: 50, apply: (d) => Game.player.hpRegen += 2 * d },
                     { id: 3, name: "敬虔", desc: "MP自動回復+1/レベル", maxLevel: 50, apply: (d) => Game.player.mpRegen += 1 * d },
                     { id: 4, name: "神罰", desc: "与ダメ増加+2%/レベル", maxLevel: 50, apply: (d) => Game.player.damageBoost += 2 * d },
-                    { id: 5, name: "守護誓約", desc: "防御効率+4%/レベル", maxLevel: 50, apply: (d) => Game.player.defenseEfficiency += 4 * d }
+                    { id: 5, name: "守護誓約", desc: "防御力+4/レベル", maxLevel: 50, apply: (d) => Game.player.defenseFlat += 4 * d }
                 ]
             },
             monk: {
@@ -1862,8 +1876,8 @@
                 ],
                 passive: [
                     { id: 0, name: "体術鍛錬", desc: "STR+2/レベル & DEX+2/レベル", maxLevel: 50, apply: (d) => { Game.player.str += 2 * d; Game.player.dex += 2 * d; } },
-                    { id: 1, name: "気の流れ", desc: "HP効率+3%/レベル", maxLevel: 50, apply: (d) => Game.player.hpEfficiency += 3 * d },
-                    { id: 2, name: "内功", desc: "MP効率+3%/レベル", maxLevel: 50, apply: (d) => Game.player.mpEfficiency += 3 * d },
+                    { id: 1, name: "気の流れ", desc: "最大HP+3/レベル", maxLevel: 50, apply: (d) => Game.player.maxHpFlat += 3 * d },
+                    { id: 2, name: "内功", desc: "最大MP+3/レベル", maxLevel: 50, apply: (d) => Game.player.maxMpFlat += 3 * d },
                     { id: 3, name: "闘志", desc: "会心ダメージ+8%/レベル", maxLevel: 50, apply: (d) => Game.player.critDamage += 8 * d },
                     { id: 4, name: "霞身", desc: "回避率+2%/レベル", maxLevel: 50, apply: (d) => Game.player.evasionRate += 2 * d },
                     { id: 5, name: "闘気吸収", desc: "吸血率+2%/レベル", maxLevel: 50, apply: (d) => Game.player.leechRate += 2 * d }
@@ -1874,16 +1888,16 @@
         const PassiveMilestoneBonuses = {
             warrior: {
                 0: { 10: { stats: { attackFlat: 15 } }, 30: { stats: { critRate: 5 } }, 50: { stats: { damageBoost: 10 } } },
-                1: { 10: { stats: { maxHpFlat: 120 } }, 30: { stats: { defenseEfficiency: 10 } }, 50: { stats: { damageReduction: 10 } } },
+                1: { 10: { stats: { maxHpFlat: 120 } }, 50: { stats: { damageReduction: 10 } } },
                 2: { 10: { stats: { leechRate: 5 } }, 30: { stats: { hpRegen: 5 } }, 50: { stats: { damageBoost: 5 } } },
                 3: { 10: { stats: { defenseFlat: 20 } }, 30: { stats: { damageReduction: 5 } }, 50: { stats: { attackFlat: 20 } } },
-                4: { 10: { stats: { defenseFlat: 30 } }, 30: { stats: { defenseEfficiency: 10 } }, 50: { stats: { damageReduction: 8 } } },
-                5: { 10: { stats: { attackEfficiency: 5 } }, 30: { stats: { damageBoost: 10 } }, 50: { stats: { critRate: 5 } } }
+                4: { 10: { stats: { defenseFlat: 30 } }, 50: { stats: { damageReduction: 8 } } },
+                5: { 30: { stats: { damageBoost: 10 } }, 50: { stats: { critRate: 5 } } }
             },
             mage: {
                 0: { 10: { stats: { mPen: 8 } }, 30: { stats: { critRate: 5 } }, 50: { stats: { damageBoost: 10 } } },
-                1: { 10: { stats: { mpRegen: 5 } }, 30: { stats: { maxMpFlat: 120 } }, 50: { stats: { mpEfficiency: 10 } } },
-                2: { 10: { stats: { mpEfficiency: 5 } }, 30: { stats: { mpRegen: 5 } }, 50: { stats: { maxMpFlat: 80 } } },
+                1: { 10: { stats: { mpRegen: 5 } }, 30: { stats: { maxMpFlat: 120 } } },
+                2: { 30: { stats: { mpRegen: 5 } }, 50: { stats: { maxMpFlat: 80 } } },
                 3: { 10: { stats: { critDamage: 20 } }, 30: { stats: { accuracy: 10 } }, 50: { stats: { damageBoost: 10 } } },
                 4: { 10: { stats: { damageBoost: 5 } }, 30: { stats: { mPen: 8 } }, 50: { stats: { critRate: 5 } } },
                 5: { 10: { stats: { critRate: 5 } }, 30: { stats: { critDamage: 30 } }, 50: { stats: { damageBoost: 10 } } }
@@ -1906,16 +1920,16 @@
             },
             paladin: {
                 0: { 10: { stats: { hpRegen: 5 } }, 30: { stats: { maxHpFlat: 120 } }, 50: { stats: { damageReduction: 10 } } },
-                1: { 10: { stats: { defenseEfficiency: 10 } }, 30: { stats: { damageReduction: 5 } }, 50: { stats: { maxHpFlat: 120 } } },
-                2: { 10: { stats: { hpEfficiency: 5 } }, 30: { stats: { hpRegen: 5 } }, 50: { stats: { damageReduction: 5 } } },
-                3: { 10: { stats: { mpEfficiency: 5 } }, 30: { stats: { mpRegen: 3 } }, 50: { stats: { maxMpFlat: 80 } } },
+                1: { 30: { stats: { damageReduction: 5 } }, 50: { stats: { maxHpFlat: 120 } } },
+                2: { 30: { stats: { hpRegen: 5 } }, 50: { stats: { damageReduction: 5 } } },
+                3: { 30: { stats: { mpRegen: 3 } }, 50: { stats: { maxMpFlat: 80 } } },
                 4: { 10: { stats: { critRate: 5 } }, 30: { stats: { critDamage: 20 } }, 50: { stats: { damageBoost: 10 } } },
-                5: { 10: { stats: { damageReduction: 5 } }, 30: { stats: { defenseEfficiency: 10 } }, 50: { stats: { maxHpFlat: 150 } } }
+                5: { 10: { stats: { damageReduction: 5 } }, 50: { stats: { maxHpFlat: 150 } } }
             },
             monk: {
                 0: { 10: { stats: { accuracy: 10 } }, 30: { stats: { critRate: 5 } }, 50: { stats: { damageBoost: 10 } } },
-                1: { 10: { stats: { maxHpFlat: 80 } }, 30: { stats: { hpEfficiency: 5 } }, 50: { stats: { damageReduction: 5 } } },
-                2: { 10: { stats: { maxMpFlat: 60 } }, 30: { stats: { mpEfficiency: 5 } }, 50: { stats: { mpRegen: 3 } } },
+                1: { 10: { stats: { maxHpFlat: 80 } }, 50: { stats: { damageReduction: 5 } } },
+                2: { 10: { stats: { maxMpFlat: 60 } }, 50: { stats: { mpRegen: 3 } } },
                 3: { 10: { stats: { critRate: 5 } }, 30: { stats: { critDamage: 20 } }, 50: { stats: { damageBoost: 10 } } },
                 4: { 10: { stats: { evasionRate: 5 } }, 30: { stats: { accuracy: 10 } }, 50: { stats: { damageReduction: 5 } } },
                 5: { 10: { stats: { leechRate: 5 } }, 30: { stats: { hpRegen: 5 } }, 50: { stats: { damageBoost: 5 } } }
@@ -2591,7 +2605,7 @@
             ],
             50: [
                 { name: "疾風の爪剣", type: "weapon", rarity: "epic", stats: [{ key: "attackFlat", value: 38 }, { key: "dex", value: 13 }, { key: "accuracy", value: 9 }], uniqueStats: [] },
-                { name: "風走りのブーツ", type: "feet", rarity: "epic", stats: [{ key: "evasionRate", value: 10 }, { key: "dex", value: 9 }, { key: "hpEfficiency", value: 13 }], uniqueStats: [] },
+                { name: "風走りのブーツ", type: "feet", rarity: "epic", stats: [{ key: "evasionRate", value: 10 }, { key: "dex", value: 9 }], uniqueStats: [] },
                 { name: "疾風の籠手", type: "hands", rarity: "epic", stats: [{ key: "attackFlat", value: 12 }, { key: "evasionRate", value: 5 }], uniqueStats: [] }
             ],
             100: [
@@ -2601,7 +2615,7 @@
             ],
             200: [
                 { name: "氷晶の杖", type: "weapon", rarity: "epic", stats: [{ key: "attackFlat", value: 42 }, { key: "int", value: 13 }, { key: "mPen", value: 9 }], uniqueStats: [] },
-                { name: "氷牢の指輪", type: "accessory", rarity: "epic", stats: [{ key: "mpEfficiency", value: 6 }, { key: "critRate", value: 5 }, { key: "maxMp", value: 30 }], uniqueStats: [] },
+                { name: "氷牢の指輪", type: "accessory", rarity: "epic", stats: [{ key: "critRate", value: 5 }, { key: "maxMp", value: 30 }], uniqueStats: [] },
                 { name: "凍霧の手甲", type: "hands", rarity: "epic", stats: [{ key: "int", value: 8 }, { key: "mPen", value: 5 }], uniqueStats: [] }
             ],
             300: [
@@ -2620,7 +2634,7 @@
                 { name: "雷影の兜", type: "head", rarity: "epic", stats: [{ key: "accuracy", value: 7 }, { key: "critRate", value: 4 }], uniqueStats: [] },
             ],
             600: [
-                { name: "聖紋のローブ", type: "armor", rarity: "epic", stats: [{ key: "defenseFlat", value: 48 }, { key: "int", value: 13 }, { key: "mpEfficiency", value: 8 }], uniqueStats: [] },
+                { name: "聖紋のローブ", type: "armor", rarity: "epic", stats: [{ key: "defenseFlat", value: 48 }, { key: "int", value: 13 }], uniqueStats: [] },
                 { name: "聖祈の護符", type: "accessory", rarity: "epic", stats: [{ key: "hpRegen", value: 11 }, { key: "mpRegen", value: 3 }, { key: "damageReduction", value: 4 }], uniqueStats: [] },
                 { name: "聖光の杖", type: "weapon", rarity: "epic", stats: [{ key: "attackFlat", value: 28 }, { key: "int", value: 10 }], uniqueStats: [] }
             ],
@@ -2631,7 +2645,7 @@
             ],
             800: [
                 { name: "鉄壁の鎧", type: "armor", rarity: "epic", stats: [{ key: "defenseFlat", value: 69 }, { key: "vit", value: 20 }, { key: "damageReduction", value: 6 }], uniqueStats: [] },
-                { name: "鋼鉄のグローブ", type: "hands", rarity: "epic", stats: [{ key: "defenseFlat", value: 21 }, { key: "str", value: 12 }, { key: "hpEfficiency", value: 15 }], uniqueStats: [] },
+                { name: "鋼鉄のグローブ", type: "hands", rarity: "epic", stats: [{ key: "defenseFlat", value: 21 }, { key: "str", value: 12 }], uniqueStats: [] },
                 { name: "鉄壁の護符", type: "accessory", rarity: "epic", stats: [{ key: "maxHp", value: 40 }, { key: "damageReduction", value: 3 }], uniqueStats: [] }
             ],
             900: [
@@ -2699,12 +2713,8 @@
             maxMp: "最大MP",
             maxHpFlat: "最大HP",
             maxMpFlat: "最大MP",
-            hpEfficiency: "HP効率",
-            mpEfficiency: "MP効率",
             attackFlat: "攻撃力",
             defenseFlat: "防御力",
-            attackEfficiency: "攻撃効率",
-            defenseEfficiency: "防御効率",
             hpRegen: "HP自動回復",
             mpRegen: "MP自動回復",
             critRate: "会心率",
@@ -2735,10 +2745,6 @@
         };
 
         const PercentStats = new Set([
-            "hpEfficiency",
-            "mpEfficiency",
-            "attackEfficiency",
-            "defenseEfficiency",
             "critRate",
             "critDamage",
             "damageBoost",
@@ -2830,7 +2836,7 @@
                 hands: [
                     { name: "旅人の手袋", stats: [{ key: "attackFlat", value: 3 }, { key: "dex", value: 2 }] },
                     { name: "革のグローブ", stats: [{ key: "defenseFlat", value: 4 }, { key: "dex", value: 3 }] },
-                    { name: "布のミトン", stats: [{ key: "mpEfficiency", value: 2 }, { key: "int", value: 2 }] }
+                    { name: "布のミトン", stats: [{ key: "int", value: 2 }] }
                 ],
                 feet: [
                     { name: "旅人のブーツ", stats: [{ key: "defenseFlat", value: 4 }, { key: "evasionRate", value: 3 }] },
@@ -2840,7 +2846,7 @@
                 accessories: [
                     { name: "素朴な指輪", stats: [{ key: "critRate", value: 2 }, { key: "str", value: 2 }, { key: "luk", value: 1 }] },
                     { name: "護りのペンダント", stats: [{ key: "damageReduction", value: 2 }, { key: "maxHp", value: 11 }] },
-                    { name: "学徒のタリスマン", stats: [{ key: "mpEfficiency", value: 2 }, { key: "int", value: 3 }] }
+                    { name: "学徒のタリスマン", stats: [{ key: "int", value: 3 }] }
                 ]
             },
             {
@@ -2863,17 +2869,17 @@
                 hands: [
                     { name: "鋼のガントレット", stats: [{ key: "defenseFlat", value: 10 }, { key: "str", value: 5 }] },
                     { name: "疾風のグローブ", stats: [{ key: "attackFlat", value: 6 }, { key: "dex", value: 6 }] },
-                    { name: "詠唱の手甲", stats: [{ key: "mpEfficiency", value: 4 }, { key: "int", value: 5 }] }
+                    { name: "詠唱の手甲", stats: [{ key: "int", value: 5 }] }
                 ],
                 feet: [
                     { name: "鋼のブーツ", stats: [{ key: "defenseFlat", value: 11 }, { key: "vit", value: 4 }] },
                     { name: "風切りの靴", stats: [{ key: "evasionRate", value: 4 }, { key: "dex", value: 5 }] },
-                    { name: "巡礼の靴", stats: [{ key: "hpEfficiency", value: 8 }, { key: "maxHp", value: 18 }] }
+                    { name: "巡礼の靴", stats: [{ key: "maxHp", value: 18 }] }
                 ],
                 accessories: [
                     { name: "勇気の指輪", stats: [{ key: "critRate", value: 3 }, { key: "str", value: 5 }] },
                     { name: "守護の首飾り", stats: [{ key: "damageReduction", value: 3 }, { key: "maxHp", value: 27 }, { key: "luk", value: 2 }] },
-                    { name: "知恵の護符", stats: [{ key: "mpEfficiency", value: 4 }, { key: "int", value: 6 }] }
+                    { name: "知恵の護符", stats: [{ key: "int", value: 6 }] }
                 ]
             },
             {
@@ -2896,12 +2902,12 @@
                 hands: [
                     { name: "黒曜の籠手", stats: [{ key: "attackFlat", value: 10 }, { key: "str", value: 7 }] },
                     { name: "影走りのグローブ", stats: [{ key: "dex", value: 10 }, { key: "critRate", value: 3 }] },
-                    { name: "星詠みの手甲", stats: [{ key: "mpEfficiency", value: 6 }, { key: "int", value: 9 }] }
+                    { name: "星詠みの手甲", stats: [{ key: "int", value: 9 }] }
                 ],
                 feet: [
                     { name: "重装のブーツ", stats: [{ key: "defenseFlat", value: 17 }, { key: "damageReduction", value: 3 }] },
                     { name: "影歩きの靴", stats: [{ key: "evasionRate", value: 6 }, { key: "dex", value: 9 }] },
-                    { name: "神官の靴", stats: [{ key: "hpEfficiency", value: 10 }, { key: "maxHp", value: 32 }] }
+                    { name: "神官の靴", stats: [{ key: "maxHp", value: 32 }] }
                 ],
                 accessories: [
                     { name: "覇者の指輪", stats: [{ key: "critRate", value: 5 }, { key: "damageBoost", value: 3 }] },
@@ -3003,16 +3009,13 @@
             { name: "探索の", suffixName: "の・金猫", rank: 1, group: "treasure", stats: ["rareFind"] },
             { name: "癒しの", suffixName: "の聖歌", rank: 1, group: "support", stats: ["hpRegen"] },
             { name: "調律の", suffixName: "の癒奏", rank: 1, group: "support", stats: ["mpRegen"] },
-            { name: "再生の", suffixName: "の静養", rank: 1, group: "support", stats: ["hpEfficiency"] },
             { name: "精密の", suffixName: "の鷹眼", rank: 1, group: "precision", stats: ["accuracy"] },
             { name: "集中の", suffixName: "の射手", rank: 1, group: "precision", stats: ["accuracy", "critRate"] },
             { name: "直感の", suffixName: "の・蒼瞳", rank: 1, group: "precision", stats: ["accuracy", "dex"] },
             { name: "生命の", suffixName: "の活力", rank: 1, group: "vitality", stats: ["maxHp"] },
             { name: "精神の", suffixName: "の霊気", rank: 1, group: "vitality", stats: ["maxMp"] },
-            { name: "健康の", suffixName: "の息吹", rank: 1, group: "vitality", stats: ["hpEfficiency"] },
             { name: "浄化の", suffixName: "の護符", rank: 1, group: "resistance", stats: ["hpRegen"] },
             { name: "抵抗の", suffixName: "の静寂", rank: 1, group: "resistance", stats: ["damageReduction"] },
-            { name: "抑制の", suffixName: "の遮断", rank: 1, group: "resistance", stats: ["mpEfficiency"] },
             { name: "商才の", suffixName: "の航路", rank: 1, group: "economy", stats: ["goldBoost"] },
             { name: "経験の", suffixName: "の知恵", rank: 1, group: "economy", stats: ["expBoost"] },
             { name: "幸運の", suffixName: "の宝匠", rank: 1, group: "economy", stats: ["luck"] },
@@ -3020,58 +3023,57 @@
             { name: "理知の", suffixName: "の賢者", rank: 1, group: "stat", stats: ["int"] },
             { name: "俊敏の", suffixName: "の迅脚", rank: 1, group: "stat", stats: ["dex"] },
             { name: "剛撃の", suffixName: "の烈風", rank: 2, group: "attack", stats: ["str", "critRate"] },
-            { name: "斬裂の", suffixName: "の剣舞", rank: 2, group: "attack", stats: ["attackEfficiency", "attackFlat"] },
+            { name: "斬裂の", suffixName: "の剣舞", rank: 2, group: "attack", stats: ["attackFlat"] },
             { name: "猛進の", suffixName: "の黒翼", rank: 2, group: "attack", stats: ["damageBoost", "attackFlat"] },
             { name: "守護の", suffixName: "の砦守", rank: 2, group: "defense", stats: ["vit", "maxHp"] },
-            { name: "堅牢の", suffixName: "の蒼壁", rank: 2, group: "defense", stats: ["defenseEfficiency", "damageReduction"] },
+            { name: "堅牢の", suffixName: "の蒼壁", rank: 2, group: "defense", stats: ["damageReduction"] },
             { name: "不屈の", suffixName: "の不動", rank: 2, group: "defense", stats: ["hpRegen", "damageReduction"] },
             { name: "豊穣の", suffixName: "の宝路", rank: 2, group: "treasure", stats: ["rareFind", "goldBoost"] },
             { name: "蒐集の", suffixName: "の星見", rank: 2, group: "treasure", stats: ["affixFind", "expBoost"] },
             { name: "採掘の", suffixName: "の拾遺", rank: 2, group: "treasure", stats: ["goldBoost", "expBoost"] },
-            { name: "慈愛の", suffixName: "の安寧", rank: 2, group: "support", stats: ["hpRegen", "hpEfficiency"] },
-            { name: "瞑想の", suffixName: "の月祈", rank: 2, group: "support", stats: ["mpRegen", "mpEfficiency"] },
+            { name: "慈愛の", suffixName: "の安寧", rank: 2, group: "support", stats: ["hpRegen"] },
+            { name: "瞑想の", suffixName: "の月祈", rank: 2, group: "support", stats: ["mpRegen"] },
             { name: "治癒の", suffixName: "の白灯", rank: 2, group: "support", stats: ["hpRegen", "maxHp"] },
             { name: "照準の", suffixName: "の慧眼", rank: 2, group: "precision", stats: ["accuracy", "critRate"] },
             { name: "見切りの", suffixName: "の夜隼", rank: 2, group: "precision", stats: ["accuracy", "evasionRate"] },
             { name: "貫通の", suffixName: "の迅視", rank: 2, group: "precision", stats: ["accuracy", "mPen"] },
-            { name: "充実の", suffixName: "の瑞穂", rank: 2, group: "vitality", stats: ["maxHp", "hpEfficiency"] },
-            { name: "充魔の", suffixName: "の旺盛", rank: 2, group: "vitality", stats: ["maxMp", "mpEfficiency"] },
+            { name: "充実の", suffixName: "の瑞穂", rank: 2, group: "vitality", stats: ["maxHp"] },
+            { name: "充魔の", suffixName: "の旺盛", rank: 2, group: "vitality", stats: ["maxMp"] },
             { name: "体力の", suffixName: "の深泉", rank: 2, group: "vitality", stats: ["maxHp", "hpRegen"] },
             { name: "免疫の", suffixName: "の防壁", rank: 2, group: "resistance", stats: ["damageReduction", "hpRegen"] },
-            { name: "克己の", suffixName: "の・白環", rank: 2, group: "resistance", stats: ["mpEfficiency", "hpEfficiency"] },
             { name: "断絶の", suffixName: "の抗魔", rank: 2, group: "resistance", stats: ["damageReduction", "evasionRate"] },
             { name: "収益の", suffixName: "の富籤", rank: 2, group: "economy", stats: ["goldBoost", "expBoost"] },
             { name: "発見の", suffixName: "の交易", rank: 2, group: "economy", stats: ["rareFind", "affixFind"] },
             { name: "宝探しの", suffixName: "の黄金路", rank: 2, group: "economy", stats: ["rareFind", "goldBoost"] },
             { name: "武勇の", suffixName: "の豪胆", rank: 2, group: "stat", stats: ["str", "dex"] },
-            { name: "英知の", suffixName: "の智導", rank: 2, group: "stat", stats: ["int", "mpEfficiency"] },
+            { name: "英知の", suffixName: "の智導", rank: 2, group: "stat", stats: ["int"] },
             { name: "機敏の", suffixName: "の疾影", rank: 2, group: "stat", stats: ["dex", "evasionRate"] },
-            { name: "覇王の", suffixName: "の魔剣", rank: 3, group: "attack", stats: ["str", "attackEfficiency", "critDamage"] },
+            { name: "覇王の", suffixName: "の魔剣", rank: 3, group: "attack", stats: ["str", "critDamage"] },
             { name: "破壊の", suffixName: "の疾風", rank: 3, group: "attack", stats: ["damageBoost", "critDamage", "critRate"] },
             { name: "滅殺の", suffixName: "の覇者", rank: 3, group: "attack", stats: ["attackFlat", "critRate", "accuracy"] },
             { name: "不屈の", suffixName: "の堅陣", rank: 3, group: "defense", stats: ["vit", "damageReduction", "hpRegen"] },
-            { name: "磐石の", suffixName: "の護衛", rank: 3, group: "defense", stats: ["maxHp", "defenseEfficiency", "evasionRate"] },
+            { name: "磐石の", suffixName: "の護衛", rank: 3, group: "defense", stats: ["maxHp", "evasionRate"] },
             { name: "護神の", suffixName: "の静壁", rank: 3, group: "defense", stats: ["defenseFlat", "damageReduction", "hpRegen"] },
             { name: "天運の", suffixName: "の宝匠", rank: 3, group: "treasure", stats: ["luck", "rareFind", "affixFind"] },
             { name: "至宝の", suffixName: "の黄金路", rank: 3, group: "treasure", stats: ["rareFind", "goldBoost", "affixFind"] },
             { name: "隆盛の", suffixName: "の瑞兆", rank: 3, group: "treasure", stats: ["luck", "goldBoost", "expBoost"] },
-            { name: "祝福の", suffixName: "の慈雨", rank: 3, group: "support", stats: ["hpRegen", "mpRegen", "hpEfficiency"] },
+            { name: "祝福の", suffixName: "の慈雨", rank: 3, group: "support", stats: ["hpRegen", "mpRegen"] },
             { name: "救済の", suffixName: "の回生", rank: 3, group: "support", stats: ["hpRegen", "maxHp", "damageReduction"] },
-            { name: "聖泉の", suffixName: "の天恵", rank: 3, group: "support", stats: ["mpRegen", "mpEfficiency", "maxMp"] },
+            { name: "聖泉の", suffixName: "の天恵", rank: 3, group: "support", stats: ["mpRegen", "maxMp"] },
             { name: "神眼の", suffixName: "の狙星", rank: 3, group: "precision", stats: ["accuracy", "critRate", "critDamage"] },
-            { name: "無双の", suffixName: "の空刃", rank: 3, group: "precision", stats: ["accuracy", "attackEfficiency", "critRate"] },
+            { name: "無双の", suffixName: "の空刃", rank: 3, group: "precision", stats: ["accuracy", "critRate"] },
             { name: "看破の", suffixName: "の導眼", rank: 3, group: "precision", stats: ["accuracy", "mPen", "damageBoost"] },
             { name: "不滅の", suffixName: "の蒼命", rank: 3, group: "vitality", stats: ["maxHp", "damageReduction", "hpRegen"] },
-            { name: "神髄の", suffixName: "の再紡", rank: 3, group: "vitality", stats: ["maxMp", "mpEfficiency", "mpRegen"] },
-            { name: "恒常の", suffixName: "の永環", rank: 3, group: "vitality", stats: ["maxHp", "maxMp", "hpEfficiency"] },
+            { name: "神髄の", suffixName: "の再紡", rank: 3, group: "vitality", stats: ["maxMp", "mpRegen"] },
+            { name: "恒常の", suffixName: "の永環", rank: 3, group: "vitality", stats: ["maxHp", "maxMp"] },
             { name: "結界の", suffixName: "の玄壁", rank: 3, group: "resistance", stats: ["damageReduction", "maxHp", "hpRegen"] },
-            { name: "清廉の", suffixName: "の祓印", rank: 3, group: "resistance", stats: ["hpRegen", "mpRegen", "hpEfficiency"] },
+            { name: "清廉の", suffixName: "の祓印", rank: 3, group: "resistance", stats: ["hpRegen", "mpRegen"] },
             { name: "不侵の", suffixName: "の静防", rank: 3, group: "resistance", stats: ["damageReduction", "evasionRate", "maxHp"] },
             { name: "繁栄の", suffixName: "の瑞兆", rank: 3, group: "economy", stats: ["goldBoost", "expBoost", "luck"] },
             { name: "大富豪の", suffixName: "の蔵王", rank: 3, group: "economy", stats: ["goldBoost", "rareFind", "affixFind"] },
             { name: "伝承の", suffixName: "の秘録", rank: 3, group: "economy", stats: ["expBoost", "rareFind", "affixFind"] },
-            { name: "覇気の", suffixName: "の覇道", rank: 3, group: "stat", stats: ["str", "dex", "attackEfficiency"] },
-            { name: "叡智の", suffixName: "の天賢", rank: 3, group: "stat", stats: ["int", "mpEfficiency", "critRate"] },
+            { name: "覇気の", suffixName: "の覇道", rank: 3, group: "stat", stats: ["str", "dex"] },
+            { name: "叡智の", suffixName: "の天賢", rank: 3, group: "stat", stats: ["int", "critRate"] },
             { name: "超速の", suffixName: "の迅牙", rank: 3, group: "stat", stats: ["dex", "accuracy", "critRate"] }
         ];
 
@@ -3090,12 +3092,8 @@
             maxMp: [15, 35, 70],
             maxHpFlat: [35, 80, 140],
             maxMpFlat: [15, 35, 70],
-            hpEfficiency: [8, 15, 25],
-            mpEfficiency: [3, 6, 10],
             attackFlat: [9, 17, 31],
             defenseFlat: [11, 21, 39],
-            attackEfficiency: [5, 9, 14],
-            defenseEfficiency: [6, 11, 18],
             hpRegen: [4, 7, 13],
             mpRegen: [1, 2, 4],
             critRate: [3, 6, 10],
@@ -3750,12 +3748,8 @@
                 maxMp: Game.player.maxMp + (equip.maxMp || 0) + (milestone.maxMp || 0),
                 maxHpFlat: Game.player.maxHpFlat + (equip.maxHpFlat || 0) + (milestone.maxHpFlat || 0),
                 maxMpFlat: Game.player.maxMpFlat + (equip.maxMpFlat || 0) + (milestone.maxMpFlat || 0),
-                hpEfficiency: Game.player.hpEfficiency + (equip.hpEfficiency || 0) + (milestone.hpEfficiency || 0),
-                mpEfficiency: Game.player.mpEfficiency + (equip.mpEfficiency || 0) + (milestone.mpEfficiency || 0),
                 attackFlat: Game.player.attackFlat + (equip.attackFlat || 0) + (milestone.attackFlat || 0),
-                attackEfficiency: Game.player.attackEfficiency + (equip.attackEfficiency || 0) + (milestone.attackEfficiency || 0),
                 defenseFlat: Game.player.defenseFlat + (equip.defenseFlat || 0) + (milestone.defenseFlat || 0),
-                defenseEfficiency: Game.player.defenseEfficiency + (equip.defenseEfficiency || 0) + (milestone.defenseEfficiency || 0),
                 hpRegen: Game.player.hpRegen + (equip.hpRegen || 0) + (milestone.hpRegen || 0),
                 mpRegen: Game.player.mpRegen + (equip.mpRegen || 0) + (milestone.mpRegen || 0),
                 goldBoost: Game.player.goldBoost + (equip.goldBoost || 0) + (milestone.goldBoost || 0),
@@ -4493,12 +4487,12 @@
             };
             const maxHpBase = totals.maxHp + totals.maxHpFlat;
             const maxMpBase = totals.maxMp + totals.maxMpFlat;
-            const maxHp = Math.max(1, Math.floor(maxHpBase * (1 + totals.hpEfficiency / 100)));
-            const maxMp = Math.max(0, Math.floor(maxMpBase * (1 + totals.mpEfficiency / 100)));
+            const maxHp = Math.max(1, Math.floor(maxHpBase));
+            const maxMp = Math.max(0, Math.floor(maxMpBase));
             const atkBase = boostedTotals.str + totals.attackFlat;
-            const atk = Math.max(0, Math.floor(atkBase * (1 + totals.attackEfficiency / 100) * statusMods.atkMul));
+            const atk = Math.max(0, Math.floor(atkBase * statusMods.atkMul));
             const defBase = boostedTotals.vit + totals.defenseFlat;
-            const def = Math.max(0, Math.floor(defBase * (1 + totals.defenseEfficiency / 100) * statusMods.defMul));
+            const def = Math.max(0, Math.floor(defBase * statusMods.defMul));
             const dexAccuracyBonus = Math.floor(boostedTotals.dex * 0.2);
             const dexEvasionBonus = Math.floor(boostedTotals.dex * 0.15);
             const dexCritRateBonus = Math.floor(boostedTotals.dex * 0.05);
@@ -6867,13 +6861,9 @@
             
             // Secondary Stats Display
             document.getElementById('stat-max-hp').innerText = totals.maxHpFlat;
-            document.getElementById('stat-hp-eff').innerText = totals.hpEfficiency + "%";
             document.getElementById('stat-max-mp').innerText = totals.maxMpFlat;
-            document.getElementById('stat-mp-eff').innerText = totals.mpEfficiency + "%";
             document.getElementById('stat-atk-flat').innerText = totals.attackFlat;
-            document.getElementById('stat-atk-eff').innerText = totals.attackEfficiency + "%";
             document.getElementById('stat-def-flat').innerText = totals.defenseFlat;
-            document.getElementById('stat-def-eff').innerText = totals.defenseEfficiency + "%";
             document.getElementById('stat-crit').innerText = totals.critRate + "%";
             document.getElementById('stat-eva').innerText = totals.evasionRate + "%";
             document.getElementById('stat-leech').innerText = totals.leechRate + "%";
