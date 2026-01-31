@@ -986,10 +986,66 @@
                 <button id="equip-slot-close" class="text-slate-400 hover:text-slate-700 text-lg"><i class="fas fa-xmark"></i></button>
             </div>
             <div class="space-y-3">
-                <button id="equip-slot-1" class="w-full bg-slate-800 text-white font-black py-3 rounded-2xl shadow-lg flex items-center justify-center gap-2"></button>
-                <button id="equip-slot-2" class="w-full bg-slate-800 text-white font-black py-3 rounded-2xl shadow-lg flex items-center justify-center gap-2"></button>
+                <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3 space-y-2">
+                    <div id="equip-slot-1-label" class="flex items-center justify-between text-[11px] font-black text-slate-600"></div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button id="equip-slot-1" class="w-full bg-slate-800 text-white font-black py-2 rounded-2xl shadow-lg text-[11px] flex items-center justify-center gap-2">
+                            <i class="fas fa-shield"></i>装備
+                        </button>
+                        <button id="equip-slot-1-compare" class="w-full bg-white border border-slate-200 text-slate-600 font-black py-2 rounded-2xl shadow text-[11px] flex items-center justify-center gap-2">
+                            <i class="fas fa-scale-balanced"></i>比較
+                        </button>
+                    </div>
+                </div>
+                <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3 space-y-2">
+                    <div id="equip-slot-2-label" class="flex items-center justify-between text-[11px] font-black text-slate-600"></div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button id="equip-slot-2" class="w-full bg-slate-800 text-white font-black py-2 rounded-2xl shadow-lg text-[11px] flex items-center justify-center gap-2">
+                            <i class="fas fa-shield"></i>装備
+                        </button>
+                        <button id="equip-slot-2-compare" class="w-full bg-white border border-slate-200 text-slate-600 font-black py-2 rounded-2xl shadow text-[11px] flex items-center justify-center gap-2">
+                            <i class="fas fa-scale-balanced"></i>比較
+                        </button>
+                    </div>
+                </div>
             </div>
             <button id="equip-slot-close-bottom" class="mt-5 w-full bg-slate-100 text-slate-500 font-black py-3 rounded-2xl shadow">キャンセル</button>
+        </div>
+    </div>
+
+    <!-- COMPARE MODAL -->
+    <div id="compare-modal" class="fixed inset-0 bg-slate-900/80 z-[112] hidden items-center justify-center p-6 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-sm rounded-[2rem] overflow-hidden shadow-2xl p-6 border-b-8 border-emerald-100">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="font-black text-lg text-slate-800 flex items-center gap-2"><i class="fas fa-scale-balanced"></i> 装備比較</h3>
+                <button id="compare-modal-close" class="text-slate-400 hover:text-slate-700 text-lg"><i class="fas fa-xmark"></i></button>
+            </div>
+            <div class="text-[11px] text-slate-500 font-bold flex items-center justify-between gap-2">
+                <div class="flex-1 min-w-0">
+                    <div class="text-[9px] text-slate-400 uppercase tracking-widest">現在装備</div>
+                    <div id="compare-modal-equipped" class="text-slate-700 font-black truncate"></div>
+                </div>
+                <div class="flex-1 min-w-0 text-right">
+                    <div class="text-[9px] text-slate-400 uppercase tracking-widest">候補装備</div>
+                    <div id="compare-modal-candidate" class="text-slate-800 font-black truncate"></div>
+                </div>
+            </div>
+            <div class="mt-4 space-y-3">
+                <div>
+                    <div class="text-[10px] font-black text-emerald-500 uppercase tracking-widest">増加</div>
+                    <div id="compare-modal-increase" class="mt-1 space-y-1"></div>
+                </div>
+                <div>
+                    <div class="text-[10px] font-black text-rose-500 uppercase tracking-widest">減少</div>
+                    <div id="compare-modal-decrease" class="mt-1 space-y-1"></div>
+                </div>
+            </div>
+            <div class="mt-4 space-y-2">
+                <button id="compare-modal-equip" class="w-full bg-slate-800 text-white font-black py-3 rounded-2xl shadow-lg flex items-center justify-center gap-2">
+                    <i class="fas fa-shield"></i>装備する
+                </button>
+                <button id="compare-modal-close-bottom" class="w-full bg-slate-100 text-slate-500 font-black py-3 rounded-2xl shadow">閉じる</button>
+            </div>
         </div>
     </div>
 
@@ -1305,6 +1361,7 @@
             bulkSellFilter: { normal: false, magic: false, rare: false, epic: false, legendary: false },
             lootQueue: [],
             pendingEquip: null,
+            compareModal: null,
             bossRushCarryoverDamage: 0,
             isBossRush: false,
             maxBossRushFloor: 0,
@@ -5550,8 +5607,12 @@
 
         const equipSlotModal = document.getElementById('equip-slot-modal');
         const equipSlotTitle = document.getElementById('equip-slot-title');
+        const equipSlotLabel1 = document.getElementById('equip-slot-1-label');
+        const equipSlotLabel2 = document.getElementById('equip-slot-2-label');
         const equipSlotButton1 = document.getElementById('equip-slot-1');
         const equipSlotButton2 = document.getElementById('equip-slot-2');
+        const equipSlotCompare1 = document.getElementById('equip-slot-1-compare');
+        const equipSlotCompare2 = document.getElementById('equip-slot-2-compare');
         const closeEquipSlotModal = () => {
             equipSlotModal.classList.add('hidden');
             equipSlotModal.classList.remove('flex');
@@ -5567,9 +5628,17 @@
             const slotLabel = isPotion ? 'ポーション' : '装飾品';
             const label1 = slot1Item ? slot1Item.name : '空き';
             const label2 = slot2Item ? slot2Item.name : '空き';
-            equipSlotButton1.innerHTML = `<span>${slotLabel}1</span><span class="text-[10px] text-slate-300">${label1}</span>`;
-            equipSlotButton2.innerHTML = `<span>${slotLabel}2</span><span class="text-[10px] text-slate-300">${label2}</span>`;
+            equipSlotLabel1.innerHTML = `<span>${slotLabel}1</span><span class="text-[10px] text-slate-400 truncate">${label1}</span>`;
+            equipSlotLabel2.innerHTML = `<span>${slotLabel}2</span><span class="text-[10px] text-slate-400 truncate">${label2}</span>`;
             Game.pendingEquip = { idx, itemType: item.type };
+            const compareDisabledClass = 'text-slate-300 border-slate-200 bg-slate-100 cursor-not-allowed';
+            const compareEnabledClass = 'text-slate-600 border-slate-200 bg-white';
+            const canCompare1 = Boolean(slot1Item);
+            const canCompare2 = Boolean(slot2Item);
+            equipSlotCompare1.disabled = !canCompare1;
+            equipSlotCompare2.disabled = !canCompare2;
+            equipSlotCompare1.className = `w-full border font-black py-2 rounded-2xl shadow text-[11px] flex items-center justify-center gap-2 ${canCompare1 ? compareEnabledClass : compareDisabledClass}`;
+            equipSlotCompare2.className = `w-full border font-black py-2 rounded-2xl shadow text-[11px] flex items-center justify-center gap-2 ${canCompare2 ? compareEnabledClass : compareDisabledClass}`;
             equipSlotModal.classList.remove('hidden');
             equipSlotModal.classList.add('flex');
         };
@@ -5594,12 +5663,114 @@
             updateUI();
             triggerAutosave();
         };
+        const compareToSlot = (slotNumber) => {
+            const pending = Game.pendingEquip;
+            if (!pending) return;
+            const item = Game.player.inventory[pending.idx];
+            if (!item) {
+                closeEquipSlotModal();
+                return;
+            }
+            const slotKey = pending.itemType === 'potion'
+                ? (slotNumber === 1 ? 'potion1' : 'potion2')
+                : (slotNumber === 1 ? 'accessory1' : 'accessory2');
+            const equippedItem = Game.player[slotKey];
+            if (!equippedItem) return;
+            closeEquipSlotModal();
+            openCompareModal(pending.idx, slotKey);
+        };
         equipSlotButton1.addEventListener('click', () => equipToSlot(1));
         equipSlotButton2.addEventListener('click', () => equipToSlot(2));
+        equipSlotCompare1.addEventListener('click', () => compareToSlot(1));
+        equipSlotCompare2.addEventListener('click', () => compareToSlot(2));
         document.getElementById('equip-slot-close').addEventListener('click', closeEquipSlotModal);
         document.getElementById('equip-slot-close-bottom').addEventListener('click', closeEquipSlotModal);
         equipSlotModal.addEventListener('click', (event) => {
             if (event.target === equipSlotModal) closeEquipSlotModal();
+        });
+
+        const compareModal = document.getElementById('compare-modal');
+        const compareModalCloseBtn = document.getElementById('compare-modal-close');
+        const compareModalCloseBottomBtn = document.getElementById('compare-modal-close-bottom');
+        const compareModalEquipBtn = document.getElementById('compare-modal-equip');
+        const compareModalIncrease = document.getElementById('compare-modal-increase');
+        const compareModalDecrease = document.getElementById('compare-modal-decrease');
+        const compareModalEquipped = document.getElementById('compare-modal-equipped');
+        const compareModalCandidate = document.getElementById('compare-modal-candidate');
+        const closeCompareModal = () => {
+            compareModal.classList.add('hidden');
+            compareModal.classList.remove('flex');
+            Game.compareModal = null;
+        };
+        const openCompareModal = (idx, slotKey = null) => {
+            const item = Game.player.inventory[idx];
+            if (!item) return;
+            const equippedItem = slotKey ? Game.player[slotKey] : Game.player[item.type];
+            if (!equippedItem) return;
+            const candidateTotals = sumStats(getItemStats(item));
+            const equippedTotals = sumStats(getItemStats(equippedItem));
+            const keys = new Set([...Object.keys(candidateTotals), ...Object.keys(equippedTotals)]);
+            const increases = [];
+            const decreases = [];
+            keys.forEach((key) => {
+                const diff = (candidateTotals[key] || 0) - (equippedTotals[key] || 0);
+                if (diff > 0) increases.push({ key, value: diff });
+                if (diff < 0) decreases.push({ key, value: diff });
+            });
+            const formatDiffLines = (items, colorClass, sign) => {
+                if (!items.length) {
+                    return `<div class="text-[10px] text-slate-300 font-bold">変化なし</div>`;
+                }
+                return items
+                    .map((stat) => {
+                        const label = StatLabels[stat.key] || stat.key;
+                        const suffix = PercentStats.has(stat.key) ? '%' : '';
+                        const value = Math.abs(stat.value);
+                        return `<div class="text-[10px] ${colorClass} font-bold">${label} ${sign}${value}${suffix}</div>`;
+                    })
+                    .join('');
+            };
+            compareModalIncrease.innerHTML = formatDiffLines(increases, 'text-emerald-600', '+');
+            compareModalDecrease.innerHTML = formatDiffLines(decreases, 'text-rose-600', '-');
+            compareModalEquipped.textContent = equippedItem.name;
+            compareModalCandidate.textContent = item.name;
+            Game.compareModal = { idx, slotKey };
+            compareModal.classList.remove('hidden');
+            compareModal.classList.add('flex');
+        };
+        const equipItemToSlotKey = (item, slotKey) => {
+            if (!item || !slotKey) return;
+            Game.player[slotKey] = item;
+            if (slotKey === 'potion1' || slotKey === 'potion2') {
+                syncPotionCapacity(item);
+            }
+            updateUI();
+            triggerAutosave();
+        };
+        compareModalEquipBtn.addEventListener('click', () => {
+            const context = Game.compareModal;
+            if (!context) {
+                closeCompareModal();
+                return;
+            }
+            const item = Game.player.inventory[context.idx];
+            if (!item) {
+                closeCompareModal();
+                return;
+            }
+            if (context.slotKey) {
+                equipItemToSlotKey(item, context.slotKey);
+            } else if (['accessory', 'potion'].includes(item.type)) {
+                openEquipSlotModal(item, context.idx);
+            } else {
+                equipItemToSlotKey(item, item.type);
+            }
+            closeCompareModal();
+        });
+        compareModalCloseBtn.addEventListener('click', closeCompareModal);
+        compareModalCloseBottomBtn.addEventListener('click', closeCompareModal);
+        compareModal.addEventListener('click', (event) => {
+            if (event.target === compareModal) closeCompareModal();
         });
 
         const bossRushModal = document.getElementById('bossrush-modal');
@@ -7345,6 +7516,20 @@
                 const brokenLabelHtml = getWeaponBrokenLabelHtml(item);
                 const enhancementDisplay = [enhancementLabelHtml, brokenLabelHtml].filter(Boolean).join(' ');
                 const isEnhanceable = isEnhanceableItem(item);
+                const isAccessory = item.type === 'accessory';
+                const isPotion = item.type === 'potion';
+                const compareTargetExists = isAccessory
+                    ? Boolean(Game.player.accessory1 || Game.player.accessory2)
+                    : isPotion
+                        ? Boolean(Game.player.potion1 || Game.player.potion2)
+                        : Boolean(Game.player[item.type]);
+                const compareDisabled = !compareTargetExists;
+                const compareClasses = compareDisabled
+                    ? 'bg-slate-100 text-slate-300 cursor-not-allowed'
+                    : 'bg-white border border-slate-200 text-slate-600';
+                const compareAction = (isAccessory || isPotion)
+                    ? `openEquipSlotModal(Game.player.inventory[${index}], ${index})`
+                    : `openCompareModal(${index})`;
                 let enhancementButtonHtml = '';
                 if (isEnhanceable) {
                     const level = getWeaponEnhancementLevel(item);
@@ -7389,6 +7574,10 @@
                             <span>${favoriteLabel}</span>
                         </button>
                         ${enhancementButtonHtml}
+                        <button onclick="${compareDisabled ? '' : compareAction}" class="px-4 py-2 ${compareClasses} text-[10px] font-black rounded-xl flex items-center justify-center gap-1 leading-none" ${compareDisabled ? 'disabled' : ''}>
+                            <i class="fas fa-scale-balanced"></i>
+                            <span>比較</span>
+                        </button>
                     </div>
                 `;
                 invList.appendChild(div);
