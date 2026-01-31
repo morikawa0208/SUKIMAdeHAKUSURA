@@ -1317,10 +1317,43 @@
         };
 
         const getNextExpRequirement = (level) => {
-            const base = 80;
-            const linear = level * 110;
-            const quadratic = level * level * 1.5;
-            return Math.floor(base + linear + quadratic);
+            const base = 120;
+            const linear = level * 180;
+            const quadratic = level * level * 3.2;
+            const cubic = Math.pow(level, 3) * 0.01;
+            return Math.floor(base + linear + quadratic + cubic);
+        };
+
+        const calcMaxHpByLevel = (lv, baseHp) => {
+            const r = 0.025;
+            const flat = 10;
+            const capLv = 100;
+            const safeLv = Math.max(1, lv);
+            const safeBaseHp = Math.max(1, baseHp);
+
+            const hpLinear = Math.floor(safeBaseHp * (1 + r * (safeLv - 1)) + flat * (safeLv - 1));
+            if (safeLv <= capLv) return hpLinear;
+
+            const hpAtCap = Math.floor(safeBaseHp * (1 + r * (capLv - 1)) + flat * (capLv - 1));
+            const extra = safeLv - capLv;
+            const K = 80;
+            return hpAtCap + Math.floor(K * Math.sqrt(extra));
+        };
+
+        const calcMaxMpByLevel = (lv, baseMp) => {
+            const r = 0.025;
+            const flat = 10;
+            const capLv = 100;
+            const safeLv = Math.max(1, lv);
+            const safeBaseMp = Math.max(1, baseMp);
+
+            const mpLinear = Math.floor(safeBaseMp * (1 + r * (safeLv - 1)) + flat * (safeLv - 1));
+            if (safeLv <= capLv) return mpLinear;
+
+            const mpAtCap = Math.floor(safeBaseMp * (1 + r * (capLv - 1)) + flat * (capLv - 1));
+            const extra = safeLv - capLv;
+            const K = 80;
+            return mpAtCap + Math.floor(K * Math.sqrt(extra));
         };
 
         const calcMaxHpByLevel = (lv, baseHp) => {
