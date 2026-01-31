@@ -1001,10 +1001,8 @@
                 <button id="bossrush-modal-close" class="text-slate-400 hover:text-slate-700 text-lg"><i class="fas fa-xmark"></i></button>
             </div>
             <div class="space-y-3 text-xs text-slate-600 leading-relaxed">
-                <p class="font-bold text-slate-700">1001階からボスラッシュが開始されます。</p>
+                <p class="font-bold text-slate-700">5001階からボスラッシュが開始されます。</p>
                 <ul class="space-y-2">
-                    <li>・ボスラッシュ解放後は過去ボス階で、DX装備がドロップします。</li>
-                    <li></li>
                     <li>・出現ボスはこれまでのボスからランダム抽選</li>
                     <li>・ステータスは大幅に強化、階数を進むほど強くなります</li>
                     <li>・ボスラッシュ中はポーション効果が半減します</li>
@@ -1467,6 +1465,28 @@
         const applySaveData = (snapshot) => {
             if (!snapshot || typeof snapshot !== 'object') return;
             mergeSaveData(Game, snapshot);
+            if (Array.isArray(Game.defeatedBossFloors)) {
+                const legacyBossFloorMap = {
+                    10: 50,
+                    50: 100,
+                    100: 500,
+                    200: 1000,
+                    300: 1500,
+                    400: 2000,
+                    500: 2500,
+                    600: 3000,
+                    700: 3500,
+                    800: 4000,
+                    900: 4500,
+                    1000: 5000
+                };
+                const legacyOnlyFloors = new Set([10, 200, 300, 400, 600, 700, 800, 900]);
+                const hasLegacy = Game.defeatedBossFloors.some((floor) => legacyOnlyFloors.has(floor));
+                if (hasLegacy) {
+                    const remapped = Game.defeatedBossFloors.map((floor) => legacyBossFloorMap[floor] ?? floor);
+                    Game.defeatedBossFloors = Array.from(new Set(remapped));
+                }
+            }
             if (Game.player) {
                 Game.player.level = Math.min(MAX_LEVEL, Game.player.level || 1);
                 if (!Number.isFinite(Game.player.baseMaxHp)) {
@@ -2089,9 +2109,9 @@
         ];
 
         const BossFloors = [
-            10, 50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000
+            50, 100, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000
         ];
-        const BossRushStartFloor = 1001;
+        const BossRushStartFloor = 5001;
         const BossRushNoDropStartFloor = BossRushStartFloor;
         const BossDropChance = 0.015;
         const NormalDropChance = 0.95;
@@ -2402,8 +2422,8 @@
             hasBossRushBuff(enemy, "br_blue_ignore_def") || hasBossRushBuff(enemy, "br_red_ignore_def")
         );
         const BossDefs = {
-            10: {
-                floor: 10,
+            50: {
+                floor: 50,
                 name: "毒沼のヴィス",
                 icon: "fa-skull-crossbones",
                 hp: 45,
@@ -2421,8 +2441,8 @@
                     }
                 ]
             },
-            50: {
-                floor: 50,
+            100: {
+                floor: 100,
                 name: "疾風狼セイル",
                 icon: "fa-wind",
                 hp: 79,
@@ -2439,8 +2459,8 @@
                     }
                 ]
             },
-            100: {
-                floor: 100,
+            500: {
+                floor: 500,
                 name: "岩塊王ガルド",
                 icon: "fa-mountain",
                 hp: 112,
@@ -2459,8 +2479,8 @@
                     }
                 ]
             },
-            200: {
-                floor: 200,
+            1000: {
+                floor: 1000,
                 name: "氷牢のフロスト",
                 icon: "fa-snowflake",
                 hp: 196,
@@ -2478,8 +2498,8 @@
                     }
                 ]
             },
-            300: {
-                floor: 300,
+            1500: {
+                floor: 1500,
                 name: "闇紡ぎノクト",
                 icon: "fa-mask",
                 hp: 250,
@@ -2498,8 +2518,8 @@
                     }
                 ]
             },
-            400: {
-                floor: 400,
+            2000: {
+                floor: 2000,
                 name: "灼熱王イグニス",
                 icon: "fa-fire",
                 hp: 363,
@@ -2516,8 +2536,8 @@
                     }
                 ]
             },
-            500: {
-                floor: 500,
+            2500: {
+                floor: 2500,
                 name: "雷王ヴォルト",
                 icon: "fa-bolt",
                 hp: 552,
@@ -2534,8 +2554,8 @@
                     }
                 ]
             },
-            600: {
-                floor: 600,
+            3000: {
+                floor: 3000,
                 name: "聖堂守タリム",
                 icon: "fa-sun",
                 hp: 686,
@@ -2555,8 +2575,8 @@
                     }
                 ]
             },
-            700: {
-                floor: 700,
+            3500: {
+                floor: 3500,
                 name: "疫病のラグ",
                 icon: "fa-virus",
                 hp: 700,
@@ -2574,8 +2594,8 @@
                     }
                 ]
             },
-            800: {
-                floor: 800,
+            4000: {
+                floor: 4000,
                 name: "鉄壁王フェリス",
                 icon: "fa-shield-halved",
                 hp: 1000,
@@ -2593,8 +2613,8 @@
                     }
                 ]
             },
-            900: {
-                floor: 900,
+            4500: {
+                floor: 4500,
                 name: "影刃王カゲロウ",
                 icon: "fa-user-secret",
                 hp: 2426,
@@ -2613,8 +2633,8 @@
                     }
                 ]
             },
-            1000: {
-                floor: 1000,
+            5000: {
+                floor: 5000,
                 name: "終焉竜アポカリス",
                 icon: "fa-dragon",
                 hp: 4534,
@@ -2635,62 +2655,62 @@
         };
 
         const BossLootTables = {
-            10: [
+            50: [
                 { name: "毒牙の短剣", type: "weapon", rarity: "epic", stats: [{ key: "attackFlat", value: 26 }, { key: "dex", value: 9 }, { key: "leechRate", value: 3 }], uniqueStats: [] },
                 { name: "毒沼のヘルム", type: "head", rarity: "epic", stats: [{ key: "defenseFlat", value: 18 }, { key: "maxHp", value: 24 }], uniqueStats: [] },
                 { name: "湿毒のローブ", type: "armor", rarity: "epic", stats: [{ key: "hpRegen", value: 4 }, { key: "damageReduction", value: 2 }], uniqueStats: [] }
             ],
-            50: [
+            100: [
                 { name: "疾風の爪剣", type: "weapon", rarity: "epic", stats: [{ key: "attackFlat", value: 38 }, { key: "dex", value: 13 }, { key: "accuracy", value: 9 }], uniqueStats: [] },
                 { name: "風走りのブーツ", type: "feet", rarity: "epic", stats: [{ key: "evasionRate", value: 10 }, { key: "dex", value: 9 }], uniqueStats: [] },
                 { name: "疾風の籠手", type: "hands", rarity: "epic", stats: [{ key: "attackFlat", value: 12 }, { key: "evasionRate", value: 5 }], uniqueStats: [] }
             ],
-            100: [
+            500: [
                 { name: "岩核の大盾", type: "armor", rarity: "epic", stats: [{ key: "defenseFlat", value: 59 }, { key: "vit", value: 17 }, { key: "damageReduction", value: 4 }], uniqueStats: [] },
                 { name: "岩守りの兜", type: "head", rarity: "epic", stats: [{ key: "defenseFlat", value: 27 }, { key: "vit", value: 11 }, { key: "maxHp", value: 48 }], uniqueStats: [] },
                 { name: "岩脈の護符", type: "accessory", rarity: "epic", stats: [{ key: "maxHp", value: 36 }, { key: "damageReduction", value: 3 }], uniqueStats: [] }
             ],
-            200: [
+            1000: [
                 { name: "氷晶の杖", type: "weapon", rarity: "epic", stats: [{ key: "attackFlat", value: 42 }, { key: "int", value: 13 }, { key: "mPen", value: 9 }], uniqueStats: [] },
                 { name: "氷牢の指輪", type: "accessory", rarity: "epic", stats: [{ key: "critRate", value: 5 }, { key: "maxMp", value: 30 }], uniqueStats: [] },
                 { name: "凍霧の手甲", type: "hands", rarity: "epic", stats: [{ key: "int", value: 8 }, { key: "mPen", value: 5 }], uniqueStats: [] }
             ],
-            300: [
+            1500: [
                 { name: "宵闇のマント", type: "armor", rarity: "epic", stats: [{ key: "evasionRate", value: 10 }, { key: "dex", value: 12 }, { key: "damageBoost", value: 5 }], uniqueStats: [] },
                 { name: "闇狩りの短剣", type: "weapon", rarity: "epic", stats: [{ key: "attackFlat", value: 47 }, { key: "critRate", value: 7 }, { key: "dex", value: 9 }], uniqueStats: [] },
                 { name: "闇縫いの兜", type: "head", rarity: "epic", stats: [{ key: "dex", value: 9 }, { key: "critRate", value: 4 }], uniqueStats: [] },
             ],
-            400: [
+            2000: [
                 { name: "熾火の大剣", type: "weapon", rarity: "epic", stats: [{ key: "attackFlat", value: 55 }, { key: "str", value: 13 }, { key: "critDamage", value: 13 }], uniqueStats: [] },
                 { name: "炎護の手甲", type: "hands", rarity: "epic", stats: [{ key: "attackFlat", value: 13 }, { key: "str", value: 9 }, { key: "damageBoost", value: 5 }], uniqueStats: [] },
                 { name: "灼炎の護衣", type: "armor", rarity: "epic", stats: [{ key: "defenseFlat", value: 30 }, { key: "str", value: 8 }], uniqueStats: [] },
             ],
-            500: [
+            2500: [
                 { name: "雷鳴の戦槌", type: "weapon", rarity: "epic", stats: [{ key: "attackFlat", value: 59 }, { key: "str", value: 16 }, { key: "accuracy", value: 9 }], uniqueStats: [] },
                 { name: "帯電の護符", type: "accessory", rarity: "epic", stats: [{ key: "critRate", value: 7 }, { key: "damageBoost", value: 7 }, { key: "maxHp", value: 53 }], uniqueStats: [] },
                 { name: "雷影の兜", type: "head", rarity: "epic", stats: [{ key: "accuracy", value: 7 }, { key: "critRate", value: 4 }], uniqueStats: [] },
             ],
-            600: [
+            3000: [
                 { name: "聖紋のローブ", type: "armor", rarity: "epic", stats: [{ key: "defenseFlat", value: 48 }, { key: "int", value: 13 }], uniqueStats: [] },
                 { name: "聖祈の護符", type: "accessory", rarity: "epic", stats: [{ key: "hpRegen", value: 11 }, { key: "mpRegen", value: 3 }, { key: "damageReduction", value: 4 }], uniqueStats: [] },
                 { name: "聖光の杖", type: "weapon", rarity: "epic", stats: [{ key: "attackFlat", value: 28 }, { key: "int", value: 10 }], uniqueStats: [] }
             ],
-            700: [
+            3500: [
                 { name: "疫毒の鎌", type: "weapon", rarity: "epic", stats: [{ key: "attackFlat", value: 63 }, { key: "dex", value: 13 }, { key: "mPen", value: 9 }], uniqueStats: [] },
                 { name: "腐蝕の指輪", type: "accessory", rarity: "epic", stats: [{ key: "damageBoost", value: 7 }, { key: "leechRate", value: 5 }, { key: "maxHp", value: 53 }], uniqueStats: [] },
                 { name: "腐蝕の脚甲", type: "feet", rarity: "epic", stats: [{ key: "evasionRate", value: 6 }, { key: "dex", value: 8 }], uniqueStats: [] }
             ],
-            800: [
+            4000: [
                 { name: "鉄壁の鎧", type: "armor", rarity: "epic", stats: [{ key: "defenseFlat", value: 69 }, { key: "vit", value: 20 }, { key: "damageReduction", value: 6 }], uniqueStats: [] },
                 { name: "鋼鉄のグローブ", type: "hands", rarity: "epic", stats: [{ key: "defenseFlat", value: 21 }, { key: "str", value: 12 }], uniqueStats: [] },
                 { name: "鉄壁の護符", type: "accessory", rarity: "epic", stats: [{ key: "maxHp", value: 40 }, { key: "damageReduction", value: 3 }], uniqueStats: [] }
             ],
-            900: [
+            4500: [
                 { name: "影刃の忍刀", type: "weapon", rarity: "epic", stats: [{ key: "attackFlat", value: 68 }, { key: "dex", value: 17 }, { key: "critRate", value: 9 }], uniqueStats: [] },
                 { name: "夜走りの足袋", type: "feet", rarity: "epic", stats: [{ key: "evasionRate", value: 11 }, { key: "dex", value: 12 }, { key: "accuracy", value: 9 }], uniqueStats: [] },
                 { name: "影刃の護符", type: "accessory", rarity: "epic", stats: [{ key: "critRate", value: 5 }, { key: "damageBoost", value: 4 }], uniqueStats: [] }
             ],
-            1000: [
+            5000: [
                 { name: "終焉の竜槍", type: "weapon", rarity: "legendary", stats: [{ key: "attackFlat", value: 84 }, { key: "str", value: 21 }, { key: "damageBoost", value: 12 }], uniqueStats: [] },
                 { name: "竜鱗の護鎧", type: "armor", rarity: "legendary", stats: [{ key: "defenseFlat", value: 80 }, { key: "vit", value: 27 }, { key: "maxHp", value: 105 }], uniqueStats: [] },
                 { name: "終焉の護符", type: "accessory", rarity: "legendary", stats: [{ key: "luck", value: 36 }, { key: "rareFind", value: 34 }, { key: "affixFind", value: 32 }], uniqueStats: [] }
@@ -3361,13 +3381,6 @@
             return BossRushBaseScale + (count - 1) * BossRushScaleStep;
         };
 
-        const getDxBossLootScale = (floor) => {
-            const baseScale = getBossScale(floor);
-            const targetScale = getBossScale(1000);
-            const ratio = baseScale > 0 ? targetScale / baseScale : 1;
-            return Math.min(ratio, 3);
-        };
-
         const getEnemyPool = (floor) => {
             const baseIdx = Math.min(EnemyTiers.length - 1, Math.floor((floor - 1) / 100));
             return EnemyTiers[baseIdx];
@@ -3660,19 +3673,6 @@
             if (!table || !table.items || table.items.length === 0) return null;
             const base = pickRandom(table.items);
             return buildRoadLegendaryItem(base);
-        };
-
-        const buildDxBossLootTable = (floor) => {
-            const baseTable = BossLootTables[floor] || [];
-            if (baseTable.length === 0) return [];
-            const scale = getDxBossLootScale(floor);
-            return baseTable.map((item) => ({
-                ...item,
-                name: `DX${item.name}`,
-                originalName: item.name,
-                stats: item.stats.map((stat) => ({ ...stat, value: Math.max(1, Math.floor(stat.value * scale)) })),
-                uniqueStats: (item.uniqueStats || []).map((stat) => ({ ...stat }))
-            }));
         };
 
         const MAX_WEAPON_ENHANCEMENT = 21;
@@ -4398,10 +4398,10 @@
                 }
             }
             if (infoButton) {
-                infoButton.classList.toggle('hidden', maxFloor < 1000);
+                infoButton.classList.toggle('hidden', maxFloor < 5000);
             }
             if (bossRushEnter) {
-                bossRushEnter.classList.toggle('hidden', maxFloor < 1000);
+                bossRushEnter.classList.toggle('hidden', maxFloor < 5000);
             }
             renderWarpBossButtons();
             renderWarpBossRushButtons();
@@ -4466,7 +4466,7 @@
 
         const enterBossRush = () => {
             if (Game.state === 'combat') return;
-            if (getWarpMaxFloor() < 1000) return;
+            if (getWarpMaxFloor() < 5000) return;
             Game.isBossRush = true;
             Game.floor = BossRushStartFloor;
             Game.maxBossRushFloor = Math.max(Game.maxBossRushFloor || BossRushStartFloor, Game.floor);
@@ -5850,15 +5850,10 @@
                 bossScale = getBossRushScale(Game.floor);
             } else {
                 bossDef = BossDefs[Game.floor];
-                const hasBossRushUnlocked = Array.isArray(Game.defeatedBossFloors) && Game.defeatedBossFloors.includes(1000);
-                const isDxBoss = hasBossRushUnlocked && Game.floor <= 1000;
-                bossBase = isDxBoss ? BossDefs[1000] : bossDef;
                 bossScale = getBossScale(Game.floor);
             }
             if (bossDef) {
                 const baseStats = bossBase || bossDef;
-                const hasBossRushUnlocked = Array.isArray(Game.defeatedBossFloors) && Game.defeatedBossFloors.includes(1000);
-                const isDxBoss = hasBossRushUnlocked && Game.floor <= 1000;
                 const bossStats = Game.isBossRush
                     ? {
                         maxHp: Math.floor(baseStats.hp * bossScale),
@@ -5876,7 +5871,6 @@
                     ...bossStats,
                     statusEffects: [],
                     isBoss: true,
-                    isDxBoss,
                     skillCooldown: bossDef.skillInterval,
                     skillRotation: 0,
                     critRate: 0,
@@ -6450,8 +6444,8 @@
             Game.state = 'idle';
             const shouldOpenBossRushModal = Boolean(
                 Game.enemy?.isBoss
-                && Game.enemy.floor === 1000
-                && !Game.defeatedBossFloors.includes(1000)
+                && Game.enemy.floor === 5000
+                && !Game.defeatedBossFloors.includes(5000)
             );
             if (Game.enemy?.isBoss) {
                 recordBossDefeat(Game.enemy.floor || Game.floor);
@@ -6475,7 +6469,6 @@
                 const totals = getTotalStats();
                 let dropChance = Math.min(0.95, totals.luck / 100);
                 dropChance = Math.min(0.95, dropChance * eliteLootMultiplier);
-                const isDxBoss = Boolean(Game.enemy?.isBoss && Game.enemy?.isDxBoss);
                 const rollBossDropMode = () => {
                     if (!Game.enemy?.isBoss) return false;
                     const roll = Math.random();
@@ -6499,7 +6492,7 @@
                         queueLoot(isRoadLegendary ? buildRoadLegendaryLoot() : buildEquipmentLoot({ forceBossDrop: false }));
                     }
                 }
-                if (!isDxBoss && Math.random() < dropChance) queueLoot(buildPotionLoot());
+                if (Math.random() < dropChance) queueLoot(buildPotionLoot());
                 const bonusRolls = Game.enemy?.elite ? Math.floor(Game.enemy.elite.rank / 2) : 0;
                 for (let i = 0; i < bonusRolls; i++) {
                     if (Math.random() < dropChance) {
@@ -6511,7 +6504,7 @@
                             queueLoot(isRoadLegendary ? buildRoadLegendaryLoot() : buildEquipmentLoot({ forceBossDrop: false }));
                         }
                     }
-                    if (!isDxBoss && Math.random() < dropChance) queueLoot(buildPotionLoot());
+                    if (Math.random() < dropChance) queueLoot(buildPotionLoot());
                 }
             }
             openNextLoot();
@@ -6597,11 +6590,9 @@
             const forceBossDrop = options.forceBossDrop;
             const useBossTable = forceBossDrop === true
                 ? true
-                : (forceBossDrop === false ? false : (Game.enemy?.isBoss && Game.enemy.floor <= 1000));
+                : (forceBossDrop === false ? false : (Game.enemy?.isBoss && Game.enemy.floor <= 5000));
             if (useBossTable) {
-                const bossTable = Game.enemy.isDxBoss
-                    ? buildDxBossLootTable(Game.enemy.floor)
-                    : (BossRushLootTables[Game.enemy.floor] || BossLootTables[Game.enemy.floor]);
+                const bossTable = BossRushLootTables[Game.enemy.floor] || BossLootTables[Game.enemy.floor];
                 if (bossTable && bossTable.length > 0) {
                     const base = pickRandom(bossTable);
                     const index = Math.max(0, bossTable.indexOf(base));
