@@ -1557,6 +1557,7 @@
                 Game.player.sp = Math.min(MAX_SKILL_POINTS, Game.player.sp ?? 1);
                 Game.player.next = getNextExpRequirement(Game.player.level);
                 applyLevelUps({ log: false });
+                normalizeEquipmentBaseStatsForPlayer();
             }
             if (!Number.isFinite(Game.maxBossRushFloor)) {
                 Game.maxBossRushFloor = 0;
@@ -3027,6 +3028,50 @@
             accessory: "accessories"
         };
 
+        const EquipmentBaseSeed = {
+            attackFlat: 10,
+            defenseFlat: 12,
+            maxHp: 18,
+            maxMp: 12,
+            str: 4,
+            vit: 4,
+            int: 4,
+            dex: 4,
+            luk: 2,
+            critRate: 3,
+            accuracy: 4,
+            evasionRate: 4,
+            damageReduction: 3
+        };
+
+        const EquipmentTypeMultipliers = {
+            weapon: 1,
+            armor: 1,
+            head: 1,
+            hands: 1,
+            feet: 1,
+            accessory: 1
+        };
+
+        const getEquipmentGrowthScale = (floor) => {
+            const safeFloor = Math.max(1, floor || 1);
+            return 1 + safeFloor * 0.025 + safeFloor * safeFloor * 0.00008;
+        };
+
+        const getEquipmentSeedValue = (key) => EquipmentBaseSeed[key] ?? 1;
+
+        const getEquipmentTypeMultiplier = (type) => EquipmentTypeMultipliers[type] ?? 1;
+
+        const buildEquipmentBaseStats = (stats, floor, rarityMul, type) => {
+            const scale = getEquipmentGrowthScale(floor);
+            const typeMul = getEquipmentTypeMultiplier(type);
+            return stats.map((stat) => {
+                const seedValue = getEquipmentSeedValue(stat.key);
+                const scaledValue = Math.max(1, Math.round(seedValue * scale * rarityMul * typeMul));
+                return { key: stat.key, value: rollStatValue(scaledValue, 0.12) };
+            });
+        };
+
         const EquipmentTiers = [
             {
                 floorStart: 1,
@@ -3555,10 +3600,8 @@
             const suffix = suffixRank ? rollAffix(SuffixAffixes, suffixRank) : null;
             const prefixStars = prefix ? "☆".repeat(prefix.rank) : "";
             const suffixStars = suffix ? "☆".repeat(suffix.rank) : "";
-            const baseStats = base.stats.map((stat) => {
-                const scaledValue = Math.max(1, Math.ceil(stat.value * rarity.mul * 1.5));
-                return { key: stat.key, value: rollStatValue(scaledValue, 0.12) };
-            });
+            const originFloor = Math.max(1, options.floor ?? Game.floor ?? 1);
+            const baseStats = buildEquipmentBaseStats(base.stats, originFloor, rarity.mul, type);
             const affixStats = [
                 ...(prefix ? prefix.stats.map((stat) => ({ ...stat, source: "prefix" })) : []),
                 ...(suffix ? suffix.stats.map((stat) => ({ ...stat, source: "suffix" })) : [])
@@ -3572,7 +3615,8 @@
                 affixStats,
                 uniqueStats: [],
                 prefix,
-                suffix
+                suffix,
+                originFloor
             };
             if (item.type !== "potion") {
                 item.enhancementLevel = 0;
@@ -3643,10 +3687,8 @@
             const suffix = suffixRank ? rollAffix(SuffixAffixes, suffixRank) : null;
             const prefixStars = prefix ? "☆".repeat(prefix.rank) : "";
             const suffixStars = suffix ? "☆".repeat(suffix.rank) : "";
-            const baseStats = base.stats.map((stat) => {
-                const scaledValue = Math.max(1, Math.ceil(stat.value * rarity.mul * 1.5));
-                return { key: stat.key, value: rollStatValue(scaledValue, 0.12) };
-            });
+            const originFloor = Math.max(1, floor || 1);
+            const baseStats = buildEquipmentBaseStats(base.stats, originFloor, rarity.mul, base.type);
             const affixStats = [
                 ...(prefix ? prefix.stats.map((stat) => ({ ...stat, source: "prefix" })) : []),
                 ...(suffix ? suffix.stats.map((stat) => ({ ...stat, source: "suffix" })) : [])
@@ -3690,7 +3732,8 @@
                 uniqueStats,
                 prefix,
                 suffix,
-                isBossDrop: true
+                isBossDrop: true,
+                originFloor
             };
             if (item.type !== "potion") {
                 item.enhancementLevel = 0;
@@ -3711,10 +3754,8 @@
             const suffix = suffixRank ? rollAffix(SuffixAffixes, suffixRank) : null;
             const prefixStars = prefix ? "☆".repeat(prefix.rank) : "";
             const suffixStars = suffix ? "☆".repeat(suffix.rank) : "";
-            const baseStats = base.stats.map((stat) => {
-                const scaledValue = Math.max(1, Math.ceil(stat.value * rarity.mul * 1.5));
-                return { key: stat.key, value: rollStatValue(scaledValue, 0.12) };
-            });
+            const originFloor = Math.max(1, Game.floor || 1);
+            const baseStats = buildEquipmentBaseStats(base.stats, originFloor, rarity.mul, base.type);
             const affixStats = [
                 ...(prefix ? prefix.stats.map((stat) => ({ ...stat, source: "prefix" })) : []),
                 ...(suffix ? suffix.stats.map((stat) => ({ ...stat, source: "suffix" })) : [])
@@ -3734,13 +3775,41 @@
                 uniqueStats,
                 prefix,
                 suffix,
-                isRoadLegendary: true
+                isRoadLegendary: true,
+                originFloor
             };
             if (item.type !== "potion") {
                 item.enhancementLevel = 0;
                 item.isBroken = false;
             }
             return item;
+        };
+
+        const normalizeEquipmentBaseStats = (item, floorFallback) => {
+            if (!item || item.type === "potion") return;
+            const statKeys = (item.baseStats || []).map((stat) => ({ key: stat.key }));
+            if (statKeys.length === 0) return;
+            const rarityMul = item.rarityMul ?? (RarityDefs.find((def) => def.key === item.rarity)?.mul ?? 1);
+            const fallbackFloor = Math.max(1, floorFallback ?? Game.floor ?? 1);
+            const originFloor = Math.max(1, item.originFloor ?? fallbackFloor);
+            item.originFloor = originFloor;
+            item.baseStats = buildEquipmentBaseStats(statKeys, originFloor, rarityMul, item.type);
+        };
+
+        const normalizeEquipmentBaseStatsForPlayer = () => {
+            if (!Game.player) return;
+            const fallbackFloor = Math.max(1, Game.floor || 1);
+            const inventory = Game.player.inventory || [];
+            inventory.forEach((item) => normalizeEquipmentBaseStats(item, fallbackFloor));
+            [
+                Game.player.weapon,
+                Game.player.armor,
+                Game.player.head,
+                Game.player.hands,
+                Game.player.feet,
+                Game.player.accessory1,
+                Game.player.accessory2
+            ].forEach((item) => normalizeEquipmentBaseStats(item, fallbackFloor));
         };
 
         const buildRoadLegendaryLoot = () => {
