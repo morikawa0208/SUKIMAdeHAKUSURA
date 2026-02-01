@@ -2019,16 +2019,16 @@
         const PassiveMilestoneBonuses = {
             warrior: {
                 0: { 10: { stats: { attackFlat: 15 } }, 30: { stats: { critRate: 5 } }, 50: { stats: { damageBoost: 10 } } },
-                1: { 10: { stats: { maxHpFlat: 120 } }, 50: { stats: { damageReduction: 10 } } },
+                1: { 10: { stats: { maxHpFlat: 120 } }, 30: { stats: { defenseFlat: 15 } }, 50: { stats: { damageReduction: 10 } } },
                 2: { 10: { stats: { leechRate: 5 } }, 30: { stats: { hpRegen: 5 } }, 50: { stats: { damageBoost: 5 } } },
                 3: { 10: { stats: { defenseFlat: 20 } }, 30: { stats: { damageReduction: 5 } }, 50: { stats: { attackFlat: 20 } } },
-                4: { 10: { stats: { defenseFlat: 30 } }, 50: { stats: { damageReduction: 8 } } },
-                5: { 30: { stats: { damageBoost: 10 } }, 50: { stats: { critRate: 5 } } }
+                4: { 10: { stats: { defenseFlat: 30 } }, 30: { stats: { maxHpFlat: 150 } }, 50: { stats: { damageReduction: 8 } } },
+                5: { 10: { stats: { attackFlat: 12 } }, 30: { stats: { damageBoost: 10 } }, 50: { stats: { critRate: 5 } } }
             },
             mage: {
                 0: { 10: { stats: { mPen: 8 } }, 30: { stats: { critRate: 5 } }, 50: { stats: { damageBoost: 10 } } },
-                1: { 10: { stats: { mpRegen: 5 } }, 30: { stats: { maxMpFlat: 120 } } },
-                2: { 30: { stats: { mpRegen: 5 } }, 50: { stats: { maxMpFlat: 80 } } },
+                1: { 10: { stats: { mpRegen: 5 } }, 30: { stats: { maxMpFlat: 120 } }, 50: { stats: { skillMpDiscount: 5 } } },
+                2: { 10: { stats: { mpRegen: 3 } }, 30: { stats: { mpRegen: 5 } }, 50: { stats: { maxMpFlat: 80 } } },
                 3: { 10: { stats: { critDamage: 20 } }, 30: { stats: { accuracy: 10 } }, 50: { stats: { damageBoost: 10 } } },
                 4: { 10: { stats: { damageBoost: 5 } }, 30: { stats: { mPen: 8 } }, 50: { stats: { critRate: 5 } } },
                 5: { 10: { stats: { critRate: 5 } }, 30: { stats: { critDamage: 30 } }, 50: { stats: { damageBoost: 10 } } }
@@ -2051,16 +2051,16 @@
             },
             paladin: {
                 0: { 10: { stats: { hpRegen: 5 } }, 30: { stats: { maxHpFlat: 120 } }, 50: { stats: { damageReduction: 10 } } },
-                1: { 30: { stats: { damageReduction: 5 } }, 50: { stats: { maxHpFlat: 120 } } },
-                2: { 30: { stats: { hpRegen: 5 } }, 50: { stats: { damageReduction: 5 } } },
-                3: { 30: { stats: { mpRegen: 3 } }, 50: { stats: { maxMpFlat: 80 } } },
+                1: { 10: { stats: { defenseFlat: 20 } }, 30: { stats: { damageReduction: 5 } }, 50: { stats: { maxHpFlat: 120 } } },
+                2: { 10: { stats: { maxHpFlat: 80 } }, 30: { stats: { hpRegen: 5 } }, 50: { stats: { damageReduction: 5 } } },
+                3: { 10: { stats: { maxMpFlat: 60 } }, 30: { stats: { mpRegen: 3 } }, 50: { stats: { maxMpFlat: 80 } } },
                 4: { 10: { stats: { critRate: 5 } }, 30: { stats: { critDamage: 20 } }, 50: { stats: { damageBoost: 10 } } },
-                5: { 10: { stats: { damageReduction: 5 } }, 50: { stats: { maxHpFlat: 150 } } }
+                5: { 10: { stats: { damageReduction: 5 } }, 30: { stats: { defenseFlat: 25 } }, 50: { stats: { maxHpFlat: 150 } } }
             },
             monk: {
                 0: { 10: { stats: { accuracy: 10 } }, 30: { stats: { critRate: 5 } }, 50: { stats: { damageBoost: 10 } } },
-                1: { 10: { stats: { maxHpFlat: 80 } }, 50: { stats: { damageReduction: 5 } } },
-                2: { 10: { stats: { maxMpFlat: 60 } }, 50: { stats: { mpRegen: 3 } } },
+                1: { 10: { stats: { maxHpFlat: 80 } }, 30: { stats: { hpRegen: 4 } }, 50: { stats: { damageReduction: 5 } } },
+                2: { 10: { stats: { maxMpFlat: 60 } }, 30: { stats: { mpRegen: 2 } }, 50: { stats: { mpRegen: 3 } } },
                 3: { 10: { stats: { critRate: 5 } }, 30: { stats: { critDamage: 20 } }, 50: { stats: { damageBoost: 10 } } },
                 4: { 10: { stats: { evasionRate: 5 } }, 30: { stats: { accuracy: 10 } }, 50: { stats: { damageReduction: 5 } } },
                 5: { 10: { stats: { leechRate: 5 } }, 30: { stats: { hpRegen: 5 } }, 50: { stats: { damageBoost: 5 } } }
@@ -2740,7 +2740,7 @@
             ],
             100: [
                 { name: "疾風の爪剣", type: "weapon", rarity: "epic", stats: [{ key: "attackFlat", value: 38 }, { key: "dex", value: 13 }, { key: "accuracy", value: 9 }], uniqueStats: [] },
-                { name: "風走りのブーツ", type: "feet", rarity: "epic", stats: [{ key: "evasionRate", value: 10 }, { key: "dex", value: 9 }], uniqueStats: [] },
+                { name: "風走りのブーツ", type: "feet", rarity: "epic", stats: [{ key: "evasionRate", value: 10 }, { key: "dex", value: 9 }, { key: "maxHp", value: 35 }], uniqueStats: [] },
                 { name: "疾風の籠手", type: "hands", rarity: "epic", stats: [{ key: "attackFlat", value: 12 }, { key: "evasionRate", value: 5 }], uniqueStats: [] }
             ],
             500: [
@@ -2750,7 +2750,7 @@
             ],
             1000: [
                 { name: "氷晶の杖", type: "weapon", rarity: "epic", stats: [{ key: "attackFlat", value: 42 }, { key: "int", value: 13 }, { key: "mPen", value: 9 }], uniqueStats: [] },
-                { name: "氷牢の指輪", type: "accessory", rarity: "epic", stats: [{ key: "critRate", value: 5 }, { key: "maxMp", value: 30 }], uniqueStats: [] },
+                { name: "氷牢の指輪", type: "accessory", rarity: "epic", stats: [{ key: "critRate", value: 5 }, { key: "maxMp", value: 30 }, { key: "mpRegen", value: 2 }], uniqueStats: [] },
                 { name: "凍霧の手甲", type: "hands", rarity: "epic", stats: [{ key: "int", value: 8 }, { key: "mPen", value: 5 }], uniqueStats: [] }
             ],
             1500: [
@@ -2769,7 +2769,7 @@
                 { name: "雷影の兜", type: "head", rarity: "epic", stats: [{ key: "accuracy", value: 7 }, { key: "critRate", value: 4 }], uniqueStats: [] },
             ],
             3000: [
-                { name: "聖紋のローブ", type: "armor", rarity: "epic", stats: [{ key: "defenseFlat", value: 48 }, { key: "int", value: 13 }], uniqueStats: [] },
+                { name: "聖紋のローブ", type: "armor", rarity: "epic", stats: [{ key: "defenseFlat", value: 48 }, { key: "int", value: 13 }, { key: "maxMp", value: 40 }], uniqueStats: [] },
                 { name: "聖祈の護符", type: "accessory", rarity: "epic", stats: [{ key: "hpRegen", value: 11 }, { key: "mpRegen", value: 3 }, { key: "damageReduction", value: 4 }], uniqueStats: [] },
                 { name: "聖光の杖", type: "weapon", rarity: "epic", stats: [{ key: "attackFlat", value: 28 }, { key: "int", value: 10 }], uniqueStats: [] }
             ],
@@ -2780,7 +2780,7 @@
             ],
             4000: [
                 { name: "鉄壁の鎧", type: "armor", rarity: "epic", stats: [{ key: "defenseFlat", value: 69 }, { key: "vit", value: 20 }, { key: "damageReduction", value: 6 }], uniqueStats: [] },
-                { name: "鋼鉄のグローブ", type: "hands", rarity: "epic", stats: [{ key: "defenseFlat", value: 21 }, { key: "str", value: 12 }], uniqueStats: [] },
+                { name: "鋼鉄のグローブ", type: "hands", rarity: "epic", stats: [{ key: "defenseFlat", value: 21 }, { key: "str", value: 12 }, { key: "maxHp", value: 40 }], uniqueStats: [] },
                 { name: "鉄壁の護符", type: "accessory", rarity: "epic", stats: [{ key: "maxHp", value: 40 }, { key: "damageReduction", value: 3 }], uniqueStats: [] }
             ],
             4500: [
@@ -3113,7 +3113,7 @@
                 hands: [
                     { name: "旅人の手袋", stats: [{ key: "attackFlat", value: 3 }, { key: "dex", value: 2 }] },
                     { name: "革のグローブ", stats: [{ key: "defenseFlat", value: 4 }, { key: "dex", value: 3 }] },
-                    { name: "布のミトン", stats: [{ key: "int", value: 2 }] }
+                    { name: "布のミトン", stats: [{ key: "int", value: 2 }, { key: "mpRegen", value: 1 }] }
                 ],
                 feet: [
                     { name: "旅人のブーツ", stats: [{ key: "defenseFlat", value: 4 }, { key: "evasionRate", value: 3 }] },
@@ -3123,7 +3123,7 @@
                 accessories: [
                     { name: "素朴な指輪", stats: [{ key: "critRate", value: 2 }, { key: "str", value: 2 }, { key: "luk", value: 1 }] },
                     { name: "護りのペンダント", stats: [{ key: "damageReduction", value: 2 }, { key: "maxHp", value: 11 }] },
-                    { name: "学徒のタリスマン", stats: [{ key: "int", value: 3 }] }
+                    { name: "学徒のタリスマン", stats: [{ key: "int", value: 3 }, { key: "maxMp", value: 8 }] }
                 ]
             },
             {
@@ -3146,17 +3146,17 @@
                 hands: [
                     { name: "鋼のガントレット", stats: [{ key: "defenseFlat", value: 10 }, { key: "str", value: 5 }] },
                     { name: "疾風のグローブ", stats: [{ key: "attackFlat", value: 6 }, { key: "dex", value: 6 }] },
-                    { name: "詠唱の手甲", stats: [{ key: "int", value: 5 }] }
+                    { name: "詠唱の手甲", stats: [{ key: "int", value: 5 }, { key: "mpRegen", value: 2 }] }
                 ],
                 feet: [
                     { name: "鋼のブーツ", stats: [{ key: "defenseFlat", value: 11 }, { key: "vit", value: 4 }] },
                     { name: "風切りの靴", stats: [{ key: "evasionRate", value: 4 }, { key: "dex", value: 5 }] },
-                    { name: "巡礼の靴", stats: [{ key: "maxHp", value: 18 }] }
+                    { name: "巡礼の靴", stats: [{ key: "maxHp", value: 18 }, { key: "hpRegen", value: 2 }] }
                 ],
                 accessories: [
                     { name: "勇気の指輪", stats: [{ key: "critRate", value: 3 }, { key: "str", value: 5 }] },
                     { name: "守護の首飾り", stats: [{ key: "damageReduction", value: 3 }, { key: "maxHp", value: 27 }, { key: "luk", value: 2 }] },
-                    { name: "知恵の護符", stats: [{ key: "int", value: 6 }] }
+                    { name: "知恵の護符", stats: [{ key: "int", value: 6 }, { key: "maxMp", value: 12 }] }
                 ]
             },
             {
@@ -3179,12 +3179,12 @@
                 hands: [
                     { name: "黒曜の籠手", stats: [{ key: "attackFlat", value: 10 }, { key: "str", value: 7 }] },
                     { name: "影走りのグローブ", stats: [{ key: "dex", value: 10 }, { key: "critRate", value: 3 }] },
-                    { name: "星詠みの手甲", stats: [{ key: "int", value: 9 }] }
+                    { name: "星詠みの手甲", stats: [{ key: "int", value: 9 }, { key: "mpRegen", value: 3 }] }
                 ],
                 feet: [
                     { name: "重装のブーツ", stats: [{ key: "defenseFlat", value: 17 }, { key: "damageReduction", value: 3 }] },
                     { name: "影歩きの靴", stats: [{ key: "evasionRate", value: 6 }, { key: "dex", value: 9 }] },
-                    { name: "神官の靴", stats: [{ key: "maxHp", value: 32 }] }
+                    { name: "神官の靴", stats: [{ key: "maxHp", value: 32 }, { key: "hpRegen", value: 3 }] }
                 ],
                 accessories: [
                     { name: "覇者の指輪", stats: [{ key: "critRate", value: 5 }, { key: "damageBoost", value: 3 }] },
@@ -3300,22 +3300,22 @@
             { name: "理知の", suffixName: "の賢者", rank: 1, group: "stat", stats: ["int"] },
             { name: "俊敏の", suffixName: "の迅脚", rank: 1, group: "stat", stats: ["dex"] },
             { name: "剛撃の", suffixName: "の烈風", rank: 2, group: "attack", stats: ["str", "critRate"] },
-            { name: "斬裂の", suffixName: "の剣舞", rank: 2, group: "attack", stats: ["attackFlat"] },
+            { name: "斬裂の", suffixName: "の剣舞", rank: 2, group: "attack", stats: ["attackFlat", "damageBoost"] },
             { name: "猛進の", suffixName: "の黒翼", rank: 2, group: "attack", stats: ["damageBoost", "attackFlat"] },
             { name: "守護の", suffixName: "の砦守", rank: 2, group: "defense", stats: ["vit", "maxHp"] },
-            { name: "堅牢の", suffixName: "の蒼壁", rank: 2, group: "defense", stats: ["damageReduction"] },
+            { name: "堅牢の", suffixName: "の蒼壁", rank: 2, group: "defense", stats: ["damageReduction", "defenseFlat"] },
             { name: "不屈の", suffixName: "の不動", rank: 2, group: "defense", stats: ["hpRegen", "damageReduction"] },
             { name: "豊穣の", suffixName: "の宝路", rank: 2, group: "treasure", stats: ["rareFind", "goldBoost"] },
             { name: "蒐集の", suffixName: "の星見", rank: 2, group: "treasure", stats: ["affixFind", "expBoost"] },
             { name: "採掘の", suffixName: "の拾遺", rank: 2, group: "treasure", stats: ["goldBoost", "expBoost"] },
-            { name: "慈愛の", suffixName: "の安寧", rank: 2, group: "support", stats: ["hpRegen"] },
-            { name: "瞑想の", suffixName: "の月祈", rank: 2, group: "support", stats: ["mpRegen"] },
+            { name: "慈愛の", suffixName: "の安寧", rank: 2, group: "support", stats: ["hpRegen", "maxHp"] },
+            { name: "瞑想の", suffixName: "の月祈", rank: 2, group: "support", stats: ["mpRegen", "maxMp"] },
             { name: "治癒の", suffixName: "の白灯", rank: 2, group: "support", stats: ["hpRegen", "maxHp"] },
             { name: "照準の", suffixName: "の慧眼", rank: 2, group: "precision", stats: ["accuracy", "critRate"] },
             { name: "見切りの", suffixName: "の夜隼", rank: 2, group: "precision", stats: ["accuracy", "evasionRate"] },
             { name: "貫通の", suffixName: "の迅視", rank: 2, group: "precision", stats: ["accuracy", "mPen"] },
-            { name: "充実の", suffixName: "の瑞穂", rank: 2, group: "vitality", stats: ["maxHp"] },
-            { name: "充魔の", suffixName: "の旺盛", rank: 2, group: "vitality", stats: ["maxMp"] },
+            { name: "充実の", suffixName: "の瑞穂", rank: 2, group: "vitality", stats: ["maxHp", "hpRegen"] },
+            { name: "充魔の", suffixName: "の旺盛", rank: 2, group: "vitality", stats: ["maxMp", "mpRegen"] },
             { name: "体力の", suffixName: "の深泉", rank: 2, group: "vitality", stats: ["maxHp", "hpRegen"] },
             { name: "免疫の", suffixName: "の防壁", rank: 2, group: "resistance", stats: ["damageReduction", "hpRegen"] },
             { name: "断絶の", suffixName: "の抗魔", rank: 2, group: "resistance", stats: ["damageReduction", "evasionRate"] },
@@ -3323,34 +3323,34 @@
             { name: "発見の", suffixName: "の交易", rank: 2, group: "economy", stats: ["rareFind", "affixFind"] },
             { name: "宝探しの", suffixName: "の黄金路", rank: 2, group: "economy", stats: ["rareFind", "goldBoost"] },
             { name: "武勇の", suffixName: "の豪胆", rank: 2, group: "stat", stats: ["str", "dex"] },
-            { name: "英知の", suffixName: "の智導", rank: 2, group: "stat", stats: ["int"] },
+            { name: "英知の", suffixName: "の智導", rank: 2, group: "stat", stats: ["int", "critRate"] },
             { name: "機敏の", suffixName: "の疾影", rank: 2, group: "stat", stats: ["dex", "evasionRate"] },
-            { name: "覇王の", suffixName: "の魔剣", rank: 3, group: "attack", stats: ["str", "critDamage"] },
+            { name: "覇王の", suffixName: "の魔剣", rank: 3, group: "attack", stats: ["str", "critDamage", "damageBoost"] },
             { name: "破壊の", suffixName: "の疾風", rank: 3, group: "attack", stats: ["damageBoost", "critDamage", "critRate"] },
             { name: "滅殺の", suffixName: "の覇者", rank: 3, group: "attack", stats: ["attackFlat", "critRate", "accuracy"] },
             { name: "不屈の", suffixName: "の堅陣", rank: 3, group: "defense", stats: ["vit", "damageReduction", "hpRegen"] },
-            { name: "磐石の", suffixName: "の護衛", rank: 3, group: "defense", stats: ["maxHp", "evasionRate"] },
+            { name: "磐石の", suffixName: "の護衛", rank: 3, group: "defense", stats: ["maxHp", "evasionRate", "damageReduction"] },
             { name: "護神の", suffixName: "の静壁", rank: 3, group: "defense", stats: ["defenseFlat", "damageReduction", "hpRegen"] },
             { name: "天運の", suffixName: "の宝匠", rank: 3, group: "treasure", stats: ["luck", "rareFind", "affixFind"] },
             { name: "至宝の", suffixName: "の黄金路", rank: 3, group: "treasure", stats: ["rareFind", "goldBoost", "affixFind"] },
             { name: "隆盛の", suffixName: "の瑞兆", rank: 3, group: "treasure", stats: ["luck", "goldBoost", "expBoost"] },
-            { name: "祝福の", suffixName: "の慈雨", rank: 3, group: "support", stats: ["hpRegen", "mpRegen"] },
+            { name: "祝福の", suffixName: "の慈雨", rank: 3, group: "support", stats: ["hpRegen", "mpRegen", "maxHp"] },
             { name: "救済の", suffixName: "の回生", rank: 3, group: "support", stats: ["hpRegen", "maxHp", "damageReduction"] },
-            { name: "聖泉の", suffixName: "の天恵", rank: 3, group: "support", stats: ["mpRegen", "maxMp"] },
+            { name: "聖泉の", suffixName: "の天恵", rank: 3, group: "support", stats: ["mpRegen", "maxMp", "int"] },
             { name: "神眼の", suffixName: "の狙星", rank: 3, group: "precision", stats: ["accuracy", "critRate", "critDamage"] },
-            { name: "無双の", suffixName: "の空刃", rank: 3, group: "precision", stats: ["accuracy", "critRate"] },
+            { name: "無双の", suffixName: "の空刃", rank: 3, group: "precision", stats: ["accuracy", "critRate", "critDamage"] },
             { name: "看破の", suffixName: "の導眼", rank: 3, group: "precision", stats: ["accuracy", "mPen", "damageBoost"] },
             { name: "不滅の", suffixName: "の蒼命", rank: 3, group: "vitality", stats: ["maxHp", "damageReduction", "hpRegen"] },
-            { name: "神髄の", suffixName: "の再紡", rank: 3, group: "vitality", stats: ["maxMp", "mpRegen"] },
-            { name: "恒常の", suffixName: "の永環", rank: 3, group: "vitality", stats: ["maxHp", "maxMp"] },
+            { name: "神髄の", suffixName: "の再紡", rank: 3, group: "vitality", stats: ["maxMp", "mpRegen", "maxHp"] },
+            { name: "恒常の", suffixName: "の永環", rank: 3, group: "vitality", stats: ["maxHp", "maxMp", "hpRegen"] },
             { name: "結界の", suffixName: "の玄壁", rank: 3, group: "resistance", stats: ["damageReduction", "maxHp", "hpRegen"] },
-            { name: "清廉の", suffixName: "の祓印", rank: 3, group: "resistance", stats: ["hpRegen", "mpRegen"] },
+            { name: "清廉の", suffixName: "の祓印", rank: 3, group: "resistance", stats: ["hpRegen", "mpRegen", "maxHp"] },
             { name: "不侵の", suffixName: "の静防", rank: 3, group: "resistance", stats: ["damageReduction", "evasionRate", "maxHp"] },
             { name: "繁栄の", suffixName: "の瑞兆", rank: 3, group: "economy", stats: ["goldBoost", "expBoost", "luck"] },
             { name: "大富豪の", suffixName: "の蔵王", rank: 3, group: "economy", stats: ["goldBoost", "rareFind", "affixFind"] },
             { name: "伝承の", suffixName: "の秘録", rank: 3, group: "economy", stats: ["expBoost", "rareFind", "affixFind"] },
-            { name: "覇気の", suffixName: "の覇道", rank: 3, group: "stat", stats: ["str", "dex"] },
-            { name: "叡智の", suffixName: "の天賢", rank: 3, group: "stat", stats: ["int", "critRate"] },
+            { name: "覇気の", suffixName: "の覇道", rank: 3, group: "stat", stats: ["str", "dex", "damageBoost"] },
+            { name: "叡智の", suffixName: "の天賢", rank: 3, group: "stat", stats: ["int", "critRate", "maxMp"] },
             { name: "超速の", suffixName: "の迅牙", rank: 3, group: "stat", stats: ["dex", "accuracy", "critRate"] }
         ];
 
