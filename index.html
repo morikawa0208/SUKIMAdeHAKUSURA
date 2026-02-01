@@ -190,6 +190,12 @@
             0%, 100% { transform: scale(1); opacity: 0.9; }
             50% { transform: scale(0.98); opacity: 0.6; }
         }
+
+        .feedback-embed {
+            width: 100%;
+            height: clamp(420px, 70dvh, 760px);
+            border: 0;
+        }
     </style>
 </head>
 <body class="flex flex-col">
@@ -816,13 +822,23 @@
             </div>
         </section>
 
+        <!-- FEEDBACK PAGE -->
+        <section id="page-feedback" class="page p-4 bg-slate-50 flex-col gap-3">
+            <div class="flex items-start justify-between px-2">
+                <h2 class="text-xl font-black flex items-center gap-2"><i class="fas fa-comment-dots"></i> 感想・要望</h2>
+            </div>
+            <div class="bg-white rounded-3xl p-3 shadow-sm flex-1 min-h-0">
+                <iframe class="feedback-embed" src="https://docs.google.com/forms/d/e/1FAIpQLSehb6HL2A69toW9cmKpbNiUYmkd8FCZRXImFKVzzcPbPwu2sw/viewform?embedded=true" frameborder="0" marginheight="0" marginwidth="0">読み込んでいます…</iframe>
+            </div>
+        </section>
+
     </main>
 
     <!-- BOTTOM NAV -->
     <div id="bottom-menu-backdrop" class="fixed inset-0 z-[45] hidden" aria-hidden="true"></div>
     <div id="bottom-menu-panel" class="fixed left-1/2 -translate-x-1/2 bottom-20 z-[60] hidden" style="width: min(420px, calc(100% - 2rem));">
         <div class="bg-white border border-slate-200 rounded-2xl shadow-2xl px-3 py-3">
-            <div class="grid grid-cols-4 gap-2 text-[10px] font-black text-slate-700">
+            <div class="grid grid-cols-5 gap-2 text-[10px] font-black text-slate-700">
                 <button onclick="openBottomMenuDonate()" class="flex flex-col items-center justify-center gap-1 rounded-xl border border-slate-200 bg-slate-50 py-2 active:scale-95 transition-transform">
                     <i class="fas fa-mug-hot text-base text-slate-500"></i>
                     応援
@@ -838,6 +854,10 @@
                 <button onclick="openBottomMenuTweet(event)" class="flex flex-col items-center justify-center gap-1 rounded-xl border border-slate-200 bg-slate-50 py-2 active:scale-95 transition-transform">
                     <i class="fa-brands fa-twitter text-base text-slate-500"></i>
                     ツイート
+                </button>
+                <button onclick="openBottomMenuFeedback()" class="flex flex-col items-center justify-center gap-1 rounded-xl border border-slate-200 bg-slate-50 py-2 active:scale-95 transition-transform">
+                    <i class="fas fa-comment-dots text-base text-slate-500"></i>
+                    感想・要望
                 </button>
             </div>
         </div>
@@ -7866,6 +7886,11 @@
         function openBottomMenuTweet(event) {
             closeBottomMenu();
             openXShare(event);
+        }
+
+        function openBottomMenuFeedback() {
+            closeBottomMenu();
+            switchPage('feedback');
         }
 
         const bottomMenuBackdrop = document.getElementById('bottom-menu-backdrop');
