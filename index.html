@@ -3407,25 +3407,43 @@
 
         const getEnemyArchetypeId = (enemy) => enemy?.archetype || pickRandom(EnemyArchetypePool);
 
-        const calcEnemyStatsByFloor = (floor, base, archetypeId = "balanced") => {
-            const archetype = EnemyArchetypes[archetypeId] || EnemyArchetypes.balanced;
-            const hpScale = 1 + (floor * 0.015) + (floor * floor * 0.00015);
-            const strScale = 1 + (floor * 0.012) + (floor * floor * 0.0001);
-            const defScale = 1 + (floor * 0.01) + (floor * floor * 0.00008);
-            const accScale = 1 + (floor * 0.006);
-            const evaScale = 1 + (floor * 0.006);
-            const expScale = 1 + (floor * 0.01) + (floor * floor * 0.00005);
+        const getEnemyLevelByFloor = (floor) => {
+            const safeFloor = Math.max(1, floor || 1);
+            return Math.max(1, Math.floor(safeFloor));
+        };
+
+        const calcEnemyBaseStatsByLevel = (level) => {
+            const safeLevel = Math.max(1, level || 1);
             return {
-                maxHp: Math.floor(base.hp * hpScale * archetype.hp),
-                hp: Math.floor(base.hp * hpScale * archetype.hp),
-                str: Math.floor(base.str * strScale * archetype.str),
-                def: Math.floor(base.def * defScale * archetype.def),
-                acc: Math.floor(base.acc * accScale * archetype.acc),
-                eva: Math.floor(base.eva * evaScale * archetype.eva),
-                exp: Math.floor(base.exp * expScale),
+                maxHp: Math.floor(20 + safeLevel * 6 + safeLevel * safeLevel * 0.25),
+                hp: Math.floor(20 + safeLevel * 6 + safeLevel * safeLevel * 0.25),
+                str: Math.floor(4 + safeLevel * 2.2 + safeLevel * safeLevel * 0.12),
+                def: Math.floor(1 + safeLevel * 1.1 + safeLevel * safeLevel * 0.08),
+                acc: Math.floor(5 + safeLevel * 0.6 + safeLevel * safeLevel * 0.02),
+                eva: Math.floor(1 + safeLevel * 0.5 + safeLevel * safeLevel * 0.02),
+                exp: Math.floor(10 + safeLevel * 4 + safeLevel * safeLevel * 0.15)
+            };
+        };
+
+        const applyEnemyArchetype = (baseStats, archetypeId = "balanced") => {
+            const archetype = EnemyArchetypes[archetypeId] || EnemyArchetypes.balanced;
+            return {
+                maxHp: Math.floor(baseStats.maxHp * archetype.hp),
+                hp: Math.floor(baseStats.hp * archetype.hp),
+                str: Math.floor(baseStats.str * archetype.str),
+                def: Math.floor(baseStats.def * archetype.def),
+                acc: Math.floor(baseStats.acc * archetype.acc),
+                eva: Math.floor(baseStats.eva * archetype.eva),
+                exp: Math.floor(baseStats.exp),
                 archetypeId: archetype.id,
                 archetypeLabel: archetype.label
             };
+        };
+
+        const calcEnemyStatsByFloor = (floor, base, archetypeId = "balanced") => {
+            const level = getEnemyLevelByFloor(floor);
+            const baseStats = calcEnemyBaseStatsByLevel(level);
+            return applyEnemyArchetype(baseStats, archetypeId);
         };
 
         const getBossScale = (floor) => {
@@ -6097,17 +6115,26 @@
             }
             if (bossDef) {
                 const baseStats = bossBase || bossDef;
+                const baseBossStats = calcEnemyStatsByFloor(Game.floor, baseStats, "balanced");
                 const bossStats = Game.isBossRush
                     ? {
-                        maxHp: Math.floor(baseStats.hp * bossScale),
-                        hp: Math.floor(baseStats.hp * bossScale),
-                        str: Math.floor(baseStats.str * bossScale),
-                        def: Math.floor(baseStats.def * bossScale),
-                        acc: Math.floor(baseStats.acc * bossScale),
-                        eva: Math.floor(baseStats.eva * bossScale),
-                        exp: Math.floor(baseStats.exp * bossScale)
+                        maxHp: Math.floor(baseBossStats.maxHp * bossScale),
+                        hp: Math.floor(baseBossStats.hp * bossScale),
+                        str: Math.floor(baseBossStats.str * bossScale),
+                        def: Math.floor(baseBossStats.def * bossScale),
+                        acc: Math.floor(baseBossStats.acc * bossScale),
+                        eva: Math.floor(baseBossStats.eva * bossScale),
+                        exp: Math.floor(baseBossStats.exp * bossScale)
                     }
-                    : calcEnemyStatsByFloor(Game.floor, baseStats, "balanced");
+                    : {
+                        maxHp: Math.floor(baseBossStats.maxHp * 1.5),
+                        hp: Math.floor(baseBossStats.hp * 1.5),
+                        str: Math.floor(baseBossStats.str * 1.5),
+                        def: Math.floor(baseBossStats.def * 1.5),
+                        acc: Math.floor(baseBossStats.acc * 1.5),
+                        eva: Math.floor(baseBossStats.eva * 1.5),
+                        exp: Math.floor(baseBossStats.exp * 1.5)
+                    };
                 Game.enemy = {
                     ...bossDef,
                     floor: Game.floor,
