@@ -4727,6 +4727,12 @@
             document.getElementById(`page-${p}`).classList.add('active');
             document.getElementById(`nav-${p}`).classList.add('active');
             if (p === 'skill') document.getElementById('nav-sp-dot').classList.add('hidden');
+            if (p === 'log') {
+                requestAnimationFrame(() => {
+                    const full = document.getElementById('full-log-container');
+                    if (full) full.scrollTop = full.scrollHeight;
+                });
+            }
         }
 
         function switchJob(job) {
@@ -6910,6 +6916,9 @@
             document.getElementById('lost-exp-val').innerText = lostExp;
             Game.player.exp = Math.max(0, Game.player.exp - lostExp);
             Game.floor = Math.max(1, Game.floor - 20);
+            addLog("────────────", "text-rose-400");
+            addLog("戦闘不能…", "text-rose-400 font-black");
+            addLog("────────────", "text-rose-400");
             document.getElementById('death-overlay').style.display = 'flex';
             triggerAutosave();
         }
@@ -6919,7 +6928,6 @@
             Game.player.hp = derived.maxHp;
             Game.player.mp = derived.maxMp;
             document.getElementById('death-overlay').style.display = 'none';
-            document.getElementById('full-log-container').innerHTML = '';
             addLog("命からがら生還した...", "text-slate-400 italic");
             spawn();
             updateUI();
@@ -6931,8 +6939,8 @@
             div.className = c;
             div.innerText = `> ${m}`;
             const full = document.getElementById('full-log-container');
-            full.prepend(div);
-            if (full.children.length > 50) full.lastChild.remove();
+            full.appendChild(div);
+            if (full.children.length > 50) full.firstChild.remove();
             registerMiniLog(m, c);
         }
 
