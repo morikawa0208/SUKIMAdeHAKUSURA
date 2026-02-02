@@ -6919,7 +6919,6 @@
             Game.player.hp = derived.maxHp;
             Game.player.mp = derived.maxMp;
             document.getElementById('death-overlay').style.display = 'none';
-            document.getElementById('full-log-container').innerHTML = '';
             addLog("命からがら生還した...", "text-slate-400 italic");
             spawn();
             updateUI();
