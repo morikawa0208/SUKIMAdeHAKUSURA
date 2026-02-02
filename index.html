@@ -3477,14 +3477,37 @@
 
         const calcEnemyBaseStatsByLevel = (level) => {
             const safeLevel = Math.max(1, level || 1);
+            const scale = safeLevel - 1;
+            const calcStat = (base, addPerLevel, percentPerLevel) => {
+                const percentScale = (percentPerLevel / 100) * scale;
+                return Math.floor(base + addPerLevel * scale + base * percentScale);
+            };
             return {
-                maxHp: Math.floor(20 + safeLevel * 6 + safeLevel * safeLevel * 0.25),
-                hp: Math.floor(20 + safeLevel * 6 + safeLevel * safeLevel * 0.25),
-                str: Math.floor(4 + safeLevel * 2.2 + safeLevel * safeLevel * 0.12),
-                def: Math.floor(1 + safeLevel * 1.1 + safeLevel * safeLevel * 0.08),
-                acc: Math.floor(5 + safeLevel * 0.6 + safeLevel * safeLevel * 0.02),
-                eva: Math.floor(1 + safeLevel * 0.5 + safeLevel * safeLevel * 0.02),
-                exp: Math.floor(10 + safeLevel * 4 + safeLevel * safeLevel * 0.15)
+                maxHp: calcStat(26, 8, 0.35),
+                hp: calcStat(26, 8, 0.35),
+                str: calcStat(6, 2.0, 0.45),
+                def: calcStat(2, 1.0, 0.25),
+                acc: calcStat(5, 0.3, 0.15),
+                eva: calcStat(1, 0.25, 0.15),
+                exp: calcStat(14, 2.8, 0.35)
+            };
+        };
+
+        const applyBossFloorGrowth = (baseStats, floor) => {
+            const safeFloor = Math.max(1, floor || 1);
+            const scale = safeFloor - 1;
+            const calcBossStat = (base, addPerFloor, percentPerFloor) => {
+                const percentScale = (percentPerFloor / 100) * scale;
+                return Math.floor(base + addPerFloor * scale + base * percentScale);
+            };
+            return {
+                maxHp: calcBossStat(baseStats.maxHp, 10, 1.0),
+                hp: calcBossStat(baseStats.hp, 10, 1.0),
+                str: calcBossStat(baseStats.str, 3, 0.8),
+                def: calcBossStat(baseStats.def, 2, 0.6),
+                acc: calcBossStat(baseStats.acc, 0.4, 0.2),
+                eva: calcBossStat(baseStats.eva, 0.35, 0.2),
+                exp: calcBossStat(baseStats.exp, 4, 0.8)
             };
         };
 
@@ -6240,25 +6263,18 @@
             if (bossDef) {
                 const baseStats = bossBase || bossDef;
                 const baseBossStats = calcEnemyStatsByFloor(Game.floor, baseStats, "balanced");
+                const floorBossStats = applyBossFloorGrowth(baseBossStats, Game.floor);
                 const bossStats = Game.isBossRush
                     ? {
-                        maxHp: Math.floor(baseBossStats.maxHp * bossScale),
-                        hp: Math.floor(baseBossStats.hp * bossScale),
-                        str: Math.floor(baseBossStats.str * bossScale),
-                        def: Math.floor(baseBossStats.def * bossScale),
-                        acc: Math.floor(baseBossStats.acc * bossScale),
-                        eva: Math.floor(baseBossStats.eva * bossScale),
-                        exp: Math.floor(baseBossStats.exp * bossScale)
+                        maxHp: Math.floor(floorBossStats.maxHp * bossScale),
+                        hp: Math.floor(floorBossStats.hp * bossScale),
+                        str: Math.floor(floorBossStats.str * bossScale),
+                        def: Math.floor(floorBossStats.def * bossScale),
+                        acc: Math.floor(floorBossStats.acc * bossScale),
+                        eva: Math.floor(floorBossStats.eva * bossScale),
+                        exp: Math.floor(floorBossStats.exp * bossScale)
                     }
-                    : {
-                        maxHp: Math.floor(baseBossStats.maxHp * 1.5),
-                        hp: Math.floor(baseBossStats.hp * 1.5),
-                        str: Math.floor(baseBossStats.str * 1.5),
-                        def: Math.floor(baseBossStats.def * 1.5),
-                        acc: Math.floor(baseBossStats.acc * 1.5),
-                        eva: Math.floor(baseBossStats.eva * 1.5),
-                        exp: Math.floor(baseBossStats.exp * 1.5)
-                    };
+                    : floorBossStats;
                 Game.enemy = {
                     ...bossDef,
                     floor: Game.floor,
