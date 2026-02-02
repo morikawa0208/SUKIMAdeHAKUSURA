@@ -1346,6 +1346,7 @@
                 hp: 100, maxHp: 100, baseMaxHp: 100, mp: 30, maxMp: 30, baseMaxMp: 30,
                 // Primary Stats
                 str: 10, vit: 5, int: 5, dex: 5, luk: 5,
+                levelStr: 0, levelVit: 0, levelInt: 0, levelDex: 0,
                 // Secondary Stats (calculated)
                 maxHpFlat: 0, maxMpFlat: 0,
                 attackFlat: 0, defenseFlat: 0,
@@ -1404,36 +1405,36 @@
             return Math.floor(base + linear + quadratic + cubic);
         };
 
+        const getLevelStatBonus = (level) => {
+            const safeLevel = Math.max(1, level);
+            const scale = safeLevel - 1;
+            return Math.floor(1.8 * scale + 0.03 * scale * scale);
+        };
+
+        const applyLevelStatBonuses = () => {
+            const bonus = getLevelStatBonus(Game.player.level);
+            Game.player.levelStr = bonus;
+            Game.player.levelVit = bonus;
+            Game.player.levelInt = bonus;
+            Game.player.levelDex = bonus;
+        };
+
         const calcMaxHpByLevel = (lv, baseHp) => {
-            const r = 0.025;
-            const flat = 10;
-            const capLv = 100;
             const safeLv = Math.max(1, lv);
             const safeBaseHp = Math.max(1, baseHp);
-
-            const hpLinear = Math.floor(safeBaseHp * (1 + r * (safeLv - 1)) + flat * (safeLv - 1));
-            if (safeLv <= capLv) return hpLinear;
-
-            const hpAtCap = Math.floor(safeBaseHp * (1 + r * (capLv - 1)) + flat * (capLv - 1));
-            const extra = safeLv - capLv;
-            const K = 80;
-            return hpAtCap + Math.floor(K * Math.sqrt(extra));
+            const scale = safeLv - 1;
+            const linear = 18 * scale;
+            const quadratic = 0.6 * scale * scale;
+            return Math.floor(safeBaseHp + linear + quadratic);
         };
 
         const calcMaxMpByLevel = (lv, baseMp) => {
-            const r = 0.025;
-            const flat = 10;
-            const capLv = 100;
             const safeLv = Math.max(1, lv);
-            const safeBaseMp = Math.max(1, baseMp);
-
-            const mpLinear = Math.floor(safeBaseMp * (1 + r * (safeLv - 1)) + flat * (safeLv - 1));
-            if (safeLv <= capLv) return mpLinear;
-
-            const mpAtCap = Math.floor(safeBaseMp * (1 + r * (capLv - 1)) + flat * (capLv - 1));
-            const extra = safeLv - capLv;
-            const K = 80;
-            return mpAtCap + Math.floor(K * Math.sqrt(extra));
+            const safeBaseMp = Math.max(0, baseMp);
+            const scale = safeLv - 1;
+            const linear = 8 * scale;
+            const quadratic = 0.3 * scale * scale;
+            return Math.floor(safeBaseMp + linear + quadratic);
         };
 
         const applyLevelUps = ({ log = true } = {}) => {
@@ -1444,20 +1445,17 @@
             if (!Number.isFinite(Game.player.baseMaxMp)) {
                 Game.player.baseMaxMp = Game.player.maxMp || 1;
             }
+            applyLevelStatBonuses();
             while (Game.player.exp >= Game.player.next && Game.player.level < MAX_LEVEL) {
                 Game.player.level++;
                 Game.player.exp -= Game.player.next;
                 Game.player.next = getNextExpRequirement(Game.player.level);
+                applyLevelStatBonuses();
                 Game.player.maxHp = calcMaxHpByLevel(Game.player.level, Game.player.baseMaxHp);
                 Game.player.maxMp = calcMaxMpByLevel(Game.player.level, Game.player.baseMaxMp);
                 const derived = getDerivedStats();
                 Game.player.hp = derived.maxHp;
                 Game.player.mp = derived.maxMp;
-                Game.player.str += 3;
-                Game.player.vit += 3;
-                Game.player.int += 3;
-                Game.player.dex += 2;
-                Game.player.luk += 1;
                 Game.player.sp = Math.min(MAX_SKILL_POINTS, Game.player.sp + LEVEL_UP_SKILL_POINTS);
                 if (log) {
                     addLog(`LEVEL UP! [${Game.player.level}]`, "text-blue-400 font-black");
@@ -4127,10 +4125,10 @@
             const equip = getEquipmentStats();
             const milestone = getPassiveMilestoneStats();
             const totals = {
-                str: Game.player.str + (equip.str || 0) + (milestone.str || 0),
-                vit: Game.player.vit + (equip.vit || 0) + (milestone.vit || 0),
-                int: Game.player.int + (equip.int || 0) + (milestone.int || 0),
-                dex: Game.player.dex + (equip.dex || 0) + (milestone.dex || 0),
+                str: Game.player.str + (Game.player.levelStr || 0) + (equip.str || 0) + (milestone.str || 0),
+                vit: Game.player.vit + (Game.player.levelVit || 0) + (equip.vit || 0) + (milestone.vit || 0),
+                int: Game.player.int + (Game.player.levelInt || 0) + (equip.int || 0) + (milestone.int || 0),
+                dex: Game.player.dex + (Game.player.levelDex || 0) + (equip.dex || 0) + (milestone.dex || 0),
                 luk: Game.player.luk + (equip.luk || 0) + (milestone.luk || 0),
                 maxHp: Game.player.maxHp + (equip.maxHp || 0) + (milestone.maxHp || 0),
                 maxMp: Game.player.maxMp + (equip.maxMp || 0) + (milestone.maxMp || 0),
