@@ -1423,7 +1423,7 @@
             const safeLv = Math.max(1, lv);
             const safeBaseHp = Math.max(1, baseHp);
             const scale = safeLv - 1;
-            const linear = 18 * scale;
+            const linear = 26 * scale;
             const quadratic = 0.6 * scale * scale;
             return Math.floor(safeBaseHp + linear + quadratic);
         };
