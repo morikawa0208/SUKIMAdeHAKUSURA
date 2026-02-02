@@ -3477,14 +3477,17 @@
 
         const calcEnemyBaseStatsByLevel = (level) => {
             const safeLevel = Math.max(1, level || 1);
+            const scale = safeLevel - 1;
+            const scaleSq = scale * scale;
+            const scaleCu = scaleSq * scale;
             return {
-                maxHp: Math.floor(20 + safeLevel * 6 + safeLevel * safeLevel * 0.25),
-                hp: Math.floor(20 + safeLevel * 6 + safeLevel * safeLevel * 0.25),
-                str: Math.floor(4 + safeLevel * 2.2 + safeLevel * safeLevel * 0.12),
-                def: Math.floor(1 + safeLevel * 1.1 + safeLevel * safeLevel * 0.08),
-                acc: Math.floor(5 + safeLevel * 0.6 + safeLevel * safeLevel * 0.02),
-                eva: Math.floor(1 + safeLevel * 0.5 + safeLevel * safeLevel * 0.02),
-                exp: Math.floor(10 + safeLevel * 4 + safeLevel * safeLevel * 0.15)
+                maxHp: Math.floor(20 + scale * 4 + scaleSq * 0.18 + scaleCu * 0.004),
+                hp: Math.floor(20 + scale * 4 + scaleSq * 0.18 + scaleCu * 0.004),
+                str: Math.floor(4 + scale * 1.5 + scaleSq * 0.08 + scaleCu * 0.002),
+                def: Math.floor(1 + scale * 0.8 + scaleSq * 0.05 + scaleCu * 0.0015),
+                acc: Math.floor(5 + scale * 0.5 + scaleSq * 0.015 + scaleCu * 0.0006),
+                eva: Math.floor(1 + scale * 0.4 + scaleSq * 0.015 + scaleCu * 0.0006),
+                exp: Math.floor(10 + scale * 3 + scaleSq * 0.1 + scaleCu * 0.003)
             };
         };
 
