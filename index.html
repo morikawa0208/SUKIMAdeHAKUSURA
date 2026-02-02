@@ -3503,82 +3503,15 @@
             };
         };
 
-        const getBossSegmentInfo = (floor) => {
-            const safeFloor = Math.max(1, floor || 1);
-            let prevBoss = 0;
-            let nextBoss = BossFloors[0] || 0;
-            let seg = 0;
-            for (let i = 0; i < BossFloors.length; i++) {
-                const bossFloor = BossFloors[i];
-                if (safeFloor <= bossFloor) {
-                    nextBoss = bossFloor;
-                    prevBoss = BossFloors[i - 1] || 0;
-                    seg = i;
-                    break;
-                }
-                if (i === BossFloors.length - 1) {
-                    prevBoss = bossFloor;
-                    nextBoss = bossFloor;
-                    seg = BossFloors.length;
-                }
-            }
-            const span = Math.max(1, nextBoss - prevBoss);
-            let t = nextBoss === prevBoss ? 1 : (safeFloor - prevBoss) / span;
-            t = Math.max(0, Math.min(1, t));
-            const isBoss = BossFloors.includes(safeFloor);
-            return {
-                prevBoss,
-                nextBoss,
-                span,
-                t,
-                isBoss,
-                seg
-            };
-        };
-
-        const easeOutQuad = (x) => 1 - Math.pow(1 - Math.max(0, Math.min(1, x)), 2);
-
-        const getLongTermBase = (seg) => Math.pow(1.06, Math.max(0, seg));
-
-        const getSegmentScales = (floor) => {
-            const info = getBossSegmentInfo(floor);
-            const eased = easeOutQuad(info.t);
-            const rampHpAmp = 0.18 + 0.01 * info.seg;
-            const rampAtkAmp = 0.12 + 0.008 * info.seg;
-            const bossHpSpike = 1.25;
-            const bossAtkSpike = 1.18;
-            const longBase = getLongTermBase(info.seg);
-            let hpScale = 1 + rampHpAmp * eased;
-            let atkScale = 1 + rampAtkAmp * eased;
-            if (info.isBoss) {
-                hpScale *= bossHpSpike;
-                atkScale *= bossAtkSpike;
-            }
-            return {
-                longBase,
-                hpScale,
-                atkScale
-            };
-        };
-
         const calcEnemyStatsByFloor = (floor, base, archetypeId = "balanced") => {
             const level = getEnemyLevelByFloor(floor);
             const baseStats = calcEnemyBaseStatsByLevel(level);
-            const archetypeStats = applyEnemyArchetype(baseStats, archetypeId);
-            const { longBase, hpScale, atkScale } = getSegmentScales(floor);
-            const hpMul = longBase * hpScale;
-            const atkMul = longBase * atkScale;
-            const scaledMaxHp = Math.floor(archetypeStats.maxHp * hpMul);
-            return {
-                ...archetypeStats,
-                maxHp: scaledMaxHp,
-                hp: scaledMaxHp,
-                str: Math.floor(archetypeStats.str * atkMul)
-            };
+            return applyEnemyArchetype(baseStats, archetypeId);
         };
 
         const getBossScale = (floor) => {
-            return 1;
+            const hpScale = 1 + (floor * 0.015) + (floor * floor * 0.00015);
+            return hpScale;
         };
 
         const getBossRushScale = (floor) => {
@@ -6318,13 +6251,13 @@
                         exp: Math.floor(baseBossStats.exp * bossScale)
                     }
                     : {
-                        maxHp: Math.floor(baseBossStats.maxHp * bossScale),
-                        hp: Math.floor(baseBossStats.hp * bossScale),
-                        str: Math.floor(baseBossStats.str * bossScale),
-                        def: Math.floor(baseBossStats.def * bossScale),
-                        acc: Math.floor(baseBossStats.acc * bossScale),
-                        eva: Math.floor(baseBossStats.eva * bossScale),
-                        exp: Math.floor(baseBossStats.exp * bossScale)
+                        maxHp: Math.floor(baseBossStats.maxHp * 1.5),
+                        hp: Math.floor(baseBossStats.hp * 1.5),
+                        str: Math.floor(baseBossStats.str * 1.5),
+                        def: Math.floor(baseBossStats.def * 1.5),
+                        acc: Math.floor(baseBossStats.acc * 1.5),
+                        eva: Math.floor(baseBossStats.eva * 1.5),
+                        exp: Math.floor(baseBossStats.exp * 1.5)
                     };
                 Game.enemy = {
                     ...bossDef,
