@@ -191,6 +191,22 @@
             50% { transform: scale(0.98); opacity: 0.6; }
         }
 
+        .drop-log-item.rarity-legendary {
+            background: linear-gradient(120deg, rgba(251, 191, 36, 0.24), rgba(30, 41, 59, 0.2));
+            border: 1px solid rgba(251, 191, 36, 0.6);
+            border-radius: 9999px;
+            padding: 2px 8px;
+            box-shadow: 0 0 12px rgba(251, 191, 36, 0.35);
+            animation: legendaryLogGlow 2.4s ease-in-out infinite;
+        }
+        .drop-log-item.rarity-legendary i {
+            color: #fbbf24;
+        }
+        @keyframes legendaryLogGlow {
+            0%, 100% { box-shadow: 0 0 10px rgba(251, 191, 36, 0.3); }
+            50% { box-shadow: 0 0 18px rgba(251, 191, 36, 0.55); }
+        }
+
         .feedback-embed {
             width: 100%;
             height: clamp(420px, 70dvh, 760px);
@@ -6983,7 +6999,8 @@
             Game.dropLogs.forEach((entry) => {
                 const row = document.createElement('div');
                 row.className = `drop-log-item rarity-${entry.rarity}`;
-                row.innerHTML = `<i class="fas fa-caret-right"></i><span>${entry.name}</span>`;
+                const icon = entry.rarity === 'legendary' ? 'fa-crown' : 'fa-caret-right';
+                row.innerHTML = `<i class="fas ${icon}"></i><span>${entry.name}</span>`;
                 list.appendChild(row);
             });
         }
