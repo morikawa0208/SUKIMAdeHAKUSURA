@@ -459,6 +459,9 @@
                                     <i class="fas fa-eraser"></i> クリア
                                 </button>
                             </div>
+                            <div id="import-tamper-message" class="text-[9px] text-rose-500 font-bold hidden">
+                                改ざんが検出されたため取り込みを拒否しました。
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1817,6 +1820,7 @@
             const exportTextArea = document.getElementById('export-text');
             const importSlotSelect = document.getElementById('import-slot-select');
             const exportCopyMessage = document.getElementById('export-copy-message');
+            const importTamperMessage = document.getElementById('import-tamper-message');
 
             if (exportRefreshButton) {
                 exportRefreshButton.addEventListener('click', async () => {
@@ -1873,7 +1877,13 @@
                     }
                     if (result?.error === 'tampered') {
                         setSaveStatus('インポート文字列が改ざんされています。', 'text-rose-500');
+                        if (importTamperMessage) {
+                            importTamperMessage.classList.remove('hidden');
+                        }
                         return;
+                    }
+                    if (importTamperMessage) {
+                        importTamperMessage.classList.add('hidden');
                     }
                     const payload = result?.payload ?? null;
                     if (!payload?.data) {
