@@ -2285,6 +2285,12 @@
             reviveHpPct: 0.5,
             baseCritMultiplier: 1.5
         };
+        const CombatBalance = {
+            playerNormalPow: 0.95,
+            playerSkillPow: 0.9,
+            enemyNormalPow: 0.95,
+            enemySkillPow: 0.9
+        };
         const BossRushBuffCategories = [
             {
                 id: "basic",
@@ -3130,7 +3136,7 @@
 
         const getEquipmentGrowthScale = (floor) => {
             const safeFloor = Math.max(1, floor || 1);
-            return 1 + safeFloor * 0.025 + safeFloor * safeFloor * 0.00008;
+            return 1 + safeFloor * 0.02 + safeFloor * safeFloor * 0.00006;
         };
 
         const getEquipmentSeedValue = (key) => EquipmentBaseSeed[key] ?? 1;
@@ -3452,6 +3458,11 @@
 
         const pickRandom = (list) => list[Math.floor(Math.random() * list.length)];
         const clampPercent = (value) => Math.max(0, Math.min(100, value));
+        const getDamageRatio = (attack, defense) => {
+            const atk = Math.max(1, Math.floor(attack));
+            const def = Math.max(0, Math.floor(defense));
+            return atk / (atk + def);
+        };
         const rollStatValue = (baseValue, variance = 0.12) => {
             const min = Math.max(1, Math.floor(baseValue * (1 - variance)));
             const max = Math.max(min, Math.ceil(baseValue * (1 + variance)));
@@ -3540,13 +3551,13 @@
                 return Math.floor(base + addPerLevel * scale + base * percentScale);
             };
             return {
-                maxHp: calcStat(26, 8, 0.35),
-                hp: calcStat(26, 8, 0.35),
-                str: calcStat(6, 2.0, 0.45),
-                def: calcStat(2, 1.0, 0.25),
+                maxHp: calcStat(24, 6.5, 0.28),
+                hp: calcStat(24, 6.5, 0.28),
+                str: calcStat(5, 1.7, 0.38),
+                def: calcStat(3, 0.9, 0.3),
                 acc: calcStat(5, 0.3, 0.15),
                 eva: calcStat(1, 0.25, 0.15),
-                exp: calcStat(14, 2.8, 0.35)
+                exp: calcStat(12, 2.4, 0.3)
             };
         };
 
@@ -3558,10 +3569,10 @@
                 return Math.floor(base + addPerFloor * scale + base * percentScale);
             };
             return {
-                maxHp: calcBossStat(baseStats.maxHp, 10, 1.0),
-                hp: calcBossStat(baseStats.hp, 10, 1.0),
-                str: calcBossStat(baseStats.str, 3, 0.8),
-                def: calcBossStat(baseStats.def, 2, 0.6),
+                maxHp: calcBossStat(baseStats.maxHp, 12, 1.2),
+                hp: calcBossStat(baseStats.hp, 12, 1.2),
+                str: calcBossStat(baseStats.str, 3.2, 0.85),
+                def: calcBossStat(baseStats.def, 2.1, 0.7),
                 acc: calcBossStat(baseStats.acc, 0.4, 0.2),
                 eva: calcBossStat(baseStats.eva, 0.35, 0.2),
                 exp: calcBossStat(baseStats.exp, 4, 0.8)
@@ -5263,7 +5274,7 @@
             }
             const ignoreDefense = shouldBossRushIgnoreDefense(Game.enemy);
             let enemyAtk = Game.enemy.str * enemyStatusMods.atkMul;
-            let d = Math.floor(enemyAtk * (0.8 + Math.random() * 0.4) * damageMultiplier);
+            let d = Math.floor(enemyAtk * CombatBalance.enemyNormalPow * (0.8 + Math.random() * 0.4) * damageMultiplier);
             d = Math.floor(d * getBossRushEnemyAttackMultiplier(Game.enemy));
             let isCrit = false;
             const critRate = getBossRushEnemyCritRate(Game.enemy);
@@ -5272,9 +5283,12 @@
                 d = Math.floor(d * getBossRushEnemyCritMultiplier(Game.enemy));
             }
             if (!ignoreDefense) {
-                d -= derived.def;
+                let defenseValue = derived.def;
                 const armorBoostLevel = getPassiveLevel('warrior', 4);
-                if (armorBoostLevel > 0) d -= Math.floor(getItemStatValue(Game.player.armor, "defenseFlat") * 0.15 * armorBoostLevel);
+                if (armorBoostLevel > 0) {
+                    defenseValue += Math.floor(getItemStatValue(Game.player.armor, "defenseFlat") * 0.15 * armorBoostLevel);
+                }
+                d = Math.floor(d * getDamageRatio(enemyAtk, defenseValue));
             }
             if (derived.totals.damageReduction > 0) {
                 d = Math.floor(d * (1 - derived.totals.damageReduction / 100));
@@ -6409,7 +6423,7 @@
                     landedHit = true;
                     const ignoreDefense = shouldBossRushIgnoreDefense(Game.enemy);
                     let enemyAtk = Game.enemy.str * enemyStatusMods.atkMul;
-                    let d = Math.floor((skill.pow ?? 1) * enemyAtk * (0.8 + Math.random() * 0.4));
+                    let d = Math.floor((skill.pow ?? 1) * CombatBalance.enemySkillPow * enemyAtk * (0.8 + Math.random() * 0.4));
                     d = Math.floor(d * getBossRushEnemyAttackMultiplier(Game.enemy));
                     let isCrit = false;
                     const critRate = getBossRushEnemyCritRate(Game.enemy);
@@ -6418,10 +6432,13 @@
                         d = Math.floor(d * getBossRushEnemyCritMultiplier(Game.enemy));
                     }
                     if (!ignoreDefense) {
-                        d -= derived.def;
+                        let defenseValue = derived.def;
                         // Passive: Armor Boost
                         const armorBoostLevel = getPassiveLevel('warrior', 4);
-                        if (armorBoostLevel > 0) d -= Math.floor(getItemStatValue(Game.player.armor, "defenseFlat") * 0.15 * armorBoostLevel);
+                        if (armorBoostLevel > 0) {
+                            defenseValue += Math.floor(getItemStatValue(Game.player.armor, "defenseFlat") * 0.15 * armorBoostLevel);
+                        }
+                        d = Math.floor(d * getDamageRatio(enemyAtk, defenseValue));
                     }
                     if (derived.totals.damageReduction > 0) {
                         d = Math.floor(d * (1 - derived.totals.damageReduction / 100));
@@ -6627,7 +6644,8 @@
                     
                     // Critical Check
                     let isCrit = Math.random() * 100 < (derived.totals.critRate + (currentSkill.critBonus || 0) + bossMods.critRateBonus);
-                    let dmg = Math.floor(currentSkill.pow * atkBase * (0.9 + Math.random() * 0.2));
+                    const powerScale = currentSkill.name === '通常攻撃' ? CombatBalance.playerNormalPow : CombatBalance.playerSkillPow;
+                    let dmg = Math.floor(currentSkill.pow * powerScale * atkBase * (0.9 + Math.random() * 0.2));
                     if (isCrit) dmg = Math.floor(dmg * (derived.totals.critDamage / 100));
                     if (isCrit && hasBossRushBuff(Game.enemy, "br_yellow_crit_def")) {
                         const state = getBossRushBuffState(Game.enemy);
@@ -6663,7 +6681,9 @@
                     dmg = Math.floor(dmg * playerStatusMods.damageDoneMul);
                     dmg = Math.floor(dmg * enemyStatusMods.damageTakenMul);
                     dmg = Math.floor(dmg * getBossRushDamageTakenMultiplier(Game.enemy, Game.player));
-                    dmg = Math.max(0, dmg - enemyDefense);
+                    const attackValue = Math.max(1, Math.floor(atkBase));
+                    const defenseValue = Math.max(0, enemyDefense);
+                    dmg = Math.floor(dmg * getDamageRatio(attackValue, defenseValue));
                     const nullifyThreshold = getBossRushDamageNullifyThreshold(Game.enemy);
                     if (nullifyThreshold > 0 && dmg > 0 && dmg < nullifyThreshold) {
                         nullifiedHit = true;
