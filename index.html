@@ -459,6 +459,9 @@
                                     <i class="fas fa-eraser"></i> クリア
                                 </button>
                             </div>
+                            <div id="import-tamper-message" class="text-[9px] text-rose-500 font-bold hidden">
+                                改ざんが検出されたため取り込みを拒否しました。
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1743,23 +1746,7 @@
             renderSaveSlots();
         };
 
-        const buildExportText = () => {
-            const slot = getAutosaveSlot();
-            const raw = localStorage.getItem(getSaveKey(slot));
-            return raw ?? '';
-        };
-
-        const refreshExportPanel = (shouldGenerate = false) => {
-            const exportTextArea = document.getElementById('export-text');
-            if (!exportTextArea) return;
-            const text = shouldGenerate ? buildExportText() : '';
-            exportTextArea.value = text;
-        };
-
-        const normalizeImportedPayload = (rawText) => {
-            const trimmed = rawText.trim();
-            if (!trimmed) return null;
-            const parsed = JSON.parse(trimmed);
+        const normalizeLegacyPayload = (parsed) => {
             if (!parsed || typeof parsed !== 'object') return null;
             if (parsed.data && typeof parsed.data === 'object') {
                 return {
@@ -1771,6 +1758,48 @@
                 savedAt: new Date().toISOString(),
                 data: parsed
             };
+        };
+
+        const computeSha256Hex = async (text) => {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(text);
+            const hash = await crypto.subtle.digest('SHA-256', data);
+            return Array.from(new Uint8Array(hash))
+                .map((byte) => byte.toString(16).padStart(2, '0'))
+                .join('');
+        };
+
+        const buildExportText = async () => {
+            const slot = getAutosaveSlot();
+            const raw = localStorage.getItem(getSaveKey(slot));
+            if (!raw) return '';
+            const checksum = await computeSha256Hex(raw);
+            return JSON.stringify({ v: 1, payload: raw, checksum });
+        };
+
+        const refreshExportPanel = async (shouldGenerate = false) => {
+            const exportTextArea = document.getElementById('export-text');
+            if (!exportTextArea) return;
+            const text = shouldGenerate ? await buildExportText() : '';
+            exportTextArea.value = text;
+        };
+
+        const normalizeImportedPayload = async (rawText) => {
+            const trimmed = rawText.trim();
+            if (!trimmed) return { payload: null, error: 'empty' };
+            const parsed = JSON.parse(trimmed);
+            if (parsed && typeof parsed === 'object' && parsed.payload && parsed.checksum) {
+                if (typeof parsed.payload !== 'string' || typeof parsed.checksum !== 'string') {
+                    return { payload: null, error: 'invalid' };
+                }
+                const checksum = await computeSha256Hex(parsed.payload);
+                if (checksum !== parsed.checksum) {
+                    return { payload: null, error: 'tampered' };
+                }
+                const inner = JSON.parse(parsed.payload);
+                return { payload: normalizeLegacyPayload(inner), error: null };
+            }
+            return { payload: normalizeLegacyPayload(parsed), error: null };
         };
 
         const getImportTargetSlot = () => {
@@ -1791,10 +1820,11 @@
             const exportTextArea = document.getElementById('export-text');
             const importSlotSelect = document.getElementById('import-slot-select');
             const exportCopyMessage = document.getElementById('export-copy-message');
+            const importTamperMessage = document.getElementById('import-tamper-message');
 
             if (exportRefreshButton) {
-                exportRefreshButton.addEventListener('click', () => {
-                    refreshExportPanel(true);
+                exportRefreshButton.addEventListener('click', async () => {
+                    await refreshExportPanel(true);
                     setSaveStatus('引き継ぎコードを生成しました。', 'text-emerald-600');
                 });
             }
@@ -1833,18 +1863,29 @@
             }
 
             if (importApplyButton && importTextArea) {
-                importApplyButton.addEventListener('click', () => {
+                importApplyButton.addEventListener('click', async () => {
                     const text = importTextArea.value;
                     if (!text.trim()) {
                         setSaveStatus('インポート文字列が空です。', 'text-amber-600');
                         return;
                     }
-                    let payload = null;
+                    let result = null;
                     try {
-                        payload = normalizeImportedPayload(text);
+                        result = await normalizeImportedPayload(text);
                     } catch (error) {
-                        payload = null;
+                        result = null;
                     }
+                    if (result?.error === 'tampered') {
+                        setSaveStatus('インポート文字列が改ざんされています。', 'text-rose-500');
+                        if (importTamperMessage) {
+                            importTamperMessage.classList.remove('hidden');
+                        }
+                        return;
+                    }
+                    if (importTamperMessage) {
+                        importTamperMessage.classList.add('hidden');
+                    }
+                    const payload = result?.payload ?? null;
                     if (!payload?.data) {
                         setSaveStatus('インポート文字列が正しくありません。', 'text-rose-500');
                         return;
@@ -1867,7 +1908,7 @@
                 importSlotSelect.value = 'auto';
             }
 
-            refreshExportPanel(false);
+            void refreshExportPanel(false);
         };
 
         const startAutosaveTimer = () => {
