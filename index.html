@@ -5447,7 +5447,9 @@
                     if (def.effectType === 'bleed') {
                         const stacks = Math.max(1, effect.stacks || 1);
                         const sourceStr = Number.isFinite(effect.sourceStr) ? effect.sourceStr : strValue;
-                        const dmg = Math.max(1, Math.floor((2 + sourceStr * 0.3) * stacks));
+                        const defenseMitigation = 1 / (1 + defenseValue / 200);
+                        const rawDamage = (2 + sourceStr * 0.3) * stacks;
+                        const dmg = Math.max(1, Math.floor(rawDamage * defenseMitigation));
                         const appliedDamage = applyDamage(target, dmg, null, { ignoreReflect: true });
                         addLog(`${targetLabel}は出血で${appliedDamage}ダメージ`, "text-purple-400");
                     }
@@ -6889,6 +6891,11 @@
             applyLevelUps();
             restorePotionCapacity(Game.player.potion1);
             restorePotionCapacity(Game.player.potion2);
+            if (Array.isArray(Game.player.statusEffects)) {
+                Game.player.statusEffects = Game.player.statusEffects.filter(
+                    (effect) => !NegativeStatusEffectIds.has(effect.id)
+                );
+            }
             // Drop Luck Check
             if (!Game.isBossRush || Game.floor < BossRushNoDropStartFloor) {
                 const eliteLootMultiplier = Game.enemy?.elite?.lootMultiplier ?? 1;
