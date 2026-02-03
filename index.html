@@ -5261,11 +5261,10 @@
             if (canMiss) {
                 const baseAccuracy = Math.max(0, Math.floor((Game.enemy.acc || 0) * enemyStatusMods.accuracyMul));
                 const evasionValue = Math.max(0, derived.totals.evasionRate);
-                const ratioDenominator = baseAccuracy + evasionValue;
-                let hitChance = ratioDenominator > 0
-                    ? (baseAccuracy / ratioDenominator) * 100
-                    : 0;
-                hitChance = Math.min(95, Math.max(10, hitChance));
+                const baseHit = 78;
+                const hitScale = 0.28;
+                let hitChance = baseHit + (baseAccuracy - evasionValue) * hitScale;
+                hitChance = Math.min(97, Math.max(15, hitChance));
                 if (Math.random() * 100 > hitChance) {
                     addLog("攻撃を回避！", "text-blue-500 font-bold");
                     dmgText("MISS", false);
@@ -6412,11 +6411,10 @@
                 for (let i = 0; i < hits; i++) {
                     const baseAccuracy = Math.max(0, Math.floor(((skill.accuracy ?? 100) + (Game.enemy.acc || 0)) * enemyStatusMods.accuracyMul));
                     const evasionValue = Math.max(0, derived.totals.evasionRate);
-                    const ratioDenominator = baseAccuracy + evasionValue;
-                    let hitChance = ratioDenominator > 0
-                        ? (baseAccuracy / ratioDenominator) * 100
-                        : 0;
-                    hitChance = Math.min(95, Math.max(10, hitChance));
+                    const baseHit = 78;
+                    const hitScale = 0.28;
+                    let hitChance = baseHit + (baseAccuracy - evasionValue) * hitScale;
+                    hitChance = Math.min(97, Math.max(15, hitChance));
                     if (Math.random() * 100 > hitChance) {
                         continue;
                     }
@@ -6630,11 +6628,10 @@
                 for(let i=0; i<hits; i++){
                     const baseAccuracy = Math.max(0, derived.totals.accuracy + (currentSkill.accuracyBonus || 0) + bossMods.accuracyBonus);
                     const evasionValue = Math.max(0, enemyEvasion);
-                    const ratioDenominator = baseAccuracy + evasionValue;
-                    let hitChance = ratioDenominator > 0
-                        ? (baseAccuracy / ratioDenominator) * 100
-                        : 0;
-                    hitChance = Math.min(95, Math.max(10, hitChance));
+                    const baseHit = 78;
+                    const hitScale = 0.28;
+                    let hitChance = baseHit + (baseAccuracy - evasionValue) * hitScale;
+                    hitChance = Math.min(97, Math.max(15, hitChance));
                     if (Math.random() * 100 > hitChance) {
                         continue;
                     }
