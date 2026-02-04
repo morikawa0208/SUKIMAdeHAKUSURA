@@ -1101,7 +1101,7 @@
                     <li>・出現ボスはこれまでのボスからランダム抽選</li>
                     <li>・ステータスは大幅に強化、階数を進むほど強くなります</li>
                     <li>・ボスラッシュ中はポーション効果が半減します</li>
-                    <li>・ボスラッシュ開始後は10階ごとに強化バフが追加されます</li>
+                    <li>・ボスラッシュ開始後は50階ごとに強化バフが追加されます</li>
                     <li>・ボスラッシュ中はドロップなしのエンドコンテンツです</li>
                 </ul>
             </div>
@@ -2382,10 +2382,10 @@
         const getBossRushBuffCount = (floor) => {
             if (!Game.isBossRush || floor < BossRushStartFloor) return 0;
             const offset = floor - BossRushStartFloor;
-            if (offset <= 9) return 1;
-            if (offset <= 19) return 2;
-            if (offset <= 29) return 3;
-            if (offset <= 39) return 4;
+            if (offset <= 49) return 1;
+            if (offset <= 99) return 2;
+            if (offset <= 149) return 3;
+            if (offset <= 199) return 4;
             return 5;
         };
 
@@ -2412,7 +2412,7 @@
                 .filter((category) => !category.minFloor || floor >= category.minFloor)
                 .map((category) => {
                     let buffs = category.buffs;
-                    if (floor === BossRushStartFloor + 20 && category.id === "basic") {
+                    if (floor === BossRushStartFloor + 50 && category.id === "basic") {
                         buffs = buffs.filter((buff) => !["br_basic_hp", "br_basic_def"].includes(buff.id));
                     }
                     return { ...category, buffs };
@@ -4690,7 +4690,7 @@
             ensureWarpState();
             if (Game.isBossRush) {
                 const milestones = Game.defeatedBossRushMilestones;
-                if (floor % 500 === 0 && !milestones.includes(floor)) {
+                if (floor % 50 === 0 && !milestones.includes(floor)) {
                     milestones.push(floor);
                 }
                 return;
