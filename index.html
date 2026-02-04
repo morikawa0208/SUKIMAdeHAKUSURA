@@ -2246,10 +2246,10 @@
         ];
         const BossRushStartFloor = 5001;
         const BossRushNoDropStartFloor = BossRushStartFloor;
-        const BossDropChance = 0.015;
+        const BossDropChance = 0.05;
         const NormalDropChance = 0.95;
-        const RoadLegendaryDropChance = 0.005;
-        const RoadLegendaryNormalChance = 0.99;
+        const RoadLegendaryDropChance = 0.008;
+        const RoadLegendaryNormalChance = 0.992;
         const BossRushBaseScale = 1;
         const BossRushScaleStep = 3;
         const BossRushBaseStats = {
@@ -6503,7 +6503,7 @@
         let actionRepeatTimer = null;
         let actionRepeatActive = false;
         let actionCooldown = false;
-        const actionCooldownMs = 50;
+        const actionCooldownMs = 100;
 
         const handleAction = () => {
             if (Game.state === 'dead') return;
