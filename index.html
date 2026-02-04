@@ -2141,7 +2141,11 @@
             reflect: { id: 'reflect', name: '反射', effectType: 'reflect', stackable: true, maxStacks: 3, defaultTurns: 2, icon: 'fa-retweet', desc: '被ダメージの一部を反射する。' },
             taunt: { id: 'taunt', name: '挑発', effectType: 'taunt', stackable: true, maxStacks: 2, defaultTurns: 2, icon: 'fa-user-slash', desc: 'ターゲットを引きつける。' },
             potionRegenHp: { id: 'potionRegenHp', name: '再生(HP)', effectType: 'regen', stackable: true, maxStacks: 3, defaultTurns: 3, icon: 'fa-heart-pulse', regenPerStack: 6, resource: 'hp', desc: 'ターン終了時にHPが回復する。' },
-            potionRegenMp: { id: 'potionRegenMp', name: '再生(MP)', effectType: 'regen', stackable: true, maxStacks: 3, defaultTurns: 3, icon: 'fa-circle-nodes', regenPerStack: 4, resource: 'mp', desc: 'ターン終了時にMPが回復する。' }
+            potionRegenMp: { id: 'potionRegenMp', name: '再生(MP)', effectType: 'regen', stackable: true, maxStacks: 3, defaultTurns: 3, icon: 'fa-circle-nodes', regenPerStack: 4, resource: 'mp', desc: 'ターン終了時にMPが回復する。' },
+            potionNextHitBoost: { id: 'potionNextHitBoost', name: '猛撃', effectType: 'nextHitBoost', stackable: false, maxStacks: 1, defaultTurns: Infinity, icon: 'fa-hand-fist', desc: '次の1回だけ与ダメージが増加する。命中時に消費。' },
+            potionLeechBoost: { id: 'potionLeechBoost', name: '吸精', effectType: 'leechBoost', stackable: false, maxStacks: 1, defaultTurns: 1, icon: 'fa-droplet', desc: '次の1ターン吸収率が上昇する。' },
+            potionReflectGuard: { id: 'potionReflectGuard', name: '鏡守', effectType: 'reflectGuard', stackable: true, maxStacks: 9, defaultTurns: Infinity, icon: 'fa-shield', desc: '次に受ける反射ダメージを無効化する。' },
+            potionSkillMpCut: { id: 'potionSkillMpCut', name: '節魔', effectType: 'skillMpCut', stackable: false, maxStacks: 1, defaultTurns: Infinity, icon: 'fa-wand-magic', desc: '次のスキルのMP消費が軽減される。使用時に消費。' }
         };
 
         const EnemyTiers = [
@@ -3029,6 +3033,10 @@
             potionAutoRegen: "再生付与",
             potionBarrier: "バリア付与",
             potionResonance: "共鳴付与",
+            potionNextHitBoost: "次撃強化",
+            potionLeechBoost: "吸収強化",
+            potionReflectGuard: "反射無効",
+            potionSkillMpCut: "スキルMP軽減",
             poisonMaxStacksBonus: "毒上限スタック",
             poisonMinPctBonus: "毒最低保証"
         };
@@ -3049,6 +3057,9 @@
             "eliteEncounter",
             "goldBoost",
             "potionHealPct",
+            "potionNextHitBoost",
+            "potionLeechBoost",
+            "potionSkillMpCut",
             "poisonMinPctBonus"
         ]);
 
@@ -3315,27 +3326,27 @@
         ];
 
         const PotionPrefixAffixes = [
-            { name: "増量の", rank: 1, stats: ["potionCapacity", "potionChargeOnKill", "potionBarrier"] },
-            { name: "濃縮の", rank: 1, stats: ["potionResonance", "potionAutoRegen", "potionBarrier"] },
-            { name: "浄化の", rank: 1, stats: ["potionCleanse", "potionAutoRegen", "potionBarrier"] },
-            { name: "大容量の", rank: 2, stats: ["potionCapacity", "potionResonance", "potionChargeOnKill", "potionBarrier"] },
-            { name: "精製の", rank: 2, stats: ["potionResonance", "potionAutoRegen", "potionCleanse", "potionChargeOnKill"] },
-            { name: "祈りの", rank: 2, stats: ["potionAutoRegen", "potionCleanse", "potionBarrier", "potionCapacity"] },
-            { name: "神薬の", rank: 3, stats: ["potionCapacity", "potionResonance", "potionAutoRegen", "potionCleanse", "potionBarrier", "potionChargeOnKill"] },
-            { name: "霊薬の", rank: 3, stats: ["potionResonance", "potionAutoRegen", "potionBarrier", "potionChargeOnKill", "potionCapacity"] },
-            { name: "秘薬の", rank: 3, stats: ["potionCapacity", "potionResonance", "potionCleanse", "potionBarrier", "potionAutoRegen"] }
+            { name: "増量の", rank: 1, stats: ["potionCapacity"] },
+            { name: "猛撃の", rank: 1, stats: ["potionNextHitBoost"] },
+            { name: "浄化の", rank: 1, stats: ["potionCleanse"] },
+            { name: "大容量の", rank: 2, stats: ["potionCapacity", "potionResonance"] },
+            { name: "精製の", rank: 2, stats: ["potionNextHitBoost", "potionAutoRegen"] },
+            { name: "祈りの", rank: 2, stats: ["potionAutoRegen", "potionCleanse"] },
+            { name: "神薬の", rank: 3, stats: ["potionCapacity", "potionResonance", "potionAutoRegen"] },
+            { name: "霊薬の", rank: 3, stats: ["potionNextHitBoost", "potionAutoRegen", "potionBarrier"] },
+            { name: "秘薬の", rank: 3, stats: ["potionCapacity", "potionReflectGuard", "potionCleanse"] }
         ];
 
         const PotionSuffixAffixes = [
-            { name: "の節約", rank: 1, stats: ["potionCostReduction", "potionCapacity", "potionChargeOnKill"] },
-            { name: "の芽吹き", rank: 1, stats: ["potionAutoRegen", "potionResonance", "potionBarrier"] },
-            { name: "の解毒", rank: 1, stats: ["potionCleanse", "potionResonance", "potionCostReduction"] },
-            { name: "の渇望", rank: 2, stats: ["potionResonance", "potionCostReduction", "potionCapacity", "potionChargeOnKill"] },
-            { name: "の循環", rank: 2, stats: ["potionAutoRegen", "potionCostReduction", "potionBarrier", "potionChargeOnKill"] },
-            { name: "の浄化", rank: 2, stats: ["potionCleanse", "potionAutoRegen", "potionCostReduction"] },
-            { name: "の超越", rank: 3, stats: ["potionCapacity", "potionResonance", "potionCostReduction", "potionAutoRegen", "potionCleanse", "potionBarrier", "potionChargeOnKill"] },
-            { name: "の祝福", rank: 3, stats: ["potionResonance", "potionCostReduction", "potionAutoRegen", "potionBarrier", "potionChargeOnKill"] },
-            { name: "の浄天", rank: 3, stats: ["potionCleanse", "potionResonance", "potionCostReduction", "potionAutoRegen", "potionCapacity"] }
+            { name: "の節約", rank: 1, stats: ["potionCostReduction"] },
+            { name: "の芽吹き", rank: 1, stats: ["potionAutoRegen"] },
+            { name: "の解毒", rank: 1, stats: ["potionCleanse"] },
+            { name: "の渇望", rank: 2, stats: ["potionLeechBoost", "potionCostReduction"] },
+            { name: "の循環", rank: 2, stats: ["potionAutoRegen", "potionCostReduction"] },
+            { name: "の浄化", rank: 2, stats: ["potionCleanse", "potionAutoRegen"] },
+            { name: "の超越", rank: 3, stats: ["potionCapacity", "potionSkillMpCut", "potionCostReduction"] },
+            { name: "の祝福", rank: 3, stats: ["potionResonance", "potionCostReduction", "potionAutoRegen"] },
+            { name: "の浄天", rank: 3, stats: ["potionCleanse", "potionReflectGuard", "potionCostReduction"] }
         ];
 
         const PrefixAffixes = [
@@ -3457,7 +3468,11 @@
             potionAutoRegen: [1, 2, 3],
             potionChargeOnKill: [5, 10, 18],
             potionBarrier: [1, 2, 3],
-            potionResonance: [1, 1, 1]
+            potionResonance: [1, 1, 1],
+            potionNextHitBoost: [20, 35, 50],
+            potionLeechBoost: [8, 12, 16],
+            potionReflectGuard: [1, 2, 3],
+            potionSkillMpCut: [30, 50, 70]
         };
 
         const pickRandom = (list) => list[Math.floor(Math.random() * list.length)];
@@ -4090,7 +4105,11 @@
                 cleanse: totals.potionCleanse || 0,
                 autoRegen: totals.potionAutoRegen || 0,
                 barrier: totals.potionBarrier || 0,
-                resonance: totals.potionResonance || 0
+                resonance: totals.potionResonance || 0,
+                nextHitBoost: totals.potionNextHitBoost || 0,
+                leechBoost: totals.potionLeechBoost || 0,
+                reflectGuard: totals.potionReflectGuard || 0,
+                skillMpCut: totals.potionSkillMpCut || 0
             };
         };
 
@@ -4442,6 +4461,10 @@
             potionAutoRegen: (stat) => `再生付与 ${stat.source ? "+" : ""}${stat.value}スタック`,
             potionBarrier: (stat) => `バリア付与 ${stat.source ? "+" : ""}${stat.value}`,
             potionResonance: () => "共鳴付与",
+            potionNextHitBoost: (stat) => `次撃強化 +${stat.value}%`,
+            potionLeechBoost: (stat) => `吸収強化 +${stat.value}%`,
+            potionReflectGuard: (stat) => `反射無効 +${stat.value}回`,
+            potionSkillMpCut: (stat) => `スキルMP軽減 +${stat.value}%`,
             skillPowerBoost: (stat) => `スキル威力 +${stat.value}%`,
             statusEffectStackBonus: (stat) => `状態異常付与スタック +${stat.value}`,
             statusEffectTurnBonus: (stat) => `状態異常付与ターン +${stat.value}`,
@@ -5236,8 +5259,17 @@
                 reflectPct = Math.min(0.8, Math.max(0, reflectPct));
                 if (reflectPct > 0) {
                     const reflectDamage = Math.max(1, Math.floor(remaining * reflectPct));
-                    applyDamage(source, reflectDamage, null, { ignoreReflect: true });
-                    addLog(`反射ダメージ ${reflectDamage}`, "text-purple-400");
+                    const guardEffect = getStatusEffect(source, 'potionReflectGuard');
+                    if (guardEffect && guardEffect.stacks > 0) {
+                        guardEffect.stacks -= 1;
+                        if (guardEffect.stacks <= 0) {
+                            removeStatusEffect(source, 'potionReflectGuard');
+                        }
+                        addLog("反射を無効化！", "text-slate-500");
+                    } else {
+                        applyDamage(source, reflectDamage, null, { ignoreReflect: true });
+                        addLog(`反射ダメージ ${reflectDamage}`, "text-purple-400");
+                    }
                 }
             }
             return remaining;
@@ -5509,6 +5541,32 @@
                 applyStatusEffect(Game.player, 'barrier', barrierStacks);
                 addLog("バリアを付与！", "text-sky-400");
             }
+            const nextHitBoost = Math.floor(potionDerived.nextHitBoost * potionEffectMultiplier);
+            if (nextHitBoost > 0) {
+                applyStatusEffect(Game.player, 'potionNextHitBoost', 1);
+                const effect = getStatusEffect(Game.player, 'potionNextHitBoost');
+                if (effect) effect.bonusPct = Math.max(effect.bonusPct || 0, nextHitBoost);
+                addLog("次撃強化を付与！", "text-amber-400");
+            }
+            const leechBoost = Math.floor(potionDerived.leechBoost * potionEffectMultiplier);
+            if (leechBoost > 0) {
+                applyStatusEffect(Game.player, 'potionLeechBoost', 1);
+                const effect = getStatusEffect(Game.player, 'potionLeechBoost');
+                if (effect) effect.bonusPct = Math.max(effect.bonusPct || 0, leechBoost);
+                addLog("吸収強化を付与！", "text-emerald-400");
+            }
+            const reflectGuardStacks = Math.floor(potionDerived.reflectGuard * potionEffectMultiplier);
+            if (reflectGuardStacks > 0) {
+                applyStatusEffect(Game.player, 'potionReflectGuard', reflectGuardStacks);
+                addLog("反射無効を付与！", "text-slate-500");
+            }
+            const skillMpCut = Math.floor(potionDerived.skillMpCut * potionEffectMultiplier);
+            if (skillMpCut > 0) {
+                applyStatusEffect(Game.player, 'potionSkillMpCut', 1);
+                const effect = getStatusEffect(Game.player, 'potionSkillMpCut');
+                if (effect) effect.bonusPct = Math.max(effect.bonusPct || 0, skillMpCut);
+                addLog("節魔の加護！", "text-blue-400");
+            }
             updateUI();
             triggerAutosave();
         }
@@ -5692,7 +5750,8 @@
             statusEffectTitle.innerHTML = `<i class="fa-solid ${def.icon} text-slate-500"></i> ${def.name}`;
             statusEffectDesc.textContent = def.desc || '効果説明がありません。';
             statusEffectStacks.textContent = `スタック: ${effect.stacks || 1}`;
-            statusEffectTurns.textContent = `残りターン: ${effect.turns}`;
+            const turnsText = Number.isFinite(effect.turns) ? effect.turns : '∞';
+            statusEffectTurns.textContent = `残りターン: ${turnsText}`;
             statusEffectModal.classList.remove('hidden');
             statusEffectModal.classList.add('flex');
         };
@@ -6602,6 +6661,14 @@
                 if (skillMpDiscount > 0) {
                     adjustedMpCost = Math.max(0, Math.floor(adjustedMpCost * (1 - skillMpDiscount / 100)));
                 }
+                const skillMpCutEffect = getStatusEffect(Game.player, 'potionSkillMpCut');
+                const skillMpCutPct = skillMpCutEffect?.bonusPct || 0;
+                if (skillMpCutPct > 0) {
+                    adjustedMpCost = Math.max(0, Math.floor(adjustedMpCost * (1 - skillMpCutPct / 100)));
+                    if ((currentSkill.mp || 0) > 0) {
+                        adjustedMpCost = Math.max(1, adjustedMpCost);
+                    }
+                }
             } else {
                 adjustedMpCost = 0;
             }
@@ -6638,6 +6705,9 @@
             if (adjustedMpCost > 0) {
                 addLog(`MP消費 ${adjustedMpCost}`, "text-slate-400");
             }
+            if (currentSkill.name !== '通常攻撃' && getStatusEffect(Game.player, 'potionSkillMpCut')) {
+                removeStatusEffect(Game.player, 'potionSkillMpCut');
+            }
 
             if (currentSkill.type === 'heal') {
                 let amt = Math.floor(currentSkill.val + (derived.totals.int * 1.2));
@@ -6664,6 +6734,10 @@
                 let totalLeechApplied = 0;
                 let landedHit = false;
                 let nullifiedHit = false;
+                const nextHitEffect = getStatusEffect(Game.player, 'potionNextHitBoost');
+                const nextHitBoost = nextHitEffect?.bonusPct || 0;
+                let nextHitConsumed = false;
+                const leechBoost = getStatusEffect(Game.player, 'potionLeechBoost')?.bonusPct || 0;
                 
                 for(let i=0; i<hits; i++){
                     const baseAccuracy = Math.max(0, derived.totals.accuracy + (currentSkill.accuracyBonus || 0) + bossMods.accuracyBonus);
@@ -6715,6 +6789,12 @@
                     if (bossMods.damageMultiplier !== 1) {
                         dmg = Math.floor(dmg * bossMods.damageMultiplier);
                     }
+                    if (nextHitBoost > 0 && !nextHitConsumed) {
+                        dmg = Math.floor(dmg * (1 + nextHitBoost / 100));
+                        nextHitConsumed = true;
+                        removeStatusEffect(Game.player, 'potionNextHitBoost');
+                        addLog("猛撃が発動！", "text-amber-400");
+                    }
                     dmg = Math.floor(dmg * playerStatusMods.damageDoneMul);
                     dmg = Math.floor(dmg * enemyStatusMods.damageTakenMul);
                     dmg = Math.floor(dmg * getBossRushDamageTakenMultiplier(Game.enemy, Game.player));
@@ -6731,7 +6811,7 @@
                     totalDamage += appliedDamage;
                     
                     // Leech
-                    const totalLeech = derived.totals.leechRate + (currentSkill.leech || 0);
+                    const totalLeech = derived.totals.leechRate + (currentSkill.leech || 0) + leechBoost;
                     if (totalLeech > 0 && appliedDamage > 0) {
                         let l = Math.floor(appliedDamage * (totalLeech / 100));
                         if (l > 0) {
