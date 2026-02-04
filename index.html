@@ -3028,6 +3028,7 @@
             potionCleanse: "状態異常回復",
             potionAutoRegen: "再生付与",
             potionBarrier: "バリア付与",
+            potionResonance: "共鳴付与",
             poisonMaxStacksBonus: "毒上限スタック",
             poisonMinPctBonus: "毒最低保証"
         };
@@ -3299,36 +3300,42 @@
         ]);
 
         const PotionBases = [
-            { name: "HP回復剤(小)", target: "hp", healType: "pct", icon: "fa-heart", stats: [{ key: "potionHealPct", value: 8 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 30 }, { key: "potionChargeOnKill", value: 14 }] },
-            { name: "HP回復剤(中)", target: "hp", healType: "pct", icon: "fa-heart", stats: [{ key: "potionHealPct", value: 10 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 45 }, { key: "potionChargeOnKill", value: 12 }] },
-            { name: "HP回復剤(大)", target: "hp", healType: "pct", icon: "fa-heart", stats: [{ key: "potionHealPct", value: 12 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 60 }, { key: "potionChargeOnKill", value: 10 }] },
-            { name: "MP回復剤(小)", target: "mp", healType: "pct", icon: "fa-droplet", stats: [{ key: "potionHealPct", value: 8 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 30 }, { key: "potionChargeOnKill", value: 14 }] },
-            { name: "MP回復剤(中)", target: "mp", healType: "pct", icon: "fa-droplet", stats: [{ key: "potionHealPct", value: 10 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 45 }, { key: "potionChargeOnKill", value: 12 }] },
-            { name: "MP回復剤(大)", target: "mp", healType: "pct", icon: "fa-droplet", stats: [{ key: "potionHealPct", value: 12 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 60 }, { key: "potionChargeOnKill", value: 10 }] }
+            { name: "HP回復薬(小)", target: "hp", healType: "pct", healMode: "hybridCap", healCapPct: 25, icon: "fa-heart", stats: [{ key: "potionHealFlat", value: 60 }, { key: "potionHealPct", value: 3 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 30 }, { key: "potionChargeOnKill", value: 14 }] },
+            { name: "HP回復薬(中)", target: "hp", healType: "pct", healMode: "hybridCap", healCapPct: 28, icon: "fa-heart", stats: [{ key: "potionHealFlat", value: 90 }, { key: "potionHealPct", value: 5 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 45 }, { key: "potionChargeOnKill", value: 12 }] },
+            { name: "HP回復薬(大)", target: "hp", healType: "pct", healMode: "hybridCap", healCapPct: 32, icon: "fa-heart", stats: [{ key: "potionHealFlat", value: 120 }, { key: "potionHealPct", value: 7 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 60 }, { key: "potionChargeOnKill", value: 10 }] },
+            { name: "MP回復薬(小)", target: "mp", healType: "pct", healMode: "hybridCap", healCapPct: 25, icon: "fa-droplet", stats: [{ key: "potionHealFlat", value: 40 }, { key: "potionHealPct", value: 4 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 30 }, { key: "potionChargeOnKill", value: 14 }] },
+            { name: "MP回復薬(中)", target: "mp", healType: "pct", healMode: "hybridCap", healCapPct: 28, icon: "fa-droplet", stats: [{ key: "potionHealFlat", value: 65 }, { key: "potionHealPct", value: 6 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 45 }, { key: "potionChargeOnKill", value: 12 }] },
+            { name: "MP回復薬(大)", target: "mp", healType: "pct", healMode: "hybridCap", healCapPct: 32, icon: "fa-droplet", stats: [{ key: "potionHealFlat", value: 90 }, { key: "potionHealPct", value: 8 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 60 }, { key: "potionChargeOnKill", value: 10 }] },
+            { name: "HP回復剤(小)", target: "hp", healType: "pct", healMode: "missing", icon: "fa-heart", stats: [{ key: "potionHealFlat", value: 40 }, { key: "potionHealPct", value: 15 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 30 }, { key: "potionChargeOnKill", value: 14 }] },
+            { name: "HP回復剤(中)", target: "hp", healType: "pct", healMode: "missing", icon: "fa-heart", stats: [{ key: "potionHealFlat", value: 60 }, { key: "potionHealPct", value: 20 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 45 }, { key: "potionChargeOnKill", value: 12 }] },
+            { name: "HP回復剤(大)", target: "hp", healType: "pct", healMode: "missing", icon: "fa-heart", stats: [{ key: "potionHealFlat", value: 80 }, { key: "potionHealPct", value: 25 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 60 }, { key: "potionChargeOnKill", value: 10 }] },
+            { name: "MP回復剤(小)", target: "mp", healType: "pct", healMode: "missing", icon: "fa-droplet", stats: [{ key: "potionHealFlat", value: 25 }, { key: "potionHealPct", value: 20 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 30 }, { key: "potionChargeOnKill", value: 14 }] },
+            { name: "MP回復剤(中)", target: "mp", healType: "pct", healMode: "missing", icon: "fa-droplet", stats: [{ key: "potionHealFlat", value: 40 }, { key: "potionHealPct", value: 25 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 45 }, { key: "potionChargeOnKill", value: 12 }] },
+            { name: "MP回復剤(大)", target: "mp", healType: "pct", healMode: "missing", icon: "fa-droplet", stats: [{ key: "potionHealFlat", value: 55 }, { key: "potionHealPct", value: 30 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 60 }, { key: "potionChargeOnKill", value: 10 }] }
         ];
 
         const PotionPrefixAffixes = [
             { name: "増量の", rank: 1, stats: ["potionCapacity", "potionChargeOnKill", "potionBarrier"] },
-            { name: "濃縮の", rank: 1, stats: ["potionHeal", "potionAutoRegen", "potionBarrier"] },
+            { name: "濃縮の", rank: 1, stats: ["potionResonance", "potionAutoRegen", "potionBarrier"] },
             { name: "浄化の", rank: 1, stats: ["potionCleanse", "potionAutoRegen", "potionBarrier"] },
-            { name: "大容量の", rank: 2, stats: ["potionCapacity", "potionHeal", "potionChargeOnKill", "potionBarrier"] },
-            { name: "精製の", rank: 2, stats: ["potionHeal", "potionAutoRegen", "potionCleanse", "potionChargeOnKill"] },
+            { name: "大容量の", rank: 2, stats: ["potionCapacity", "potionResonance", "potionChargeOnKill", "potionBarrier"] },
+            { name: "精製の", rank: 2, stats: ["potionResonance", "potionAutoRegen", "potionCleanse", "potionChargeOnKill"] },
             { name: "祈りの", rank: 2, stats: ["potionAutoRegen", "potionCleanse", "potionBarrier", "potionCapacity"] },
-            { name: "神薬の", rank: 3, stats: ["potionCapacity", "potionHeal", "potionAutoRegen", "potionCleanse", "potionBarrier", "potionChargeOnKill"] },
-            { name: "霊薬の", rank: 3, stats: ["potionHeal", "potionAutoRegen", "potionBarrier", "potionChargeOnKill", "potionCapacity"] },
-            { name: "秘薬の", rank: 3, stats: ["potionCapacity", "potionHeal", "potionCleanse", "potionBarrier", "potionAutoRegen"] }
+            { name: "神薬の", rank: 3, stats: ["potionCapacity", "potionResonance", "potionAutoRegen", "potionCleanse", "potionBarrier", "potionChargeOnKill"] },
+            { name: "霊薬の", rank: 3, stats: ["potionResonance", "potionAutoRegen", "potionBarrier", "potionChargeOnKill", "potionCapacity"] },
+            { name: "秘薬の", rank: 3, stats: ["potionCapacity", "potionResonance", "potionCleanse", "potionBarrier", "potionAutoRegen"] }
         ];
 
         const PotionSuffixAffixes = [
             { name: "の節約", rank: 1, stats: ["potionCostReduction", "potionCapacity", "potionChargeOnKill"] },
-            { name: "の芽吹き", rank: 1, stats: ["potionAutoRegen", "potionHeal", "potionBarrier"] },
-            { name: "の解毒", rank: 1, stats: ["potionCleanse", "potionHeal", "potionCostReduction"] },
-            { name: "の渇望", rank: 2, stats: ["potionHeal", "potionCostReduction", "potionCapacity", "potionChargeOnKill"] },
+            { name: "の芽吹き", rank: 1, stats: ["potionAutoRegen", "potionResonance", "potionBarrier"] },
+            { name: "の解毒", rank: 1, stats: ["potionCleanse", "potionResonance", "potionCostReduction"] },
+            { name: "の渇望", rank: 2, stats: ["potionResonance", "potionCostReduction", "potionCapacity", "potionChargeOnKill"] },
             { name: "の循環", rank: 2, stats: ["potionAutoRegen", "potionCostReduction", "potionBarrier", "potionChargeOnKill"] },
             { name: "の浄化", rank: 2, stats: ["potionCleanse", "potionAutoRegen", "potionCostReduction"] },
-            { name: "の超越", rank: 3, stats: ["potionCapacity", "potionHeal", "potionCostReduction", "potionAutoRegen", "potionCleanse", "potionBarrier", "potionChargeOnKill"] },
-            { name: "の祝福", rank: 3, stats: ["potionHeal", "potionCostReduction", "potionAutoRegen", "potionBarrier", "potionChargeOnKill"] },
-            { name: "の浄天", rank: 3, stats: ["potionCleanse", "potionHeal", "potionCostReduction", "potionAutoRegen", "potionCapacity"] }
+            { name: "の超越", rank: 3, stats: ["potionCapacity", "potionResonance", "potionCostReduction", "potionAutoRegen", "potionCleanse", "potionBarrier", "potionChargeOnKill"] },
+            { name: "の祝福", rank: 3, stats: ["potionResonance", "potionCostReduction", "potionAutoRegen", "potionBarrier", "potionChargeOnKill"] },
+            { name: "の浄天", rank: 3, stats: ["potionCleanse", "potionResonance", "potionCostReduction", "potionAutoRegen", "potionCapacity"] }
         ];
 
         const PrefixAffixes = [
@@ -3449,7 +3456,8 @@
             potionCleanse: [1, 2, 3],
             potionAutoRegen: [1, 2, 3],
             potionChargeOnKill: [5, 10, 18],
-            potionBarrier: [1, 2, 3]
+            potionBarrier: [1, 2, 3],
+            potionResonance: [1, 1, 1]
         };
 
         const pickRandom = (list) => list[Math.floor(Math.random() * list.length)];
@@ -3765,6 +3773,8 @@
                 type: "potion",
                 target: base.target,
                 healType: base.healType,
+                healMode: base.healMode || "default",
+                healCapPct: base.healCapPct ?? null,
                 icon: base.icon,
                 rarity: rarity.key,
                 rarityMul: rarity.mul,
@@ -4079,7 +4089,8 @@
                 chargeOnKill: totals.potionChargeOnKill || 0,
                 cleanse: totals.potionCleanse || 0,
                 autoRegen: totals.potionAutoRegen || 0,
-                barrier: totals.potionBarrier || 0
+                barrier: totals.potionBarrier || 0,
+                resonance: totals.potionResonance || 0
             };
         };
 
@@ -4430,6 +4441,7 @@
             potionCleanse: (stat) => `状態異常回復 ${stat.source ? "+" : ""}${stat.value}`,
             potionAutoRegen: (stat) => `再生付与 ${stat.source ? "+" : ""}${stat.value}スタック`,
             potionBarrier: (stat) => `バリア付与 ${stat.source ? "+" : ""}${stat.value}`,
+            potionResonance: () => "共鳴付与",
             skillPowerBoost: (stat) => `スキル威力 +${stat.value}%`,
             statusEffectStackBonus: (stat) => `状態異常付与スタック +${stat.value}`,
             statusEffectTurnBonus: (stat) => `状態異常付与ターン +${stat.value}`,
@@ -4543,10 +4555,10 @@
 
         const initializeStarterPotions = () => {
             if (!Game.player.potion1) {
-                Game.player.potion1 = createStarterPotion("HP回復剤(小)");
+                Game.player.potion1 = createStarterPotion("HP回復薬(小)");
             }
             if (!Game.player.potion2) {
-                Game.player.potion2 = createStarterPotion("MP回復剤(小)");
+                Game.player.potion2 = createStarterPotion("MP回復薬(小)");
             }
             syncPotionCapacity(Game.player.potion1);
             syncPotionCapacity(Game.player.potion2);
@@ -5416,11 +5428,26 @@
             }
             potion.currentCapacity -= potionDerived.cost;
             const derived = getDerivedStats();
+            const calcPotionHeal = (maxValue, currentValue) => {
+                if (potion.healMode === "missing") {
+                    const missingValue = Math.max(0, maxValue - currentValue);
+                    return potionDerived.healFlat + Math.floor(missingValue * (potionDerived.healPct / 100));
+                }
+                if (potion.healMode === "hybridCap") {
+                    const total = potionDerived.healFlat + Math.floor(maxValue * (potionDerived.healPct / 100));
+                    if (Number.isFinite(potion.healCapPct)) {
+                        const cap = Math.floor(maxValue * (potion.healCapPct / 100));
+                        return Math.min(total, cap);
+                    }
+                    return total;
+                }
+                return potionDerived.healPct > 0
+                    ? Math.floor(maxValue * (potionDerived.healPct / 100))
+                    : potionDerived.healFlat;
+            };
             if (potion.target === 'hp') {
                 const before = Game.player.hp;
-                const baseHeal = potionDerived.healPct > 0
-                    ? Math.floor(derived.maxHp * (potionDerived.healPct / 100))
-                    : potionDerived.healFlat;
+                const baseHeal = calcPotionHeal(derived.maxHp, Game.player.hp);
                 const healAmount = Math.floor(baseHeal * potionEffectMultiplier);
                 Game.player.hp = Math.min(derived.maxHp, Game.player.hp + healAmount);
                 const actual = Game.player.hp - before;
@@ -5428,21 +5455,38 @@
                     addLog(`HPポーション！ ${actual}回復`, "text-emerald-500");
                     dmgText(actual, true);
                     triggerBossRushHealReaction(actual, "回復反撃");
+                    if (potionDerived.resonance > 0) {
+                        const beforeMp = Game.player.mp;
+                        const bonus = Math.floor(actual * 0.5);
+                        Game.player.mp = Math.min(derived.maxMp, Game.player.mp + bonus);
+                        const mpActual = Game.player.mp - beforeMp;
+                        if (mpActual > 0) {
+                            addLog(`共鳴でMPが${mpActual}回復`, "text-blue-400");
+                        }
+                    }
                 } else {
                     addLog("HPポーション！ これ以上回復できない", "text-slate-400");
                 }
             }
             if (potion.target === 'mp') {
                 const before = Game.player.mp;
-                const baseHeal = potionDerived.healPct > 0
-                    ? Math.floor(derived.maxMp * (potionDerived.healPct / 100))
-                    : potionDerived.healFlat;
+                const baseHeal = calcPotionHeal(derived.maxMp, Game.player.mp);
                 const healAmount = Math.floor(baseHeal * potionEffectMultiplier);
                 Game.player.mp = Math.min(derived.maxMp, Game.player.mp + healAmount);
                 const actual = Game.player.mp - before;
                 if (actual > 0) {
                     addLog(`MPポーション！ ${actual}回復`, "text-blue-500");
                     triggerBossRushHealReaction(actual, "回復反撃");
+                    if (potionDerived.resonance > 0) {
+                        const beforeHp = Game.player.hp;
+                        const bonus = Math.floor(actual * 0.5);
+                        Game.player.hp = Math.min(derived.maxHp, Game.player.hp + bonus);
+                        const hpActual = Game.player.hp - beforeHp;
+                        if (hpActual > 0) {
+                            addLog(`共鳴でHPが${hpActual}回復`, "text-emerald-400");
+                            triggerBossRushHealReaction(hpActual, "回復反撃");
+                        }
+                    }
                 } else {
                     addLog("MPポーション！ これ以上回復できない", "text-slate-400");
                 }
@@ -7675,7 +7719,13 @@
                     } else {
                         const potionDerived = syncPotionCapacity(potion);
                         const capPct = potionDerived.maxCapacity > 0 ? (potion.currentCapacity / potionDerived.maxCapacity) * 100 : 0;
-                        const healText = potionDerived.healPct > 0 ? `${potionDerived.healPct}%` : `${potionDerived.healFlat}`;
+                        let healText = potionDerived.healPct > 0 ? `${potionDerived.healPct}%` : `${potionDerived.healFlat}`;
+                        if (potion.healMode === "hybridCap") {
+                            const capText = Number.isFinite(potion.healCapPct) ? ` (上限${potion.healCapPct}%)` : "";
+                            healText = `${potionDerived.healFlat}+${potionDerived.healPct}%${capText}`;
+                        } else if (potion.healMode === "missing") {
+                            healText = `${potionDerived.healFlat}+欠損${potionDerived.healPct}%`;
+                        }
                         const canUse = potion.currentCapacity >= potionDerived.cost;
                         button.className = `w-full rounded-xl border px-3 py-2 text-[10px] font-bold flex items-center gap-2 transition-colors ${
                             canUse ? 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50' : 'border-slate-200 bg-slate-50 text-slate-300'
