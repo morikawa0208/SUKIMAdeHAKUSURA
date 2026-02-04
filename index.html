@@ -1390,8 +1390,10 @@
                     killOverflowCharge: 0,
                     damageReturnCharge: 0,
                     damageBufferCharge: 0,
+                    guardianReturnCharge: 0,
                     defenseLayers: 0,
                     ironWallUsed: false,
+                    shadowFirstStrikeUsed: false,
                     lastSkill: null
                 },
                 skills: {
@@ -2923,12 +2925,12 @@
             "岩脈の護符": { type: "barrierSplitHits", label: "岩脈の護符：バリアが存在する間、攻撃が分割ヒット化" },
             "凍霧の手甲": { type: "repeatMemory", label: "凍霧の手甲：反復記憶：ターン開始時、前ターン最後に使ったスキルを自動再実行" },
             "闇縫いの兜": { type: "poisonOverload", label: "闇縫いの兜：毒過積載：毒が一定数以上ある間、毎ターン追加で爆発ダメージ" },
-            "灼炎の護衣": { type: "accuracyBoost", condition: { type: "enemyHpAbove", threshold: 0.5 }, value: 9, label: "灼炎の護衣：敵HP50%以上で命中+9" },
-            "雷影の兜": { type: "extraTurnChance", condition: { type: "enemyHpBelow", threshold: 0.3 }, chance: 9, hitMultiplier: 0.7, label: "雷影の兜：敵HP30%以下で9%で追加行動(70%)" },
-            "聖光の杖": { type: "critBoost", condition: { type: "playerMpBelow", threshold: 0.5 }, value: 9, label: "聖光の杖：MP50%以下で会心率+9%" },
-            "腐蝕の脚甲": { type: "accuracyBoost", condition: { type: "playerHpAbove", threshold: 0.75 }, value: 8, label: "腐蝕の脚甲：HP75%以上で命中+8" },
-            "鉄壁の護符": { type: "damageTakenReduction", condition: { type: "playerHpAbove", threshold: 0.6 }, value: 10, label: "鉄壁の護符：HP60%以上で被ダメ-10%" },
-            "影刃の護符": { type: "accuracyBoost", condition: { type: "playerHpAbove", threshold: 0.6 }, value: 9, label: "影刃の護符：HP60%以上で命中+9" },
+            "灼炎の護衣": { type: "sureHitHighHp", condition: { type: "enemyHpAbove", threshold: 0.5 }, label: "灼炎の護衣：開幕灼熱：敵HP50%以上の間、必中" },
+            "雷影の兜": { type: "extraTurnChance", condition: { type: "enemyHpBelow", threshold: 0.3 }, chance: 10, hitMultiplier: 1, label: "雷影の兜：迅雷律：敵HP30%以下で行動回数+1(確率10%)" },
+            "聖光の杖": { type: "mpRestoreAfterSkill", condition: { type: "playerMpBelow", threshold: 0.5 }, label: "聖光の杖：祈りの反響：MP50%以下でスキル使用後にMP小回復(固定)" },
+            "腐蝕の脚甲": { type: "poisonStackSurge", condition: { type: "playerHpAbove", threshold: 0.75 }, value: 3, label: "腐蝕の脚甲：腐蝕伝播：HP75%以上で毒付与時に即+3スタック" },
+            "鉄壁の護符": { type: "returnDoubleGuard", condition: { type: "playerHpAbove", threshold: 0.6 }, label: "鉄壁の護符：鉄壁反響：HP60%以上で被ダメを次の攻撃に2倍で返す" },
+            "影刃の護符": { type: "shadowFirstStrike", condition: { type: "playerHpAbove", threshold: 0.6 }, label: "影刃の護符：影刃の宣告：HP60%以上の初撃が必ず会心＆倍率上昇" },
             "終焉の護符": { type: "levelRatioBoost", stat: "luk", randomize: true, stepRange: [1, 5], gainRange: [1, 2], label: "終焉の護符：LUK成長" },
         };
 
@@ -2951,7 +2953,9 @@
             multiHitFinalMultiplier: 1.7,
             defenseLayerMultiplier: 0.6,
             poisonOverloadStacks: 8,
-            poisonOverloadRate: 0.02
+            poisonOverloadRate: 0.02,
+            holyStaffMpRestore: 6,
+            shadowFirstStrikeMultiplier: 1.4
         };
 
         const RoadLegendaryUniqueEffects = {
@@ -4300,8 +4304,10 @@
             Game.player.bossUniqueState.martyrLight = 0;
             Game.player.bossUniqueState.damageReturnCharge = 0;
             Game.player.bossUniqueState.damageBufferCharge = 0;
+            Game.player.bossUniqueState.guardianReturnCharge = 0;
             Game.player.bossUniqueState.defenseLayers = 0;
             Game.player.bossUniqueState.ironWallUsed = false;
+            Game.player.bossUniqueState.shadowFirstStrikeUsed = false;
             Game.player.bossUniqueState.lastSkill = null;
         };
 
@@ -5395,6 +5401,10 @@
             }
             if (target === Game.player && remaining > 0) {
                 const bossState = Game.player.bossUniqueState;
+                const guardEffect = getBossUniqueEffectByType("returnDoubleGuard");
+                if (guardEffect && checkBossUniqueCondition(guardEffect.condition, { player: Game.player, enemy: Game.enemy, derived: getDerivedStats() })) {
+                    bossState.guardianReturnCharge = Math.max(0, (bossState.guardianReturnCharge || 0) + remaining * 2);
+                }
                 if (hasBossUniqueEffect("damageReturnCharge")) {
                     const derived = getDerivedStats();
                     const charge = Math.floor(remaining * BossUniqueEffectConfig.damageReturnRate);
@@ -5539,21 +5549,35 @@
 
                 for (let i = 0; i < hits; i++) {
                     if (Game.enemy.hp <= 0) break;
+                    const sureHitEffect = getBossUniqueEffectByType("sureHitHighHp");
+                    const sureHit = Boolean(sureHitEffect && checkBossUniqueCondition(sureHitEffect.condition, { player: Game.player, enemy: Game.enemy, derived }));
                     const baseAccuracy = Math.max(0, derived.totals.accuracy + (currentSkill.accuracyBonus || 0) + bossMods.accuracyBonus);
                     const evasionValue = Math.max(0, enemyEvasion);
                     const baseHit = 78;
                     const hitScale = 0.28;
                     let hitChance = baseHit + (baseAccuracy - evasionValue) * hitScale;
                     hitChance = Math.min(97, Math.max(15, hitChance));
-                    if (Math.random() * 100 > hitChance) {
+                    if (!sureHit && Math.random() * 100 > hitChance) {
                         continue;
                     }
                     landedHit = true;
                     let atkBase = currentSkill.isMagic ? (derived.totals.int * 2) : derived.atk;
                     let isCrit = Math.random() * 100 < (derived.totals.critRate + (currentSkill.critBonus || 0) + bossMods.critRateBonus);
+                    let forceFirstStrike = false;
+                    const shadowEffect = getBossUniqueEffectByType("shadowFirstStrike");
+                    if (shadowEffect && !bossState.shadowFirstStrikeUsed && Game.enemy.hp === Game.enemy.maxHp) {
+                        if (checkBossUniqueCondition(shadowEffect.condition, { player: Game.player, enemy: Game.enemy, derived })) {
+                            isCrit = true;
+                            forceFirstStrike = true;
+                            bossState.shadowFirstStrikeUsed = true;
+                        }
+                    }
                     const powerScale = currentSkill.name === '通常攻撃' ? CombatBalance.playerNormalPow : CombatBalance.playerSkillPow;
                     let dmg = Math.floor(currentSkill.pow * powerScale * atkBase * (0.9 + Math.random() * 0.2));
                     if (isCrit) dmg = Math.floor(dmg * (derived.totals.critDamage / 100));
+                    if (forceFirstStrike) {
+                        dmg = Math.floor(dmg * BossUniqueEffectConfig.shadowFirstStrikeMultiplier);
+                    }
                     if (isCrit && hasBossRushBuff(Game.enemy, "br_yellow_crit_def")) {
                         const state = getBossRushBuffState(Game.enemy);
                         if (state) {
@@ -5610,6 +5634,11 @@
                             bonus += bossState.damageReturnCharge;
                             bossState.damageReturnCharge = 0;
                             addLog("雷鳴の戦槌が蓄積を放った！", "text-amber-400");
+                        }
+                        if (bossState.guardianReturnCharge > 0) {
+                            bonus += bossState.guardianReturnCharge;
+                            bossState.guardianReturnCharge = 0;
+                            addLog("鉄壁反響が倍返し！", "text-amber-400");
                         }
                         if (bossState.overkillBank > 0) {
                             bonus += bossState.overkillBank;
@@ -5718,6 +5747,7 @@
                 const turnBonus = derived.totals.statusEffectTurnBonus || 0;
                 const singleStatusRule = hasBossUniqueEffect("singleStatusRule");
                 const poisonUnlimited = hasBossUniqueEffect("poisonUnlimited");
+                const poisonSurgeEffect = getBossUniqueEffectByType("poisonStackSurge");
                 currentSkill.effects.forEach((effect) => {
                     const target = effect.target === "self" ? Game.player : Game.enemy;
                     let stacks = effect.stacks;
@@ -5736,6 +5766,11 @@
                         const sourceStr = effect.target === "self" ? null : derived.totals.str;
                         const poisonMaxStacksBonus = effect.id === "poison" ? derived.totals.poisonMaxStacksBonus : 0;
                         const poisonMinPctBonus = effect.id === "poison" ? derived.totals.poisonMinPctBonus : 0;
+                        if (effect.id === "poison" && effect.target !== "self" && poisonSurgeEffect) {
+                            if (checkBossUniqueCondition(poisonSurgeEffect.condition, { player: Game.player, enemy: Game.enemy, derived })) {
+                                stacks = (stacks || 0) + (poisonSurgeEffect.value || 0);
+                            }
+                        }
                         const source = (sourceStr || poisonMaxStacksBonus || poisonMinPctBonus || singleStatusRule || poisonUnlimited)
                             ? { sourceStr, poisonMaxStacksBonus, poisonMinPctBonus, singleStatusRule, poisonUnlimited }
                             : null;
@@ -7232,6 +7267,18 @@
             });
 
             Game.player.bossUniqueState.lastSkill = currentSkill.name !== '通常攻撃' ? { ...currentSkill } : null;
+
+            if (currentSkill.name !== '通常攻撃') {
+                const restoreEffect = getBossUniqueEffectByType("mpRestoreAfterSkill");
+                if (restoreEffect && checkBossUniqueCondition(restoreEffect.condition, { player: Game.player, enemy: Game.enemy, derived })) {
+                    const beforeMp = Game.player.mp;
+                    Game.player.mp = Math.min(derived.maxMp, Game.player.mp + BossUniqueEffectConfig.holyStaffMpRestore);
+                    const actual = Game.player.mp - beforeMp;
+                    if (actual > 0) {
+                        addLog(`祈りの反響でMPが${actual}回復`, "text-blue-400");
+                    }
+                }
+            }
 
             if (hasBossUniqueEffect("recastSkill") && currentSkill.name !== '通常攻撃') {
                 const recastContext = buildCombatContext();
