@@ -2900,7 +2900,7 @@
             "月影のマント": { type: "damageTakenReduction", value: 20, label: "月影のマント：被ダメ-20%" },
             "白霧の指輪": { type: "damageTakenReduction", condition: { type: "playerHpBelow", threshold: 0.5 }, value: 35, label: "白霧の指輪：HP50%以下で被ダメ-35%" },
             "雷迅の戦槌": { type: "bonusHitsChance", chance: 15, hits: 1, hitMultiplier: 0.6, label: "雷迅の戦槌：15%で追加ヒット+1(60%)" },
-            "静電の兜": { type: "accuracyBoost", value: 12, label: "静電の兜：命中+12" },
+            "静電の兜": { type: "critBoost", value: 12, label: "静電の兜：会心率+12%" },
             "深潭のローブ": { type: "statBonus", stats: [ { key: "mpRegen", value: 8 }, { key: "maxMp", value: 60 } ], label: "深潭のローブ：MP自動回復+8 / 最大MP+60" },
             "濡刃の短剣": { type: "damageBoost", condition: { type: "enemyStatus", status: "poison" }, value: 30, label: "濡刃の短剣：毒の敵に与ダメ+30%" },
             "熾火の大剣": { type: "statMultiplier", stat: "str", value: 20, label: "熾火の大剣：STR倍率 +20%" },
@@ -2911,7 +2911,7 @@
             "影討ちの足袋": { type: "accuracyBoost", condition: { type: "playerHpAbove", threshold: 0.7 }, value: 15, label: "影討ちの足袋：HP70%以上で命中+15" },
             "封印の書": { type: "statBonus", stats: [ { key: "skillPowerBoost", value: 20 } ], label: "封印の書：スキル威力 +20%" },
             "禁術の護符": { type: "statBonus", stats: [ { key: "skillMpDiscount", value: 20 }, { key: "maxMp", value: 80 } ], label: "禁術の護符：スキルMP消費-20% / 最大MP+80" },
-            "終末前夜の剣": { type: "riskBoost", condition: { type: "playerHpBelow", threshold: 0.35 }, value: 45, penalty: 20, label: "終末前夜の剣：HP35%以下で与ダメ+45%/被ダメ+20%" },
+            "終末前夜の剣": { type: "riskBoost", condition: { type: "playerHpAbove", threshold: 0.8 }, value: 45, penalty: 20, label: "終末前夜の剣：HP80%以上で与ダメ+45%/被ダメ+20%" },
             "刻印の護符": { type: "damageBoost", condition: { type: "enemyHpBelow", threshold: 0.5 }, value: 35, label: "刻印の護符：敵HP50%以下で与ダメ+35%" }
         };
 
