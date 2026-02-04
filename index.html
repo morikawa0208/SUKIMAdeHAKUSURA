@@ -1383,6 +1383,16 @@
                 skillSlotIndex: 0,
                 skillSlotTarget: 0,
                 statusEffects: [],
+                bossUniqueState: {
+                    martyrLight: 0,
+                    overkillBank: 0,
+                    killOverflowCharge: 0,
+                    damageReturnCharge: 0,
+                    damageBufferCharge: 0,
+                    defenseLayers: 0,
+                    ironWallUsed: false,
+                    lastSkill: null
+                },
                 skills: {
                     warrior: { active: [0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
                     mage: { active: [0,0,0,0,0,0,0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
@@ -2861,32 +2871,32 @@
             "毒牙の短剣": { type: "statBonus", stats: [ { key: "statusEffectStackBonus", value: 2 }, { key: "poisonMaxStacksBonus", value: 1 } ], label: "毒牙の短剣：状態異常付与スタック +2 / 毒上限スタック +1" },
             "疾風の爪剣": { type: "statMultiplier", stat: "dex", value: 12, label: "疾風の爪剣：DEX倍率 +12%" },
             "風走りのブーツ": { type: "bonusHitsChance", chance: 20, hits: 1, hitMultiplier: 0.7, label: "風走りのブーツ：20%で追加ヒット+1(70%)" },
-            "岩核の大盾": { type: "statMultiplier", stat: "vit", value: 12, label: "岩核の大盾：VIT倍率 +12%" },
-            "岩守りの兜": { type: "riskBoost", condition: { type: "playerHpBelow", threshold: 0.5 }, value: 20, penalty: 12, label: "岩守りの兜：HP50%以下で与ダメ+20%/被ダメ+12%" },
+            "岩核の大盾": { type: "statMultiplier", stat: "vit", value: 12, extraType: "damageBuffer", label: "岩核の大盾：VIT倍率 +12%＋受けたダメージの一部を無効化し、その量を次の攻撃に上乗せ" },
+            "岩守りの兜": { type: "martyrLight", label: "受難の光：被弾した合計を「光」に変換し、一定量で自動爆発（回復扱いではない）" },
             "氷晶の杖": { type: "statBonus", stats: [ { key: "skillPowerBoost", value: 12 } ], label: "氷晶の杖：スキル威力 +12%" },
-            "氷牢の指輪": { type: "statBonus", stats: [ { key: "skillMpDiscount", value: 8 } ], label: "氷牢の指輪：スキルMP消費 -8%" },
+            "氷牢の指輪": { type: "recastSkill", label: "再詠唱：スキル使用後、一定確率で同スキルが“無詠唱”で再発動（1回）" },
             "宵闇のマント": { type: "damageBoost", condition: { type: "enemyStatus", status: "poison" }, value: 15, label: "宵闇のマント：毒の敵に与ダメ+15%" },
             "闇狩りの短剣": { type: "bonusHitsChance", chance: 18, hits: 1, hitMultiplier: 0.75, label: "闇狩りの短剣：18%で追加ヒット+1(75%)" },
-            "熾火の大剣": { type: "statMultiplier", stat: "str", value: 12, label: "熾火の大剣：STR倍率 +12%" },
-            "炎護の手甲": { type: "statBonus", stats: [ { key: "skillPowerBoost", value: 10 } ], label: "炎護の手甲：スキル威力 +10%" },
-            "雷鳴の戦槌": { type: "statMultiplier", stat: "dex", value: 16, label: "雷鳴の戦槌：DEX倍率 +16%" },
+            "熾火の大剣": { type: "killOverflow", label: "熾火の大剣：キルごとに「過剰火力」を保存、次の敵への初撃に上乗せ" },
+            "炎護の手甲": { type: "overkillBank", label: "炎護の手甲：オーバーキル貯金：敵を倒した余剰ダメージを「貯蓄」し、次の攻撃に上乗せ（上限あり）" },
+            "雷鳴の戦槌": { type: "damageReturnCharge", label: "雷鳴の戦槌：受けた合計ダメージの一定割合を蓄積し、次の攻撃に上乗せして返す" },
             "帯電の護符": { type: "statBonus", stats: [ { key: "skillMpDiscount", value: 10 } ], label: "帯電の護符：スキルMP消費 -10%" },
             "聖紋のローブ": { type: "statMultiplier", stat: "int", value: 18, label: "聖紋のローブ：INT倍率 +18%" },
             "聖祈の護符": { type: "statBonus", stats: [ { key: "skillPowerBoost", value: 16 } ], label: "聖祈の護符：スキル威力 +16%" },
             "疫毒の鎌": { type: "statBonus", stats: [ { key: "statusEffectStackBonus", value: 2 }, { key: "poisonMaxStacksBonus", value: 1 } ], label: "疫毒の鎌：状態異常付与スタック +2 / 毒上限スタック +1" },
             "腐蝕の指輪": { type: "statBonus", stats: [ { key: "statusEffectTurnBonus", value: 1 }, { key: "poisonMinPctBonus", value: 0.5 } ], label: "腐蝕の指輪：状態異常付与ターン +1 / 毒最低保証 +0.5%" },
-            "鉄壁の鎧": { type: "statMultiplier", stat: "vit", value: 18, label: "鉄壁の鎧：VIT倍率 +18%" },
+            "鉄壁の鎧": { type: "statMultiplier", stat: "vit", value: 18, extraType: "lethalGuard", label: "鉄壁の鎧：VIT倍率 +18%＋致死ダメージを受けるとHP1で耐える（1戦闘1回）" },
             "鋼鉄のグローブ": { type: "statMultiplier", stat: "str", value: 14, label: "鋼鉄のグローブ：STR倍率 +14%" },
             "影刃の忍刀": { type: "bonusHitsChance", chance: 22, hits: 1, hitMultiplier: 0.7, label: "影刃の忍刀：22%で追加ヒット+1(70%)" },
             "夜走りの足袋": { type: "statMultiplier", stat: "dex", value: 18, label: "夜走りの足袋：DEX倍率 +18%" },
-            "終焉の竜槍": { type: "riskBoost", condition: { type: "playerMpZero" }, value: 25, penalty: 15, label: "終焉の竜槍：MP0で与ダメ+25%/被ダメ+15%" },
-            "竜鱗の護鎧": { type: "statMultiplier", stat: "vit", value: 20, label: "竜鱗の護鎧：VIT倍率 +20%" },
-            "毒沼のヘルム": { type: "accuracyBoost", condition: { type: "playerHpAbove", threshold: 0.8 }, value: 6, label: "毒沼のヘルム：HP80%以上で命中+6" },
-            "湿毒のローブ": { type: "damageTakenReduction", condition: { type: "enemyHpAbove", threshold: 0.7 }, value: 6, label: "湿毒のローブ：敵HP70%以上で被ダメ-6%" },
+            "終焉の竜槍": { type: "multiHitAmplifyDex", label: "終焉の竜槍：連打の増幅：攻撃が常に多段化。DEXで分割回数が増え、最後の1発は大本命" },
+            "竜鱗の護鎧": { type: "statMultiplier", stat: "vit", value: 25, extraType: "defenseLayers", label: "竜鱗の護鎧：VIT倍率 +25%＋被弾するたび「防御層」+1、層数ぶん次の攻撃が追撃" },
+            "毒沼のヘルム": { type: "singleStatusRule", label: "毒沼のヘルム：単一異常の掟：状態異常は1種類しか付かない代わりに、付与時に必ず2重スタック" },
+            "湿毒のローブ": { type: "poisonUnlimited", label: "湿毒のローブ：毒上限解放：毒スタックの上限が撤廃される" },
             "疾風の籠手": { type: "extraTurnChance", condition: { type: "enemyHpBelow", threshold: 0.4 }, chance: 8, hitMultiplier: 0.7, label: "疾風の籠手：敵HP40%以下で8%で追加行動(70%)" },
-            "岩脈の護符": { type: "damageTakenReduction", condition: { type: "playerHpBelow", threshold: 0.6 }, value: 8, label: "岩脈の護符：HP60%以下で被ダメ-8%" },
-            "凍霧の手甲": { type: "accuracyBoost", condition: { type: "playerMpBelow", threshold: 0.4 }, value: 7, label: "凍霧の手甲：MP40%以下で命中+7" },
-            "闇縫いの兜": { type: "damageTakenReduction", condition: { type: "enemyStatus", status: "blind" }, value: 7, label: "闇縫いの兜：暗闇の敵からの被ダメ-7%" },
+            "岩脈の護符": { type: "barrierSplitHits", label: "岩脈の護符：バリアが存在する間、攻撃が分割ヒット化" },
+            "凍霧の手甲": { type: "repeatMemory", label: "凍霧の手甲：反復記憶：ターン開始時、前ターン最後に使ったスキルを自動再実行" },
+            "闇縫いの兜": { type: "poisonOverload", label: "闇縫いの兜：毒過積載：毒が一定数以上ある間、毎ターン追加で爆発ダメージ" },
             "灼炎の護衣": { type: "accuracyBoost", condition: { type: "enemyHpAbove", threshold: 0.5 }, value: 9, label: "灼炎の護衣：敵HP50%以上で命中+9" },
             "雷影の兜": { type: "extraTurnChance", condition: { type: "enemyHpBelow", threshold: 0.3 }, chance: 9, hitMultiplier: 0.7, label: "雷影の兜：敵HP30%以下で9%で追加行動(70%)" },
             "聖光の杖": { type: "critBoost", condition: { type: "playerMpBelow", threshold: 0.5 }, value: 9, label: "聖光の杖：MP50%以下で会心率+9%" },
@@ -2894,6 +2904,28 @@
             "鉄壁の護符": { type: "damageTakenReduction", condition: { type: "playerHpAbove", threshold: 0.6 }, value: 10, label: "鉄壁の護符：HP60%以上で被ダメ-10%" },
             "影刃の護符": { type: "accuracyBoost", condition: { type: "playerHpAbove", threshold: 0.6 }, value: 9, label: "影刃の護符：HP60%以上で命中+9" },
             "終焉の護符": { type: "levelRatioBoost", stat: "luk", randomize: true, stepRange: [1, 5], gainRange: [1, 2], label: "終焉の護符：LUK成長" },
+        };
+
+        const BossUniqueEffectConfig = {
+            martyrLightThresholdRate: 0.3,
+            martyrLightDamageRate: 1,
+            recastChance: 0.2,
+            overkillCapRate: 1.5,
+            killOverflowRate: 0.35,
+            killOverflowCapRate: 1.2,
+            damageReturnRate: 0.35,
+            damageReturnCapRate: 1.4,
+            damageBufferAbsorbRate: 0.25,
+            damageBufferCapRate: 1.2,
+            barrierSplitHits: 2,
+            barrierSplitMultiplier: 0.5,
+            multiHitBase: 2,
+            multiHitDexStep: 120,
+            multiHitMaxExtra: 4,
+            multiHitFinalMultiplier: 1.7,
+            defenseLayerMultiplier: 0.6,
+            poisonOverloadStacks: 8,
+            poisonOverloadRate: 0.02
         };
 
         const RoadLegendaryUniqueEffects = {
@@ -4178,6 +4210,24 @@
             .map((stat) => stat.effect)
         ));
 
+        const getBossUniqueEffectByType = (type) => (
+            getEquippedBossEffects().find((effect) => effect.type === type || effect.extraType === type) || null
+        );
+
+        const hasBossUniqueEffect = (type) => Boolean(getBossUniqueEffectByType(type));
+
+        const resetBossUniqueCombatState = () => {
+            if (!Game.player.bossUniqueState) {
+                Game.player.bossUniqueState = {};
+            }
+            Game.player.bossUniqueState.martyrLight = 0;
+            Game.player.bossUniqueState.damageReturnCharge = 0;
+            Game.player.bossUniqueState.damageBufferCharge = 0;
+            Game.player.bossUniqueState.defenseLayers = 0;
+            Game.player.bossUniqueState.ironWallUsed = false;
+            Game.player.bossUniqueState.lastSkill = null;
+        };
+
         const applyBossUniqueStatBonuses = (totals) => {
             const updated = { ...totals };
             const effects = getEquippedBossEffects();
@@ -5228,6 +5278,17 @@
                     barrierEffect.stacks = Math.max(1, Math.ceil(barrierEffect.shield / def.shieldPerStack));
                 }
             }
+            if (target === Game.player && remaining > 0 && hasBossUniqueEffect("damageBuffer")) {
+                const bossState = Game.player.bossUniqueState;
+                const derived = getDerivedStats();
+                const absorb = Math.floor(remaining * BossUniqueEffectConfig.damageBufferAbsorbRate);
+                if (absorb > 0) {
+                    remaining -= absorb;
+                    const cap = Math.floor(derived.atk * BossUniqueEffectConfig.damageBufferCapRate);
+                    bossState.damageBufferCharge = Math.min(cap, (bossState.damageBufferCharge || 0) + absorb);
+                    addLog("岩核の大盾が衝撃を蓄積！", "text-amber-400");
+                }
+            }
             if (remaining > 0 && target === Game.enemy && hasBossRushBuff(target, "br_blue_spread") && !options.ignoreBossRushSpread) {
                 const spread = Math.floor(remaining * BossRushBuffConfig.damageSpreadPct);
                 if (spread > 0) {
@@ -5235,9 +5296,42 @@
                     Game.bossRushCarryoverDamage = Math.max(0, (Game.bossRushCarryoverDamage || 0) + spread);
                 }
             }
+            if (target === Game.player && remaining > 0 && hasBossUniqueEffect("lethalGuard")) {
+                const bossState = Game.player.bossUniqueState;
+                if (!bossState.ironWallUsed && remaining >= target.hp) {
+                    bossState.ironWallUsed = true;
+                    remaining = Math.max(0, target.hp - 1);
+                    addLog("鉄壁の鎧が致死ダメージを防いだ！", "text-amber-400");
+                }
+            }
             if (remaining > 0) {
                 target.hp = Math.max(0, target.hp - remaining);
                 removeStatusEffect(target, 'freeze');
+            }
+            if (target === Game.player && remaining > 0) {
+                const bossState = Game.player.bossUniqueState;
+                if (hasBossUniqueEffect("damageReturnCharge")) {
+                    const derived = getDerivedStats();
+                    const charge = Math.floor(remaining * BossUniqueEffectConfig.damageReturnRate);
+                    const cap = Math.floor(derived.atk * BossUniqueEffectConfig.damageReturnCapRate);
+                    bossState.damageReturnCharge = Math.min(cap, (bossState.damageReturnCharge || 0) + charge);
+                }
+                if (hasBossUniqueEffect("defenseLayers")) {
+                    bossState.defenseLayers = Math.max(0, (bossState.defenseLayers || 0) + 1);
+                }
+                if (hasBossUniqueEffect("martyrLight")) {
+                    const derived = getDerivedStats();
+                    const threshold = Math.max(1, Math.floor(derived.maxHp * BossUniqueEffectConfig.martyrLightThresholdRate));
+                    bossState.martyrLight = Math.max(0, (bossState.martyrLight || 0) + remaining);
+                    while (bossState.martyrLight >= threshold) {
+                        bossState.martyrLight -= threshold;
+                        const blastDamage = Math.max(1, Math.floor(threshold * BossUniqueEffectConfig.martyrLightDamageRate));
+                        if (Game.enemy && Game.enemy.hp > 0) {
+                            const applied = applyDamage(Game.enemy, blastDamage, Game.player, { ignoreBossRushNullify: true, ignoreBossRushDamageReduction: true, ignoreReflect: true });
+                            addLog(`受難の光が爆発！ ${applied}ダメージ`, "text-amber-400");
+                        }
+                    }
+                }
             }
             if (remaining > 0 && target === Game.enemy) {
                 const state = getBossRushBuffState(target);
@@ -5293,6 +5387,285 @@
                     addLog(`${Game.enemy.name}の異常付与！`, "text-purple-400");
                 }
             }
+        }
+
+        function performPlayerSkillAction(currentSkill, context, options = {}) {
+            const {
+                derived,
+                enemyStatusMods,
+                enemyEvasion,
+                enemyDefense,
+                playerStatusMods
+            } = context;
+            const {
+                labelPrefix = "",
+                applyStatusEffects = true
+            } = options;
+            const bossState = Game.player.bossUniqueState;
+            const skillLabel = labelPrefix ? `${labelPrefix}${currentSkill.name}` : currentSkill.name;
+            let totalDamage = 0;
+            let totalLeechApplied = 0;
+            let landedHit = false;
+            let nullifiedHit = false;
+
+            if (currentSkill.type === 'heal') {
+                let amt = Math.floor(currentSkill.val + (derived.totals.int * 1.2));
+                if (derived.totals.skillPowerBoost > 0) {
+                    amt = Math.floor(amt * (1 + derived.totals.skillPowerBoost / 100));
+                }
+                Game.player.hp = Math.min(derived.maxHp, Game.player.hp + amt);
+                addLog(`【回復】${amt}HP`, "text-green-500");
+                dmgText(amt, true);
+                triggerBossRushHealReaction(amt, "回復反撃");
+            } else {
+                const bossMods = getBossUniqueCombatModifiers({
+                    player: Game.player,
+                    enemy: Game.enemy,
+                    derived,
+                    baseHits: currentSkill.hits || 1
+                });
+                if (bossMods.logs.length) {
+                    bossMods.logs.forEach((line) => addLog(line, "text-amber-400"));
+                }
+                const baseHits = currentSkill.hits || 1;
+                let adjustedBaseHits = baseHits;
+                let amplifyFinalHit = false;
+                if (hasBossUniqueEffect("multiHitAmplifyDex")) {
+                    const extraHits = Math.min(
+                        BossUniqueEffectConfig.multiHitMaxExtra,
+                        Math.floor(derived.totals.dex / BossUniqueEffectConfig.multiHitDexStep)
+                    );
+                    adjustedBaseHits = Math.max(adjustedBaseHits, BossUniqueEffectConfig.multiHitBase + extraHits);
+                    amplifyFinalHit = true;
+                }
+                const barrierSplitActive = hasBossUniqueEffect("barrierSplitHits") && Boolean(getStatusEffect(Game.player, 'barrier'));
+                if (barrierSplitActive) {
+                    adjustedBaseHits *= BossUniqueEffectConfig.barrierSplitHits;
+                }
+                const defenseLayerHits = Math.max(0, bossState.defenseLayers || 0);
+                let hits = adjustedBaseHits + (bossMods.bonusHits || 0) + defenseLayerHits;
+                let nextHitConsumed = false;
+                let storedBonusApplied = false;
+                let killRecorded = false;
+                const nextHitEffect = getStatusEffect(Game.player, 'potionNextHitBoost');
+                const nextHitBoost = nextHitEffect?.bonusPct || 0;
+                const leechBoost = getStatusEffect(Game.player, 'potionLeechBoost')?.bonusPct || 0;
+                const defenseLayerStart = adjustedBaseHits + (bossMods.bonusHits || 0);
+
+                for (let i = 0; i < hits; i++) {
+                    if (Game.enemy.hp <= 0) break;
+                    const baseAccuracy = Math.max(0, derived.totals.accuracy + (currentSkill.accuracyBonus || 0) + bossMods.accuracyBonus);
+                    const evasionValue = Math.max(0, enemyEvasion);
+                    const baseHit = 78;
+                    const hitScale = 0.28;
+                    let hitChance = baseHit + (baseAccuracy - evasionValue) * hitScale;
+                    hitChance = Math.min(97, Math.max(15, hitChance));
+                    if (Math.random() * 100 > hitChance) {
+                        continue;
+                    }
+                    landedHit = true;
+                    let atkBase = currentSkill.isMagic ? (derived.totals.int * 2) : derived.atk;
+                    let isCrit = Math.random() * 100 < (derived.totals.critRate + (currentSkill.critBonus || 0) + bossMods.critRateBonus);
+                    const powerScale = currentSkill.name === '通常攻撃' ? CombatBalance.playerNormalPow : CombatBalance.playerSkillPow;
+                    let dmg = Math.floor(currentSkill.pow * powerScale * atkBase * (0.9 + Math.random() * 0.2));
+                    if (isCrit) dmg = Math.floor(dmg * (derived.totals.critDamage / 100));
+                    if (isCrit && hasBossRushBuff(Game.enemy, "br_yellow_crit_def")) {
+                        const state = getBossRushBuffState(Game.enemy);
+                        if (state) {
+                            state.defenseBoostPct = Math.min(100, (state.defenseBoostPct || 0) + BossRushBuffConfig.critDefBoost * 100);
+                        }
+                    }
+
+                    if (currentSkill.name !== '通常攻撃' && derived.totals.skillPowerBoost > 0) {
+                        dmg = Math.floor(dmg * (1 + derived.totals.skillPowerBoost / 100));
+                    }
+                    if (i >= adjustedBaseHits && i < defenseLayerStart && bossMods.bonusHitMultiplier !== 1) {
+                        dmg = Math.floor(dmg * bossMods.bonusHitMultiplier);
+                    }
+                    if (i >= defenseLayerStart && defenseLayerHits > 0) {
+                        dmg = Math.floor(dmg * BossUniqueEffectConfig.defenseLayerMultiplier);
+                    }
+
+                    const lowHpLevel = getPassiveLevel('warrior', 5);
+                    if (lowHpLevel > 0 && Game.player.hp < derived.maxHp * 0.3) {
+                        dmg = Math.floor(dmg * (1 + 0.1 * lowHpLevel));
+                    }
+                    const firstHitLevel = getPassiveLevel('thief', 5);
+                    if (firstHitLevel > 0 && Game.enemy.hp === Game.enemy.maxHp) {
+                        dmg = Math.floor(dmg * (1 + 0.25 * firstHitLevel));
+                    }
+
+                    if (derived.totals.damageBoost > 0) {
+                        dmg = Math.floor(dmg * (1 + derived.totals.damageBoost / 100));
+                    }
+                    if (bossMods.damageMultiplier !== 1) {
+                        dmg = Math.floor(dmg * bossMods.damageMultiplier);
+                    }
+                    if (nextHitBoost > 0 && !nextHitConsumed) {
+                        dmg = Math.floor(dmg * (1 + nextHitBoost / 100));
+                        nextHitConsumed = true;
+                        removeStatusEffect(Game.player, 'potionNextHitBoost');
+                        addLog("猛撃が発動！", "text-amber-400");
+                    }
+                    if (barrierSplitActive) {
+                        dmg = Math.floor(dmg * BossUniqueEffectConfig.barrierSplitMultiplier);
+                    }
+                    if (amplifyFinalHit && i === hits - 1) {
+                        dmg = Math.floor(dmg * BossUniqueEffectConfig.multiHitFinalMultiplier);
+                    }
+                    if (!storedBonusApplied) {
+                        const enemyHpBefore = Game.enemy.hp;
+                        let bonus = 0;
+                        if (bossState.damageBufferCharge > 0) {
+                            bonus += bossState.damageBufferCharge;
+                            bossState.damageBufferCharge = 0;
+                            addLog("岩核の大盾が反撃に転化！", "text-amber-400");
+                        }
+                        if (bossState.damageReturnCharge > 0) {
+                            bonus += bossState.damageReturnCharge;
+                            bossState.damageReturnCharge = 0;
+                            addLog("雷鳴の戦槌が蓄積を放った！", "text-amber-400");
+                        }
+                        if (bossState.overkillBank > 0) {
+                            bonus += bossState.overkillBank;
+                            bossState.overkillBank = 0;
+                            addLog("オーバーキル貯金を解放！", "text-amber-400");
+                        }
+                        if (bossState.killOverflowCharge > 0 && enemyHpBefore === Game.enemy.maxHp) {
+                            bonus += bossState.killOverflowCharge;
+                            bossState.killOverflowCharge = 0;
+                            addLog("過剰火力が初撃に乗った！", "text-amber-400");
+                        }
+                        if (bonus > 0) {
+                            dmg += bonus;
+                            storedBonusApplied = true;
+                        }
+                    }
+                    dmg = Math.floor(dmg * playerStatusMods.damageDoneMul);
+                    dmg = Math.floor(dmg * enemyStatusMods.damageTakenMul);
+                    dmg = Math.floor(dmg * getBossRushDamageTakenMultiplier(Game.enemy, Game.player));
+                    const attackValue = Math.max(1, Math.floor(atkBase));
+                    const defenseValue = Math.max(0, enemyDefense);
+                    dmg = Math.floor(dmg * getDamageRatio(attackValue, defenseValue));
+                    const nullifyThreshold = getBossRushDamageNullifyThreshold(Game.enemy);
+                    if (nullifyThreshold > 0 && dmg > 0 && dmg < nullifyThreshold) {
+                        nullifiedHit = true;
+                        continue;
+                    }
+                    dmg = Math.max(1, dmg);
+                    const enemyHpBefore = Game.enemy.hp;
+                    const appliedDamage = applyDamage(Game.enemy, dmg, Game.player, { ignoreBossRushNullify: true, ignoreBossRushDamageReduction: true });
+                    totalDamage += appliedDamage;
+
+                    const totalLeech = derived.totals.leechRate + (currentSkill.leech || 0) + leechBoost;
+                    if (totalLeech > 0 && appliedDamage > 0) {
+                        let l = Math.floor(appliedDamage * (totalLeech / 100));
+                        if (l > 0) {
+                            const beforeHp = Game.player.hp;
+                            Game.player.hp = Math.min(derived.maxHp, Game.player.hp + l);
+                            totalLeechApplied += (Game.player.hp - beforeHp);
+                        }
+                    }
+                    if (!killRecorded && enemyHpBefore > 0 && Game.enemy.hp <= 0) {
+                        if (hasBossUniqueEffect("overkillBank")) {
+                            const overkill = Math.max(0, appliedDamage - enemyHpBefore);
+                            if (overkill > 0) {
+                                const cap = Math.floor(derived.atk * BossUniqueEffectConfig.overkillCapRate);
+                                bossState.overkillBank = Math.min(cap, (bossState.overkillBank || 0) + overkill);
+                                addLog(`オーバーキル貯金 +${overkill}`, "text-amber-400");
+                            }
+                        }
+                        if (hasBossUniqueEffect("killOverflow")) {
+                            const gain = Math.max(1, Math.floor(appliedDamage * BossUniqueEffectConfig.killOverflowRate));
+                            const cap = Math.floor(derived.atk * BossUniqueEffectConfig.killOverflowCapRate);
+                            bossState.killOverflowCharge = Math.min(cap, (bossState.killOverflowCharge || 0) + gain);
+                            addLog(`過剰火力を保存 +${gain}`, "text-amber-400");
+                        }
+                        killRecorded = true;
+                    }
+                }
+
+                if (defenseLayerHits > 0) {
+                    bossState.defenseLayers = 0;
+                }
+                
+                if (totalDamage === 0) {
+                    if (landedHit) {
+                        addLog(nullifiedHit ? "ダメージが無効化された！" : "バリアに防がれた！", "text-slate-400");
+                        dmgText(0, false);
+                    } else {
+                        addLog("攻撃が外れた！", "text-slate-400");
+                        dmgText("MISS", false);
+                        triggerBossRushMistakeReaction();
+                    }
+                } else {
+                    addLog(`${skillLabel}！ ${totalDamage}のダメージ`);
+                    dmgText(totalDamage);
+                }
+
+                if (currentSkill.mpHeal && totalDamage > 0) {
+                    const mHeal = Math.floor(totalDamage * currentSkill.mpHeal);
+                    const beforeMp = Game.player.mp;
+                    Game.player.mp = Math.min(derived.maxMp, Game.player.mp + mHeal);
+                    const actual = Game.player.mp - beforeMp;
+                    if (actual > 0) {
+                        addLog(`MP吸収 +${actual}`, "text-blue-400");
+                        triggerBossRushHealReaction(actual, "回復反撃");
+                    }
+                }
+                if (totalLeechApplied > 0) {
+                    addLog(`吸血でHPが${totalLeechApplied}回復`, "text-emerald-400");
+                    triggerBossRushHealReaction(totalLeechApplied, "回復反撃");
+                }
+                if (currentSkill.expBonus && totalDamage > 0) {
+                    let b = Math.floor(Game.player.next * (currentSkill.expBonus / 100));
+                    Game.player.exp += b;
+                    addLog(`EXP +${b} 奪取！`);
+                    applyLevelUps();
+                }
+
+                document.getElementById('enemy-visual').classList.add('shake');
+                setTimeout(() => document.getElementById('enemy-visual').classList.remove('shake'), 200);
+            }
+
+            if (applyStatusEffects && currentSkill.effects) {
+                const stackBonus = derived.totals.statusEffectStackBonus || 0;
+                const turnBonus = derived.totals.statusEffectTurnBonus || 0;
+                const singleStatusRule = hasBossUniqueEffect("singleStatusRule");
+                const poisonUnlimited = hasBossUniqueEffect("poisonUnlimited");
+                currentSkill.effects.forEach((effect) => {
+                    const target = effect.target === "self" ? Game.player : Game.enemy;
+                    let stacks = effect.stacks;
+                    let turns = effect.turns;
+                    if (effect.target !== "self" && NegativeStatusEffectIds.has(effect.id)) {
+                        stacks = (stacks || 0) + stackBonus;
+                        if (turnBonus > 0) {
+                            const baseTurns = turns ?? (StatusDefs[effect.id]?.defaultTurns ?? 1);
+                            turns = baseTurns + turnBonus;
+                        }
+                    }
+                    const isFreeze = effect.id === "freeze" && effect.target !== "self";
+                    const baseChance = effect.chance ?? 1;
+                    const finalChance = isFreeze ? getFreezeDecayChance(target, baseChance) : baseChance;
+                    if (!isFreeze || Math.random() < finalChance) {
+                        const sourceStr = effect.target === "self" ? null : derived.totals.str;
+                        const poisonMaxStacksBonus = effect.id === "poison" ? derived.totals.poisonMaxStacksBonus : 0;
+                        const poisonMinPctBonus = effect.id === "poison" ? derived.totals.poisonMinPctBonus : 0;
+                        const source = (sourceStr || poisonMaxStacksBonus || poisonMinPctBonus || singleStatusRule || poisonUnlimited)
+                            ? { sourceStr, poisonMaxStacksBonus, poisonMinPctBonus, singleStatusRule, poisonUnlimited }
+                            : null;
+                        applyStatusEffect(target, effect.id, stacks, turns, source);
+                        if (isFreeze) {
+                            recordFreezeApplied(target);
+                        }
+                        if (effect.log && effect.target !== "self") {
+                            addLog(effect.log, "text-purple-400");
+                        }
+                    }
+                });
+            }
+
+            return { totalDamage, landedHit, nullifiedHit };
         }
 
         function performEnemyPhysicalAttack({ derived, label = "", damageMultiplier = 1, canMiss = true, logTone = "text-red-400" }) {
@@ -5595,6 +5968,13 @@
                         const dmg = Math.max(scaledDamage, guaranteedDamage);
                         const appliedDamage = applyDamage(target, dmg, null, { ignoreReflect: true });
                         addLog(`${targetLabel}は毒で${appliedDamage}ダメージ`, "text-purple-400");
+                        if (target === Game.enemy && hasBossUniqueEffect("poisonOverload")) {
+                            if (stacks >= BossUniqueEffectConfig.poisonOverloadStacks) {
+                                const overloadDamage = Math.max(1, Math.floor(baseHp * BossUniqueEffectConfig.poisonOverloadRate * stacks));
+                                const overloadApplied = applyDamage(target, overloadDamage, Game.player, { ignoreBossRushNullify: true, ignoreBossRushDamageReduction: true, ignoreReflect: true });
+                                addLog(`毒過積載が爆発！ ${overloadApplied}ダメージ`, "text-amber-400");
+                            }
+                        }
                     }
                     if (def.effectType === 'bleed') {
                         const stacks = Math.max(1, effect.stacks || 1);
@@ -5624,6 +6004,15 @@
                 if (hasBossRushBuff(target, "br_orange_immune")) {
                     return;
                 }
+                if (source?.singleStatusRule) {
+                    const existingNegative = (target.statusEffects || []).find((effect) => NegativeStatusEffectIds.has(effect.id));
+                    if (existingNegative && existingNegative.id !== effectId) {
+                        return;
+                    }
+                    if (def.stackable) {
+                        stacks = Math.max(stacks, 2);
+                    }
+                }
                 if (hasBossRushBuff(target, "br_yellow_status_limit")) {
                     const existingNegative = (target.statusEffects || []).find((effect) => NegativeStatusEffectIds.has(effect.id));
                     if (existingNegative && existingNegative.id !== effectId) {
@@ -5643,11 +6032,12 @@
                 target.statusEffects = [];
             }
             const duration = turns ?? def.defaultTurns ?? 1;
-            const bonusMaxStacks = def.effectType === 'poison' && Number.isFinite(source?.poisonMaxStacksBonus)
-                ? source.poisonMaxStacksBonus
+            const bonusMaxStacks = def.effectType === 'poison'
+                ? (Number.isFinite(source?.poisonMaxStacksBonus) ? source.poisonMaxStacksBonus : 0)
                 : 0;
+            const unlimitedPoisonStacks = def.effectType === 'poison' && source?.poisonUnlimited ? 999 : 0;
             const maxStacks = def.effectType === 'poison'
-                ? (def.maxStacks ?? stacks) + Math.max(0, bonusMaxStacks)
+                ? (def.maxStacks ?? stacks) + Math.max(0, bonusMaxStacks) + unlimitedPoisonStacks
                 : (def.maxStacks ?? stacks);
             const existing = target.statusEffects.find(effect => effect.id === effectId);
             if (existing) {
@@ -6492,6 +6882,7 @@
                 addLog(`エリートランク${eliteRank} ${Game.enemy.name}が出現！`, "text-purple-500 font-black");
             }
             Game.state = 'combat';
+            resetBossUniqueCombatState();
         }
 
         function performEnemySkill(skill, derived) {
@@ -6645,6 +7036,29 @@
                 return;
             }
 
+            const buildCombatContext = () => {
+                const derived = getDerivedStats();
+                const enemyStatusMods = getStatusModifiers(Game.enemy);
+                const enemyEvasion = Math.max(0, Math.floor((Game.enemy.eva || 0) * enemyStatusMods.evasionMul));
+                const bossRushDefenseMul = getBossRushEnemyDefenseMultiplier(Game.enemy);
+                const enemyDefense = Math.max(0, Math.floor((Game.enemy.def || 0) * enemyStatusMods.defMul * bossRushDefenseMul));
+                const playerStatusMods = getStatusModifiers(Game.player);
+                return { derived, enemyStatusMods, enemyEvasion, enemyDefense, playerStatusMods };
+            };
+
+            let combatContext = buildCombatContext();
+            if (hasBossUniqueEffect("repeatMemory") && Game.player.bossUniqueState.lastSkill && !combatContext.playerStatusMods.silence) {
+                addLog("反復記憶が発動！", "text-amber-400");
+                performPlayerSkillAction(Game.player.bossUniqueState.lastSkill, combatContext, { labelPrefix: "反復記憶：" });
+                if (Game.enemy.hp <= 0) {
+                    victory();
+                    updateUI();
+                    triggerAutosave();
+                    return;
+                }
+                combatContext = buildCombatContext();
+            }
+
             const slotResult = getNextSlotSkill();
             let currentSkill = { name: '通常攻撃', mp: 0, pow: 0.9 };
             let isMagic = false;
@@ -6654,7 +7068,7 @@
                 if (currentSkill.isMagic) isMagic = true;
             }
 
-            const derived = getDerivedStats();
+            const derived = combatContext.derived;
             let adjustedMpCost = currentSkill.mp || 0;
             if (currentSkill.name !== '通常攻撃') {
                 const skillMpDiscount = derived.totals.skillMpDiscount || 0;
@@ -6687,11 +7101,12 @@
             }
 
             Game.player.skillSlotIndex = slotResult.nextIndex;
-
-            const enemyStatusMods = getStatusModifiers(Game.enemy);
-            const enemyEvasion = Math.max(0, Math.floor((Game.enemy.eva || 0) * enemyStatusMods.evasionMul));
-            const bossRushDefenseMul = getBossRushEnemyDefenseMultiplier(Game.enemy);
-            const enemyDefense = Math.max(0, Math.floor((Game.enemy.def || 0) * enemyStatusMods.defMul * bossRushDefenseMul));
+            const {
+                enemyStatusMods,
+                enemyEvasion,
+                enemyDefense,
+                playerStatusMods: actionPlayerStatusMods
+            } = combatContext;
 
             if (currentSkill.hpCost) {
                 const cost = Math.floor(derived.maxHp * currentSkill.hpCost);
@@ -6709,191 +7124,28 @@
                 removeStatusEffect(Game.player, 'potionSkillMpCut');
             }
 
-            if (currentSkill.type === 'heal') {
-                let amt = Math.floor(currentSkill.val + (derived.totals.int * 1.2));
-                if (derived.totals.skillPowerBoost > 0) {
-                    amt = Math.floor(amt * (1 + derived.totals.skillPowerBoost / 100));
-                }
-                Game.player.hp = Math.min(derived.maxHp, Game.player.hp + amt);
-                addLog(`【回復】${amt}HP`, "text-green-500");
-                dmgText(amt, true);
-                triggerBossRushHealReaction(amt, "回復反撃");
-            } else {
-                const bossMods = getBossUniqueCombatModifiers({
-                    player: Game.player,
-                    enemy: Game.enemy,
-                    derived,
-                    baseHits: currentSkill.hits || 1
-                });
-                if (bossMods.logs.length) {
-                    bossMods.logs.forEach((line) => addLog(line, "text-amber-400"));
-                }
-                let hits = currentSkill.hits || 1;
-                hits += bossMods.bonusHits || 0;
-                let totalDamage = 0;
-                let totalLeechApplied = 0;
-                let landedHit = false;
-                let nullifiedHit = false;
-                const nextHitEffect = getStatusEffect(Game.player, 'potionNextHitBoost');
-                const nextHitBoost = nextHitEffect?.bonusPct || 0;
-                let nextHitConsumed = false;
-                const leechBoost = getStatusEffect(Game.player, 'potionLeechBoost')?.bonusPct || 0;
-                
-                for(let i=0; i<hits; i++){
-                    const baseAccuracy = Math.max(0, derived.totals.accuracy + (currentSkill.accuracyBonus || 0) + bossMods.accuracyBonus);
-                    const evasionValue = Math.max(0, enemyEvasion);
-                    const baseHit = 78;
-                    const hitScale = 0.28;
-                    let hitChance = baseHit + (baseAccuracy - evasionValue) * hitScale;
-                    hitChance = Math.min(97, Math.max(15, hitChance));
-                    if (Math.random() * 100 > hitChance) {
-                        continue;
-                    }
-                    landedHit = true;
-                    // Base Attack Power Calculation
-                    let atkBase = isMagic ? (derived.totals.int * 2) : derived.atk;
-                    
-                    // Critical Check
-                    let isCrit = Math.random() * 100 < (derived.totals.critRate + (currentSkill.critBonus || 0) + bossMods.critRateBonus);
-                    const powerScale = currentSkill.name === '通常攻撃' ? CombatBalance.playerNormalPow : CombatBalance.playerSkillPow;
-                    let dmg = Math.floor(currentSkill.pow * powerScale * atkBase * (0.9 + Math.random() * 0.2));
-                    if (isCrit) dmg = Math.floor(dmg * (derived.totals.critDamage / 100));
-                    if (isCrit && hasBossRushBuff(Game.enemy, "br_yellow_crit_def")) {
-                        const state = getBossRushBuffState(Game.enemy);
-                        if (state) {
-                            state.defenseBoostPct = Math.min(100, (state.defenseBoostPct || 0) + BossRushBuffConfig.critDefBoost * 100);
-                        }
-                    }
+            performPlayerSkillAction(currentSkill, {
+                derived,
+                enemyStatusMods,
+                enemyEvasion,
+                enemyDefense,
+                playerStatusMods: actionPlayerStatusMods
+            });
 
-                    if (currentSkill.name !== '通常攻撃' && derived.totals.skillPowerBoost > 0) {
-                        dmg = Math.floor(dmg * (1 + derived.totals.skillPowerBoost / 100));
-                    }
-                    if (i >= (currentSkill.hits || 1) && bossMods.bonusHitMultiplier !== 1) {
-                        dmg = Math.floor(dmg * bossMods.bonusHitMultiplier);
-                    }
+            Game.player.bossUniqueState.lastSkill = currentSkill.name !== '通常攻撃' ? { ...currentSkill } : null;
 
-                    // Passive: Low HP boost
-                    const lowHpLevel = getPassiveLevel('warrior', 5);
-                    if (lowHpLevel > 0 && Game.player.hp < derived.maxHp * 0.3) {
-                        dmg = Math.floor(dmg * (1 + 0.1 * lowHpLevel));
-                    }
-                    // Passive: First hit boost
-                    const firstHitLevel = getPassiveLevel('thief', 5);
-                    if (firstHitLevel > 0 && Game.enemy.hp === Game.enemy.maxHp) {
-                        dmg = Math.floor(dmg * (1 + 0.25 * firstHitLevel));
-                    }
-
-                    if (derived.totals.damageBoost > 0) {
-                        dmg = Math.floor(dmg * (1 + derived.totals.damageBoost / 100));
-                    }
-                    if (bossMods.damageMultiplier !== 1) {
-                        dmg = Math.floor(dmg * bossMods.damageMultiplier);
-                    }
-                    if (nextHitBoost > 0 && !nextHitConsumed) {
-                        dmg = Math.floor(dmg * (1 + nextHitBoost / 100));
-                        nextHitConsumed = true;
-                        removeStatusEffect(Game.player, 'potionNextHitBoost');
-                        addLog("猛撃が発動！", "text-amber-400");
-                    }
-                    dmg = Math.floor(dmg * playerStatusMods.damageDoneMul);
-                    dmg = Math.floor(dmg * enemyStatusMods.damageTakenMul);
-                    dmg = Math.floor(dmg * getBossRushDamageTakenMultiplier(Game.enemy, Game.player));
-                    const attackValue = Math.max(1, Math.floor(atkBase));
-                    const defenseValue = Math.max(0, enemyDefense);
-                    dmg = Math.floor(dmg * getDamageRatio(attackValue, defenseValue));
-                    const nullifyThreshold = getBossRushDamageNullifyThreshold(Game.enemy);
-                    if (nullifyThreshold > 0 && dmg > 0 && dmg < nullifyThreshold) {
-                        nullifiedHit = true;
-                        continue;
-                    }
-                    dmg = Math.max(1, dmg);
-                    const appliedDamage = applyDamage(Game.enemy, dmg, Game.player, { ignoreBossRushNullify: true, ignoreBossRushDamageReduction: true });
-                    totalDamage += appliedDamage;
-                    
-                    // Leech
-                    const totalLeech = derived.totals.leechRate + (currentSkill.leech || 0) + leechBoost;
-                    if (totalLeech > 0 && appliedDamage > 0) {
-                        let l = Math.floor(appliedDamage * (totalLeech / 100));
-                        if (l > 0) {
-                            const beforeHp = Game.player.hp;
-                            Game.player.hp = Math.min(derived.maxHp, Game.player.hp + l);
-                            totalLeechApplied += (Game.player.hp - beforeHp);
-                        }
+            if (hasBossUniqueEffect("recastSkill") && currentSkill.name !== '通常攻撃') {
+                const recastContext = buildCombatContext();
+                if (Game.enemy.hp > 0 && !recastContext.playerStatusMods.silence && Math.random() < BossUniqueEffectConfig.recastChance) {
+                    addLog("再詠唱が発動！", "text-amber-400");
+                    performPlayerSkillAction(currentSkill, recastContext, { labelPrefix: "再詠唱：" });
+                    if (Game.enemy.hp <= 0) {
+                        victory();
+                        updateUI();
+                        triggerAutosave();
+                        return;
                     }
                 }
-                
-                if (totalDamage === 0) {
-                    if (landedHit) {
-                        addLog(nullifiedHit ? "ダメージが無効化された！" : "バリアに防がれた！", "text-slate-400");
-                        dmgText(0, false);
-                    } else {
-                        addLog("攻撃が外れた！", "text-slate-400");
-                        dmgText("MISS", false);
-                        triggerBossRushMistakeReaction();
-                    }
-                } else {
-                    addLog(`${currentSkill.name}！ ${totalDamage}のダメージ`);
-                    dmgText(totalDamage);
-                }
-
-                if (currentSkill.mpHeal && totalDamage > 0) {
-                    const mHeal = Math.floor(totalDamage * currentSkill.mpHeal);
-                    const beforeMp = Game.player.mp;
-                    Game.player.mp = Math.min(derived.maxMp, Game.player.mp + mHeal);
-                    const actual = Game.player.mp - beforeMp;
-                    if (actual > 0) {
-                        addLog(`MP吸収 +${actual}`, "text-blue-400");
-                        triggerBossRushHealReaction(actual, "回復反撃");
-                    }
-                }
-                if (totalLeechApplied > 0) {
-                    addLog(`吸血でHPが${totalLeechApplied}回復`, "text-emerald-400");
-                    triggerBossRushHealReaction(totalLeechApplied, "回復反撃");
-                }
-                if (currentSkill.expBonus && totalDamage > 0) {
-                    let b = Math.floor(Game.player.next * (currentSkill.expBonus / 100));
-                    Game.player.exp += b;
-                    addLog(`EXP +${b} 奪取！`);
-                    applyLevelUps();
-                }
-
-                document.getElementById('enemy-visual').classList.add('shake');
-                setTimeout(()=>document.getElementById('enemy-visual').classList.remove('shake'), 200);
-            }
-
-            if (currentSkill.effects) {
-                const stackBonus = derived.totals.statusEffectStackBonus || 0;
-                const turnBonus = derived.totals.statusEffectTurnBonus || 0;
-                currentSkill.effects.forEach((effect) => {
-                    const target = effect.target === "self" ? Game.player : Game.enemy;
-                    let stacks = effect.stacks;
-                    let turns = effect.turns;
-                    if (effect.target !== "self" && NegativeStatusEffectIds.has(effect.id)) {
-                        stacks = (stacks || 0) + stackBonus;
-                        if (turnBonus > 0) {
-                            const baseTurns = turns ?? (StatusDefs[effect.id]?.defaultTurns ?? 1);
-                            turns = baseTurns + turnBonus;
-                        }
-                    }
-                    const isFreeze = effect.id === "freeze" && effect.target !== "self";
-                    const baseChance = effect.chance ?? 1;
-                    const finalChance = isFreeze ? getFreezeDecayChance(target, baseChance) : baseChance;
-                    if (!isFreeze || Math.random() < finalChance) {
-                        const sourceStr = effect.target === "self" ? null : derived.totals.str;
-                        const poisonMaxStacksBonus = effect.id === "poison" ? derived.totals.poisonMaxStacksBonus : 0;
-                        const poisonMinPctBonus = effect.id === "poison" ? derived.totals.poisonMinPctBonus : 0;
-                        const source = (sourceStr || poisonMaxStacksBonus || poisonMinPctBonus)
-                            ? { sourceStr, poisonMaxStacksBonus, poisonMinPctBonus }
-                            : null;
-                        applyStatusEffect(target, effect.id, stacks, turns, source);
-                        if (isFreeze) {
-                            recordFreezeApplied(target);
-                        }
-                        if (effect.log && effect.target !== "self") {
-                            addLog(effect.log, "text-purple-400");
-                        }
-                    }
-                });
             }
 
             advanceStatusEffects(Game.player, 'end');
