@@ -1096,7 +1096,7 @@
                 <button id="bossrush-modal-close" class="text-slate-400 hover:text-slate-700 text-lg"><i class="fas fa-xmark"></i></button>
             </div>
             <div class="space-y-3 text-xs text-slate-600 leading-relaxed">
-                <p class="font-bold text-slate-700">5001階からボスラッシュが開始されます。</p>
+                <p class="font-bold text-slate-700">5001階からボスラッシュが開始されます。デジャヴとパラレルが交差する階層で、5000階の構成が別の可能性として再現されます。</p>
                 <ul class="space-y-2">
                     <li>・出現ボスはこれまでのボスからランダム抽選</li>
                     <li>・ステータスは大幅に強化、階数を進むほど強くなります</li>
@@ -2290,12 +2290,36 @@
             reviveHpPct: 0.5,
             baseCritMultiplier: 1.5
         };
+        const DxFloorStart = BossRushStartFloor;
+        const DxBaseMultiplier = 2.4;
+        const DxFloorScaleRate = 0.03;
+        const DxBonusMultiplier = 1.45;
+        const BossDxExtraMultiplier = 1.15;
         const CombatBalance = {
             playerNormalPow: 0.95,
             playerSkillPow: 1,
             enemyNormalPow: 0.95,
             enemySkillPow: 1
         };
+        const EnemySkillPools = {
+            balanced: [
+                { name: "均衡の一撃", pow: 0.95, effects: [{ target: "player", id: "weaken", stacks: 1, turns: 2, log: "体勢が崩れた！" }] }
+            ],
+            attack: [
+                { name: "強撃", pow: 1.2, effects: [{ target: "player", id: "defenseDown", stacks: 1, turns: 2, log: "防御が削られた！" }] }
+            ],
+            speed: [
+                { name: "迅撃乱舞", pow: 0.6, hits: 2, effects: [{ target: "player", id: "bleed", stacks: 1, turns: 2, log: "素早い斬撃で出血！" }] }
+            ],
+            defense: [
+                { name: "守勢の構え", pow: null, effects: [{ target: "self", id: "defenseUp", stacks: 2, turns: 3 }, { target: "self", id: "barrier", stacks: 1, turns: 2 }], log: "守りが強化された！" }
+            ]
+        };
+        const BossExtraSkillPool = [
+            { name: "DXバースト", pow: 1.1, effects: [{ target: "player", id: "vulnerable", stacks: 1, turns: 2, log: "DXの衝撃で脆弱になった！" }] },
+            { name: "DX強化", pow: null, effects: [{ target: "self", id: "attackUp", stacks: 2, turns: 3 }, { target: "self", id: "haste", stacks: 1, turns: 2 }], log: "DXの力で強化された！" },
+            { name: "DX崩し", pow: 0.85, hits: 2, effects: [{ target: "player", id: "attackDown", stacks: 1, turns: 2, log: "攻撃が鈍った！" }] }
+        ];
         const BossRushBuffCategories = [
             {
                 id: "basic",
@@ -3147,12 +3171,39 @@
             return 1 + safeFloor * 0.018 + safeFloor * safeFloor * 0.000055;
         };
 
+        const getDxScaleMultiplier = (floor) => {
+            if (floor < DxFloorStart) return 1;
+            const offset = Math.max(1, floor - (DxFloorStart - 1));
+            return DxBaseMultiplier * (1 + offset * DxFloorScaleRate) * DxBonusMultiplier;
+        };
+
+        const getBossDxScaleMultiplier = (floor) => getDxScaleMultiplier(floor) * BossDxExtraMultiplier;
+
+        const applyDxEnemyScaling = (enemy, floor) => {
+            if (!enemy || floor < DxFloorStart) return;
+            const multiplier = enemy.isBoss ? getBossDxScaleMultiplier(floor) : getDxScaleMultiplier(floor);
+            ["maxHp", "hp", "str", "def", "acc", "eva", "exp"].forEach((key) => {
+                if (Number.isFinite(enemy[key])) {
+                    enemy[key] = Math.floor(enemy[key] * multiplier);
+                }
+            });
+            if (Number.isFinite(enemy.hp) && Number.isFinite(enemy.maxHp)) {
+                enemy.hp = Math.min(enemy.hp, enemy.maxHp);
+            }
+        };
+
+        const buildDxItemName = (name, floor) => {
+            if (!name || floor < DxFloorStart) return name;
+            if (name.startsWith("DX")) return name;
+            return `DX${name}`;
+        };
+
         const getEquipmentSeedValue = (key) => EquipmentBaseSeed[key] ?? 1;
 
         const getEquipmentTypeMultiplier = (type) => EquipmentTypeMultipliers[type] ?? 1;
 
         const buildEquipmentBaseStats = (stats, floor, rarityMul, type) => {
-            const scale = getEquipmentGrowthScale(floor);
+            const scale = getEquipmentGrowthScale(floor) * getDxScaleMultiplier(floor);
             const typeMul = getEquipmentTypeMultiplier(type);
             return stats.map((stat) => {
                 const seedValue = getEquipmentSeedValue(stat.key);
@@ -3557,6 +3608,26 @@
 
         const getEnemyArchetypeId = (enemy) => enemy?.archetype || pickRandom(EnemyArchetypePool);
 
+        const getEnemySkillInterval = (archetypeId) => {
+            if (archetypeId === "speed") return 2;
+            if (archetypeId === "defense") return 4;
+            if (archetypeId === "attack") return 3;
+            return 3;
+        };
+
+        const buildEnemySkillSet = (archetypeId, existingSkills = [], options = {}) => {
+            const pool = options.pool || EnemySkillPools[archetypeId] || EnemySkillPools.balanced;
+            const extraSkill = pickRandom(pool);
+            const skills = Array.isArray(existingSkills) ? [...existingSkills] : [];
+            if (skills.length >= 2) return skills.slice(0, 2);
+            if (skills.length > 0) {
+                if (extraSkill) skills.push(extraSkill);
+                return skills.slice(0, 2);
+            }
+            if (extraSkill) skills.push(extraSkill);
+            return skills;
+        };
+
         const getEnemyLevelByFloor = (floor) => {
             const safeFloor = Math.max(1, floor || 1);
             return Math.max(1, Math.floor(safeFloor));
@@ -3746,6 +3817,7 @@
                 suffix,
                 originFloor
             };
+            item.name = buildDxItemName(item.name, originFloor);
             if (item.type !== "potion") {
                 item.enhancementLevel = 0;
                 item.isBroken = false;
@@ -3800,6 +3872,7 @@
                 suffix,
                 currentCapacity: 0
             };
+            potion.name = buildDxItemName(potion.name, Game.floor || 1);
             return potion;
         };
 
@@ -3865,6 +3938,7 @@
                 isBossDrop: true,
                 originFloor
             };
+            item.name = buildDxItemName(item.name, originFloor);
             if (item.type !== "potion") {
                 item.enhancementLevel = 0;
                 item.isBroken = false;
@@ -3908,6 +3982,7 @@
                 isRoadLegendary: true,
                 originFloor
             };
+            item.name = buildDxItemName(item.name, originFloor);
             if (item.type !== "potion") {
                 item.enhancementLevel = 0;
                 item.isBroken = false;
@@ -6459,6 +6534,12 @@
                     bossRushBuffs: [],
                     bossRushBuffState: null
                 };
+                Game.enemy.skills = buildEnemySkillSet("balanced", Game.enemy.skills || [], { pool: BossExtraSkillPool });
+                if (!Number.isFinite(Game.enemy.skillInterval)) {
+                    Game.enemy.skillInterval = 3;
+                    Game.enemy.skillCooldown = Game.enemy.skillInterval;
+                }
+                applyDxEnemyScaling(Game.enemy, Game.floor);
                 if (Game.isBossRush) {
                     Game.enemy.bossRushBuffs = rollBossRushBuffs(Game.floor);
                     Game.enemy.bossRushBuffState = null;
@@ -6483,6 +6564,11 @@
                     bossRushBuffs: [],
                     bossRushBuffState: null
                 };
+                Game.enemy.skills = buildEnemySkillSet(archetypeId, Game.enemy.skills || []);
+                Game.enemy.skillInterval = getEnemySkillInterval(archetypeId);
+                Game.enemy.skillCooldown = Game.enemy.skillInterval;
+                Game.enemy.skillRotation = 0;
+                applyDxEnemyScaling(Game.enemy, Game.floor);
                 Game.bossRushCarryoverDamage = 0;
             }
             const derived = getDerivedStats();
@@ -6962,7 +7048,7 @@
             }
 
             let skillReady = false;
-            if (Game.enemy.isBoss && Array.isArray(Game.enemy.skills) && Game.enemy.skills.length > 0) {
+            if (Array.isArray(Game.enemy.skills) && Game.enemy.skills.length > 0) {
                 Game.enemy.skillCooldown = Math.max(0, (Game.enemy.skillCooldown ?? 0) - 1);
                 if (Game.enemy.skillCooldown <= 0) {
                     skillReady = true;
@@ -6971,7 +7057,7 @@
 
             for (let actionIndex = 0; actionIndex < actionCount; actionIndex += 1) {
                 let didSkill = false;
-                if (!usedBossSkill && skillReady && Game.enemy.isBoss && Array.isArray(Game.enemy.skills) && Game.enemy.skills.length > 0) {
+                if (!usedBossSkill && skillReady && Array.isArray(Game.enemy.skills) && Game.enemy.skills.length > 0) {
                     const skill = Game.enemy.skills[Game.enemy.skillRotation % Game.enemy.skills.length];
                     Game.enemy.skillRotation = (Game.enemy.skillRotation + 1) % Game.enemy.skills.length;
                     performEnemySkill(skill, derived);
