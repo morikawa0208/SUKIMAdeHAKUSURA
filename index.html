@@ -2567,16 +2567,13 @@
                 floor: 50,
                 name: "毒沼のヴィス",
                 icon: "fa-skull-crossbones",
-
-
-
                 skillInterval: 3,
                 skills: [
                     {
                         name: "毒霧散布",
                         pow: 0.9,
                         effects: [
-                            { target: "player", id: "poison", stacks: 2, turns: 3, log: "毒が回った！" },
+                            { target: "player", id: "poison", stacks: 1, turns: 2, log: "毒が回った！" },
                             { target: "player", id: "attackDown", stacks: 1, turns: 2, log: "攻撃力が低下した…" }
                         ]
                     }
@@ -2586,15 +2583,12 @@
                 floor: 100,
                 name: "疾風狼セイル",
                 icon: "fa-wind",
-
-
-
                 skillInterval: 2,
                 skills: [
                     {
                         name: "疾風連斬",
-                        pow: 0.72,
-                        hits: 3,
+                        pow: 0.56,
+                        hits: 2,
                         effects: [
                         ]
                     }
