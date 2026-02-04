@@ -1355,6 +1355,7 @@
             defeatedBossRushMilestones: [],
             state: 'idle',
             stayOnFloor: false,
+            endMessageShown: false,
             enhanceModal: {
                 index: null,
                 stage: 'confirm',
@@ -2261,6 +2262,7 @@
         ];
         const BossRushStartFloor = 5001;
         const BossRushNoDropStartFloor = BossRushStartFloor;
+        const MaxFloorLimit = 10000;
         const BossDropChance = 0.05;
         const NormalDropChance = 0.95;
         const RoadLegendaryDropChance = 0.008;
@@ -4716,8 +4718,16 @@
             if (!Number.isFinite(Game.maxFloor)) {
                 Game.maxFloor = Game.floor || 1;
             }
+            Game.maxFloor = Math.min(MaxFloorLimit, Math.max(1, Game.maxFloor));
+            if (!Number.isFinite(Game.floor)) {
+                Game.floor = 1;
+            }
+            Game.floor = Math.min(MaxFloorLimit, Math.max(1, Game.floor));
             if (!Number.isFinite(Game.maxBossRushFloor)) {
                 Game.maxBossRushFloor = Game.isBossRush ? (Game.floor || BossRushStartFloor) : 0;
+            }
+            if (typeof Game.endMessageShown !== 'boolean') {
+                Game.endMessageShown = false;
             }
             if (!Array.isArray(Game.defeatedBossFloors)) {
                 Game.defeatedBossFloors = [];
@@ -7089,7 +7099,8 @@
                 actionCooldown = false;
             }, actionCooldownMs);
             if (Game.state === 'idle') {
-                const stayOnFloor = Game.stayOnFloor;
+                const reachedFloorLimit = !Game.isBossRush && Game.floor >= MaxFloorLimit;
+                const stayOnFloor = Game.stayOnFloor || reachedFloorLimit;
                 if (!stayOnFloor) {
                     Game.floor++;
                     if (Game.isBossRush) {
@@ -7097,6 +7108,8 @@
                     } else {
                         Game.maxFloor = Math.max(Game.maxFloor, Game.floor);
                     }
+                } else if (reachedFloorLimit) {
+                    Game.maxFloor = Math.max(Game.maxFloor, Game.floor);
                 }
                 spawn();
                 addLog(stayOnFloor ? `B${Game.floor}へ再戦...` : `B${Game.floor}へ潜入...`);
@@ -7460,6 +7473,13 @@
             triggerAutosave();
             if (shouldOpenBossRushModal) {
                 openBossRushModal();
+            }
+            if (!Game.isBossRush && Game.enemy?.floor === MaxFloorLimit && !Game.endMessageShown) {
+                Game.endMessageShown = true;
+                Game.maxFloor = Math.max(Game.maxFloor, MaxFloorLimit);
+                openConfirmModal(
+                    "10000階到達、ありがとうございます。ここまで遊んでくれて感謝しています。よろしければ、メニューの「感想・要望」からご意見をお聞かせください。"
+                );
             }
         }
 
