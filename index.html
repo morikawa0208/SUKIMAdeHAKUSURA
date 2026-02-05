@@ -7619,12 +7619,7 @@
                     return buildBossItem(base, Game.enemy.floor, index, { forceLegendary: true });
                 }
             }
-            const tier = EquipmentTiers[getTierIndex(Game.floor)];
-            const types = Object.keys(EquipmentTypePools);
-            const type = pickRandom(types);
-            const poolKey = EquipmentTypePools[type];
-            const base = pickRandom(tier[poolKey]);
-            return buildItem(base, type, { maxRarityKey: "epic" });
+            return buildRoadLegendaryLoot();
         }
 
         function buildPotionLoot() {
