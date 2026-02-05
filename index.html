@@ -3805,6 +3805,12 @@
             return 3;
         };
 
+        const getAffixChance = (affixRate) => {
+            const maxChance = 70;
+            const scaledRate = Math.max(0, affixRate);
+            return maxChance * (1 - Math.exp(-scaledRate / 50));
+        };
+
         const getAffixStats = (affix, rank) => {
             const pool = affix.fixedStats || affix.stats || [];
             const selected = pool.slice(0, Math.max(1, rank));
@@ -3830,7 +3836,7 @@
                 ? (RarityDefs.find((def) => def.key === "legendary") || RarityDefs[RarityDefs.length - 1])
                 : rollRarity(totals.rareFind, eliteRank, { maxRarityKey: options.maxRarityKey });
             const affixRate = totals.affixFind + eliteRank * 8;
-            const affixChance = Math.min(100, 2 + affixRate);
+            const affixChance = getAffixChance(affixRate);
             const prefixRank = Math.random() * 100 < affixChance ? rollAffixRank(affixRate, eliteRank) : 0;
             const suffixRank = Math.random() * 100 < affixChance ? rollAffixRank(affixRate, eliteRank) : 0;
             const prefix = prefixRank ? rollAffix(PrefixAffixes, prefixRank) : null;
@@ -3878,7 +3884,7 @@
                 ? (RarityDefs.find((def) => def.key === options.forceRarityKey) || RarityDefs[0])
                 : rollRarity(totals.rareFind, eliteRank);
             const affixRate = totals.affixFind + eliteRank * 8;
-            const affixChance = options.noAffix ? 0 : Math.min(100, 2 + affixRate);
+            const affixChance = options.noAffix ? 0 : getAffixChance(affixRate);
             const prefixRank = Math.random() * 100 < affixChance ? rollAffixRank(affixRate, eliteRank) : 0;
             const suffixRank = Math.random() * 100 < affixChance ? rollAffixRank(affixRate, eliteRank) : 0;
             const prefix = prefixRank ? rollAffix(PotionPrefixAffixes, prefixRank) : null;
@@ -3921,7 +3927,7 @@
                 ? (RarityDefs.find((def) => def.key === "legendary") || RarityDefs[RarityDefs.length - 1])
                 : rollRarity(totals.rareFind, eliteRank);
             const affixRate = totals.affixFind + eliteRank * 8;
-            const affixChance = Math.min(100, 2 + affixRate);
+            const affixChance = getAffixChance(affixRate);
             const prefixRank = Math.random() * 100 < affixChance ? rollAffixRank(affixRate, eliteRank) : 0;
             const suffixRank = Math.random() * 100 < affixChance ? rollAffixRank(affixRate, eliteRank) : 0;
             const prefix = prefixRank ? rollAffix(PrefixAffixes, prefixRank) : null;
@@ -3989,7 +3995,7 @@
             const eliteRank = Game.enemy?.elite?.rank || 0;
             const rarity = (RarityDefs.find((def) => def.key === "legendary") || RarityDefs[RarityDefs.length - 1]);
             const affixRate = totals.affixFind + eliteRank * 8;
-            const affixChance = Math.min(100, 2 + affixRate);
+            const affixChance = getAffixChance(affixRate);
             const prefixRank = Math.random() * 100 < affixChance ? rollAffixRank(affixRate, eliteRank) : 0;
             const suffixRank = Math.random() * 100 < affixChance ? rollAffixRank(affixRate, eliteRank) : 0;
             const prefix = prefixRank ? rollAffix(PrefixAffixes, prefixRank) : null;
