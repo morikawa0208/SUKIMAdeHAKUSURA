@@ -3127,9 +3127,9 @@
 
         const RarityDefs = [
             { key: "normal", name: "ノーマル", mul: 1.0 },
-            { key: "magic", name: "マジック", mul: 1.3 },
-            { key: "rare", name: "レア", mul: 1.8 },
-            { key: "epic", name: "エピック", mul: 3.0 },
+            { key: "magic", name: "マジック", mul: 1.2 },
+            { key: "rare", name: "レア", mul: 1.5 },
+            { key: "epic", name: "エピック", mul: 2.0 },
             { key: "legendary", name: "レジェンダリー", mul: 5.0 }
         ];
         const RaritySortOrder = Object.fromEntries(RarityDefs.map((def, index) => [def.key, index]));
@@ -4987,10 +4987,7 @@
             document.querySelectorAll('nav button').forEach(el => el.classList.remove('active'));
             document.getElementById(`page-${p}`).classList.add('active');
             document.getElementById(`nav-${p}`).classList.add('active');
-            if (p === 'skill') {
-                document.getElementById('nav-sp-dot').classList.add('hidden');
-                renderSkillList();
-            }
+            if (p === 'skill') document.getElementById('nav-sp-dot').classList.add('hidden');
             if (p === 'log') {
                 requestAnimationFrame(() => {
                     const full = document.getElementById('full-log-container');
