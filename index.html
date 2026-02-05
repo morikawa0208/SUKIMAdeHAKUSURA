@@ -4987,7 +4987,10 @@
             document.querySelectorAll('nav button').forEach(el => el.classList.remove('active'));
             document.getElementById(`page-${p}`).classList.add('active');
             document.getElementById(`nav-${p}`).classList.add('active');
-            if (p === 'skill') document.getElementById('nav-sp-dot').classList.add('hidden');
+            if (p === 'skill') {
+                document.getElementById('nav-sp-dot').classList.add('hidden');
+                renderSkillList();
+            }
             if (p === 'log') {
                 requestAnimationFrame(() => {
                     const full = document.getElementById('full-log-container');
