@@ -7483,40 +7483,21 @@
             }
             // Drop Luck Check
             if (!Game.isBossRush) {
-                const eliteLootMultiplier = Game.enemy?.elite?.lootMultiplier ?? 1;
-                const totals = getTotalStats();
-                let dropChance = Math.min(0.95, totals.luck / 100);
-                dropChance = Math.min(0.95, dropChance * eliteLootMultiplier);
-                const rollBossDropMode = () => {
-                    if (!Game.enemy?.isBoss) return false;
-                    return Math.random() < BossDropChance;
-                };
-                const rollRoadLegendaryMode = () => {
-                    if (Game.enemy?.isBoss) return false;
-                    return Math.random() < RoadLegendaryDropChance;
-                };
-                if (Math.random() < dropChance) {
+                const queueLegendaryLoot = () => {
                     if (Game.enemy?.isBoss) {
-                        const forceBossDrop = rollBossDropMode();
-                        queueLoot(buildEquipmentLoot({ forceBossDrop }));
-                    } else {
-                        const isRoadLegendary = rollRoadLegendaryMode();
-                        queueLoot(isRoadLegendary ? buildRoadLegendaryLoot() : buildEquipmentLoot({ forceBossDrop: false }));
-                    }
-                }
-                if (Math.random() < dropChance) queueLoot(buildPotionLoot());
-                const bonusRolls = Game.enemy?.elite ? Math.floor(Game.enemy.elite.rank / 2) : 0;
-                for (let i = 0; i < bonusRolls; i++) {
-                    if (Math.random() < dropChance) {
-                        if (Game.enemy?.isBoss) {
-                            const forceBossDrop = rollBossDropMode();
-                            queueLoot(buildEquipmentLoot({ forceBossDrop }));
-                        } else {
-                            const isRoadLegendary = rollRoadLegendaryMode();
-                            queueLoot(isRoadLegendary ? buildRoadLegendaryLoot() : buildEquipmentLoot({ forceBossDrop: false }));
+                        const bossLoot = buildEquipmentLoot({ forceBossDrop: true });
+                        if (bossLoot && bossLoot.rarity === 'legendary') {
+                            queueLoot(bossLoot);
+                            return;
                         }
                     }
-                    if (Math.random() < dropChance) queueLoot(buildPotionLoot());
+                    const roadLoot = buildRoadLegendaryLoot();
+                    if (roadLoot) queueLoot(roadLoot);
+                };
+                queueLegendaryLoot();
+                const bonusRolls = Game.enemy?.elite ? Math.floor(Game.enemy.elite.rank / 2) : 0;
+                for (let i = 0; i < bonusRolls; i++) {
+                    queueLegendaryLoot();
                 }
             }
             openNextLoot();
