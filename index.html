@@ -7482,7 +7482,7 @@
                 );
             }
             // Drop Luck Check
-            if (!Game.isBossRush || Game.floor < BossRushNoDropStartFloor) {
+            if (!Game.isBossRush) {
                 const eliteLootMultiplier = Game.enemy?.elite?.lootMultiplier ?? 1;
                 const totals = getTotalStats();
                 let dropChance = Math.min(0.95, totals.luck / 100);
