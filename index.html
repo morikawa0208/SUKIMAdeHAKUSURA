@@ -7608,15 +7608,16 @@
 
         function buildEquipmentLoot(options = {}) {
             const forceBossDrop = options.forceBossDrop;
+            const floor = Game.enemy?.floor || Game.floor;
             const useBossTable = forceBossDrop === true
                 ? true
-                : (forceBossDrop === false ? false : (Game.enemy?.isBoss && Game.enemy.floor <= 5000));
+                : (forceBossDrop === false ? false : (Game.enemy?.isBoss && floor <= 5000));
             if (useBossTable) {
-                const bossTable = BossRushLootTables[Game.enemy.floor] || BossLootTables[Game.enemy.floor];
+                const bossTable = BossRushLootTables[floor] || BossLootTables[floor];
                 if (bossTable && bossTable.length > 0) {
                     const base = pickRandom(bossTable);
                     const index = Math.max(0, bossTable.indexOf(base));
-                    return buildBossItem(base, Game.enemy.floor, index, { forceLegendary: true });
+                    return buildBossItem(base, floor, index, { forceLegendary: true });
                 }
             }
             const tier = EquipmentTiers[getTierIndex(Game.floor)];
