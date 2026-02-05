@@ -4059,10 +4059,12 @@
             ].forEach((item) => normalizeEquipmentBaseStats(item, fallbackFloor));
         };
 
-        const buildRoadLegendaryLoot = () => {
-            const table = getRoadLegendaryTable(Game.floor);
-            if (!table || !table.items || table.items.length === 0) return null;
-            const base = pickRandom(table.items);
+        const buildRoadLegendaryLoot = (floor = Game.floor) => {
+            const table = getRoadLegendaryTable(floor);
+            const fallbackTable = RoadLegendaryLootTables.find((entry) => Array.isArray(entry.items) && entry.items.length > 0);
+            const resolvedTable = table && table.items && table.items.length > 0 ? table : fallbackTable;
+            if (!resolvedTable) return null;
+            const base = pickRandom(resolvedTable.items);
             return buildRoadLegendaryItem(base);
         };
 
@@ -7619,7 +7621,7 @@
                     return buildBossItem(base, Game.enemy.floor, index, { forceLegendary: true });
                 }
             }
-            return buildRoadLegendaryLoot();
+            return buildRoadLegendaryLoot(Game.floor ?? Game.enemy?.floor);
         }
 
         function buildPotionLoot() {
