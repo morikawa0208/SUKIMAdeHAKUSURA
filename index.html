@@ -7448,6 +7448,18 @@
         }
 
         function victory() {
+
+            console.log("[BOSS DROP CHECK]", {
+              isBoss: Game.enemy?.isBoss,
+              enemyFloor: Game.enemy?.floor,
+              gameFloor: Game.floor,
+              bossTableByEnemyFloor: BossLootTables?.[Game.enemy?.floor],
+              bossTableByGameFloor: BossLootTables?.[Game.floor],
+              bossRushTableByEnemyFloor: BossRushLootTables?.[Game.enemy?.floor],
+              bossRushTableByGameFloor: BossRushLootTables?.[Game.floor],
+            });
+
+            
             Game.state = 'idle';
             const shouldOpenBossRushModal = Boolean(
                 Game.enemy?.isBoss
@@ -7614,6 +7626,13 @@
                 ? true
                 : (forceBossDrop === false ? false : (Game.enemy?.isBoss && Game.enemy.floor <= 5000));
             if (useBossTable) {
+
+console.log("[BUILD LOOT]", {
+  useBossTable,
+  floor,
+  bossTable: BossLootTables?.[floor] || BossRushLootTables?.[floor],
+});
+                
                 const bossTable = BossRushLootTables[Game.enemy.floor] || BossLootTables[Game.enemy.floor];
                 if (bossTable && bossTable.length > 0) {
                     const base = pickRandom(bossTable);
