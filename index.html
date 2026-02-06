@@ -7529,7 +7529,7 @@ console.log("[DROP CHANCE]", { dropChance, eliteLootMultiplier, isBoss: Game.ene
                 
                 const bonusRolls = Game.enemy?.elite ? Math.floor(Game.enemy.elite.rank / 2) : 0;
                 for (let i = 0; i < bonusRolls; i++) {
-                    if (Math.random() < dropChance) {
+                    if (Math.random() < dropChance * 0.5) {
                       if (Game.enemy?.isBoss) {
                         queueLoot(buildEquipmentLoot({ forceBossDrop: false }));
                     
@@ -7542,7 +7542,6 @@ console.log("[DROP CHANCE]", { dropChance, eliteLootMultiplier, isBoss: Game.ene
                         queueLoot(isRoadLegendary ? buildRoadLegendaryLoot() : buildEquipmentLoot({ forceBossDrop: false }));
                       }
                     }
-                    if (Math.random() < dropChance) queueLoot(buildPotionLoot());
                 }
             }
             openNextLoot();
