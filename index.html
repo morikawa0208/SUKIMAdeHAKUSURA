@@ -7688,37 +7688,9 @@ console.log("[BUILD LOOT ENTRY]", { forceBossDrop: options.forceBossDrop, isBoss
             if (Game.lootQueue.length === 0) return;
             while (Game.lootQueue.length > 0) {
                 const nextItem = Game.lootQueue.shift();
-                if (nextItem && nextItem.rarity === 'legendary' && nextItem.type !== 'potion') {
-                    openLegendaryDropModal(nextItem);
-                    return;
-                }
                 acquireLoot(nextItem);
             }
             updateUI();
-        }
-
-        function openLegendaryDropModal(item) {
-            Game.tempLegendaryLoot = item;
-            document.getElementById('legendary-drop-display').innerHTML = `
-                <div class="text-[10px] text-amber-200/80 mb-1 uppercase font-black">${getEquipmentTypeLabel(Game.tempLegendaryLoot)} Found</div>
-                <div class="text-xl font-black rarity-${Game.tempLegendaryLoot.rarity} legendary-glow">${Game.tempLegendaryLoot.name}</div>
-                <div class="mt-2 space-y-1">${renderItemStatsHtml(Game.tempLegendaryLoot)}</div>
-            `;
-            document.getElementById('legendary-drop-modal').style.display = 'flex';
-            Game.state = 'loot';
-        }
-
-        function closeLegendaryDropModal() {
-            if (!Game.tempLegendaryLoot) return;
-            acquireLoot(Game.tempLegendaryLoot);
-            Game.tempLegendaryLoot = null;
-            document.getElementById('legendary-drop-modal').style.display = 'none';
-            Game.state = 'idle';
-            updateUI();
-            if (Game.lootQueue.length > 0) {
-                openNextLoot();
-            }
-            triggerAutosave();
         }
 
         function acquireLoot(item) {
