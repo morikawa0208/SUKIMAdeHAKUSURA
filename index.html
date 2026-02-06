@@ -1335,9 +1335,16 @@
       </div>
     </div>
 
+    <div id="boot-overlay" class="fixed inset-0 z-[160] hidden bg-slate-900/40 flex items-center justify-center">
+      <div class="bg-white/90 text-slate-700 font-black text-sm px-4 py-2 rounded-xl shadow">
+        ロード中…
+      </div>
+    </div>
+
 
     <script>
         let lastTouchEnd = 0;
+        let isBootstrapping = true;
         document.addEventListener('touchend', function (e) {
             const now = Date.now();
             const interactiveTarget = e.target.closest('button, a, input, select, textarea, label');
@@ -1643,6 +1650,7 @@
         };
 
         const saveToSlot = (slot, isAuto = false) => {
+            if (isBootstrapping) return;
             const payload = {
                 savedAt: new Date().toISOString(),
                 data: buildSaveSnapshot()
@@ -1655,8 +1663,30 @@
         };
 
         const triggerAutosave = () => {
+            if (isBootstrapping) return;
             const slot = getAutosaveSlot();
             saveToSlot(slot, true);
+        };
+
+        const setBootstrappingLock = (locked) => {
+            document.querySelectorAll('button, input, select, textarea').forEach((el) => {
+                if (locked) {
+                    if (el.dataset.bootDisabled === undefined) {
+                        el.dataset.bootDisabled = el.disabled ? 'true' : 'false';
+                    }
+                    el.disabled = true;
+                } else if (el.dataset.bootDisabled !== undefined) {
+                    el.disabled = el.dataset.bootDisabled === 'true';
+                    delete el.dataset.bootDisabled;
+                }
+            });
+            const overlay = document.getElementById('boot-overlay');
+            if (overlay) overlay.classList.toggle('hidden', !locked);
+        };
+
+        const finishBootstrapping = () => {
+            isBootstrapping = false;
+            setBootstrappingLock(false);
         };
 
         const loadFromSlot = (slot) => {
@@ -1687,6 +1717,7 @@
             switchJob(Game.currentJobTab || 'warrior');
             switchSkillType(Game.currentSkillType || 'active');
             updateUI();
+            finishBootstrapping();
             setSaveStatus(`スロット${slot}からロードしました。`, 'text-blue-600');
             renderSaveSlots();
             refreshExportPanel();
@@ -1702,6 +1733,7 @@
             switchJob('warrior');
             switchSkillType('active');
             updateUI();
+            finishBootstrapping();
             setSaveStatus(message, tone);
             renderSaveSlots();
             refreshExportPanel();
@@ -4960,6 +4992,8 @@
 
         // --- CORE LOGIC ---
         window.onload = () => {
+            isBootstrapping = true;
+            setBootstrappingLock(true);
             setupSaveControls();
             setupExportImportControls();
             setupWarpControls();
@@ -4980,6 +5014,7 @@
             updateUI();
             switchJob('warrior');
             switchSkillType('active');
+            finishBootstrapping();
         };
 
         function switchPage(p) {
