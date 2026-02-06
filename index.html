@@ -7447,6 +7447,112 @@
             updateUI();
         }
 
+
+function victory() {
+
+            console.log("[BOSS DROP CHECK]", {
+              isBoss: Game.enemy?.isBoss,
+              enemyFloor: Game.enemy?.floor,
+              gameFloor: Game.floor,
+              bossTableByEnemyFloor: BossLootTables?.[Game.enemy?.floor],
+              bossTableByGameFloor: BossLootTables?.[Game.floor],
+              bossRushTableByEnemyFloor: BossRushLootTables?.[Game.enemy?.floor],
+              bossRushTableByGameFloor: BossRushLootTables?.[Game.floor],
+            });
+
+            Game.state = 'idle';
+            const shouldOpenBossRushModal = Boolean(
+                Game.enemy?.isBoss
+                && Game.enemy.floor === 5000
+                && !Game.defeatedBossFloors.includes(5000)
+            );
+            if (Game.enemy?.isBoss) {
+                recordBossDefeat(Game.enemy.floor || Game.floor);
+            }
+            addLog(`討伐成功！`, "text-yellow-500 font-black");
+            let gain = Game.enemy.exp;
+            // Exp Boost Calculation
+            const totals = getTotalStats();
+            gain = Math.floor(gain * (1 + totals.expBoost / 100));
+            if (Game.enemy?.elite?.rank) {
+                gain = Math.floor(gain * (1 + 0.08 * Game.enemy.elite.rank));
+            }
+            Game.player.exp += gain;
+
+            applyLevelUps();
+            restorePotionCapacity(Game.player.potion1);
+            restorePotionCapacity(Game.player.potion2);
+            if (Array.isArray(Game.player.statusEffects)) {
+                Game.player.statusEffects = Game.player.statusEffects.filter(
+                    (effect) => !NegativeStatusEffectIds.has(effect.id)
+                );
+            }
+            // Drop Luck Check
+            if (!Game.isBossRush || Game.floor < BossRushNoDropStartFloor) {
+                const eliteLootMultiplier = Game.enemy?.elite?.lootMultiplier ?? 1;
+                const totals = getTotalStats();
+                let dropChance = Math.min(0.95, totals.luck / 100);
+                dropChance = Math.min(0.95, dropChance * eliteLootMultiplier);
+                const rollBossDropMode = () => {
+                    if (!Game.enemy?.isBoss) return false;
+                    const roll = Math.random();
+                    if (roll < BossDropChance) return true;
+                    if (roll < BossDropChance + NormalDropChance) return false;
+                    return false;
+                };
+                const rollRoadLegendaryMode = () => {
+                    if (Game.enemy?.isBoss) return false;
+                    const roll = Math.random();
+                    if (roll < RoadLegendaryDropChance) return true;
+                    if (roll < RoadLegendaryDropChance + RoadLegendaryNormalChance) return false;
+                    return false;
+                };
+                if (Math.random() < dropChance) {
+                    if (Game.enemy?.isBoss) {
+                        queueLoot(buildEquipmentLoot({ forceBossDrop: false }));
+                        const forceBossDrop = rollBossDropMode();
+                        if (forceBossDrop) {
+                            queueLoot(buildEquipmentLoot({ forceBossDrop: true }));
+                        }
+                    } else {
+                        const isRoadLegendary = rollRoadLegendaryMode();
+                        queueLoot(isRoadLegendary ? buildRoadLegendaryLoot() : buildEquipmentLoot({ forceBossDrop: false }));
+                    }
+                }
+                if (Math.random() < dropChance) queueLoot(buildPotionLoot());
+                const bonusRolls = Game.enemy?.elite ? Math.floor(Game.enemy.elite.rank / 2) : 0;
+                for (let i = 0; i < bonusRolls; i++) {
+                    if (Math.random() < dropChance) {
+                        if (Game.enemy?.isBoss) {
+                            queueLoot(buildEquipmentLoot({ forceBossDrop: false }));
+                            const forceBossDrop = rollBossDropMode();
+                            if (forceBossDrop) {
+                                queueLoot(buildEquipmentLoot({ forceBossDrop: true }));
+                            }
+                        } else {
+                            const isRoadLegendary = rollRoadLegendaryMode();
+                            queueLoot(isRoadLegendary ? buildRoadLegendaryLoot() : buildEquipmentLoot({ forceBossDrop: false }));
+                        }
+                    }
+                    if (Math.random() < dropChance) queueLoot(buildPotionLoot());
+                }
+            }
+            openNextLoot();
+            triggerAutosave();
+            if (shouldOpenBossRushModal) {
+                openBossRushModal();
+            }
+            if (!Game.isBossRush && Game.enemy?.floor === MaxFloorLimit && !Game.endMessageShown) {
+                Game.endMessageShown = true;
+                Game.maxFloor = Math.max(Game.maxFloor, MaxFloorLimit);
+                openConfirmModal(
+                    "10000階到達、ありがとうございます。ここまで遊んでくれて感謝しています。よろしければ、メニューの「感想・要望」からご意見をお聞かせください。"
+                );
+            }
+        }
+
+        
+        /*
         function victory() {
 
             console.log("[BOSS DROP CHECK]", {
@@ -7459,7 +7565,6 @@
               bossRushTableByGameFloor: BossRushLootTables?.[Game.floor],
             });
 
-            
             Game.state = 'idle';
             const shouldOpenBossRushModal = Boolean(
                 Game.enemy?.isBoss
@@ -7544,6 +7649,7 @@
                 );
             }
         }
+        */
 
         function die() {
             Game.state = 'dead';
@@ -7621,19 +7727,21 @@
         }
 
         function buildEquipmentLoot(options = {}) {
+            
             const forceBossDrop = options.forceBossDrop;
             const useBossTable = forceBossDrop === true
                 ? true
                 : (forceBossDrop === false ? false : (Game.enemy?.isBoss && Game.enemy.floor <= 5000));
             if (useBossTable) {
 
-console.log("[BUILD LOOT]", {
-  useBossTable,
-  floor,
-  bossTable: BossLootTables?.[floor] || BossRushLootTables?.[floor],
-});
-                
-                const bossTable = BossRushLootTables[Game.enemy.floor] || BossLootTables[Game.enemy.floor];
+            console.log("[BUILD LOOT]", {
+              useBossTable,
+              floor,
+              bossTable: BossLootTables?.[floor] || BossRushLootTables?.[floor],
+            });
+                const floor = Game.enemy?.floor ?? Game.floor; // ★これを使う
+                const bossTable = BossRushLootTables[floor] || BossLootTables[floor];
+                /*const bossTable = BossRushLootTables[Game.enemy.floor] || BossLootTables[Game.enemy.floor];*/
                 if (bossTable && bossTable.length > 0) {
                     const base = pickRandom(bossTable);
                     const index = Math.max(0, bossTable.indexOf(base));
