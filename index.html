@@ -7492,7 +7492,7 @@ function victory() {
                 const eliteLootMultiplier = Game.enemy?.elite?.lootMultiplier ?? 1;
                 const totals = getTotalStats();
                 let dropChance = Math.min(0.95, totals.luck / 100);
-                const BossUniqueExtraChance = 0.05; // 5%（好きな値）
+                const BossUniqueExtraChance = 1; // 5%（好きな値）
 
 console.log("[DROP CHANCE]", { dropChance, eliteLootMultiplier, isBoss: Game.enemy?.isBoss, floor: Game.floor });
 
