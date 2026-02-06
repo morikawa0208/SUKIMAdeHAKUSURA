@@ -7492,6 +7492,11 @@ function victory() {
                 const eliteLootMultiplier = Game.enemy?.elite?.lootMultiplier ?? 1;
                 const totals = getTotalStats();
                 let dropChance = Math.min(0.95, totals.luck / 100);
+
+
+console.log("[DROP CHANCE]", { dropChance, eliteLootMultiplier, isBoss: Game.enemy?.isBoss, floor: Game.floor });
+
+                
                 dropChance = Math.min(0.95, dropChance * eliteLootMultiplier);
                 const rollBossDropMode = () => {
                     if (!Game.enemy?.isBoss) return false;
@@ -7507,7 +7512,10 @@ function victory() {
                     if (roll < RoadLegendaryDropChance + RoadLegendaryNormalChance) return false;
                     return false;
                 };
-                if (Math.random() < dropChance) {
+                /*if (Math.random() < dropChance) {*/
+const eqRoll = Math.random();
+console.log("[EQ ROLL]", { eqRoll, dropChance, passed: eqRoll < dropChance, isBoss: Game.enemy?.isBoss });
+if (eqRoll < dropChance) {
                     if (Game.enemy?.isBoss) {
                         queueLoot(buildEquipmentLoot({ forceBossDrop: false }));
                         const forceBossDrop = rollBossDropMode();
@@ -7628,6 +7636,9 @@ function victory() {
         }
 
         function buildEquipmentLoot(options = {}) {
+
+console.log("[BUILD LOOT ENTRY]", { forceBossDrop: options.forceBossDrop, isBoss: Game.enemy?.isBoss, enemyFloor: Game.enemy?.floor, gameFloor: Game.floor });
+
             
             const forceBossDrop = options.forceBossDrop;
             const useBossTable = forceBossDrop === true
