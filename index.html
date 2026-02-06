@@ -3191,14 +3191,14 @@
         const getEquipmentTypeLabel = (item) => {
             const baseLabel = EquipmentTypeLabels[item?.type] ?? "";
             if (!baseLabel) return baseLabel;
-            if (item?.isBossDrop) return `${baseLabel} ボスドロップ`;
-            if (item?.isRoadLegendary) return `${baseLabel} 道中レジェンダリー`;
+            if (item?.isBossDrop) return `${baseLabel} ボスレジェンダリー`;
+            if (item?.isRoadLegendary) return `${baseLabel} ワールドレジェンダリー`;
             return baseLabel;
         };
 
         const InventorySortDefs = {
-            acquired: { label: "入手順", icon: "fa-clock" },
             rarity: { label: "レア度順", icon: "fa-gem" },
+            acquired: { label: "入手順", icon: "fa-clock" },
             affix: { label: "Affix順", icon: "fa-star" }
         };
 
