@@ -7601,7 +7601,7 @@ console.log("[DROP CHANCE]", { dropChance, eliteLootMultiplier, isBoss: Game.ene
 
         function die() {
             Game.state = 'dead';
-            const lostExp = Math.floor(Game.player.next * 0.1);
+            const lostExp = Game.isBossRush ? 0 : Math.floor(Game.player.next * 0.1);
             document.getElementById('lost-exp-val').innerText = lostExp;
             Game.player.exp = Math.max(0, Game.player.exp - lostExp);
             if (Game.isBossRush) {
