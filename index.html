@@ -7604,7 +7604,12 @@ console.log("[DROP CHANCE]", { dropChance, eliteLootMultiplier, isBoss: Game.ene
             const lostExp = Math.floor(Game.player.next * 0.1);
             document.getElementById('lost-exp-val').innerText = lostExp;
             Game.player.exp = Math.max(0, Game.player.exp - lostExp);
-            Game.floor = Math.max(1, Game.floor - 20);
+            if (Game.isBossRush) {
+                Game.isBossRush = false;
+                Game.floor = BossRushStartFloor;
+            } else {
+                Game.floor = Math.max(1, Game.floor - 20);
+            }
             addLog("────────────", "text-rose-400");
             addLog("戦闘不能…", "text-rose-400 font-black");
             addLog("────────────", "text-rose-400");
