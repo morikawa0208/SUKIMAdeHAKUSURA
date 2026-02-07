@@ -7604,7 +7604,12 @@ console.log("[DROP CHANCE]", { dropChance, eliteLootMultiplier, isBoss: Game.ene
             const lostExp = Math.floor(Game.player.next * 0.1);
             document.getElementById('lost-exp-val').innerText = lostExp;
             Game.player.exp = Math.max(0, Game.player.exp - lostExp);
-            Game.floor = Math.max(1, Game.floor - 20);
+            if (Game.isBossRush) {
+                Game.isBossRush = false;
+                Game.floor = BossRushStartFloor;
+            } else {
+                Game.floor = Math.max(1, Game.floor - 20);
+            }
             addLog("────────────", "text-rose-400");
             addLog("戦闘不能…", "text-rose-400 font-black");
             addLog("────────────", "text-rose-400");
@@ -8143,7 +8148,10 @@ console.log("[BUILD LOOT ENTRY]", { forceBossDrop: options.forceBossDrop, isBoss
             const derived = getDerivedStats();
             const totals = derived.totals;
             syncEquippedItemIds();
-            document.getElementById('floor-display').innerText = Game.floor;
+            const displayFloor = Game.isBossRush
+                ? Math.max(1, Game.floor - BossRushStartFloor + 1)
+                : Game.floor;
+            document.getElementById('floor-display').innerText = displayFloor;
             document.getElementById('header-lvl').innerText = p.level;
             document.getElementById('header-sp').innerText = p.sp;
             document.getElementById('header-gold').innerText = formatGold(p.gold);
