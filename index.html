@@ -1287,6 +1287,7 @@
             </div>
             <div class="mt-4">
                 <div class="text-[10px] text-slate-400 font-black mb-2">ボスラッシュ・マイルストーン</div>
+                <div class="text-[10px] text-slate-400 font-bold mb-1">最高到達: <span id="warp-bossrush-max">0</span>F</div>
                 <div id="warp-bossrush-empty" class="text-[10px] text-slate-400 hidden">ボスラッシュのマイルストーンがありません。</div>
                 <div id="warp-bossrush-buttons" class="grid grid-cols-3 gap-2"></div>
             </div>
@@ -4834,10 +4835,11 @@
             }
             if (empty) empty.classList.add('hidden');
             floors.forEach((floor) => {
+                const displayFloor = Math.max(1, floor - BossRushStartFloor + 1);
                 const button = document.createElement('button');
                 button.type = 'button';
                 button.className = 'bg-amber-50 text-amber-700 text-[10px] font-black px-2 py-2 rounded-xl flex items-center justify-center gap-1 hover:bg-amber-100 transition';
-                button.innerHTML = `<i class="fas fa-flag-checkered"></i> ${floor}F`;
+                button.innerHTML = `<i class="fas fa-flag-checkered"></i> ${displayFloor}F`;
                 button.addEventListener('click', () => performWarp(floor, { isBossRush: true }));
                 container.appendChild(button);
             });
@@ -4846,11 +4848,19 @@
         const syncWarpModal = () => {
             const maxFloor = getWarpMaxFloor();
             const maxFloorEl = document.getElementById('warp-max-floor');
+            const maxBossRushEl = document.getElementById('warp-bossrush-max');
             const input = document.getElementById('warp-input');
             const infoButton = document.getElementById('warp-bossrush-info');
             const bossRushEnter = document.getElementById('warp-bossrush-enter');
             if (maxFloorEl) {
                 maxFloorEl.textContent = maxFloor;
+            }
+            if (maxBossRushEl) {
+                const maxBossRushFloor = Math.max(0, Game.maxBossRushFloor || 0);
+                const displayBossRush = maxBossRushFloor >= BossRushStartFloor
+                    ? Math.max(1, maxBossRushFloor - BossRushStartFloor + 1)
+                    : 0;
+                maxBossRushEl.textContent = displayBossRush;
             }
             if (input) {
                 input.max = maxFloor;
@@ -4897,7 +4907,8 @@
             ensureWarpState();
             if (Game.isBossRush) {
                 const milestones = Game.defeatedBossRushMilestones;
-                if (floor % 50 === 0 && !milestones.includes(floor)) {
+                const bossRushFloor = Math.max(1, floor - BossRushStartFloor + 1);
+                if (bossRushFloor % 50 === 0 && !milestones.includes(floor)) {
                     milestones.push(floor);
                 }
                 return;
