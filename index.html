@@ -8148,7 +8148,10 @@ console.log("[BUILD LOOT ENTRY]", { forceBossDrop: options.forceBossDrop, isBoss
             const derived = getDerivedStats();
             const totals = derived.totals;
             syncEquippedItemIds();
-            document.getElementById('floor-display').innerText = Game.floor;
+            const displayFloor = Game.isBossRush
+                ? Math.max(1, Game.floor - BossRushStartFloor + 1)
+                : Game.floor;
+            document.getElementById('floor-display').innerText = displayFloor;
             document.getElementById('header-lvl').innerText = p.level;
             document.getElementById('header-sp').innerText = p.sp;
             document.getElementById('header-gold').innerText = formatGold(p.gold);
