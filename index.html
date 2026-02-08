@@ -4856,7 +4856,9 @@
             if (!container || !postContainer) return;
             container.innerHTML = '';
             postContainer.innerHTML = '';
-            const floors = (Game.defeatedBossFloors || []).filter((floor) => BossDefs[floor]).sort((a, b) => a - b);
+            const floors = (Game.defeatedBossFloors || [])
+                .filter((floor) => BossDefs[getRepeatedFloor(floor, 5000)])
+                .sort((a, b) => a - b);
             const baseFloors = floors.filter((floor) => floor < 5001);
             const postFloors = floors.filter((floor) => floor >= 5001);
             if (baseFloors.length === 0) {
