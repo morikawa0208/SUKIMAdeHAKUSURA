@@ -2934,42 +2934,42 @@
 
 
         const BossUniqueEffects = {
-            "毒牙の短剣": { type: "statBonus", stats: [ { key: "statusEffectStackBonus", value: 2 }, { key: "poisonMaxStacksBonus", value: 1 } ], label: "毒牙の短剣：状態異常付与スタック +2 / 毒上限スタック +1" },
-            "疾風の爪剣": { type: "statMultiplier", stat: "dex", value: 12, label: "疾風の爪剣：DEX倍率 +12%" },
-            "風走りのブーツ": { type: "bonusHitsChance", chance: 20, hits: 1, hitMultiplier: 0.7, label: "風走りのブーツ：20%で追加ヒット+1(70%)" },
-            "岩核の大盾": { type: "statMultiplier", stat: "vit", value: 12, extraType: "damageBuffer", label: "岩核の大盾：VIT倍率 +12%＋受けたダメージの一部を無効化し、その量を次の攻撃に上乗せ" },
-            "岩守りの兜": { type: "martyrLight", label: "受難の光：被弾した合計を「光」に変換し、一定量で自動爆発（回復扱いではない）" },
-            "氷晶の杖": { type: "statBonus", stats: [ { key: "skillPowerBoost", value: 12 } ], label: "氷晶の杖：スキル威力 +12%" },
-            "氷牢の指輪": { type: "recastSkill", label: "再詠唱：スキル使用後、一定確率で同スキルが“無詠唱”で再発動（1回）" },
-            "宵闇のマント": { type: "damageBoost", condition: { type: "enemyStatus", status: "poison" }, value: 15, label: "宵闇のマント：毒の敵に与ダメ+15%" },
-            "闇狩りの短剣": { type: "bonusHitsChance", chance: 18, hits: 1, hitMultiplier: 0.75, label: "闇狩りの短剣：18%で追加ヒット+1(75%)" },
-            "熾火の大剣": { type: "killOverflow", label: "熾火の大剣：キルごとに「過剰火力」を保存、次の敵への初撃に上乗せ" },
-            "炎護の手甲": { type: "overkillBank", label: "炎護の手甲：オーバーキル貯金：敵を倒した余剰ダメージを「貯蓄」し、次の攻撃に上乗せ（上限あり）" },
-            "雷鳴の戦槌": { type: "damageReturnCharge", label: "雷鳴の戦槌：受けた合計ダメージの一定割合を蓄積し、次の攻撃に上乗せして返す" },
-            "帯電の護符": { type: "statBonus", stats: [ { key: "skillMpDiscount", value: 10 } ], label: "帯電の護符：スキルMP消費 -10%" },
-            "聖紋のローブ": { type: "statMultiplier", stat: "int", value: 18, label: "聖紋のローブ：INT倍率 +18%" },
-            "聖祈の護符": { type: "statBonus", stats: [ { key: "skillPowerBoost", value: 16 } ], label: "聖祈の護符：スキル威力 +16%" },
-            "疫毒の鎌": { type: "statBonus", stats: [ { key: "statusEffectStackBonus", value: 2 }, { key: "poisonMaxStacksBonus", value: 1 } ], label: "疫毒の鎌：状態異常付与スタック +2 / 毒上限スタック +1" },
-            "腐蝕の指輪": { type: "statBonus", stats: [ { key: "statusEffectTurnBonus", value: 1 }, { key: "poisonMinPctBonus", value: 0.5 } ], label: "腐蝕の指輪：状態異常付与ターン +1 / 毒最低保証 +0.5%" },
-            "鉄壁の鎧": { type: "statMultiplier", stat: "vit", value: 18, extraType: "lethalGuard", label: "鉄壁の鎧：VIT倍率 +18%＋致死ダメージを受けるとHP1で耐える（1戦闘1回）" },
-            "鋼鉄のグローブ": { type: "statMultiplier", stat: "str", value: 14, label: "鋼鉄のグローブ：STR倍率 +14%" },
-            "影刃の忍刀": { type: "bonusHitsChance", chance: 22, hits: 1, hitMultiplier: 0.7, label: "影刃の忍刀：22%で追加ヒット+1(70%)" },
-            "夜走りの足袋": { type: "statMultiplier", stat: "dex", value: 18, label: "夜走りの足袋：DEX倍率 +18%" },
-            "終焉の竜槍": { type: "multiHitAmplifyDex", label: "終焉の竜槍：連打の増幅：攻撃が常に多段化。DEXで分割回数が増え、最後の1発は大本命" },
-            "竜鱗の護鎧": { type: "statMultiplier", stat: "vit", value: 25, extraType: "defenseLayers", label: "竜鱗の護鎧：VIT倍率 +25%＋被弾するたび「防御層」+1、層数ぶん次の攻撃が追撃" },
-            "毒沼のヘルム": { type: "singleStatusRule", label: "毒沼のヘルム：単一異常の掟：状態異常は1種類しか付かない代わりに、付与時に必ず2重スタック" },
-            "湿毒のローブ": { type: "poisonUnlimited", label: "湿毒のローブ：毒上限解放：毒スタックの上限が撤廃される" },
-            "疾風の籠手": { type: "extraTurnChance", condition: { type: "enemyHpBelow", threshold: 0.4 }, chance: 8, hitMultiplier: 0.7, label: "疾風の籠手：敵HP40%以下で8%で追加行動(70%)" },
-            "岩脈の護符": { type: "barrierSplitHits", label: "岩脈の護符：バリアが存在する間、攻撃が分割ヒット化" },
-            "凍霧の手甲": { type: "repeatMemory", label: "凍霧の手甲：反復記憶：ターン開始時、前ターン最後に使ったスキルを自動再実行" },
-            "闇縫いの兜": { type: "poisonOverload", label: "闇縫いの兜：毒過積載：毒が一定数以上ある間、毎ターン追加で爆発ダメージ" },
-            "灼炎の護衣": { type: "sureHitHighHp", condition: { type: "enemyHpAbove", threshold: 0.5 }, label: "灼炎の護衣：開幕灼熱：敵HP50%以上の間、必中" },
-            "雷影の兜": { type: "extraTurnChance", condition: { type: "enemyHpBelow", threshold: 0.3 }, chance: 10, hitMultiplier: 1, label: "雷影の兜：迅雷律：敵HP30%以下で行動回数+1(確率10%)" },
-            "聖光の杖": { type: "mpRestoreAfterSkill", condition: { type: "playerMpBelow", threshold: 0.5 }, label: "聖光の杖：祈りの反響：MP50%以下でスキル使用後にMP小回復(固定)" },
-            "腐蝕の脚甲": { type: "poisonStackSurge", condition: { type: "playerHpAbove", threshold: 0.75 }, value: 3, label: "腐蝕の脚甲：腐蝕伝播：HP75%以上で毒付与時に即+3スタック" },
-            "鉄壁の護符": { type: "returnDoubleGuard", condition: { type: "playerHpAbove", threshold: 0.6 }, label: "鉄壁の護符：鉄壁反響：HP60%以上で被ダメを次の攻撃に2倍で返す" },
-            "影刃の護符": { type: "shadowFirstStrike", condition: { type: "playerHpAbove", threshold: 0.6 }, label: "影刃の護符：影刃の宣告：HP60%以上の初撃が必ず会心＆倍率上昇" },
-            "終焉の護符": { type: "levelRatioBoost", stat: "luk", randomize: true, stepRange: [1, 5], gainRange: [1, 2], label: "終焉の護符：LUK成長" },
+            "毒牙の短剣": { type: "statBonus", scaleWithDx: true, stats: [ { key: "statusEffectStackBonus", value: 2 }, { key: "poisonMaxStacksBonus", value: 1 } ], label: "毒牙の短剣：状態異常付与スタック +2 / 毒上限スタック +1" },
+            "疾風の爪剣": { type: "statMultiplier", scaleWithDx: false, stat: "dex", value: 12, label: "疾風の爪剣：DEX倍率 +12%" },
+            "風走りのブーツ": { type: "bonusHitsChance", scaleWithDx: false, chance: 20, hits: 1, hitMultiplier: 0.7, label: "風走りのブーツ：20%で追加ヒット+1(70%)" },
+            "岩核の大盾": { type: "statMultiplier", scaleWithDx: false, stat: "vit", value: 12, extraType: "damageBuffer", label: "岩核の大盾：VIT倍率 +12%＋受けたダメージの一部を無効化し、その量を次の攻撃に上乗せ" },
+            "岩守りの兜": { type: "martyrLight", scaleWithDx: false, label: "受難の光：被弾した合計を「光」に変換し、一定量で自動爆発（回復扱いではない）" },
+            "氷晶の杖": { type: "statBonus", scaleWithDx: false, stats: [ { key: "skillPowerBoost", value: 12 } ], label: "氷晶の杖：スキル威力 +12%" },
+            "氷牢の指輪": { type: "recastSkill", scaleWithDx: false, label: "再詠唱：スキル使用後、一定確率で同スキルが“無詠唱”で再発動（1回）" },
+            "宵闇のマント": { type: "damageBoost", scaleWithDx: false, condition: { type: "enemyStatus", status: "poison" }, value: 15, label: "宵闇のマント：毒の敵に与ダメ+15%" },
+            "闇狩りの短剣": { type: "bonusHitsChance", scaleWithDx: false, chance: 18, hits: 1, hitMultiplier: 0.75, label: "闇狩りの短剣：18%で追加ヒット+1(75%)" },
+            "熾火の大剣": { type: "killOverflow", scaleWithDx: false, label: "熾火の大剣：キルごとに「過剰火力」を保存、次の敵への初撃に上乗せ" },
+            "炎護の手甲": { type: "overkillBank", scaleWithDx: false, label: "炎護の手甲：オーバーキル貯金：敵を倒した余剰ダメージを「貯蓄」し、次の攻撃に上乗せ（上限あり）" },
+            "雷鳴の戦槌": { type: "damageReturnCharge", scaleWithDx: false, label: "雷鳴の戦槌：受けた合計ダメージの一定割合を蓄積し、次の攻撃に上乗せして返す" },
+            "帯電の護符": { type: "statBonus", scaleWithDx: false, stats: [ { key: "skillMpDiscount", value: 10 } ], label: "帯電の護符：スキルMP消費 -10%" },
+            "聖紋のローブ": { type: "statMultiplier", scaleWithDx: false, stat: "int", value: 18, label: "聖紋のローブ：INT倍率 +18%" },
+            "聖祈の護符": { type: "statBonus", scaleWithDx: false, stats: [ { key: "skillPowerBoost", value: 16 } ], label: "聖祈の護符：スキル威力 +16%" },
+            "疫毒の鎌": { type: "statBonus", scaleWithDx: true, stats: [ { key: "statusEffectStackBonus", value: 2 }, { key: "poisonMaxStacksBonus", value: 1 } ], label: "疫毒の鎌：状態異常付与スタック +2 / 毒上限スタック +1" },
+            "腐蝕の指輪": { type: "statBonus", scaleWithDx: false, stats: [ { key: "statusEffectTurnBonus", value: 1 }, { key: "poisonMinPctBonus", value: 0.5 } ], label: "腐蝕の指輪：状態異常付与ターン +1 / 毒最低保証 +0.5%" },
+            "鉄壁の鎧": { type: "statMultiplier", scaleWithDx: false, stat: "vit", value: 18, extraType: "lethalGuard", label: "鉄壁の鎧：VIT倍率 +18%＋致死ダメージを受けるとHP1で耐える（1戦闘1回）" },
+            "鋼鉄のグローブ": { type: "statMultiplier", scaleWithDx: false, stat: "str", value: 14, label: "鋼鉄のグローブ：STR倍率 +14%" },
+            "影刃の忍刀": { type: "bonusHitsChance", scaleWithDx: false, chance: 22, hits: 1, hitMultiplier: 0.7, label: "影刃の忍刀：22%で追加ヒット+1(70%)" },
+            "夜走りの足袋": { type: "statMultiplier", scaleWithDx: false, stat: "dex", value: 18, label: "夜走りの足袋：DEX倍率 +18%" },
+            "終焉の竜槍": { type: "multiHitAmplifyDex", scaleWithDx: false, label: "終焉の竜槍：連打の増幅：攻撃が常に多段化。DEXで分割回数が増え、最後の1発は大本命" },
+            "竜鱗の護鎧": { type: "statMultiplier", scaleWithDx: false, stat: "vit", value: 25, extraType: "defenseLayers", label: "竜鱗の護鎧：VIT倍率 +25%＋被弾するたび「防御層」+1、層数ぶん次の攻撃が追撃" },
+            "毒沼のヘルム": { type: "singleStatusRule", scaleWithDx: false, label: "毒沼のヘルム：単一異常の掟：状態異常は1種類しか付かない代わりに、付与時に必ず2重スタック" },
+            "湿毒のローブ": { type: "poisonUnlimited", scaleWithDx: false, label: "湿毒のローブ：毒上限解放：毒スタックの上限が撤廃される" },
+            "疾風の籠手": { type: "extraTurnChance", scaleWithDx: false, condition: { type: "enemyHpBelow", threshold: 0.4 }, chance: 8, hitMultiplier: 0.7, label: "疾風の籠手：敵HP40%以下で8%で追加行動(70%)" },
+            "岩脈の護符": { type: "barrierSplitHits", scaleWithDx: false, label: "岩脈の護符：バリアが存在する間、攻撃が分割ヒット化" },
+            "凍霧の手甲": { type: "repeatMemory", scaleWithDx: false, label: "凍霧の手甲：反復記憶：ターン開始時、前ターン最後に使ったスキルを自動再実行" },
+            "闇縫いの兜": { type: "poisonOverload", scaleWithDx: false, label: "闇縫いの兜：毒過積載：毒が一定数以上ある間、毎ターン追加で爆発ダメージ" },
+            "灼炎の護衣": { type: "sureHitHighHp", scaleWithDx: false, condition: { type: "enemyHpAbove", threshold: 0.5 }, label: "灼炎の護衣：開幕灼熱：敵HP50%以上の間、必中" },
+            "雷影の兜": { type: "extraTurnChance", scaleWithDx: false, condition: { type: "enemyHpBelow", threshold: 0.3 }, chance: 10, hitMultiplier: 1, label: "雷影の兜：迅雷律：敵HP30%以下で行動回数+1(確率10%)" },
+            "聖光の杖": { type: "mpRestoreAfterSkill", scaleWithDx: false, condition: { type: "playerMpBelow", threshold: 0.5 }, label: "聖光の杖：祈りの反響：MP50%以下でスキル使用後にMP小回復(固定)" },
+            "腐蝕の脚甲": { type: "poisonStackSurge", scaleWithDx: true, condition: { type: "playerHpAbove", threshold: 0.75 }, value: 3, label: "腐蝕の脚甲：腐蝕伝播：HP75%以上で毒付与時に即+3スタック" },
+            "鉄壁の護符": { type: "returnDoubleGuard", scaleWithDx: false, condition: { type: "playerHpAbove", threshold: 0.6 }, label: "鉄壁の護符：鉄壁反響：HP60%以上で被ダメを次の攻撃に2倍で返す" },
+            "影刃の護符": { type: "shadowFirstStrike", scaleWithDx: false, condition: { type: "playerHpAbove", threshold: 0.6 }, label: "影刃の護符：影刃の宣告：HP60%以上の初撃が必ず会心＆倍率上昇" },
+            "終焉の護符": { type: "levelRatioBoost", scaleWithDx: false, stat: "luk", randomize: true, stepRange: [1, 5], gainRange: [1, 2], label: "終焉の護符：LUK成長" },
         };
 
         const BossUniqueEffectConfig = {
@@ -2997,26 +2997,26 @@
         };
 
         const RoadLegendaryUniqueEffects = {
-            "黎明の短剣": { type: "damageBoost", condition: { type: "playerHpAbove", threshold: 0.8 }, value: 25, label: "黎明の短剣：HP80%以上で与ダメ+25%" },
-            "晨光の護符": { type: "damageTakenReduction", condition: { type: "playerHpAbove", threshold: 0.7 }, value: 15, label: "晨光の護符：HP70%以上で被ダメ-15%" },
-            "灰燼の手甲": { type: "critBoost", value: 25, label: "灰燼の手甲：会心率+25%" },
-            "砂縛りのブーツ": { type: "extraTurnChance", condition: { type: "enemyHpBelow", threshold: 0.5 }, chance: 12, hitMultiplier: 0.6, label: "砂縛りのブーツ：敵HP50%以下で12%で追加行動(60%)" },
-            "月影のマント": { type: "damageTakenReduction", value: 20, label: "月影のマント：被ダメ-20%" },
-            "白霧の指輪": { type: "damageTakenReduction", condition: { type: "playerHpBelow", threshold: 0.5 }, value: 35, label: "白霧の指輪：HP50%以下で被ダメ-35%" },
-            "雷迅の戦槌": { type: "bonusHitsChance", chance: 15, hits: 1, hitMultiplier: 0.6, label: "雷迅の戦槌：15%で追加ヒット+1(60%)" },
-            "静電の兜": { type: "critBoost", value: 12, label: "静電の兜：会心率+12%" },
-            "深潭のローブ": { type: "statBonus", stats: [ { key: "mpRegen", value: 8 }, { key: "maxMp", value: 60 } ], label: "深潭のローブ：MP自動回復+8 / 最大MP+60" },
-            "濡刃の短剣": { type: "damageBoost", condition: { type: "enemyStatus", status: "poison" }, value: 30, label: "濡刃の短剣：毒の敵に与ダメ+30%" },
-            "熾火の大剣": { type: "statMultiplier", stat: "str", value: 20, label: "熾火の大剣：STR倍率 +20%" },
-            "紅炎の護符": { type: "damageBoost", condition: { type: "playerHpAbove", threshold: 0.9 }, value: 30, label: "紅炎の護符：HP90%以上で与ダメ+30%" },
-            "霜刻の杖": { type: "statMultiplier", stat: "int", value: 20, label: "霜刻の杖：INT倍率 +20%" },
-            "氷牢の肩当て": { type: "damageTakenReduction", condition: { type: "enemyStatus", status: "freeze" }, value: 25, label: "氷牢の肩当て：凍結中の敵から被ダメ-25%" },
-            "夜叉の爪剣": { type: "bonusHitsChance", chance: 18, hits: 1, hitMultiplier: 0.7, label: "夜叉の爪剣：18%で追加ヒット+1(70%)" },
-            "影討ちの足袋": { type: "accuracyBoost", condition: { type: "playerHpAbove", threshold: 0.7 }, value: 15, label: "影討ちの足袋：HP70%以上で命中+15" },
-            "封印の書": { type: "statBonus", stats: [ { key: "skillPowerBoost", value: 20 } ], label: "封印の書：スキル威力 +20%" },
-            "禁術の護符": { type: "statBonus", stats: [ { key: "skillMpDiscount", value: 20 }, { key: "maxMp", value: 80 } ], label: "禁術の護符：スキルMP消費-20% / 最大MP+80" },
-            "終末前夜の剣": { type: "riskBoost", condition: { type: "playerHpAbove", threshold: 0.8 }, value: 45, penalty: 20, label: "終末前夜の剣：HP80%以上で与ダメ+45%/被ダメ+20%" },
-            "刻印の護符": { type: "damageBoost", condition: { type: "enemyHpBelow", threshold: 0.5 }, value: 35, label: "刻印の護符：敵HP50%以下で与ダメ+35%" }
+            "黎明の短剣": { type: "damageBoost", scaleWithDx: false, condition: { type: "playerHpAbove", threshold: 0.8 }, value: 25, label: "黎明の短剣：HP80%以上で与ダメ+25%" },
+            "晨光の護符": { type: "damageTakenReduction", scaleWithDx: false, condition: { type: "playerHpAbove", threshold: 0.7 }, value: 15, label: "晨光の護符：HP70%以上で被ダメ-15%" },
+            "灰燼の手甲": { type: "critBoost", scaleWithDx: false, value: 25, label: "灰燼の手甲：会心率+25%" },
+            "砂縛りのブーツ": { type: "extraTurnChance", scaleWithDx: false, condition: { type: "enemyHpBelow", threshold: 0.5 }, chance: 12, hitMultiplier: 0.6, label: "砂縛りのブーツ：敵HP50%以下で12%で追加行動(60%)" },
+            "月影のマント": { type: "damageTakenReduction", scaleWithDx: false, value: 20, label: "月影のマント：被ダメ-20%" },
+            "白霧の指輪": { type: "damageTakenReduction", scaleWithDx: false, condition: { type: "playerHpBelow", threshold: 0.5 }, value: 35, label: "白霧の指輪：HP50%以下で被ダメ-35%" },
+            "雷迅の戦槌": { type: "bonusHitsChance", scaleWithDx: false, chance: 15, hits: 1, hitMultiplier: 0.6, label: "雷迅の戦槌：15%で追加ヒット+1(60%)" },
+            "静電の兜": { type: "critBoost", scaleWithDx: false, value: 12, label: "静電の兜：会心率+12%" },
+            "深潭のローブ": { type: "statBonus", scaleWithDx: true, stats: [ { key: "mpRegen", value: 8 }, { key: "maxMp", value: 60 } ], label: "深潭のローブ：MP自動回復+8 / 最大MP+60" },
+            "濡刃の短剣": { type: "damageBoost", scaleWithDx: false, condition: { type: "enemyStatus", status: "poison" }, value: 30, label: "濡刃の短剣：毒の敵に与ダメ+30%" },
+            "熾火の大剣": { type: "statMultiplier", scaleWithDx: false, stat: "str", value: 20, label: "熾火の大剣：STR倍率 +20%" },
+            "紅炎の護符": { type: "damageBoost", scaleWithDx: false, condition: { type: "playerHpAbove", threshold: 0.9 }, value: 30, label: "紅炎の護符：HP90%以上で与ダメ+30%" },
+            "霜刻の杖": { type: "statMultiplier", scaleWithDx: false, stat: "int", value: 20, label: "霜刻の杖：INT倍率 +20%" },
+            "氷牢の肩当て": { type: "damageTakenReduction", scaleWithDx: false, condition: { type: "enemyStatus", status: "freeze" }, value: 25, label: "氷牢の肩当て：凍結中の敵から被ダメ-25%" },
+            "夜叉の爪剣": { type: "bonusHitsChance", scaleWithDx: false, chance: 18, hits: 1, hitMultiplier: 0.7, label: "夜叉の爪剣：18%で追加ヒット+1(70%)" },
+            "影討ちの足袋": { type: "accuracyBoost", scaleWithDx: false, condition: { type: "playerHpAbove", threshold: 0.7 }, value: 15, label: "影討ちの足袋：HP70%以上で命中+15" },
+            "封印の書": { type: "statBonus", scaleWithDx: false, stats: [ { key: "skillPowerBoost", value: 20 } ], label: "封印の書：スキル威力 +20%" },
+            "禁術の護符": { type: "statBonus", scaleWithDx: false, stats: [ { key: "skillMpDiscount", value: 20 }, { key: "maxMp", value: 80 } ], label: "禁術の護符：スキルMP消費-20% / 最大MP+80" },
+            "終末前夜の剣": { type: "riskBoost", scaleWithDx: false, condition: { type: "playerHpAbove", threshold: 0.8 }, value: 45, penalty: 20, label: "終末前夜の剣：HP80%以上で与ダメ+45%/被ダメ+20%" },
+            "刻印の護符": { type: "damageBoost", scaleWithDx: false, condition: { type: "enemyHpBelow", threshold: 0.5 }, value: 35, label: "刻印の護符：敵HP50%以下で与ダメ+35%" }
         };
 
         const RoadLegendaryLootTables = [
@@ -3952,6 +3952,30 @@
             return potion;
         };
 
+        const scaleDxUniqueEffect = (effect, floor) => {
+            if (!effect || !effect.scaleWithDx) return effect;
+            const multiplier = getDxScaleMultiplier(floor);
+            if (!Number.isFinite(multiplier) || multiplier === 1) return effect;
+            const scaleValue = (value) => {
+                const scaled = value * multiplier;
+                if (Number.isInteger(value)) {
+                    return Math.max(1, Math.round(scaled));
+                }
+                return Math.round(scaled * 100) / 100;
+            };
+            const scaledEffect = { ...effect };
+            if (Number.isFinite(scaledEffect.value)) {
+                scaledEffect.value = scaleValue(scaledEffect.value);
+            }
+            if (Array.isArray(scaledEffect.stats)) {
+                scaledEffect.stats = scaledEffect.stats.map((stat) => {
+                    if (!Number.isFinite(stat.value)) return stat;
+                    return { ...stat, value: scaleValue(stat.value) };
+                });
+            }
+            return scaledEffect;
+        };
+
         const buildBossItem = (base, floor, index, options = {}) => {
             const totals = getTotalStats();
             const eliteRank = Game.enemy?.elite?.rank || 0;
@@ -3999,7 +4023,8 @@
                 delete resolvedEffect.gainRange;
             }
             if (resolvedEffect) {
-                uniqueStats.push({ key: "bossUniqueEffect", value: 0, effect: resolvedEffect });
+                const scaledEffect = scaleDxUniqueEffect(resolvedEffect, originFloor);
+                uniqueStats.push({ key: "bossUniqueEffect", value: 0, effect: scaledEffect });
             }
             const item = {
                 name: `${prefixStars}${prefix ? prefix.name : ""}${displayName}${suffix ? suffix.name : ""}${suffixStars}`,
@@ -4043,7 +4068,8 @@
             const uniqueStats = (base.uniqueStats || []).map((stat) => ({ ...stat }));
             const effect = RoadLegendaryUniqueEffects[base.name];
             if (effect) {
-                uniqueStats.push({ key: "bossUniqueEffect", value: 0, effect });
+                const scaledEffect = scaleDxUniqueEffect(effect, originFloor);
+                uniqueStats.push({ key: "bossUniqueEffect", value: 0, effect: scaledEffect });
             }
             const item = {
                 name: `${prefixStars}${prefix ? prefix.name : ""}${base.name}${suffix ? suffix.name : ""}${suffixStars}`,
