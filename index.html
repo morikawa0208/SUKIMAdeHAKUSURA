@@ -1261,7 +1261,7 @@
 
     <!-- WARP MODAL -->
     <div id="warp-modal" class="fixed inset-0 bg-slate-900/80 z-[115] hidden items-center justify-center p-6 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-sm rounded-[2rem] overflow-hidden shadow-2xl p-6 border-b-8 border-slate-200">
+        <div class="bg-white w-full max-w-sm rounded-[2rem] shadow-2xl p-6 border-b-8 border-slate-200 max-h-[80vh] overflow-y-auto">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="font-black text-lg text-slate-800 flex items-center gap-2"><i class="fas fa-location-arrow"></i> ワープ</h3>
                 <button id="warp-close" class="text-slate-400 hover:text-slate-700 text-lg"><i class="fas fa-xmark"></i></button>
@@ -1284,6 +1284,11 @@
                 <div class="text-[10px] text-slate-400 font-black mb-2">討伐済みボス</div>
                 <div id="warp-boss-empty" class="text-[10px] text-slate-400 hidden">討伐したボスがありません。</div>
                 <div id="warp-boss-buttons" class="grid grid-cols-3 gap-2"></div>
+            </div>
+            <div class="mt-4">
+                <div class="text-[10px] text-slate-400 font-black mb-2">討伐済みボス（5001階以降）</div>
+                <div id="warp-boss-post-empty" class="text-[10px] text-slate-400 hidden">討伐したボスがありません。</div>
+                <div id="warp-boss-post-buttons" class="grid grid-cols-3 gap-2"></div>
             </div>
             <div class="mt-4">
                 <div class="text-[10px] text-slate-400 font-black mb-2">ボスラッシュ・マイルストーン</div>
@@ -4846,21 +4851,39 @@
         const renderWarpBossButtons = () => {
             const container = document.getElementById('warp-boss-buttons');
             const empty = document.getElementById('warp-boss-empty');
-            if (!container) return;
+            const postContainer = document.getElementById('warp-boss-post-buttons');
+            const postEmpty = document.getElementById('warp-boss-post-empty');
+            if (!container || !postContainer) return;
             container.innerHTML = '';
+            postContainer.innerHTML = '';
             const floors = (Game.defeatedBossFloors || []).filter((floor) => BossDefs[floor]).sort((a, b) => a - b);
-            if (floors.length === 0) {
+            const baseFloors = floors.filter((floor) => floor < 5001);
+            const postFloors = floors.filter((floor) => floor >= 5001);
+            if (baseFloors.length === 0) {
                 if (empty) empty.classList.remove('hidden');
-                return;
+            } else if (empty) {
+                empty.classList.add('hidden');
             }
-            if (empty) empty.classList.add('hidden');
-            floors.forEach((floor) => {
+            if (postFloors.length === 0) {
+                if (postEmpty) postEmpty.classList.remove('hidden');
+            } else if (postEmpty) {
+                postEmpty.classList.add('hidden');
+            }
+            baseFloors.forEach((floor) => {
                 const button = document.createElement('button');
                 button.type = 'button';
                 button.className = 'bg-slate-100 text-slate-600 text-[10px] font-black px-2 py-2 rounded-xl flex items-center justify-center gap-1 hover:bg-slate-200 transition';
                 button.innerHTML = `<i class="fas fa-crown"></i> ${floor}F`;
                 button.addEventListener('click', () => performWarp(floor));
                 container.appendChild(button);
+            });
+            postFloors.forEach((floor) => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'bg-slate-100 text-slate-600 text-[10px] font-black px-2 py-2 rounded-xl flex items-center justify-center gap-1 hover:bg-slate-200 transition';
+                button.innerHTML = `<i class="fas fa-crown"></i> ${floor}F`;
+                button.addEventListener('click', () => performWarp(floor));
+                postContainer.appendChild(button);
             });
         };
 
