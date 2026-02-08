@@ -1431,6 +1431,7 @@
             compareModal: null,
             bossRushCarryoverDamage: 0,
             isBossRush: false,
+            bossRushFloor: 1,
             maxBossRushFloor: 0,
             enemy: null, logs: [], dropLogs: []
         };
@@ -1625,6 +1626,9 @@
             }
             if (!Number.isFinite(Game.maxBossRushFloor)) {
                 Game.maxBossRushFloor = 0;
+            }
+            if (!Number.isFinite(Game.bossRushFloor)) {
+                Game.bossRushFloor = 1;
             }
             Game.isBossRush = Boolean(Game.isBossRush);
         };
@@ -2302,7 +2306,7 @@
         ];
         const MaxFloorLimit = 10001;
         const BossRushStartFloor = MaxFloorLimit + 1;
-        const BossRushNoDropStartFloor = BossRushStartFloor;
+        const BossRushNoDropStartFloor = 1;
         //const BossDropChance = 0.05;
         //const NormalDropChance = 0.95;
         const RoadLegendaryDropChance = 0.01;
@@ -2460,8 +2464,8 @@
         ];
 
         const getBossRushBuffCount = (floor) => {
-            if (!Game.isBossRush || floor < BossRushStartFloor) return 0;
-            const offset = floor - BossRushStartFloor;
+            if (!Game.isBossRush) return 0;
+            const offset = Math.max(0, (floor || 1) - 1);
             if (offset <= 49) return 1;
             if (offset <= 99) return 2;
             if (offset <= 149) return 3;
@@ -2492,7 +2496,7 @@
                 .filter((category) => !category.minFloor || floor >= category.minFloor)
                 .map((category) => {
                     let buffs = category.buffs;
-                    if (floor === BossRushStartFloor + 50 && category.id === "basic") {
+                    if (floor === 51 && category.id === "basic") {
                         buffs = buffs.filter((buff) => !["br_basic_hp", "br_basic_def"].includes(buff.id));
                     }
                     return { ...category, buffs };
@@ -3772,7 +3776,7 @@
         };
 
         const getBossRushScale = (floor) => {
-            const count = Math.max(1, floor - BossRushStartFloor + 1);
+            const count = Math.max(1, floor || 1);
             return BossRushBaseScale + (count - 1) * BossRushScaleStep;
         };
 
@@ -4801,8 +4805,11 @@
                 Game.floor = 1;
             }
             Game.floor = Math.min(MaxFloorLimit, Math.max(1, Game.floor));
+            if (!Number.isFinite(Game.bossRushFloor)) {
+                Game.bossRushFloor = 1;
+            }
             if (!Number.isFinite(Game.maxBossRushFloor)) {
-                Game.maxBossRushFloor = Game.isBossRush ? (Game.floor || BossRushStartFloor) : 0;
+                Game.maxBossRushFloor = Game.isBossRush ? (Game.bossRushFloor || 1) : 0;
             }
             if (typeof Game.endMessageShown !== 'boolean') {
                 Game.endMessageShown = false;
@@ -4817,7 +4824,7 @@
                 Game.maxFloor = Math.max(1, Game.maxFloor, Game.floor);
             }
             if (Game.isBossRush) {
-                Game.maxBossRushFloor = Math.max(Game.maxBossRushFloor, Game.floor);
+                Game.maxBossRushFloor = Math.max(Game.maxBossRushFloor, Game.bossRushFloor || 1);
             }
         };
 
@@ -4828,11 +4835,11 @@
 
         const normalizeWarpFloor = (value, options = {}) => {
             const isBossRush = options.isBossRush ?? false;
-            const maxFloor = isBossRush ? Math.max(BossRushStartFloor, Game.maxBossRushFloor || BossRushStartFloor) : getWarpMaxFloor();
+            const maxFloor = isBossRush ? Math.max(1, Game.maxBossRushFloor || 1) : getWarpMaxFloor();
             const upperLimit = maxFloor;
             const parsed = Number.parseInt(value, 10);
             if (Number.isNaN(parsed)) return null;
-            const lowerLimit = isBossRush ? BossRushStartFloor : 1;
+            const lowerLimit = 1;
             return Math.min(upperLimit, Math.max(lowerLimit, parsed));
         };
 
@@ -4869,7 +4876,7 @@
             }
             if (empty) empty.classList.add('hidden');
             const maxFloor = floors[floors.length - 1];
-            const displayFloor = Math.max(1, maxFloor - BossRushStartFloor + 1);
+            const displayFloor = Math.max(1, maxFloor);
             const button = document.createElement('button');
             button.type = 'button';
             button.className = 'bg-amber-50 text-amber-700 text-[10px] font-black px-2 py-2 rounded-xl flex items-center justify-center gap-1 hover:bg-amber-100 transition';
@@ -4890,9 +4897,7 @@
             }
             if (maxBossRushEl) {
                 const maxBossRushFloor = Math.max(0, Game.maxBossRushFloor || 0);
-                const displayBossRush = maxBossRushFloor >= BossRushStartFloor
-                    ? Math.max(1, maxBossRushFloor - BossRushStartFloor + 1)
-                    : 0;
+                const displayBossRush = maxBossRushFloor > 0 ? maxBossRushFloor : 0;
                 maxBossRushEl.textContent = displayBossRush;
             }
             if (input) {
@@ -4940,9 +4945,9 @@
             ensureWarpState();
             if (Game.isBossRush) {
                 const milestones = Game.defeatedBossRushMilestones;
-                const bossRushFloor = Math.max(1, floor - BossRushStartFloor + 1);
-                if (bossRushFloor % 50 === 0 && !milestones.includes(floor)) {
-                    milestones.push(floor);
+                const bossRushFloor = Math.max(1, Game.bossRushFloor || floor);
+                if (bossRushFloor % 50 === 0 && !milestones.includes(bossRushFloor)) {
+                    milestones.push(bossRushFloor);
                 }
                 return;
             }
@@ -4955,17 +4960,19 @@
             if (Game.state === 'combat') return;
             const target = normalizeWarpFloor(value, options);
             if (!target) return;
-            Game.floor = target;
             Game.isBossRush = Boolean(options.isBossRush);
             if (Game.isBossRush) {
-                Game.maxBossRushFloor = Math.max(Game.maxBossRushFloor || BossRushStartFloor, Game.floor);
+                Game.bossRushFloor = target;
+                Game.maxBossRushFloor = Math.max(Game.maxBossRushFloor || 1, Game.bossRushFloor);
             } else {
+                Game.floor = target;
                 Game.maxFloor = Math.max(Game.maxFloor, Game.floor);
                 Game.bossRushCarryoverDamage = 0;
             }
             closeWarpModal();
             spawn();
-            addLog(`B${Game.floor}へワープ...`, "text-sky-500");
+            const logFloor = Game.isBossRush ? Game.bossRushFloor : Game.floor;
+            addLog(`B${logFloor}へワープ...`, "text-sky-500");
             updateUI();
             triggerAutosave();
         };
@@ -4974,8 +4981,8 @@
             if (Game.state === 'combat') return;
             if (getWarpMaxFloor() < 5000) return;
             Game.isBossRush = true;
-            Game.floor = BossRushStartFloor;
-            Game.maxBossRushFloor = Math.max(Game.maxBossRushFloor || BossRushStartFloor, Game.floor);
+            Game.bossRushFloor = 1;
+            Game.maxBossRushFloor = Math.max(Game.maxBossRushFloor || 1, Game.bossRushFloor);
             Game.bossRushCarryoverDamage = 0;
             closeWarpModal();
             spawn();
@@ -7048,21 +7055,22 @@
             let bossDef = null;
             let bossBase = null;
             let bossScale = 1;
+            const activeFloor = Game.isBossRush ? (Game.bossRushFloor || 1) : Game.floor;
             if (Game.isBossRush) {
                 const pool = Object.values(BossDefs);
                 const picked = pickRandom(pool);
                 bossDef = picked ? { ...picked, originFloor: picked.floor } : null;
                 bossBase = BossRushBaseStats;
-                bossScale = getBossRushScale(Game.floor);
+                bossScale = getBossRushScale(activeFloor);
             } else {
-                const normalizedFloor = getRepeatedFloor(Game.floor, 5000);
+                const normalizedFloor = getRepeatedFloor(activeFloor, 5000);
                 bossDef = BossDefs[normalizedFloor];
-                bossScale = getBossScale(Game.floor);
+                bossScale = getBossScale(activeFloor);
             }
             if (bossDef) {
                 const baseStats = bossBase || bossDef;
-                const baseBossStats = calcEnemyStatsByFloor(Game.floor, baseStats, "balanced");
-                const floorBossStats = applyBossFloorGrowth(baseBossStats, Game.floor);
+                const baseBossStats = calcEnemyStatsByFloor(activeFloor, baseStats, "balanced");
+                const floorBossStats = applyBossFloorGrowth(baseBossStats, activeFloor);
                 const bossStats = Game.isBossRush
                     ? {
                         maxHp: Math.floor(floorBossStats.maxHp * bossScale),
@@ -7076,7 +7084,7 @@
                     : floorBossStats;
                 Game.enemy = {
                     ...bossDef,
-                    floor: Game.floor,
+                    floor: activeFloor,
                     ...bossStats,
                     statusEffects: [],
                     isBoss: true,
@@ -7092,9 +7100,9 @@
                     Game.enemy.skillInterval = 3;
                     Game.enemy.skillCooldown = Game.enemy.skillInterval;
                 }
-                applyDxEnemyScaling(Game.enemy, Game.floor);
+                applyDxEnemyScaling(Game.enemy, activeFloor);
                 if (Game.isBossRush) {
-                    Game.enemy.bossRushBuffs = rollBossRushBuffs(Game.floor);
+                    Game.enemy.bossRushBuffs = rollBossRushBuffs(activeFloor);
                     Game.enemy.bossRushBuffState = null;
                     applyBossRushBuffStats(Game.enemy, Game.enemy.bossRushBuffs);
                     applyBossRushCarryoverDamage(Game.enemy);
@@ -7106,7 +7114,7 @@
                 const basePool = getEnemyPool(Game.floor);
                 const base = pickRandom(basePool);
                 const archetypeId = getEnemyArchetypeId(base);
-                const scaled = calcEnemyStatsByFloor(Game.floor, base, archetypeId);
+                const scaled = calcEnemyStatsByFloor(activeFloor, base, archetypeId);
                 Game.enemy = { 
                     ...base,
                     ...scaled,
@@ -7121,7 +7129,7 @@
                 Game.enemy.skillInterval = getEnemySkillInterval(archetypeId);
                 Game.enemy.skillCooldown = Game.enemy.skillInterval;
                 Game.enemy.skillRotation = 0;
-                applyDxEnemyScaling(Game.enemy, Game.floor);
+                applyDxEnemyScaling(Game.enemy, activeFloor);
                 Game.bossRushCarryoverDamage = 0;
             }
             const derived = getDerivedStats();
@@ -7255,17 +7263,19 @@
                 const reachedFloorLimit = !Game.isBossRush && Game.floor >= MaxFloorLimit;
                 const stayOnFloor = Game.stayOnFloor || reachedFloorLimit;
                 if (!stayOnFloor) {
-                    Game.floor++;
                     if (Game.isBossRush) {
-                        Game.maxBossRushFloor = Math.max(Game.maxBossRushFloor || BossRushStartFloor, Game.floor);
+                        Game.bossRushFloor = Math.max(1, (Game.bossRushFloor || 1) + 1);
+                        Game.maxBossRushFloor = Math.max(Game.maxBossRushFloor || 1, Game.bossRushFloor);
                     } else {
+                        Game.floor++;
                         Game.maxFloor = Math.max(Game.maxFloor, Game.floor);
                     }
                 } else if (reachedFloorLimit) {
                     Game.maxFloor = Math.max(Game.maxFloor, Game.floor);
                 }
                 spawn();
-                addLog(stayOnFloor ? `B${Game.floor}へ再戦...` : `B${Game.floor}へ潜入...`);
+                const logFloor = Game.isBossRush ? Game.bossRushFloor : Game.floor;
+                addLog(stayOnFloor ? `B${logFloor}へ再戦...` : `B${logFloor}へ潜入...`);
                 updateUI();
                 triggerAutosave();
                 return;
@@ -7688,7 +7698,7 @@ console.log("[DROP CHANCE]", { dropChance, eliteLootMultiplier, isBoss: Game.ene
             Game.player.exp = Math.max(0, Game.player.exp - lostExp);
             if (Game.isBossRush) {
                 Game.isBossRush = false;
-                Game.floor = BossRushStartFloor;
+                Game.bossRushFloor = 1;
             } else {
                 Game.floor = Math.max(1, Game.floor - 20);
             }
@@ -8231,7 +8241,7 @@ console.log("[BUILD LOOT ENTRY]", { forceBossDrop: options.forceBossDrop, isBoss
             const totals = derived.totals;
             syncEquippedItemIds();
             const displayFloor = Game.isBossRush
-                ? Math.max(1, Game.floor - BossRushStartFloor + 1)
+                ? Math.max(1, Game.bossRushFloor || 1)
                 : Game.floor;
             document.getElementById('floor-display').innerText = displayFloor;
             document.getElementById('header-lvl').innerText = p.level;
