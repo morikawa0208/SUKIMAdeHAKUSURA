@@ -49,8 +49,8 @@
         .bar-text { position: absolute; inset: 0; display: flex; items-center; justify-content: center; font-size: 10px; font-weight: 800; color: #fff; text-shadow: 1px 1px 0 rgba(0,0,0,0.5); pointer-events: none; }
 
         @keyframes floatUp {
-            0% { opacity: 1; transform: translateY(0); }
-            100% { opacity: 0; transform: translateY(-40px); }
+            0% { opacity: 1; transform: translate(-50%, -50%) translate(var(--offset-x), var(--offset-y)); }
+            100% { opacity: 0; transform: translate(-50%, -50%) translate(var(--offset-x), calc(var(--offset-y) - 40px)); }
         }
         .damage-text {
             position: absolute;
@@ -60,6 +60,14 @@
             pointer-events: none;
             z-index: 100;
             text-shadow: 2px 2px 0 #fff;
+            --offset-x: 0px;
+            --offset-y: 0px;
+            transform: translate(-50%, -50%) translate(var(--offset-x), var(--offset-y));
+            white-space: nowrap;
+            max-width: 100%;
+        }
+        #damage-layer {
+            overflow: hidden;
         }
 
         .mini-log {
@@ -7791,8 +7799,12 @@ console.log("[DROP CHANCE]", { dropChance, eliteLootMultiplier, isBoss: Game.ene
             const el = document.createElement('div');
             el.className = `damage-text ${isH?'text-green-500':'text-red-600'}`;
             el.innerText = v;
-            el.style.left = (35 + Math.random()*30) + '%';
-            el.style.top = (35 + Math.random()*30) + '%';
+            const offsetX = (Math.random() - 0.5) * 80;
+            const offsetY = (Math.random() - 0.5) * 80;
+            el.style.left = '50%';
+            el.style.top = '50%';
+            el.style.setProperty('--offset-x', `${offsetX}px`);
+            el.style.setProperty('--offset-y', `${offsetY}px`);
             document.getElementById('damage-layer').appendChild(el);
             setTimeout(()=>el.remove(), 800);
         }
