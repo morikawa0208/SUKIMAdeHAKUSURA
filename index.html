@@ -4834,15 +4834,14 @@
                 return;
             }
             if (empty) empty.classList.add('hidden');
-            floors.forEach((floor) => {
-                const displayFloor = Math.max(1, floor - BossRushStartFloor + 1);
-                const button = document.createElement('button');
-                button.type = 'button';
-                button.className = 'bg-amber-50 text-amber-700 text-[10px] font-black px-2 py-2 rounded-xl flex items-center justify-center gap-1 hover:bg-amber-100 transition';
-                button.innerHTML = `<i class="fas fa-flag-checkered"></i> ${displayFloor}F`;
-                button.addEventListener('click', () => performWarp(floor, { isBossRush: true }));
-                container.appendChild(button);
-            });
+            const maxFloor = floors[floors.length - 1];
+            const displayFloor = Math.max(1, maxFloor - BossRushStartFloor + 1);
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'bg-amber-50 text-amber-700 text-[10px] font-black px-2 py-2 rounded-xl flex items-center justify-center gap-1 hover:bg-amber-100 transition';
+            button.innerHTML = `<i class="fas fa-flag-checkered"></i> ${displayFloor}F`;
+            button.addEventListener('click', () => performWarp(maxFloor, { isBossRush: true }));
+            container.appendChild(button);
         };
 
         const syncWarpModal = () => {
