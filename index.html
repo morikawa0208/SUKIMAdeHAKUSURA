@@ -2300,9 +2300,9 @@
         const BossFloors = [
             50, 100, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000
         ];
-        const BossRushStartFloor = 5001;
+        const MaxFloorLimit = 10001;
+        const BossRushStartFloor = MaxFloorLimit + 1;
         const BossRushNoDropStartFloor = BossRushStartFloor;
-        const MaxFloorLimit = 10000;
         //const BossDropChance = 0.05;
         //const NormalDropChance = 0.95;
         const RoadLegendaryDropChance = 0.01;
@@ -2342,7 +2342,7 @@
             reviveHpPct: 0.5,
             baseCritMultiplier: 1.5
         };
-        const DxFloorStart = BossRushStartFloor;
+        const DxFloorStart = 5001;
         const DxBaseMultiplier = 2.4;
         const DxFloorScaleRate = 0.03;
         const DxBonusMultiplier = 1.45;
@@ -3788,9 +3788,15 @@
             return 0;
         };
 
+        const getRepeatedFloor = (floor, cycle = 5000) => {
+            const safeFloor = Math.max(1, floor || 1);
+            return ((safeFloor - 1) % cycle) + 1;
+        };
+
         const getRoadLegendaryTable = (floor) => {
+            const normalizedFloor = getRepeatedFloor(floor, 5000);
             for (let i = RoadLegendaryLootTables.length - 1; i >= 0; i--) {
-                if (floor >= RoadLegendaryLootTables[i].floorStart) return RoadLegendaryLootTables[i];
+                if (normalizedFloor >= RoadLegendaryLootTables[i].floorStart) return RoadLegendaryLootTables[i];
             }
             return RoadLegendaryLootTables[0];
         };
@@ -7049,7 +7055,8 @@
                 bossBase = BossRushBaseStats;
                 bossScale = getBossRushScale(Game.floor);
             } else {
-                bossDef = BossDefs[Game.floor];
+                const normalizedFloor = getRepeatedFloor(Game.floor, 5000);
+                bossDef = BossDefs[normalizedFloor];
                 bossScale = getBossScale(Game.floor);
             }
             if (bossDef) {
@@ -7762,10 +7769,10 @@ console.log("[BUILD LOOT ENTRY]", { forceBossDrop: options.forceBossDrop, isBoss
             const forceBossDrop = options.forceBossDrop;
             const useBossTable = forceBossDrop === true
                 ? true
-                : (forceBossDrop === false ? false : (Game.enemy?.isBoss && Game.enemy.floor <= 5000));
+                : (forceBossDrop === false ? false : Game.enemy?.isBoss);
             if (useBossTable) {
 
-                const floor = Game.enemy?.floor ?? Game.floor; // ★これを使う
+                const floor = getRepeatedFloor(Game.enemy?.floor ?? Game.floor, 5000);
 
                 console.log("[BUILD LOOT]", {
                   useBossTable,
