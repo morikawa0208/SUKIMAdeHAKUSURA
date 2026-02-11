@@ -221,6 +221,13 @@
             height: clamp(420px, 70dvh, 760px);
             border: 0;
         }
+
+        #action-btn,
+        #action-btn * {
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
     </style>
 </head>
 <body class="flex flex-col">
@@ -7488,9 +7495,22 @@
             actionRepeatTimer = setInterval(handleAction, actionCooldownMs);
         };
 
-        actionButton.addEventListener('pointerdown', startActionRepeat);
-        actionButton.addEventListener('pointerup', stopActionRepeat);
-        actionButton.addEventListener('pointercancel', stopActionRepeat);
+        const preventActionButtonSelection = (event) => {
+            if (event.cancelable) event.preventDefault();
+        };
+
+        actionButton.addEventListener('pointerdown', (event) => {
+            preventActionButtonSelection(event);
+            startActionRepeat();
+        });
+        actionButton.addEventListener('pointerup', (event) => {
+            preventActionButtonSelection(event);
+            stopActionRepeat();
+        });
+        actionButton.addEventListener('pointercancel', (event) => {
+            preventActionButtonSelection(event);
+            stopActionRepeat();
+        });
         actionButton.addEventListener('mouseleave', stopActionRepeat);
 
         function enemyTurn() {
