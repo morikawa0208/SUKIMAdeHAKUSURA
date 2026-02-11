@@ -5423,6 +5423,14 @@
             triggerAutosave();
         }
 
+        function calcHitChanceByRatio(accuracyValue, evasionValue) {
+            const accuracy = Math.max(0, Number(accuracyValue) || 0);
+            const evasion = Math.max(0, Number(evasionValue) || 0);
+            const total = accuracy + evasion;
+            if (total <= 0) return 0;
+            return (accuracy / total) * 100;
+        }
+
         function getDerivedStats() {
             const p = Game.player;
             const totals = getTotalStats();
@@ -5690,10 +5698,7 @@
                     const sureHitBonus = Number.isFinite(sureHitEffect?.value) ? sureHitEffect.value : 0;
                     const baseAccuracy = Math.max(0, derived.totals.accuracy + (currentSkill.accuracyBonus || 0) + bossMods.accuracyBonus);
                     const evasionValue = Math.max(0, enemyEvasion);
-                    const baseHit = 78;
-                    const hitScale = 0.28;
-                    let hitChance = baseHit + (baseAccuracy - evasionValue) * hitScale;
-                    hitChance = Math.min(97, Math.max(15, hitChance));
+                    const hitChance = calcHitChanceByRatio(baseAccuracy, evasionValue);
                     if (!sureHit && Math.random() * 100 > hitChance) {
                         continue;
                     }
@@ -5947,10 +5952,7 @@
             if (canMiss) {
                 const baseAccuracy = Math.max(0, Math.floor((Game.enemy.acc || 0) * enemyStatusMods.accuracyMul));
                 const evasionValue = Math.max(0, derived.totals.evasionRate);
-                const baseHit = 78;
-                const hitScale = 0.28;
-                let hitChance = baseHit + (baseAccuracy - evasionValue) * hitScale;
-                hitChance = Math.min(97, Math.max(15, hitChance));
+                const hitChance = calcHitChanceByRatio(baseAccuracy, evasionValue);
                 if (Math.random() * 100 > hitChance) {
                     addLog("攻撃を回避！", "text-blue-500 font-bold");
                     dmgText("MISS", false);
@@ -7192,10 +7194,7 @@
                 for (let i = 0; i < hits; i++) {
                     const baseAccuracy = Math.max(0, Math.floor(((skill.accuracy ?? 100) + (Game.enemy.acc || 0)) * enemyStatusMods.accuracyMul));
                     const evasionValue = Math.max(0, derived.totals.evasionRate);
-                    const baseHit = 78;
-                    const hitScale = 0.28;
-                    let hitChance = baseHit + (baseAccuracy - evasionValue) * hitScale;
-                    hitChance = Math.min(97, Math.max(15, hitChance));
+                    const hitChance = calcHitChanceByRatio(baseAccuracy, evasionValue);
                     if (Math.random() * 100 > hitChance) {
                         continue;
                     }
