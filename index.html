@@ -511,10 +511,6 @@
                         <span class="text-[10px] text-slate-400 font-bold uppercase">DEX (器用さ)</span>
                         <span class="text-2xl font-black text-green-600" id="status-dex">5</span>
                     </div>
-                    <div class="flex flex-col">
-                        <span class="text-[10px] text-slate-400 font-bold uppercase">LUK (運)</span>
-                        <span class="text-2xl font-black text-amber-600" id="status-luk">5</span>
-                    </div>
                 </div>
             </div>
 
@@ -1196,8 +1192,7 @@
                         <li><span class="font-bold text-slate-700">STR</span>：物理攻撃の基礎値。武器のATKと合算されます。</li>
                         <li><span class="font-bold text-slate-700">VIT</span>：被ダメージ軽減の基礎値。防具DEFと合算されます。</li>
                         <li><span class="font-bold text-slate-700">INT</span>：魔法攻撃の基礎値。回復量にも影響。</li>
-                        <li><span class="font-bold text-slate-700">DEX</span>：器用さの基礎値。装備厳選の目安に利用。</li>
-                        <li><span class="font-bold text-slate-700">LUK</span>：運の基礎値。追加経験値・ドロップ率・レアドロ率・Affix率・エリート遭遇率・ゴールド増加率に影響。</li>
+                        <li><span class="font-bold text-slate-700">DEX</span>：器用さの基礎値。命中・回避・会心率・会心ダメージに影響。</li>
                     </ul>
                 </div>
                 <div>
@@ -1393,7 +1388,7 @@
                 level: 1,
                 hp: 300, maxHp: 300, baseMaxHp: 300, mp: 40, maxMp: 40, baseMaxMp: 40,
                 // Primary Stats
-                str: 50, vit: 50, int: 50, dex: 50, luk: 0,
+                str: 50, vit: 50, int: 50, dex: 50,
                 levelStr: 0, levelVit: 0, levelInt: 0, levelDex: 0,
                 // Secondary Stats (calculated)
                 maxHpFlat: 0, maxMpFlat: 0,
@@ -1403,7 +1398,7 @@
                 critDamage: 200, damageBoost: 0, damageReduction: 0, rareFind: 0, affixFind: 0, eliteEncounter: 0,
                 skillPowerBoost: 0, statusEffectStackBonus: 0, statusEffectTurnBonus: 0,
                 poisonMaxStacksBonus: 0, poisonMinPctBonus: 0,
-                skillMpDiscount: 0, strMultiplier: 0, intMultiplier: 0, vitMultiplier: 0, dexMultiplier: 0, lukMultiplier: 0,
+                skillMpDiscount: 0, strMultiplier: 0, intMultiplier: 0, vitMultiplier: 0, dexMultiplier: 0,
                 exp: 0, next: 100, sp: 1,
                 gold: 0,
                 weapon: null, armor: null, head: null, hands: null, feet: null, accessory1: null, accessory2: null, potion1: null, potion2: null, inventory: [],
@@ -1581,6 +1576,30 @@
 
         const buildSaveSnapshot = () => JSON.parse(JSON.stringify(Game));
 
+
+        const migrateLegacyLukStats = () => {
+            if (!Game?.player) return;
+            const legacyLuk = Number(Game.player.luk || 0);
+            const legacyLukMultiplier = Number(Game.player.lukMultiplier || 0);
+            if (legacyLuk > 0) {
+                const converted = Math.floor(legacyLuk * 0.5);
+                Game.player.expBoost = (Game.player.expBoost || 0) + converted;
+                Game.player.luck = (Game.player.luck || 0) + converted;
+                Game.player.rareFind = (Game.player.rareFind || 0) + converted;
+                Game.player.affixFind = (Game.player.affixFind || 0) + converted;
+                Game.player.eliteEncounter = (Game.player.eliteEncounter || 0) + converted;
+                Game.player.goldBoost = (Game.player.goldBoost || 0) + converted;
+            }
+            if (legacyLukMultiplier > 0) {
+                const bonus = Math.floor(legacyLukMultiplier * 0.3);
+                Game.player.luck = (Game.player.luck || 0) + bonus;
+                Game.player.rareFind = (Game.player.rareFind || 0) + bonus;
+                Game.player.affixFind = (Game.player.affixFind || 0) + bonus;
+            }
+            delete Game.player.luk;
+            delete Game.player.lukMultiplier;
+        };
+
         const mergeSaveData = (target, source) => {
             if (!source || typeof source !== 'object') return;
             Object.keys(source).forEach((key) => {
@@ -1601,6 +1620,7 @@
         const applySaveData = (snapshot) => {
             if (!snapshot || typeof snapshot !== 'object') return;
             mergeSaveData(Game, snapshot);
+            migrateLegacyLukStats();
             if (Array.isArray(Game.defeatedBossFloors)) {
                 const legacyBossFloorMap = {
                     10: 50,
@@ -2987,7 +3007,7 @@
             "腐蝕の脚甲": { type: "poisonStackSurge", scaleWithDx: true, condition: { type: "playerHpAbove", threshold: 0.75 }, value: 3, label: "腐蝕の脚甲：腐蝕伝播：HP75%以上で毒付与時に即+3スタック" },
             "鉄壁の護符": { type: "returnDoubleGuard", scaleWithDx: true, condition: { type: "playerHpAbove", threshold: 0.6 }, value: 2, label: "鉄壁の護符：鉄壁反響：HP60%以上で被ダメを次の攻撃に2倍で返す" },
             "影刃の護符": { type: "shadowFirstStrike", scaleWithDx: true, condition: { type: "playerHpAbove", threshold: 0.6 }, value: 1.4, label: "影刃の護符：影刃の宣告：HP60%以上の初撃が必ず会心＆倍率上昇" },
-            "終焉の護符": { type: "levelRatioBoost", scaleWithDx: true, stat: "luk", randomize: true, stepRange: [1, 5], gainRange: [1, 2], label: "終焉の護符：LUK成長" },
+            "終焉の護符": { type: "dropRateBoost", scaleWithDx: true, value: 10, label: "終焉の護符：ドロップ率強化" },
         };
 
         const BossUniqueEffectConfig = {
@@ -3011,7 +3031,10 @@
             poisonOverloadStacks: 8,
             poisonOverloadRate: 0.02,
             holyStaffMpRestore: 6,
-            shadowFirstStrikeMultiplier: 1.4
+            shadowFirstStrikeMultiplier: 1.4,
+            dropRateBoost: {
+                defaultValue: 10
+            }
         };
 
         const RoadLegendaryUniqueEffects = {
@@ -3042,7 +3065,7 @@
                 floorStart: 1,
                 items: [
                     { name: "黎明の短剣", type: "weapon", stats: [{ key: "attackFlat", value: 19 }, { key: "dex", value: 11 }, { key: "critRate", value: 4 }], uniqueStats: [] },
-                    { name: "晨光の護符", type: "accessory", stats: [{ key: "maxHp", value: 29 }, { key: "damageReduction", value: 4 }, { key: "luk", value: 3 }], uniqueStats: [] }
+                    { name: "晨光の護符", type: "accessory", stats: [{ key: "maxHp", value: 29 }, { key: "damageReduction", value: 4 }, { key: "luck", value: 3 }], uniqueStats: [] }
                 ]
             },
             {
@@ -3056,7 +3079,7 @@
                 floorStart: 201,
                 items: [
                     { name: "月影のマント", type: "armor", stats: [{ key: "defenseFlat", value: 81 }, { key: "evasionRate", value: 15 }, { key: "dex", value: 35 }], uniqueStats: [] },
-                    { name: "白霧の指輪", type: "accessory", stats: [{ key: "maxHp", value: 124 }, { key: "damageReduction", value: 10 }, { key: "luk", value: 10 }], uniqueStats: [] }
+                    { name: "白霧の指輪", type: "accessory", stats: [{ key: "maxHp", value: 124 }, { key: "damageReduction", value: 10 }, { key: "luck", value: 10 }], uniqueStats: [] }
                 ]
             },
             {
@@ -3077,7 +3100,7 @@
                 floorStart: 501,
                 items: [
                     { name: "熾火の大剣", type: "weapon", stats: [{ key: "attackFlat", value: 81 }, { key: "str", value: 35 }, { key: "critDamage", value: 18 }], uniqueStats: [] },
-                    { name: "紅炎の護符", type: "accessory", stats: [{ key: "damageBoost", value: 10 }, { key: "maxHp", value: 145 }, { key: "luk", value: 11 }], uniqueStats: [] }
+                    { name: "紅炎の護符", type: "accessory", stats: [{ key: "damageBoost", value: 10 }, { key: "maxHp", value: 145 }, { key: "luck", value: 11 }], uniqueStats: [] }
                 ]
             },
             {
@@ -3105,7 +3128,7 @@
                 floorStart: 901,
                 items: [
                     { name: "終末前夜の剣", type: "weapon", stats: [{ key: "attackFlat", value: 110 }, { key: "str", value: 48 }, { key: "damageBoost", value: 13 }], uniqueStats: [] },
-                    { name: "刻印の護符", type: "accessory", stats: [{ key: "damageBoost", value: 13 }, { key: "maxHp", value: 194 }, { key: "luk", value: 15 }], uniqueStats: [] }
+                    { name: "刻印の護符", type: "accessory", stats: [{ key: "damageBoost", value: 13 }, { key: "maxHp", value: 194 }, { key: "luck", value: 15 }], uniqueStats: [] }
                 ]
             }
         ];
@@ -3117,8 +3140,6 @@
             vit: "VIT",
             int: "INT",
             dex: "DEX",
-            luk: "LUK",
-            lukMultiplier: "LUK倍率",
             maxHp: "最大HP",
             maxMp: "最大MP",
             maxHpFlat: "最大HP",
@@ -3244,7 +3265,7 @@
             vit: 4,
             int: 4,
             dex: 4,
-            luk: 2,
+
             critRate: 3,
             accuracy: 4,
             evasionRate: 4,
@@ -3335,7 +3356,7 @@
                     { name: "軽歩の靴", stats: [{ key: "accuracy", value: 6 }, { key: "dex", value: 3 }] }
                 ],
                 accessories: [
-                    { name: "素朴な指輪", stats: [{ key: "critRate", value: 3 }, { key: "str", value: 3 }, { key: "luk", value: 2 }] },
+                    { name: "素朴な指輪", stats: [{ key: "critRate", value: 3 }, { key: "str", value: 3 }, { key: "luck", value: 2 }] },
                     { name: "護りのペンダント", stats: [{ key: "damageReduction", value: 3 }, { key: "maxHp", value: 19 }] },
                     { name: "学徒のタリスマン", stats: [{ key: "int", value: 6 }, { key: "maxMp", value: 13 }] }
                 ]
@@ -3369,7 +3390,7 @@
                 ],
                 accessories: [
                     { name: "勇気の指輪", stats: [{ key: "critRate", value: 6 }, { key: "str", value: 9 }] },
-                    { name: "守護の首飾り", stats: [{ key: "damageReduction", value: 6 }, { key: "maxHp", value: 45 }, { key: "luk", value: 3 }] },
+                    { name: "守護の首飾り", stats: [{ key: "damageReduction", value: 6 }, { key: "maxHp", value: 45 }, { key: "luck", value: 3 }] },
                     { name: "知恵の護符", stats: [{ key: "int", value: 10 }, { key: "maxMp", value: 20 }] }
                 ]
             },
@@ -3402,7 +3423,7 @@
                 ],
                 accessories: [
                     { name: "覇者の指輪", stats: [{ key: "critRate", value: 9 }, { key: "damageBoost", value: 6 }] },
-                    { name: "星守の護符", stats: [{ key: "rareFind", value: 6 }, { key: "maxMp", value: 33 }, { key: "luk", value: 7 }] },
+                    { name: "星守の護符", stats: [{ key: "rareFind", value: 6 }, { key: "maxMp", value: 33 }, { key: "luck", value: 7 }] },
                     { name: "黒曜のペンダント", stats: [{ key: "damageReduction", value: 7 }, { key: "maxHp", value: 58 }] }
                 ]
             }
@@ -3584,7 +3605,7 @@
             vit: [6, 11, 18],
             int: [5, 9, 14],
             dex: [5, 9, 14],
-            luk: [3, 6, 10],
+
             maxHp: [35, 80, 140],
             maxMp: [15, 35, 70],
             maxHpFlat: [35, 80, 140],
@@ -4025,14 +4046,19 @@
             const effectBaseName = base.originalName || base.name;
             const effect = BossUniqueEffects[effectBaseName];
             let resolvedEffect = effect;
-            if (effect?.type === "levelRatioBoost" && effect.randomize) {
+            if (effect?.type === "dropRateBoost") {
+                resolvedEffect = {
+                    ...effect,
+                    value: Number.isFinite(effect.value) ? effect.value : (BossUniqueEffectConfig.dropRateBoost?.defaultValue ?? 10)
+                };
+            } else if (effect?.type === "levelRatioBoost" && effect.randomize) {
                 const stepMin = effect.stepRange?.[0] ?? 2;
                 const stepMax = effect.stepRange?.[1] ?? stepMin;
                 const gainMin = effect.gainRange?.[0] ?? 1;
                 const gainMax = effect.gainRange?.[1] ?? gainMin;
                 const step = Math.floor(Math.random() * (stepMax - stepMin + 1)) + stepMin;
                 const gain = Math.floor(Math.random() * (gainMax - gainMin + 1)) + gainMin;
-                const statKeys = ["str", "vit", "int", "dex", "luk"];
+                const statKeys = ["str", "vit", "int", "dex"];
                 const statKey = statKeys.includes(effect.stat) ? effect.stat : statKeys[Math.floor(Math.random() * statKeys.length)];
                 const statLabel = StatLabels[statKey] || statKey;
                 resolvedEffect = {
@@ -4412,6 +4438,9 @@
                     const multiplierKey = `${effect.stat}Multiplier`;
                     updated[multiplierKey] = (updated[multiplierKey] || 0) + effect.value;
                 }
+                if (effect.type === "dropRateBoost") {
+                    updated.luck = (updated.luck || 0) + (Number(effect.value) || 0);
+                }
                 if (effect.type === "levelRatioBoost") {
                     const step = effect.step || 1;
                     const gain = effect.gain || 0;
@@ -4424,7 +4453,7 @@
                             updated.vit += bonus;
                             updated.int += bonus;
                             updated.dex += bonus;
-                            updated.luk += bonus;
+                            updated.luck += bonus;
                         }
                     }
                 }
@@ -4467,7 +4496,6 @@
                 vit: Game.player.vit + (Game.player.levelVit || 0) + (equip.vit || 0) + (milestone.vit || 0),
                 int: Game.player.int + (Game.player.levelInt || 0) + (equip.int || 0) + (milestone.int || 0),
                 dex: Game.player.dex + (Game.player.levelDex || 0) + (equip.dex || 0) + (milestone.dex || 0),
-                luk: Game.player.luk + (equip.luk || 0) + (milestone.luk || 0),
                 maxHp: Game.player.maxHp + (equip.maxHp || 0) + (milestone.maxHp || 0),
                 maxMp: Game.player.maxMp + (equip.maxMp || 0) + (milestone.maxMp || 0),
                 maxHpFlat: Game.player.maxHpFlat + (equip.maxHpFlat || 0) + (milestone.maxHpFlat || 0),
@@ -4500,7 +4528,6 @@
                 intMultiplier: Game.player.intMultiplier + (equip.intMultiplier || 0),
                 vitMultiplier: Game.player.vitMultiplier + (equip.vitMultiplier || 0),
                 dexMultiplier: Game.player.dexMultiplier + (equip.dexMultiplier || 0),
-                lukMultiplier: Game.player.lukMultiplier + (equip.lukMultiplier || 0)
             };
             const adjusted = applyBossUniqueStatBonuses(totals);
             adjusted.damageReduction = Math.min(80, adjusted.damageReduction);
@@ -4698,7 +4725,6 @@
             vitMultiplier: (stat) => `VIT倍率 +${stat.value}%`,
             intMultiplier: (stat) => `INT倍率 +${stat.value}%`,
             dexMultiplier: (stat) => `DEX倍率 +${stat.value}%`,
-            lukMultiplier: (stat) => `LUK倍率 +${stat.value}%`,
             bossUniqueEffect: (stat) => stat.effect?.label || "固有効果"
         };
 
@@ -5439,14 +5465,12 @@
             const vitMultiplier = 1 + (totals.vitMultiplier || 0) / 100;
             const intMultiplier = 1 + (totals.intMultiplier || 0) / 100;
             const dexMultiplier = 1 + (totals.dexMultiplier || 0) / 100;
-            const lukMultiplier = 1 + (totals.lukMultiplier || 0) / 100;
             const boostedTotals = {
                 ...totals,
                 str: Math.floor(totals.str * strMultiplier),
                 vit: Math.floor(totals.vit * vitMultiplier),
                 int: Math.floor(totals.int * intMultiplier),
                 dex: Math.floor(totals.dex * dexMultiplier),
-                luk: Math.floor(totals.luk * lukMultiplier)
             };
             const maxHpBase = totals.maxHp + totals.maxHpFlat;
             const maxMpBase = totals.maxMp + totals.maxMpFlat;
@@ -5460,19 +5484,18 @@
             const dexEvasionBonus = Math.floor(boostedTotals.dex * 0.15);
             const dexCritRateBonus = Math.floor(boostedTotals.dex * 0.05);
             const dexCritDamageBonus = Math.floor(boostedTotals.dex * 0.2);
-            const lukBonus = Math.floor(boostedTotals.luk * 0.5);
             const modifiedTotals = {
                 ...boostedTotals,
                 accuracy: Math.max(0, Math.floor((totals.accuracy + dexAccuracyBonus) * statusMods.accuracyMul)),
                 critRate: Math.max(0, Math.floor((totals.critRate + dexCritRateBonus) * statusMods.critMul)),
                 evasionRate: Math.max(0, Math.floor((totals.evasionRate + dexEvasionBonus) * statusMods.evasionMul)),
                 critDamage: Math.max(0, Math.floor(totals.critDamage + dexCritDamageBonus)),
-                expBoost: totals.expBoost + lukBonus,
-                luck: totals.luck + lukBonus,
-                rareFind: totals.rareFind + lukBonus,
-                affixFind: totals.affixFind + lukBonus,
-                eliteEncounter: totals.eliteEncounter + lukBonus,
-                goldBoost: totals.goldBoost + lukBonus
+                expBoost: totals.expBoost,
+                luck: totals.luck,
+                rareFind: totals.rareFind,
+                affixFind: totals.affixFind,
+                eliteEncounter: totals.eliteEncounter,
+                goldBoost: totals.goldBoost
             };
             return { maxHp, maxMp, atk, def, totals: modifiedTotals };
         }
@@ -8481,7 +8504,6 @@ console.log("[BUILD LOOT ENTRY]", { forceBossDrop: options.forceBossDrop, isBoss
             document.getElementById('status-def').innerText = totals.vit;
             document.getElementById('status-int').innerText = totals.int;
             document.getElementById('status-dex').innerText = totals.dex;
-            document.getElementById('status-luk').innerText = totals.luk;
             document.getElementById('status-exp').innerText = p.exp;
             document.getElementById('status-next').innerText = p.next;
             document.getElementById('status-exp-bar').style.width = (p.exp/p.next*100)+'%';
