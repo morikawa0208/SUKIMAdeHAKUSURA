@@ -228,6 +228,20 @@
             -webkit-user-select: none;
             -webkit-touch-callout: none;
         }
+
+        .preset-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1px 6px;
+            border-radius: 9999px;
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: 0.04em;
+            background-color: #e2e8f0;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+        }
     </style>
 </head>
 <body class="flex flex-col">
@@ -554,6 +568,7 @@
             </div>
 
             <!-- Equipment -->
+            <div id="active-preset-tags" class="mb-3 px-1 text-[10px] font-black text-slate-500 flex flex-wrap items-center gap-1"></div>
             <div class="space-y-3 mb-12">
                 <div class="bg-white p-4 rounded-2xl border shadow-sm">
                     <div class="text-[9px] text-slate-400 font-black uppercase tracking-widest mb-1 flex items-center gap-1">
@@ -669,7 +684,10 @@
             <div id="inventory-list" class="flex-1 overflow-y-auto space-y-2 pb-12"></div>
             <div class="bg-white rounded-2xl border p-3 mt-3 shadow-sm">
                 <div class="flex items-center justify-between mb-2">
-                    <div class="text-[10px] font-black text-slate-400">並び替え</div>
+                    <button id="build-preset-open" class="px-3 py-2 rounded-xl border text-[10px] font-black flex items-center gap-2 bg-indigo-50 text-indigo-600 border-indigo-200">
+                        <i class="fas fa-layer-group"></i>
+                        <span>プリセット</span>
+                    </button>
                     <div class="flex items-center gap-2">
                         <button id="inv-sort-toggle" onclick="toggleInventorySort()" class="px-3 py-2 rounded-xl border text-[10px] font-black flex items-center gap-2 bg-slate-50 text-slate-500 border-slate-200">
                             <i class="fas fa-clock"></i>
@@ -1066,6 +1084,19 @@
         </div>
     </div>
 
+    <!-- BUILD PRESET MODAL -->
+    <div id="build-preset-modal" class="fixed inset-0 bg-slate-900/80 z-[111] hidden items-center justify-center p-6 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-md rounded-[2rem] overflow-hidden shadow-2xl p-6 border-b-8 border-indigo-100 max-h-[88dvh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="font-black text-lg text-slate-800 flex items-center gap-2"><i class="fas fa-layer-group text-indigo-500"></i> プリセット</h3>
+                <button id="build-preset-close" class="text-slate-400 hover:text-slate-700 text-lg"><i class="fas fa-xmark"></i></button>
+            </div>
+            <p class="text-[11px] text-slate-500 mb-4">装備・ポーション・スキルスロット・スキル配分を保存します。戦闘中は操作できません。</p>
+            <div id="build-preset-list" class="space-y-3"></div>
+            <button id="build-preset-close-bottom" class="mt-5 w-full bg-slate-100 text-slate-500 font-black py-3 rounded-2xl shadow">閉じる</button>
+        </div>
+    </div>
+
     <!-- COMPARE MODAL -->
     <div id="compare-modal" class="fixed inset-0 bg-slate-900/80 z-[112] hidden items-center justify-center p-6 backdrop-blur-sm">
         <div class="bg-white w-full max-w-sm rounded-[2rem] overflow-hidden shadow-2xl p-6 border-b-8 border-emerald-100">
@@ -1411,6 +1442,7 @@
                 exp: 0, next: 100, sp: 1,
                 gold: 0,
                 weapon: null, armor: null, head: null, hands: null, feet: null, accessory1: null, accessory2: null, potion1: null, potion2: null, inventory: [],
+                buildPresets: [],
                 skillSlots: [null, null, null, null],
                 skillSlotIndex: 0,
                 skillSlotTarget: 0,
@@ -1541,10 +1573,58 @@
 
         Game.player.next = getNextExpRequirement(Game.player.level);
 
+        const JobKeys = ['warrior', 'mage', 'thief', 'ranger', 'paladin', 'monk', 'commonPassive'];
+        const BuildPresetSlotCount = 5;
+        const BuildPresetEquipmentSlots = ['weapon', 'armor', 'head', 'hands', 'feet', 'accessory1', 'accessory2'];
+        const BuildPresetPotionSlots = ['potion1', 'potion2'];
+        const cloneStateData = (value) => JSON.parse(JSON.stringify(value));
+        const createEmptyBuildPreset = (slot) => ({
+            slot,
+            memo: '',
+            savedAt: null,
+            equipment: Object.fromEntries(BuildPresetEquipmentSlots.map((key) => [key, null])),
+            potions: Object.fromEntries(BuildPresetPotionSlots.map((key) => [key, null])),
+            skillSlots: [null, null, null, null],
+            skills: Object.fromEntries(JobKeys.map((job) => [job, { active: [], passive: [] }]))
+        });
+        const createDefaultBuildPresets = () => Array.from({ length: BuildPresetSlotCount }, (_, idx) => createEmptyBuildPreset(idx + 1));
+        const ensureBuildPresets = () => {
+            if (!Game.player) return;
+            const current = Array.isArray(Game.player.buildPresets) ? Game.player.buildPresets : [];
+            const normalized = [];
+            for (let i = 0; i < BuildPresetSlotCount; i += 1) {
+                const src = current[i] || {};
+                const empty = createEmptyBuildPreset(i + 1);
+                const preset = {
+                    ...empty,
+                    ...src,
+                    slot: i + 1,
+                    equipment: { ...empty.equipment, ...(src.equipment || {}) },
+                    potions: { ...empty.potions, ...(src.potions || {}) },
+                    skillSlots: Array.isArray(src.skillSlots) ? src.skillSlots.slice(0, 4) : empty.skillSlots.slice(),
+                    skills: { ...empty.skills }
+                };
+                while (preset.skillSlots.length < 4) preset.skillSlots.push(null);
+                JobKeys.forEach((job) => {
+                    const fallback = Game.player.skills?.[job] || { active: [], passive: [] };
+                    const incoming = src.skills?.[job] || {};
+                    preset.skills[job] = {
+                        active: Array.isArray(incoming.active) ? incoming.active.slice() : cloneStateData(fallback.active || []),
+                        passive: Array.isArray(incoming.passive) ? incoming.passive.slice() : cloneStateData(fallback.passive || [])
+                    };
+                });
+                normalized.push(preset);
+            }
+            Game.player.buildPresets = normalized;
+        };
+
+        if (!Array.isArray(Game.player.buildPresets) || Game.player.buildPresets.length === 0) {
+            Game.player.buildPresets = createDefaultBuildPresets();
+        }
+        ensureBuildPresets();
+
         const DefaultGameState = JSON.parse(JSON.stringify(Game));
         const buildInitialSnapshot = () => JSON.parse(JSON.stringify(DefaultGameState));
-
-        const JobKeys = ['warrior', 'mage', 'thief', 'ranger', 'paladin', 'monk', 'commonPassive'];
 
         const SaveConfig = {
             prefix: 'kurukue_save_slot_',
@@ -1654,6 +1734,7 @@
                 }
             }
             if (Game.player) {
+                ensureBuildPresets();
                 Game.player.level = Math.min(MAX_LEVEL, Game.player.level || 1);
                 if (!Number.isFinite(Game.player.baseMaxHp)) {
                     Game.player.baseMaxHp = Game.player.maxHp || 1;
@@ -6740,6 +6821,106 @@
             bulkSellByRarity(selected);
         });
 
+        const buildPresetModal = document.getElementById('build-preset-modal');
+        const buildPresetOpenBtn = document.getElementById('build-preset-open');
+        const buildPresetCloseBtn = document.getElementById('build-preset-close');
+        const buildPresetCloseBottomBtn = document.getElementById('build-preset-close-bottom');
+        const buildPresetList = document.getElementById('build-preset-list');
+
+        const renderBuildPresetModal = () => {
+            if (!buildPresetList) return;
+            ensureBuildPresets();
+            buildPresetList.innerHTML = '';
+            Game.player.buildPresets.forEach((preset, index) => {
+                const slot = index + 1;
+                const card = document.createElement('div');
+                card.className = 'rounded-2xl border border-slate-200 bg-slate-50 p-3 space-y-2';
+                const savedAtText = preset.savedAt ? formatSaveTimestamp(preset.savedAt) : '未登録';
+                card.innerHTML = `
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="font-black text-slate-700 flex items-center gap-2"><span class="preset-badge">P${slot}</span><span class="text-[11px] text-slate-500">${savedAtText}</span></div>
+                    </div>
+                    <textarea data-preset-memo="${slot}" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-[10px] text-slate-600 h-16" placeholder="メモ（複数行可）">${preset.memo || ''}</textarea>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button data-preset-save="${slot}" class="py-2 rounded-xl bg-slate-800 text-white text-[10px] font-black flex items-center justify-center gap-1"><i class="fas fa-floppy-disk"></i>保存</button>
+                        <button data-preset-load="${slot}" class="py-2 rounded-xl bg-indigo-600 text-white text-[10px] font-black flex items-center justify-center gap-1"><i class="fas fa-upload"></i>ロード</button>
+                        <button data-preset-delete="${slot}" class="py-2 rounded-xl bg-rose-100 text-rose-600 text-[10px] font-black flex items-center justify-center gap-1"><i class="fas fa-trash"></i>削除</button>
+                    </div>
+                `;
+                buildPresetList.appendChild(card);
+            });
+
+            buildPresetList.querySelectorAll('[data-preset-save]').forEach((button) => {
+                button.addEventListener('click', () => {
+                    if (Game.state === 'combat') {
+                        setSaveStatus('戦闘中はプリセットを保存できません。', 'text-amber-600');
+                        return;
+                    }
+                    const slot = Number.parseInt(button.dataset.presetSave, 10);
+                    if (Number.isNaN(slot)) return;
+                    const memoEl = buildPresetList.querySelector(`[data-preset-memo="${slot}"]`);
+                    const memo = memoEl ? memoEl.value : '';
+                    const existing = Game.player.buildPresets[slot - 1];
+                    if (existing?.savedAt && !window.confirm(`P${slot}を上書きしますか？`)) {
+                        return;
+                    }
+                    Game.player.buildPresets[slot - 1] = buildPresetSnapshot(slot, memo);
+                    setSaveStatus(`P${slot}を保存しました。`, 'text-emerald-600');
+                    renderBuildPresetModal();
+                    updateUI();
+                    triggerAutosave();
+                });
+            });
+
+            buildPresetList.querySelectorAll('[data-preset-load]').forEach((button) => {
+                button.addEventListener('click', () => {
+                    const slot = Number.parseInt(button.dataset.presetLoad, 10);
+                    if (Number.isNaN(slot)) return;
+                    applyBuildPreset(slot);
+                    renderBuildPresetModal();
+                });
+            });
+
+            buildPresetList.querySelectorAll('[data-preset-delete]').forEach((button) => {
+                button.addEventListener('click', () => {
+                    if (Game.state === 'combat') {
+                        setSaveStatus('戦闘中はプリセットを削除できません。', 'text-amber-600');
+                        return;
+                    }
+                    const slot = Number.parseInt(button.dataset.presetDelete, 10);
+                    if (Number.isNaN(slot)) return;
+                    const existing = Game.player.buildPresets[slot - 1];
+                    if (!existing?.savedAt) return;
+                    if (!window.confirm(`P${slot}を削除しますか？`)) {
+                        return;
+                    }
+                    Game.player.buildPresets[slot - 1] = createEmptyBuildPreset(slot);
+                    setSaveStatus(`P${slot}を削除しました。`, 'text-rose-600');
+                    renderBuildPresetModal();
+                    updateUI();
+                    triggerAutosave();
+                });
+            });
+        };
+
+        const openBuildPresetModal = () => {
+            renderBuildPresetModal();
+            buildPresetModal.classList.remove('hidden');
+            buildPresetModal.classList.add('flex');
+        };
+
+        const closeBuildPresetModal = () => {
+            buildPresetModal.classList.add('hidden');
+            buildPresetModal.classList.remove('flex');
+        };
+
+        buildPresetOpenBtn.addEventListener('click', openBuildPresetModal);
+        buildPresetCloseBtn.addEventListener('click', closeBuildPresetModal);
+        buildPresetCloseBottomBtn.addEventListener('click', closeBuildPresetModal);
+        buildPresetModal.addEventListener('click', (event) => {
+            if (event.target === buildPresetModal) closeBuildPresetModal();
+        });
+
         const equipSlotModal = document.getElementById('equip-slot-modal');
         const equipSlotTitle = document.getElementById('equip-slot-title');
         const equipSlotLabel1 = document.getElementById('equip-slot-1-label');
@@ -8051,10 +8232,111 @@ console.log("[BUILD LOOT ENTRY]", { forceBossDrop: options.forceBossDrop, isBoss
             return EquippedSlots.some((slot) => isSameItem(Game.player[slot], item));
         }
 
+        const getPresetIndicesForItem = (item) => {
+            if (!item) return [];
+            ensureBuildPresets();
+            const result = [];
+            Game.player.buildPresets.forEach((preset, index) => {
+                if (!preset || !preset.savedAt) return;
+                const inEquip = BuildPresetEquipmentSlots.some((slot) => isSameItem(preset.equipment?.[slot], item));
+                const inPotion = BuildPresetPotionSlots.some((slot) => isSameItem(preset.potions?.[slot], item));
+                if (inEquip || inPotion) {
+                    result.push(index + 1);
+                }
+            });
+            return result;
+        };
+
+        const isItemProtectedByPreset = (item) => getPresetIndicesForItem(item).length > 0;
+
+        const getBuildComparableState = () => {
+            ensureBuildPresets();
+            return {
+                equipment: Object.fromEntries(BuildPresetEquipmentSlots.map((slot) => [slot, Game.player[slot] ? String(Game.player[slot].acquiredAt ?? '') : ''])),
+                potions: Object.fromEntries(BuildPresetPotionSlots.map((slot) => [slot, Game.player[slot] ? String(Game.player[slot].acquiredAt ?? '') : ''])),
+                skillSlots: cloneStateData(Game.player.skillSlots || [null, null, null, null]),
+                skills: cloneStateData(Game.player.skills || {})
+            };
+        };
+
+        const getPresetComparableState = (preset) => ({
+            equipment: Object.fromEntries(BuildPresetEquipmentSlots.map((slot) => [slot, preset?.equipment?.[slot] ? String(preset.equipment[slot].acquiredAt ?? '') : ''])),
+            potions: Object.fromEntries(BuildPresetPotionSlots.map((slot) => [slot, preset?.potions?.[slot] ? String(preset.potions[slot].acquiredAt ?? '') : ''])),
+            skillSlots: cloneStateData(preset?.skillSlots || [null, null, null, null]),
+            skills: cloneStateData(preset?.skills || {})
+        });
+
+        const getMatchedPresetIndices = () => {
+            ensureBuildPresets();
+            const current = JSON.stringify(getBuildComparableState());
+            const indices = [];
+            Game.player.buildPresets.forEach((preset, idx) => {
+                if (!preset?.savedAt) return;
+                if (JSON.stringify(getPresetComparableState(preset)) === current) {
+                    indices.push(idx + 1);
+                }
+            });
+            return indices;
+        };
+
+        const renderPresetBadgeHtml = (indices) => indices.map((idx) => `<span class="preset-badge">P${idx}</span>`).join('');
+
+        const renderActivePresetTags = () => {
+            const container = document.getElementById('active-preset-tags');
+            if (!container) return;
+            const tags = getMatchedPresetIndices();
+            container.innerHTML = tags.length
+                ? `<span class="text-slate-400">現在一致:</span>${renderPresetBadgeHtml(tags)}`
+                : '<span class="text-slate-400">現在一致: なし</span>';
+        };
+
+        const buildPresetSnapshot = (slot, memo) => {
+            const nextMemo = memo ?? '';
+            return {
+                slot,
+                memo: nextMemo,
+                savedAt: new Date().toISOString(),
+                equipment: Object.fromEntries(BuildPresetEquipmentSlots.map((key) => [key, cloneStateData(Game.player[key] || null)])),
+                potions: Object.fromEntries(BuildPresetPotionSlots.map((key) => [key, cloneStateData(Game.player[key] || null)])),
+                skillSlots: cloneStateData(Game.player.skillSlots || [null, null, null, null]),
+                skills: cloneStateData(Game.player.skills || {})
+            };
+        };
+
+        const applyBuildPreset = (slot) => {
+            if (Game.state === 'combat') {
+                setSaveStatus('戦闘中はプリセットをロードできません。', 'text-amber-600');
+                return;
+            }
+            ensureBuildPresets();
+            const preset = Game.player.buildPresets[slot - 1];
+            if (!preset?.savedAt) {
+                setSaveStatus(`P${slot}は未登録です。`, 'text-amber-600');
+                return;
+            }
+            BuildPresetEquipmentSlots.forEach((key) => {
+                Game.player[key] = cloneStateData(preset.equipment?.[key] || null);
+            });
+            BuildPresetPotionSlots.forEach((key) => {
+                Game.player[key] = cloneStateData(preset.potions?.[key] || null);
+                if (Game.player[key]) syncPotionCapacity(Game.player[key]);
+            });
+            Game.player.skillSlots = cloneStateData(preset.skillSlots || [null, null, null, null]);
+            JobKeys.forEach((job) => {
+                if (!Game.player.skills[job]) return;
+                const fromPreset = preset.skills?.[job] || {};
+                Game.player.skills[job].active = cloneStateData(fromPreset.active || Game.player.skills[job].active || []);
+                Game.player.skills[job].passive = cloneStateData(fromPreset.passive || Game.player.skills[job].passive || []);
+            });
+            updateUI();
+            triggerAutosave();
+            setSaveStatus(`P${slot}をロードしました。`, 'text-blue-600');
+        };
+
         function removeInventoryItem(idx) {
             if (idx < 0 || idx >= Game.player.inventory.length) return false;
             const item = Game.player.inventory[idx];
-            if (!item || isItemEquipped(item)) return false;
+            if (!item || isItemEquipped(item) || isItemProtectedByPreset(item)) return false;
             Game.player.inventory.splice(idx, 1);
             return true;
         }
@@ -8090,7 +8372,7 @@ console.log("[BUILD LOOT ENTRY]", { forceBossDrop: options.forceBossDrop, isBoss
 
         function deleteItem(idx) {
             const item = Game.player.inventory[idx];
-            if (!item || isItemEquipped(item) || item.favorite) return;
+            if (!item || isItemEquipped(item) || isItemProtectedByPreset(item) || item.favorite) return;
             const price = getSellPrice(item);
             if (removeInventoryItem(idx)) {
                 Game.player.gold += price;
@@ -8330,7 +8612,7 @@ console.log("[BUILD LOOT ENTRY]", { forceBossDrop: options.forceBossDrop, isBoss
             const activeFilter = Game.inventoryFilter || 'all';
             for (let i = Game.player.inventory.length - 1; i >= 0; i--) {
                 const item = Game.player.inventory[i];
-                if (!item || isItemEquipped(item) || item.favorite) continue;
+                if (!item || isItemEquipped(item) || isItemProtectedByPreset(item) || item.favorite) continue;
                 if (activeFilter !== 'all' && item.type !== activeFilter) continue;
                 if (!rarities.includes(item.rarity)) continue;
                 totalGold += getSellPrice(item);
@@ -8597,6 +8879,7 @@ console.log("[BUILD LOOT ENTRY]", { forceBossDrop: options.forceBossDrop, isBoss
             document.getElementById('accessory1-val').innerHTML = p.accessory1 ? renderItemStatsGroupedHtml(p.accessory1) : "";
             updateEquipNameDisplay('equip-accessory2', p.accessory2);
             document.getElementById('accessory2-val').innerHTML = p.accessory2 ? renderItemStatsGroupedHtml(p.accessory2) : "";
+            renderActivePresetTags();
 
             // Inventory
             const invList = document.getElementById('inventory-list');
@@ -8640,6 +8923,10 @@ console.log("[BUILD LOOT ENTRY]", { forceBossDrop: options.forceBossDrop, isBoss
                 const div = document.createElement('div');
                 div.className = "bg-white p-4 rounded-2xl border flex items-center justify-between shadow-sm";
                 const equipped = isItemEquipped(item);
+                const presetIndices = getPresetIndicesForItem(item);
+                const presetMarker = presetIndices.length
+                    ? `<span class="inline-flex items-center gap-1 mr-1">${renderPresetBadgeHtml(presetIndices)}</span>`
+                    : '';
                 const equipMarker = equipped
                     ? '<span class="text-emerald-500 font-black mr-1">[E]</span>'
                     : '';
@@ -8648,8 +8935,9 @@ console.log("[BUILD LOOT ENTRY]", { forceBossDrop: options.forceBossDrop, isBoss
                     ? '<i class="fas fa-star text-amber-400 mx-1"></i>'
                     : '';
                 const isLongName = item.name.length >= 16;
-                const deleteLabel = equipped ? '装備中' : '売却';
-                const deleteDisabled = equipped || favorite;
+                const presetProtected = presetIndices.length > 0;
+                const deleteLabel = equipped ? '装備中' : (presetProtected ? '登録中' : '売却');
+                const deleteDisabled = equipped || presetProtected || favorite;
                 const deleteClasses = deleteDisabled
                     ? 'bg-slate-100 text-slate-300 cursor-not-allowed'
                     : 'bg-slate-100 text-slate-500';
@@ -8706,7 +8994,7 @@ console.log("[BUILD LOOT ENTRY]", { forceBossDrop: options.forceBossDrop, isBoss
                 div.innerHTML = `
                     <div class="min-w-0 flex-1">
                         <div class="text-[9px] text-slate-400 font-black uppercase tracking-widest mb-1">${getEquipmentTypeLabel(item)}</div>
-                        <div class="font-black text-[11px] leading-tight whitespace-normal break-words rarity-${item.rarity} ${isLongName ? "text-[10px]" : ""}">${equipMarker}${favoriteMarker}${item.name}${enhancementDisplay ? ` ${enhancementDisplay}` : ""}</div>
+                        <div class="font-black text-[11px] leading-tight whitespace-normal break-words rarity-${item.rarity} ${isLongName ? "text-[10px]" : ""}">${equipMarker}${presetMarker}${favoriteMarker}${item.name}${enhancementDisplay ? ` ${enhancementDisplay}` : ""}</div>
                         <div class="mt-1">${renderItemStatsGroupedHtml(item)}</div>
                     </div>
                     <div class="ml-4 flex flex-col gap-2">
