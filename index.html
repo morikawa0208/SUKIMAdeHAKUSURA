@@ -1585,6 +1585,7 @@
             equipment: Object.fromEntries(BuildPresetEquipmentSlots.map((key) => [key, null])),
             potions: Object.fromEntries(BuildPresetPotionSlots.map((key) => [key, null])),
             skillSlots: [null, null, null, null],
+            skillPoints: null,
             skills: Object.fromEntries(JobKeys.map((job) => [job, { active: [], passive: [] }]))
         });
         const createDefaultBuildPresets = () => Array.from({ length: BuildPresetSlotCount }, (_, idx) => createEmptyBuildPreset(idx + 1));
@@ -1602,7 +1603,8 @@
                     equipment: { ...empty.equipment, ...(src.equipment || {}) },
                     potions: { ...empty.potions, ...(src.potions || {}) },
                     skillSlots: Array.isArray(src.skillSlots) ? src.skillSlots.slice(0, 4) : empty.skillSlots.slice(),
-                    skills: { ...empty.skills }
+                    skills: { ...empty.skills },
+                    skillPoints: Number.isFinite(src.skillPoints) ? src.skillPoints : null
                 };
                 while (preset.skillSlots.length < 4) preset.skillSlots.push(null);
                 JobKeys.forEach((job) => {
@@ -1625,8 +1627,6 @@
 
         const DefaultGameState = JSON.parse(JSON.stringify(Game));
         const buildInitialSnapshot = () => JSON.parse(JSON.stringify(DefaultGameState));
-
-        const JobKeys = ['warrior', 'mage', 'thief', 'ranger', 'paladin', 'monk', 'commonPassive'];
 
         const SaveConfig = {
             prefix: 'kurukue_save_slot_',
@@ -6875,6 +6875,7 @@
                     }
                     Game.player.buildPresets[slot - 1] = buildPresetSnapshot(slot, memo);
                     setSaveStatus(`P${slot}を保存しました。`, 'text-emerald-600');
+                    showDonateToast(`P${slot}を保存しました`);
                     renderBuildPresetModal();
                     updateUI();
                     triggerAutosave();
@@ -6885,7 +6886,10 @@
                 button.addEventListener('click', () => {
                     const slot = Number.parseInt(button.dataset.presetLoad, 10);
                     if (Number.isNaN(slot)) return;
-                    applyBuildPreset(slot);
+                    const loaded = applyBuildPreset(slot);
+                    if (loaded) {
+                        showDonateToast(`P${slot}をロードしました`);
+                    }
                     renderBuildPresetModal();
                 });
             });
@@ -6905,6 +6909,7 @@
                     }
                     Game.player.buildPresets[slot - 1] = createEmptyBuildPreset(slot);
                     setSaveStatus(`P${slot}を削除しました。`, 'text-rose-600');
+                    showDonateToast(`P${slot}を削除しました`);
                     renderBuildPresetModal();
                     updateUI();
                     triggerAutosave();
@@ -8264,6 +8269,7 @@ console.log("[BUILD LOOT ENTRY]", { forceBossDrop: options.forceBossDrop, isBoss
                 equipment: Object.fromEntries(BuildPresetEquipmentSlots.map((slot) => [slot, Game.player[slot] ? String(Game.player[slot].acquiredAt ?? '') : ''])),
                 potions: Object.fromEntries(BuildPresetPotionSlots.map((slot) => [slot, Game.player[slot] ? String(Game.player[slot].acquiredAt ?? '') : ''])),
                 skillSlots: cloneStateData(Game.player.skillSlots || [null, null, null, null]),
+                skillPoints: Number.isFinite(Game.player.sp) ? Game.player.sp : 0,
                 skills: cloneStateData(Game.player.skills || {})
             };
         };
@@ -8272,6 +8278,7 @@ console.log("[BUILD LOOT ENTRY]", { forceBossDrop: options.forceBossDrop, isBoss
             equipment: Object.fromEntries(BuildPresetEquipmentSlots.map((slot) => [slot, preset?.equipment?.[slot] ? String(preset.equipment[slot].acquiredAt ?? '') : ''])),
             potions: Object.fromEntries(BuildPresetPotionSlots.map((slot) => [slot, preset?.potions?.[slot] ? String(preset.potions[slot].acquiredAt ?? '') : ''])),
             skillSlots: cloneStateData(preset?.skillSlots || [null, null, null, null]),
+            skillPoints: Number.isFinite(preset?.skillPoints) ? preset.skillPoints : null,
             skills: cloneStateData(preset?.skills || {})
         });
 
@@ -8308,6 +8315,7 @@ console.log("[BUILD LOOT ENTRY]", { forceBossDrop: options.forceBossDrop, isBoss
                 equipment: Object.fromEntries(BuildPresetEquipmentSlots.map((key) => [key, cloneStateData(Game.player[key] || null)])),
                 potions: Object.fromEntries(BuildPresetPotionSlots.map((key) => [key, cloneStateData(Game.player[key] || null)])),
                 skillSlots: cloneStateData(Game.player.skillSlots || [null, null, null, null]),
+                skillPoints: Number.isFinite(Game.player.sp) ? Game.player.sp : 0,
                 skills: cloneStateData(Game.player.skills || {})
             };
         };
@@ -8315,13 +8323,13 @@ console.log("[BUILD LOOT ENTRY]", { forceBossDrop: options.forceBossDrop, isBoss
         const applyBuildPreset = (slot) => {
             if (Game.state === 'combat') {
                 setSaveStatus('戦闘中はプリセットをロードできません。', 'text-amber-600');
-                return;
+                return false;
             }
             ensureBuildPresets();
             const preset = Game.player.buildPresets[slot - 1];
             if (!preset?.savedAt) {
                 setSaveStatus(`P${slot}は未登録です。`, 'text-amber-600');
-                return;
+                return false;
             }
             BuildPresetEquipmentSlots.forEach((key) => {
                 Game.player[key] = cloneStateData(preset.equipment?.[key] || null);
@@ -8331,6 +8339,9 @@ console.log("[BUILD LOOT ENTRY]", { forceBossDrop: options.forceBossDrop, isBoss
                 if (Game.player[key]) syncPotionCapacity(Game.player[key]);
             });
             Game.player.skillSlots = cloneStateData(preset.skillSlots || [null, null, null, null]);
+            if (Number.isFinite(preset.skillPoints)) {
+                Game.player.sp = Math.min(MAX_SKILL_POINTS, Math.max(0, preset.skillPoints));
+            }
             JobKeys.forEach((job) => {
                 if (!Game.player.skills[job]) return;
                 const fromPreset = preset.skills?.[job] || {};
@@ -8340,6 +8351,7 @@ console.log("[BUILD LOOT ENTRY]", { forceBossDrop: options.forceBossDrop, isBoss
             updateUI();
             triggerAutosave();
             setSaveStatus(`P${slot}をロードしました。`, 'text-blue-600');
+            return true;
         };
 
         function removeInventoryItem(idx) {
