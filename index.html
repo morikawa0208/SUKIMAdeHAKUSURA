@@ -641,8 +641,10 @@
                         <option value="ranger">レンジャー</option>
                         <option value="paladin">聖騎士</option>
                         <option value="monk">拳闘士</option>
+                        <option value="commonPassive">共通パッシブ(上限なし)</option>
                     </select>
                 </div>
+                <div id="common-passive-hint" class="mt-2 hidden text-[10px] text-slate-500 font-bold bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">共通パッシブはLv上限なし / SP共有 / リセットで同時に戻ります。</div>
             </div>
             <div class="flex bg-white shrink-0 shadow-sm">
                 <button onclick="switchSkillType('active')" id="tab-active" class="type-tab flex-1 py-3 text-sm text-slate-400 transition-all">アクティブ</button>
@@ -1402,7 +1404,7 @@
                 attackFlat: 0, defenseFlat: 0,
                 hpRegen: 0, mpRegen: 0, goldBoost: 0,
                 critRate: 5, evasionRate: 3, leechRate: 0, expBoost: 0, mPen: 0, luck: 50, accuracy: 100,
-                critDamage: 200, damageBoost: 0, damageReduction: 0, rareFind: 0, affixFind: 0, eliteEncounter: 0,
+                critDamage: 200, damageBoost: 0, damageReduction: 0, rareFind: 0, affixFind: 0, eliteEncounter: 0, dropRateBoost: 0,
                 skillPowerBoost: 0, statusEffectStackBonus: 0, statusEffectTurnBonus: 0,
                 poisonMaxStacksBonus: 0, poisonMinPctBonus: 0,
                 skillMpDiscount: 0, strMultiplier: 0, intMultiplier: 0, vitMultiplier: 0, dexMultiplier: 0,
@@ -1431,7 +1433,8 @@
                     thief: { active: [0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
                     ranger: { active: [0,0,0,0,0,0,0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
                     paladin: { active: [0,0,0,0,0,0,0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
-                    monk: { active: [0,0,0,0,0,0], passive: [0,0,0,0,0,0] }
+                    monk: { active: [0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
+                    commonPassive: { active: [], passive: [0,0,0,0,0,0] }
                 }
             },
             currentJobTab: 'warrior',
@@ -1541,7 +1544,7 @@
         const DefaultGameState = JSON.parse(JSON.stringify(Game));
         const buildInitialSnapshot = () => JSON.parse(JSON.stringify(DefaultGameState));
 
-        const JobKeys = ['warrior', 'mage', 'thief', 'ranger', 'paladin', 'monk'];
+        const JobKeys = ['warrior', 'mage', 'thief', 'ranger', 'paladin', 'monk', 'commonPassive'];
 
         const SaveConfig = {
             prefix: 'kurukue_save_slot_',
@@ -2164,6 +2167,18 @@
                     { id: 3, name: "闘志", desc: "会心ダメージ+8%/レベル", maxLevel: 150, apply: (d) => Game.player.critDamage += 8 * d },
                     { id: 4, name: "霞身", desc: "回避率+2%/レベル", maxLevel: 150, apply: (d) => Game.player.evasionRate += 2 * d },
                     { id: 5, name: "闘気吸収", desc: "吸血率+2%/レベル", maxLevel: 150, apply: (d) => Game.player.leechRate += 2 * d }
+                ]
+            },
+            commonPassive: {
+                name: "共通パッシブ",
+                active: [],
+                passive: [
+                    { id: 0, name: "修練: 追加経験値", desc: "追加経験値+1%/レベル", apply: (d) => Game.player.expBoost += d },
+                    { id: 1, name: "修練: ドロップ率", desc: "ドロップ率+1%/レベル", apply: (d) => Game.player.dropRateBoost += d },
+                    { id: 2, name: "修練: レアドロ率", desc: "レアドロ率+1%/レベル", apply: (d) => Game.player.rareFind += d },
+                    { id: 3, name: "修練: Affix率", desc: "Affix率+1%/レベル", apply: (d) => Game.player.affixFind += d },
+                    { id: 4, name: "修練: エリート遭遇率", desc: "エリート遭遇率+1%/レベル", apply: (d) => Game.player.eliteEncounter += d },
+                    { id: 5, name: "修練: ゴールド増加", desc: "ゴールド増加率+1%/レベル", apply: (d) => Game.player.goldBoost += d }
                 ]
             }
         };
@@ -4525,6 +4540,7 @@
                 rareFind: Game.player.rareFind + (equip.rareFind || 0) + (milestone.rareFind || 0),
                 affixFind: Game.player.affixFind + (equip.affixFind || 0) + (milestone.affixFind || 0),
                 eliteEncounter: Game.player.eliteEncounter + (equip.eliteEncounter || 0) + (milestone.eliteEncounter || 0),
+                dropRateBoost: Game.player.dropRateBoost,
                 skillPowerBoost: Game.player.skillPowerBoost + (equip.skillPowerBoost || 0),
                 statusEffectStackBonus: Game.player.statusEffectStackBonus + (equip.statusEffectStackBonus || 0),
                 statusEffectTurnBonus: Game.player.statusEffectTurnBonus + (equip.statusEffectTurnBonus || 0),
@@ -5163,6 +5179,16 @@
             if (selector && selector.value !== job) {
                 selector.value = job;
             }
+            const isCommonPassive = job === 'commonPassive';
+            const slotWrapper = document.getElementById('skill-slot-settings')?.parentElement;
+            if (slotWrapper) slotWrapper.classList.toggle('hidden', isCommonPassive);
+            const tabsWrapper = document.getElementById('tab-active')?.parentElement;
+            if (tabsWrapper) tabsWrapper.classList.toggle('hidden', isCommonPassive);
+            const hint = document.getElementById('common-passive-hint');
+            if (hint) hint.classList.toggle('hidden', !isCommonPassive);
+            if (isCommonPassive && Game.currentSkillType !== 'passive') {
+                Game.currentSkillType = 'passive';
+            }
             renderSkillList();
         }
 
@@ -5502,7 +5528,8 @@
                 rareFind: totals.rareFind,
                 affixFind: totals.affixFind,
                 eliteEncounter: totals.eliteEncounter,
-                goldBoost: totals.goldBoost
+                goldBoost: totals.goldBoost,
+                dropRateBoost: totals.dropRateBoost
             };
             return { maxHp, maxMp, atk, def, totals: modifiedTotals };
         }
@@ -6475,14 +6502,14 @@
         const openSkillDetailModal = (job, type, idx, level) => {
             const base = JobData[job][type][idx];
             if (!base) return;
-            const maxLevel = base.maxLevel || SkillMaxLevel;
+            const maxLevel = (job === "commonPassive" && type === "passive") ? Number.POSITIVE_INFINITY : (base.maxLevel || SkillMaxLevel);
             const currentLevel = Math.max(0, level || 0);
-            const label = type === 'active' ? 'アクティブ' : 'パッシブ';
+            const label = job === "commonPassive" ? "共通パッシブ" : (type === 'active' ? 'アクティブ' : 'パッシブ');
             const displaySkill = type === 'active'
                 ? buildActiveSkill(job, idx, Math.max(1, currentLevel || 1))
                 : base;
             skillDetailTitle.innerHTML = `<i class="fas fa-circle-info text-slate-500"></i> ${displaySkill.name}`;
-            skillDetailMeta.textContent = `${label} / Lv ${currentLevel}/${maxLevel}`;
+            skillDetailMeta.textContent = `${label} / Lv ${currentLevel}/${Number.isFinite(maxLevel) ? maxLevel : "∞"}`;
             skillDetailDesc.textContent = displaySkill.desc || '説明がありません。';
 
             const stats = [];
@@ -6956,9 +6983,13 @@
         });
 
         function switchSkillType(type) {
+            if (Game.currentJobTab === 'commonPassive' && type !== 'passive') {
+                type = 'passive';
+            }
             Game.currentSkillType = type;
             document.querySelectorAll('.type-tab').forEach(el => el.classList.remove('active'));
-            document.getElementById(`tab-${type}`).classList.add('active');
+            const tab = document.getElementById(`tab-${type}`);
+            if (tab) tab.classList.add('active');
             renderSkillList();
         }
 
@@ -7022,7 +7053,7 @@
             
             data.forEach((skill, idx) => {
                 const level = getSkillLevel(Game.currentJobTab, Game.currentSkillType, idx);
-                const maxLevel = skill.maxLevel || SkillMaxLevel;
+                const maxLevel = (Game.currentJobTab === "commonPassive" && Game.currentSkillType === "passive") ? Number.POSITIVE_INFINITY : (skill.maxLevel || SkillMaxLevel);
                 const isLearned = level > 0;
                 const isMax = level >= maxLevel;
                 const card = document.createElement('div');
@@ -7072,7 +7103,7 @@
                             <div class="flex items-center gap-2 mb-0.5">
                                 <span class="font-black text-sm truncate">${displaySkill.name}</span>
                                 ${displaySkill.mp !== undefined ? `<span class="text-[9px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded-full font-bold">MP ${displaySkill.mp}</span>` : ''}
-                                <span class="text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full font-bold">Lv ${level}/${maxLevel}</span>
+                                <span class="text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full font-bold">Lv ${level}/${Number.isFinite(maxLevel) ? maxLevel : "∞"}</span>
                             </div>
                             <p class="text-[10px] text-slate-500 leading-tight">${displaySkill.desc}</p>
                         </div>
@@ -7089,7 +7120,7 @@
         function learnSkill(job, type, idx) {
             const skill = JobData[job][type][idx];
             const current = getSkillLevel(job, type, idx);
-            const maxLevel = skill.maxLevel || SkillMaxLevel;
+            const maxLevel = (job === "commonPassive" && type === "passive") ? Number.POSITIVE_INFINITY : (skill.maxLevel || SkillMaxLevel);
             const modeValue = getSkillPointModeValue();
             if (modeValue === 0) return;
             if (modeValue > 0) {
@@ -7701,10 +7732,8 @@ function victory() {
                 const totals = getTotalStats();
                 let dropChance = Math.min(0.95, totals.luck / 100);
                 const BossUniqueExtraChance = 0.05; // 5%（好きな値）
-
-console.log("[DROP CHANCE]", { dropChance, eliteLootMultiplier, isBoss: Game.enemy?.isBoss, floor: Game.floor });
-
-                
+                // 固定順: 基礎(LUCK) -> 共通パッシブのドロップ率補正 -> エリート補正
+                dropChance = Math.min(0.95, dropChance * (1 + (totals.dropRateBoost || 0) / 100));
                 dropChance = Math.min(0.95, dropChance * eliteLootMultiplier);
                 const rollBossDropMode = () => {
                     if (!Game.enemy?.isBoss) return false;
