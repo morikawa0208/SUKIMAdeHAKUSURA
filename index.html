@@ -7539,7 +7539,7 @@
         let actionRepeatTimer = null;
         let actionRepeatActive = false;
         let actionCooldown = false;
-        const actionCooldownMs = 20; //マウスクリック連打速度
+        const actionCooldownMs = 100; //マウスクリック連打速度
 
         const handleAction = () => {
             if (Game.state === 'dead') return;
