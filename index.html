@@ -30,6 +30,14 @@
             align-items: center;
         }
 
+        body.is-booting .app-shell {
+            visibility: hidden;
+        }
+
+        body.is-booting #boot-overlay {
+            display: flex !important;
+        }
+
         .app-shell {
             width: clamp(0px, 100%, 460px);
             min-height: 100dvh;
@@ -244,7 +252,7 @@
         }
     </style>
 </head>
-<body class="flex flex-col">
+<body class="is-booting flex flex-col">
     <div class="app-shell">
 
     <!-- TOP BAR -->
@@ -1806,6 +1814,7 @@
         };
 
         const setBootstrappingLock = (locked) => {
+            document.body.classList.toggle('is-booting', locked);
             document.querySelectorAll('button, input, select, textarea').forEach((el) => {
                 if (locked) {
                     if (el.dataset.bootDisabled === undefined) {
@@ -5220,7 +5229,7 @@
         };
 
         // --- CORE LOGIC ---
-        window.onload = () => {
+        document.addEventListener('DOMContentLoaded', () => {
             isBootstrapping = true;
             setBootstrappingLock(true);
             setupSaveControls();
@@ -5244,7 +5253,7 @@
             switchJob('warrior');
             switchSkillType('active');
             finishBootstrapping();
-        };
+        });
 
         function switchPage(p) {
             document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
