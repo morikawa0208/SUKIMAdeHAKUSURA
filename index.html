@@ -1466,7 +1466,7 @@
                     ranger: { active: [0,0,0,0,0,0,0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
                     paladin: { active: [0,0,0,0,0,0,0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
                     monk: { active: [0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
-                    commonPassive: { active: [], passive: [0,0,0,0,0,0] }
+                    commonPassive: { active: [], passive: [0,0,0,0,0,0,0,0,0,0,0,0,0] }
                 }
             },
             currentJobTab: 'warrior',
@@ -2261,7 +2261,14 @@
                     { id: 2, name: "修練: レアドロ率", desc: "レアドロ率+1%/レベル", apply: (d) => Game.player.rareFind += d },
                     { id: 3, name: "修練: Affix率", desc: "Affix率+1%/レベル", apply: (d) => Game.player.affixFind += d },
                     { id: 4, name: "修練: エリート遭遇率", desc: "エリート遭遇率+1%/レベル", apply: (d) => Game.player.eliteEncounter += d },
-                    { id: 5, name: "修練: ゴールド増加", desc: "ゴールド増加率+1%/レベル", apply: (d) => Game.player.goldBoost += d }
+                    { id: 5, name: "修練: ゴールド増加", desc: "ゴールド増加率+1%/レベル", apply: (d) => Game.player.goldBoost += d },
+                    { id: 6, name: "継戦訓練", desc: "HP自動回復+0.2 & MP自動回復+0.2/レベル", apply: (d) => { Game.player.hpRegen += 0.2 * d; Game.player.mpRegen += 0.2 * d; } },
+                    { id: 7, name: "防御姿勢", desc: "被ダメ軽減+0.1%/レベル", apply: (d) => Game.player.damageReduction += 0.1 * d },
+                    { id: 8, name: "集中維持", desc: "スキル消費MP軽減+0.1%/レベル", apply: (d) => Game.player.skillMpDiscount += 0.1 * d },
+                    { id: 9, name: "精密動作", desc: "命中率+0.5%/レベル", apply: (d) => Game.player.accuracy += 0.5 * d },
+                    { id: 10, name: "会心練度", desc: "会心率+0.1%/レベル", apply: (d) => Game.player.critRate += 0.1 * d },
+                    { id: 11, name: "吸収術式", desc: "吸血率+0.1%/レベル", apply: (d) => Game.player.leechRate += 0.1 * d },
+                    { id: 12, name: "魔導穿孔", desc: "魔法貫通+0.5%/レベル", apply: (d) => Game.player.mPen += 0.5 * d }
                 ]
             }
         };
