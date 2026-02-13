@@ -3104,7 +3104,7 @@
             "熾火の大剣": { type: "killOverflow", scaleWithDx: true, value: 35, label: "熾火の大剣：キルごとに「過剰火力」を保存、次の敵への初撃に上乗せ" },
             "炎護の手甲": { type: "overkillBank", scaleWithDx: true, value: 1.5, label: "炎護の手甲：オーバーキル貯金：敵を倒した余剰ダメージを「貯蓄」し、次の攻撃に上乗せ（上限あり）" },
             "雷鳴の戦槌": { type: "damageReturnCharge", scaleWithDx: true, value: 35, label: "雷鳴の戦槌：受けた合計ダメージの一定割合を蓄積し、次の攻撃に上乗せして返す" },
-            "帯電の護符": { type: "statBonus", scaleWithDx: true, stats: [ { key: "skillMpDiscount", value: 10 } ], label: "帯電の護符：スキルMP消費 -10%" },
+            "帯電の護符": { type: "statBonus", scaleWithDx: true, stats: [ { key: "skillPowerBoost", value: 10 } ], label: "帯電の護符：スキル威力 +10%" },
             "聖紋のローブ": { type: "statMultiplier", scaleWithDx: true, stat: "int", value: 18, label: "聖紋のローブ：INT倍率 +18%" },
             "聖祈の護符": { type: "statBonus", scaleWithDx: true, stats: [ { key: "skillPowerBoost", value: 16 } ], label: "聖祈の護符：スキル威力 +16%" },
             "疫毒の鎌": { type: "statBonus", scaleWithDx: true, stats: [ { key: "statusEffectStackBonus", value: 2 }, { key: "poisonMaxStacksBonus", value: 1 } ], label: "疫毒の鎌：状態異常付与スタック +2 / 毒上限スタック +1" },
@@ -3175,7 +3175,7 @@
             "夜叉の爪剣": { type: "bonusHitsChance", scaleWithDx: true, chance: 18, hits: 1, hitMultiplier: 0.7, value: 5, label: "夜叉の爪剣：18%で追加ヒット+1(70%)" },
             "影討ちの足袋": { type: "accuracyBoost", scaleWithDx: true, condition: { type: "playerHpAbove", threshold: 0.7 }, value: 15, label: "影討ちの足袋：HP70%以上で命中+15" },
             "封印の書": { type: "statBonus", scaleWithDx: true, stats: [ { key: "skillPowerBoost", value: 20 } ], label: "封印の書：スキル威力 +20%" },
-            "禁術の護符": { type: "statBonus", scaleWithDx: true, stats: [ { key: "skillMpDiscount", value: 20 }, { key: "maxMp", value: 80 } ], label: "禁術の護符：スキルMP消費-20% / 最大MP+80" },
+            "禁術の護符": { type: "statBonus", scaleWithDx: true, stats: [ { key: "skillPowerBoost", value: 20 }, { key: "maxMp", value: 80 } ], label: "禁術の護符：スキル威力+20% / 最大MP+80" },
             "終末前夜の剣": { type: "riskBoost", scaleWithDx: true, condition: { type: "playerHpAbove", threshold: 0.8 }, value: 45, penalty: 20, label: "終末前夜の剣：HP80%以上で与ダメ+45%/被ダメ+20%" },
             "刻印の護符": { type: "damageBoost", scaleWithDx: true, condition: { type: "enemyHpBelow", threshold: 0.5 }, value: 35, label: "刻印の護符：敵HP50%以下で与ダメ+35%" }
         };
@@ -3241,7 +3241,7 @@
                 floorStart: 801,
                 items: [
                     { name: "封印の書", type: "weapon", stats: [{ key: "attackFlat", value: 110 }, { key: "int", value: 68 }, { key: "maxMp", value: 158 }], uniqueStats: [] },
-                    { name: "禁術の護符", type: "accessory", stats: [{ key: "skillMpDiscount", value: 23 }, { key: "maxMp", value: 158 }, { key: "int", value: 68 }], uniqueStats: [] }
+                    { name: "禁術の護符", type: "accessory", stats: [{ key: "skillPowerBoost", value: 23 }, { key: "maxMp", value: 158 }, { key: "int", value: 68 }], uniqueStats: [] }
                 ]
             },
             {
