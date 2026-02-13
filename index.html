@@ -2228,7 +2228,7 @@
                 ],
                 passive: [
                     { id: 0, name: "信仰", desc: "最大HP+15/レベル", maxLevel: 150, apply: (d) => Game.player.maxHpFlat += 15 * d },
-                    { id: 1, name: "聖なる守り", desc: "被ダメ軽減+2%/レベル", maxLevel: 150, apply: (d) => Game.player.damageReduction += 2 * d },
+                    { id: 1, name: "聖なる守り", desc: "防御力+4/レベル", maxLevel: 150, apply: (d) => Game.player.defenseFlat += 4 * d },
                     { id: 2, name: "聖癒力", desc: "HP自動回復+2/レベル", maxLevel: 150, apply: (d) => Game.player.hpRegen += 2 * d },
                     { id: 3, name: "敬虔", desc: "MP自動回復+1/レベル", maxLevel: 150, apply: (d) => Game.player.mpRegen += 1 * d },
                     { id: 4, name: "神罰", desc: "与ダメ増加+2%/レベル", maxLevel: 150, apply: (d) => Game.player.damageBoost += 2 * d },
@@ -2271,7 +2271,7 @@
                     { id: 4, name: "修練: エリート遭遇率", desc: "エリート遭遇率+1%/レベル", apply: (d) => Game.player.eliteEncounter += d },
                     { id: 5, name: "修練: ゴールド増加", desc: "ゴールド増加率+1%/レベル", apply: (d) => Game.player.goldBoost += d },
                     { id: 6, name: "継戦訓練", desc: "HP自動回復+0.2 & MP自動回復+0.2/レベル", apply: (d) => { Game.player.hpRegen += 0.2 * d; Game.player.mpRegen += 0.2 * d; } },
-                    { id: 7, name: "防御姿勢", desc: "被ダメ軽減+0.1%/レベル", apply: (d) => Game.player.damageReduction += 0.1 * d },
+                    { id: 7, name: "防御姿勢", desc: "最大HP+0.5/レベル", apply: (d) => Game.player.maxHpFlat += 0.5 * d },
                     { id: 8, name: "集中維持", desc: "スキル消費MP軽減+0.1%/レベル", apply: (d) => Game.player.skillMpDiscount += 0.1 * d },
                     { id: 9, name: "精密動作", desc: "命中率+0.5%/レベル", apply: (d) => Game.player.accuracy += 0.5 * d },
                     { id: 10, name: "会心練度", desc: "会心率+0.1%/レベル", apply: (d) => Game.player.critRate += 0.1 * d },
