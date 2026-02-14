@@ -3603,12 +3603,12 @@
             { name: "MP回復薬(小)", target: "mp", healType: "pct", healMode: "hybridCap", healCapPct: 25, icon: "fa-droplet", stats: [{ key: "potionHealFlat", value: 40 }, { key: "potionHealPct", value: 4 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 30 }, { key: "potionChargeOnKill", value: 14 }] },
             { name: "MP回復薬(中)", target: "mp", healType: "pct", healMode: "hybridCap", healCapPct: 28, icon: "fa-droplet", stats: [{ key: "potionHealFlat", value: 65 }, { key: "potionHealPct", value: 6 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 45 }, { key: "potionChargeOnKill", value: 12 }] },
             { name: "MP回復薬(大)", target: "mp", healType: "pct", healMode: "hybridCap", healCapPct: 32, icon: "fa-droplet", stats: [{ key: "potionHealFlat", value: 90 }, { key: "potionHealPct", value: 8 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 60 }, { key: "potionChargeOnKill", value: 10 }] },
-            { name: "HP回復剤(小)", target: "hp", healType: "pct", healMode: "missing", icon: "fa-heart", stats: [{ key: "potionHealFlat", value: 40 }, { key: "potionHealPct", value: 15 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 30 }, { key: "potionChargeOnKill", value: 14 }] },
-            { name: "HP回復剤(中)", target: "hp", healType: "pct", healMode: "missing", icon: "fa-heart", stats: [{ key: "potionHealFlat", value: 60 }, { key: "potionHealPct", value: 20 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 45 }, { key: "potionChargeOnKill", value: 12 }] },
-            { name: "HP回復剤(大)", target: "hp", healType: "pct", healMode: "missing", icon: "fa-heart", stats: [{ key: "potionHealFlat", value: 80 }, { key: "potionHealPct", value: 25 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 60 }, { key: "potionChargeOnKill", value: 10 }] },
-            { name: "MP回復剤(小)", target: "mp", healType: "pct", healMode: "missing", icon: "fa-droplet", stats: [{ key: "potionHealFlat", value: 25 }, { key: "potionHealPct", value: 20 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 30 }, { key: "potionChargeOnKill", value: 14 }] },
-            { name: "MP回復剤(中)", target: "mp", healType: "pct", healMode: "missing", icon: "fa-droplet", stats: [{ key: "potionHealFlat", value: 40 }, { key: "potionHealPct", value: 25 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 45 }, { key: "potionChargeOnKill", value: 12 }] },
-            { name: "MP回復剤(大)", target: "mp", healType: "pct", healMode: "missing", icon: "fa-droplet", stats: [{ key: "potionHealFlat", value: 55 }, { key: "potionHealPct", value: 30 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 60 }, { key: "potionChargeOnKill", value: 10 }] }
+            { name: "HP回復剤(小)", target: "hp", healType: "pct", healMode: "missing", icon: "fa-heart", stats: [{ key: "potionHealFlat", value: 40 }, { key: "potionHealPct", value: 6 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 30 }, { key: "potionChargeOnKill", value: 14 }] },
+            { name: "HP回復剤(中)", target: "hp", healType: "pct", healMode: "missing", icon: "fa-heart", stats: [{ key: "potionHealFlat", value: 60 }, { key: "potionHealPct", value: 10 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 45 }, { key: "potionChargeOnKill", value: 12 }] },
+            { name: "HP回復剤(大)", target: "hp", healType: "pct", healMode: "missing", icon: "fa-heart", stats: [{ key: "potionHealFlat", value: 80 }, { key: "potionHealPct", value: 14 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 60 }, { key: "potionChargeOnKill", value: 10 }] },
+            { name: "MP回復剤(小)", target: "mp", healType: "pct", healMode: "missing", icon: "fa-droplet", stats: [{ key: "potionHealFlat", value: 25 }, { key: "potionHealPct", value: 6 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 30 }, { key: "potionChargeOnKill", value: 14 }] },
+            { name: "MP回復剤(中)", target: "mp", healType: "pct", healMode: "missing", icon: "fa-droplet", stats: [{ key: "potionHealFlat", value: 40 }, { key: "potionHealPct", value: 10 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 45 }, { key: "potionChargeOnKill", value: 12 }] },
+            { name: "MP回復剤(大)", target: "mp", healType: "pct", healMode: "missing", icon: "fa-droplet", stats: [{ key: "potionHealFlat", value: 55 }, { key: "potionHealPct", value: 14 }, { key: "potionCapacity", value: 100 }, { key: "potionCost", value: 60 }, { key: "potionChargeOnKill", value: 10 }] }
         ];
 
         const PotionPrefixAffixes = [
@@ -3620,13 +3620,15 @@
             { name: "祈りの", rank: 2, stats: ["potionAutoRegen", "potionCleanse"] },
             { name: "神薬の", rank: 3, stats: ["potionCapacity", "potionResonance", "potionAutoRegen"] },
             { name: "霊薬の", rank: 3, stats: ["potionNextHitBoost", "potionAutoRegen", "potionBarrier"] },
-            { name: "秘薬の", rank: 3, stats: ["potionCapacity", "potionReflectGuard", "potionCleanse"] }
+            { name: "秘薬の", rank: 3, stats: ["potionCapacity", "potionReflectGuard", "potionCleanse"] },
+            { name: "守護の", rank: 1, stats: ["potionBarrier"] }
         ];
 
         const PotionSuffixAffixes = [
             { name: "の節約", rank: 1, stats: ["potionCostReduction"] },
             { name: "の芽吹き", rank: 1, stats: ["potionAutoRegen"] },
             { name: "の解毒", rank: 1, stats: ["potionCleanse"] },
+            { name: "の補給", rank: 1, stats: ["potionChargeOnKill"] },
             { name: "の渇望", rank: 2, stats: ["potionLeechBoost", "potionCostReduction"] },
             { name: "の循環", rank: 2, stats: ["potionAutoRegen", "potionCostReduction"] },
             { name: "の浄化", rank: 2, stats: ["potionCleanse", "potionAutoRegen"] },
@@ -3758,7 +3760,7 @@
             potionNextHitBoost: [20, 35, 50],
             potionLeechBoost: [8, 12, 16],
             potionReflectGuard: [1, 2, 3],
-            potionSkillMpCut: [30, 50, 70]
+            potionSkillMpCut: [10, 20, 30]
         };
 
         const pickRandom = (list) => list[Math.floor(Math.random() * list.length)];
