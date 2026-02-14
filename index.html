@@ -3620,13 +3620,15 @@
             { name: "祈りの", rank: 2, stats: ["potionAutoRegen", "potionCleanse"] },
             { name: "神薬の", rank: 3, stats: ["potionCapacity", "potionResonance", "potionAutoRegen"] },
             { name: "霊薬の", rank: 3, stats: ["potionNextHitBoost", "potionAutoRegen", "potionBarrier"] },
-            { name: "秘薬の", rank: 3, stats: ["potionCapacity", "potionReflectGuard", "potionCleanse"] }
+            { name: "秘薬の", rank: 3, stats: ["potionCapacity", "potionReflectGuard", "potionCleanse"] },
+            { name: "守護の", rank: 1, stats: ["potionBarrier"] }
         ];
 
         const PotionSuffixAffixes = [
             { name: "の節約", rank: 1, stats: ["potionCostReduction"] },
             { name: "の芽吹き", rank: 1, stats: ["potionAutoRegen"] },
             { name: "の解毒", rank: 1, stats: ["potionCleanse"] },
+            { name: "の補給", rank: 1, stats: ["potionChargeOnKill"] },
             { name: "の渇望", rank: 2, stats: ["potionLeechBoost", "potionCostReduction"] },
             { name: "の循環", rank: 2, stats: ["potionAutoRegen", "potionCostReduction"] },
             { name: "の浄化", rank: 2, stats: ["potionCleanse", "potionAutoRegen"] },
@@ -3758,7 +3760,7 @@
             potionNextHitBoost: [20, 35, 50],
             potionLeechBoost: [8, 12, 16],
             potionReflectGuard: [1, 2, 3],
-            potionSkillMpCut: [30, 50, 70]
+            potionSkillMpCut: [10, 20, 30]
         };
 
         const pickRandom = (list) => list[Math.floor(Math.random() * list.length)];
