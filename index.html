@@ -1476,6 +1476,7 @@
                     warriorGutsUsed: false,
                     mageBarrierTurn: -1,
                     thiefEvasionGuardCharges: 0,
+                    rangerBarrierTurn: -1,
                     shadowFirstStrikeUsed: false,
                     lastSkill: null
                 },
@@ -1483,7 +1484,7 @@
                     warrior: { active: [0,0,0,0,0,0], passive: [0,0,0,0,0,0,0,0] },
                     mage: { active: [0,0,0,0,0,0,0,0,0,0,0,0], passive: [0,0,0,0,0,0,0,0] },
                     thief: { active: [0,0,0,0,0,0], passive: [0,0,0,0,0,0,0,0] },
-                    ranger: { active: [0,0,0,0,0,0,0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
+                    ranger: { active: [0,0,0,0,0,0,0,0,0,0,0,0], passive: [0,0,0,0,0,0,0,0] },
                     paladin: { active: [0,0,0,0,0,0,0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
                     monk: { active: [0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
                     commonPassive: { active: [], passive: [0,0,0,0,0,0,0,0,0,0,0,0,0] }
@@ -2230,7 +2231,9 @@
                     { id: 2, name: "集中", desc: "与ダメ増加+2%/レベル", maxLevel: 150, apply: (d) => Game.player.damageBoost += 2 * d },
                     { id: 3, name: "野生の勘", desc: "回避率+1%/レベル", maxLevel: 150, apply: (d) => Game.player.evasionRate += 1 * d },
                     { id: 4, name: "レアハント", desc: "レアドロ率+3%/レベル", maxLevel: 150, apply: (d) => Game.player.rareFind += 3 * d },
-                    { id: 5, name: "獲物の追跡", desc: "ゴールド増加率+5%/レベル", maxLevel: 150, apply: (d) => Game.player.goldBoost += 5 * d }
+                    { id: 5, name: "獲物の追跡", desc: "ゴールド増加率+5%/レベル", maxLevel: 150, apply: (d) => Game.player.goldBoost += 5 * d },
+                    { id: 6, name: "照準障壁", desc: "命中補正付きスキル命中時、確率0.12%/レベルでバリア展開（1ターン1回）", maxLevel: 150, apply: () => {} },
+                    { id: 7, name: "追跡防護", desc: "敵に弱体系デバフがあるほど被ダメ軽減（0.04%/レベル×種類数）", maxLevel: 150, apply: () => {} }
                 ]
             },
             paladin: {
@@ -4619,6 +4622,7 @@
             Game.player.bossUniqueState.warriorGutsUsed = false;
             Game.player.bossUniqueState.mageBarrierTurn = -1;
             Game.player.bossUniqueState.thiefEvasionGuardCharges = 0;
+            Game.player.bossUniqueState.rangerBarrierTurn = -1;
             Game.player.bossUniqueState.shadowFirstStrikeUsed = false;
             Game.player.bossUniqueState.lastSkill = null;
             Game.player.bossUniqueState.actionCount = 0;
@@ -5893,6 +5897,17 @@
                     remaining = Math.floor(remaining * (1 - reduction / 100));
                 }
             }
+            if (target === Game.player && remaining > 0) {
+                const rangerGuardLevel = getPassiveLevel('ranger', 7);
+                if (rangerGuardLevel > 0 && Game.enemy) {
+                    const trackedDebuffs = ['weaken', 'attackDown', 'vulnerable', 'defenseDown'];
+                    const debuffKinds = trackedDebuffs.reduce((count, id) => count + (getStatusEffect(Game.enemy, id) ? 1 : 0), 0);
+                    if (debuffKinds > 0) {
+                        const reduction = Math.min(20, Math.max(0, rangerGuardLevel * 0.04 * debuffKinds));
+                        remaining = Math.floor(remaining * (1 - reduction / 100));
+                    }
+                }
+            }
             if (remaining > 0) {
                 target.hp = Math.max(0, target.hp - remaining);
                 removeStatusEffect(target, 'freeze');
@@ -6025,6 +6040,17 @@
                     applyStatusEffect(Game.player, 'barrier', 1, 2);
                     state.mageBarrierTurn = state.actionCount;
                     addLog("緊急障壁が展開された！", "text-sky-400");
+                }
+            }
+
+            const rangerBarrierLevel = getPassiveLevel('ranger', 6);
+            if (rangerBarrierLevel > 0 && landedHit && (currentSkill.accuracyBonus || 0) > 0) {
+                const state = Game.player.bossUniqueState || {};
+                const triggerChance = Math.min(30, Math.max(0, rangerBarrierLevel * 0.12));
+                if (state.rangerBarrierTurn !== state.actionCount && Math.random() * 100 < triggerChance) {
+                    applyStatusEffect(Game.player, 'barrier', 1, 2);
+                    state.rangerBarrierTurn = state.actionCount;
+                    addLog("照準障壁が展開された！", "text-sky-400");
                 }
             }
 
