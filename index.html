@@ -1473,11 +1473,12 @@
                     guardianReturnCharge: 0,
                     defenseLayers: 0,
                     ironWallUsed: false,
+                    warriorGutsUsed: false,
                     shadowFirstStrikeUsed: false,
                     lastSkill: null
                 },
                 skills: {
-                    warrior: { active: [0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
+                    warrior: { active: [0,0,0,0,0,0], passive: [0,0,0,0,0,0,0,0] },
                     mage: { active: [0,0,0,0,0,0,0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
                     thief: { active: [0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
                     ranger: { active: [0,0,0,0,0,0,0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
@@ -2146,7 +2147,9 @@
                     { id: 2, name: "破壊本能", desc: "与ダメ増加+2%/レベル", maxLevel: 150, apply: (d) => Game.player.damageBoost += 2 * d },
                     { id: 3, name: "武器の極意", desc: "会心ダメージ+6%/レベル", maxLevel: 150, apply: (d) => Game.player.critDamage += 6 * d },
                     { id: 4, name: "戦線維持", desc: "最大HP+20/レベル", maxLevel: 150, apply: (d) => Game.player.maxHpFlat += 20 * d },
-                    { id: 5, name: "猛進", desc: "攻撃力+2/レベル", maxLevel: 150, apply: (d) => Game.player.attackFlat += 2 * d }
+                    { id: 5, name: "猛進", desc: "攻撃力+2/レベル", maxLevel: 150, apply: (d) => Game.player.attackFlat += 2 * d },
+                    { id: 6, name: "不屈", desc: "致死ダメージ時、確率0.2%/レベルでHP1で耐える（戦闘中1回）", maxLevel: 150, apply: () => {} },
+                    { id: 7, name: "闘気吸収", desc: "吸血率+0.3%/レベル", maxLevel: 150, apply: (d) => Game.player.leechRate += 0.3 * d }
                 ]
             },
             mage: {
@@ -4607,6 +4610,7 @@
             Game.player.bossUniqueState.guardianReturnCharge = 0;
             Game.player.bossUniqueState.defenseLayers = 0;
             Game.player.bossUniqueState.ironWallUsed = false;
+            Game.player.bossUniqueState.warriorGutsUsed = false;
             Game.player.bossUniqueState.shadowFirstStrikeUsed = false;
             Game.player.bossUniqueState.lastSkill = null;
             Game.player.bossUniqueState.actionCount = 0;
@@ -5847,6 +5851,21 @@
                     bossState.ironWallUsed = true;
                     remaining = Math.max(0, target.hp - 1);
                     addLog("鉄壁の鎧が致死ダメージを防いだ！", "text-amber-400");
+                }
+            }
+            if (target === Game.player && remaining > 0) {
+                const bossState = Game.player.bossUniqueState;
+                const warriorGutsLevel = getPassiveLevel('warrior', 6);
+                const warriorGutsChance = Math.min(95, Math.max(0, warriorGutsLevel * 0.2));
+                if (
+                    warriorGutsLevel > 0
+                    && !bossState.warriorGutsUsed
+                    && remaining >= target.hp
+                    && Math.random() * 100 < warriorGutsChance
+                ) {
+                    bossState.warriorGutsUsed = true;
+                    remaining = Math.max(0, target.hp - 1);
+                    addLog("不屈が発動！致死ダメージをこらえた！", "text-amber-400");
                 }
             }
             if (remaining > 0) {
