@@ -3085,6 +3085,7 @@
             ],
             5000: [
                 { name: "終焉の竜槍", type: "weapon", rarity: "legendary", stats: [{ key: "attackFlat", value: 113 }, { key: "str", value: 29 }, { key: "damageBoost", value: 16 }], uniqueStats: [] },
+                { name: "終焉の竜杖", type: "weapon", rarity: "legendary", stats: [{ key: "attackFlat", value: 130 }, { key: "int", value: 40 }, { key: "mPen", value: 40 }], uniqueStats: [] },
                 { name: "竜鱗の護鎧", type: "armor", rarity: "legendary", stats: [{ key: "defenseFlat", value: 108 }, { key: "vit", value: 37 }, { key: "maxHp", value: 142 }], uniqueStats: [] },
                 { name: "終焉の護符", type: "accessory", rarity: "legendary", stats: [{ key: "luck", value: 49 }, { key: "rareFind", value: 46 }, { key: "affixFind", value: 43 }], uniqueStats: [] }
             ],
@@ -3114,6 +3115,7 @@
             "影刃の忍刀": { type: "bonusHitsChance", scaleWithDx: true, chance: 22, hits: 1, hitMultiplier: 0.7, value: 5, label: "影刃の忍刀：22%で追加ヒット+1(70%)" },
             "夜走りの足袋": { type: "statMultiplier", scaleWithDx: true, stat: "dex", value: 18, label: "夜走りの足袋：DEX倍率 +18%" },
             "終焉の竜槍": { type: "multiHitAmplifyDex", scaleWithDx: true, value: 1.7, label: "終焉の竜槍：連打の増幅：攻撃が常に多段化。DEXで分割回数が増え、最後の1発は大本命" },
+            "終焉の竜杖": { type: "recastSkill", scaleWithDx: true, value: 50, label: "終焉の竜杖：50%の確率でスキル再使用（MP消費なし）" },
             "竜鱗の護鎧": { type: "statMultiplier", scaleWithDx: true, stat: "vit", value: 25, extraType: "defenseLayers", label: "竜鱗の護鎧：VIT倍率 +25%＋被弾するたび「防御層」+1、層数ぶん次の攻撃が追撃" },
             "毒沼のヘルム": { type: "singleStatusRule", scaleWithDx: true, value: 2, label: "毒沼のヘルム：単一異常の掟：状態異常は1種類しか付かない代わりに、付与時に必ず2重スタック" },
             "湿毒のローブ": { type: "poisonUnlimited", scaleWithDx: true, value: 999, label: "湿毒のローブ：毒上限解放：毒スタックの上限が撤廃される" },
@@ -3176,8 +3178,9 @@
             "影討ちの足袋": { type: "accuracyBoost", scaleWithDx: true, condition: { type: "playerHpAbove", threshold: 0.7 }, value: 15, label: "影討ちの足袋：HP70%以上で命中+15" },
             "封印の書": { type: "statBonus", scaleWithDx: true, stats: [ { key: "skillPowerBoost", value: 20 } ], label: "封印の書：スキル威力 +20%" },
             "禁術の護符": { type: "statBonus", scaleWithDx: true, stats: [ { key: "skillPowerBoost", value: 20 }, { key: "maxMp", value: 80 } ], label: "禁術の護符：スキル威力+20% / 最大MP+80" },
-            "終末前夜の剣": { type: "riskBoost", scaleWithDx: true, condition: { type: "playerHpAbove", threshold: 0.8 }, value: 45, penalty: 20, label: "終末前夜の剣：HP80%以上で与ダメ+45%/被ダメ+20%" },
-            "刻印の護符": { type: "damageBoost", scaleWithDx: true, condition: { type: "enemyHpBelow", threshold: 0.5 }, value: 35, label: "刻印の護符：敵HP50%以下で与ダメ+35%" }
+            "終末前夜の杖": { type: "skillMpCostMultiplier", scaleWithDx: true, value: 2, stats: [ { key: "skillPowerBoost", value: 50 } ], label: "終末前夜の杖：MP消費2倍 / スキル威力+50%" },
+            "終末前夜の剣": { type: "riskBoost", scaleWithDx: true, value: 100, penalty: 30, label: "終末前夜の剣：与ダメ+100%/被ダメ+30%" },
+            "刻印の護符": { type: "statBonus", scaleWithDx: true, stats: [ { key: "eliteEncounter", value: 100 } ], label: "刻印の護符：エリート遭遇率+100%" }
         };
 
         const RoadLegendaryLootTables = [
@@ -3248,7 +3251,8 @@
                 floorStart: 901,
                 items: [
                     { name: "終末前夜の剣", type: "weapon", stats: [{ key: "attackFlat", value: 110 }, { key: "str", value: 48 }, { key: "damageBoost", value: 13 }], uniqueStats: [] },
-                    { name: "刻印の護符", type: "accessory", stats: [{ key: "damageBoost", value: 13 }, { key: "maxHp", value: 194 }, { key: "luck", value: 15 }], uniqueStats: [] }
+                    { name: "刻印の護符", type: "accessory", stats: [{ key: "affixFind", value: 15 }, { key: "maxHp", value: 194 }, { key: "expBoost", value: 15 }], uniqueStats: [] },
+                    { name: "終末前夜の杖", type: "weapon", stats: [{ key: "attackFlat", value: 120 }, { key: "int", value: 50 }, { key: "mPen", value: 30 }], uniqueStats: [] }
                 ]
             }
         ];
@@ -4551,7 +4555,7 @@
             const updated = { ...totals };
             const effects = getEquippedBossEffects();
             effects.forEach((effect) => {
-                if (effect.type === "statBonus") {
+                if (effect.type === "statBonus" || effect.type === "skillMpCostMultiplier") {
                     (effect.stats || []).forEach((stat) => {
                         updated[stat.key] = (updated[stat.key] || 0) + stat.value;
                     });
@@ -7644,6 +7648,13 @@
                 const skillMpCutPct = skillMpCutEffect?.bonusPct || 0;
                 if (skillMpCutPct > 0) {
                     adjustedMpCost = Math.max(0, Math.floor(adjustedMpCost * (1 - skillMpCutPct / 100)));
+                    if ((currentSkill.mp || 0) > 0) {
+                        adjustedMpCost = Math.max(1, adjustedMpCost);
+                    }
+                }
+                const skillMpCostMultiplierEffect = getBossUniqueEffectByType("skillMpCostMultiplier");
+                if (skillMpCostMultiplierEffect && Number.isFinite(skillMpCostMultiplierEffect.value) && skillMpCostMultiplierEffect.value > 0) {
+                    adjustedMpCost = Math.max(0, Math.floor(adjustedMpCost * skillMpCostMultiplierEffect.value));
                     if ((currentSkill.mp || 0) > 0) {
                         adjustedMpCost = Math.max(1, adjustedMpCost);
                     }
