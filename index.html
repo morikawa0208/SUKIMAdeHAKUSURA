@@ -3088,9 +3088,9 @@
                 { name: "腐蝕の脚甲", type: "feet", rarity: "legendary", stats: [{ key: "accuracy", value: 9 }, { key: "dex", value: 12 }], uniqueStats: [] }
             ],
             4000: [
-                { name: "鉄壁の鎧", type: "armor", rarity: "legendary", stats: [{ key: "defenseFlat", value: 104 }, { key: "vit", value: 30 }, { key: "maxHp", value: 180 }], uniqueStats: [] },
+                { name: "鉄壁の鎧", type: "armor", rarity: "legendary", stats: [{ key: "defenseFlat", value: 194 }, { key: "vit", value: 100 }, { key: "maxHp", value: 480 }], uniqueStats: [] },
                 { name: "鋼鉄のグローブ", type: "hands", rarity: "legendary", stats: [{ key: "defenseFlat", value: 32 }, { key: "str", value: 18 }, { key: "maxHp", value: 60 }], uniqueStats: [] },
-                { name: "鉄壁の護符", type: "accessory", rarity: "legendary", stats: [{ key: "maxHp", value: 60 }, { key: "vit", value: 12 }], uniqueStats: [] }
+                { name: "鉄壁の護符", type: "accessory", rarity: "legendary", stats: [{ key: "maxHp", value: 460 }, { key: "vit", value: 112 }], uniqueStats: [] }
             ],
             4500: [
                 { name: "影刃の忍刀", type: "weapon", rarity: "legendary", stats: [{ key: "attackFlat", value: 102 }, { key: "dex", value: 26 }, { key: "critRate", value: 14 }], uniqueStats: [] },
@@ -3100,7 +3100,7 @@
             5000: [
                 { name: "終焉の竜槍", type: "weapon", rarity: "legendary", stats: [{ key: "attackFlat", value: 113 }, { key: "str", value: 29 }, { key: "damageBoost", value: 16 }], uniqueStats: [] },
                 { name: "終焉の竜杖", type: "weapon", rarity: "legendary", stats: [{ key: "attackFlat", value: 130 }, { key: "int", value: 40 }, { key: "mPen", value: 40 }], uniqueStats: [] },
-                { name: "竜鱗の護鎧", type: "armor", rarity: "legendary", stats: [{ key: "defenseFlat", value: 108 }, { key: "vit", value: 37 }, { key: "maxHp", value: 142 }], uniqueStats: [] },
+                { name: "竜鱗の護鎧", type: "armor", rarity: "legendary", stats: [{ key: "defenseFlat", value: 268 }, { key: "vit", value: 137 }, { key: "maxHp", value: 742 }], uniqueStats: [] },
                 { name: "終焉の護符", type: "accessory", rarity: "legendary", stats: [{ key: "luck", value: 49 }, { key: "rareFind", value: 46 }, { key: "affixFind", value: 43 }], uniqueStats: [] }
             ],
         };
@@ -3124,13 +3124,13 @@
             "聖祈の護符": { type: "statBonus", scaleWithDx: true, stats: [ { key: "skillPowerBoost", value: 16 } ], label: "聖祈の護符：スキル威力 +16%" },
             "疫毒の鎌": { type: "statBonus", scaleWithDx: true, stats: [ { key: "statusEffectStackBonus", value: 2 }, { key: "poisonMaxStacksBonus", value: 1 } ], label: "疫毒の鎌：状態異常付与スタック +2 / 毒上限スタック +1" },
             "腐蝕の指輪": { type: "statBonus", scaleWithDx: true, stats: [ { key: "statusEffectTurnBonus", value: 1 }, { key: "poisonMinPctBonus", value: 0.5 } ], label: "腐蝕の指輪：状態異常付与ターン +1 / 毒最低保証 +0.5%" },
-            "鉄壁の鎧": { type: "statMultiplier", scaleWithDx: true, stat: "vit", value: 18, extraType: "lethalGuard", label: "鉄壁の鎧：VIT倍率 +18%＋致死ダメージを受けるとHP1で耐える（1戦闘1回）" },
+            "鉄壁の鎧": { type: "statMultiplier", scaleWithDx: true, stat: "vit", value: 38, extraType: "lethalGuard", label: "鉄壁の鎧：VIT倍率 +38%＋致死ダメージを受けるとHP1で耐える（1戦闘1回）" },
             "鋼鉄のグローブ": { type: "statMultiplier", scaleWithDx: true, stat: "str", value: 14, label: "鋼鉄のグローブ：STR倍率 +14%" },
             "影刃の忍刀": { type: "bonusHitsChance", scaleWithDx: true, chance: 22, hits: 1, hitMultiplier: 0.7, value: 5, label: "影刃の忍刀：22%で追加ヒット+1(70%)" },
             "夜走りの足袋": { type: "statMultiplier", scaleWithDx: true, stat: "dex", value: 18, label: "夜走りの足袋：DEX倍率 +18%" },
             "終焉の竜槍": { type: "multiHitAmplifyDex", scaleWithDx: true, value: 1.7, label: "終焉の竜槍：連打の増幅：攻撃が常に多段化。DEXで分割回数が増え、最後の1発は大本命" },
             "終焉の竜杖": { type: "recastSkill", scaleWithDx: true, value: 50, label: "終焉の竜杖：50%の確率でスキル再使用（MP消費なし）" },
-            "竜鱗の護鎧": { type: "statMultiplier", scaleWithDx: true, stat: "vit", value: 25, extraType: "defenseLayers", label: "竜鱗の護鎧：VIT倍率 +25%＋被弾するたび「防御層」+1、層数ぶん次の攻撃が追撃" },
+            "竜鱗の護鎧": { type: "statMultiplier", scaleWithDx: true, stat: "vit", value: 45, extraType: "defenseLayers", label: "竜鱗の護鎧：VIT倍率 +45%＋被弾するたび「防御層」+1、層数ぶん次の攻撃が追撃" },
             "毒沼のヘルム": { type: "singleStatusRule", scaleWithDx: true, value: 2, label: "毒沼のヘルム：単一異常の掟：状態異常は1種類しか付かない代わりに、付与時に必ず2重スタック" },
             "湿毒のローブ": { type: "poisonUnlimited", scaleWithDx: true, value: 999, label: "湿毒のローブ：毒上限解放：毒スタックの上限が撤廃される" },
             "疾風の籠手": { type: "extraTurnChance", scaleWithDx: true, condition: { type: "enemyHpBelow", threshold: 0.4 }, chance: 8, hitMultiplier: 0.7, value: 5, label: "疾風の籠手：敵HP40%以下で8%で追加行動(70%)" },
@@ -3206,7 +3206,7 @@
             "氷獄の誓剣": { type: "damageBoost", scaleWithDx: true, condition: { type: "enemyStatus", status: "freeze" }, value: 60, label: "氷獄の誓剣：凍結中の敵に与ダメ+60%" },
             "終局演算の杖": { type: "scheduledRecastStun", scaleWithDx: true, value: 3, label: "終局演算の杖：3回に1回スキル再詠唱、次ターン行動不能" },
             "王域の紋章": { type: "statBonus", scaleWithDx: true, stats: [ { key: "eliteEncounter", value: 100 }, { key: "rareFind", value: 35 }, { key: "affixFind", value: 35 } ], label: "王域の紋章：エリート遭遇率+100% / レアドロ率+35% / Affix率+35%" },
-            "天蓋の竜鱗": { type: "statMultiplier", scaleWithDx: true, stat: "vit", value: 30, extraType: "defenseLayers", label: "天蓋の竜鱗：VIT倍率+30%＋被弾で防御層を蓄積" },
+            "天蓋の竜鱗": { type: "statMultiplier", scaleWithDx: true, stat: "vit", value: 50, extraType: "defenseLayers", label: "天蓋の竜鱗：VIT倍率+50%＋被弾で防御層を蓄積" },
             "天蓋の断界剣": { type: "multiHitAmplifyDex", scaleWithDx: true, value: 1.9, label: "天蓋の断界剣：断界連閃：攻撃が常に多段化。DEXで分割回数が増え、最後の1発はさらに強化" }
         };
 
@@ -3311,7 +3311,7 @@
                 items: [
                     { name: "終局演算の杖", type: "weapon", stats: [{ key: "attackFlat", value: 146 }, { key: "int", value: 84 }, { key: "skillPowerBoost", value: 28 }], uniqueStats: [] },
                     { name: "王域の紋章", type: "accessory", stats: [{ key: "eliteEncounter", value: 80 }, { key: "rareFind", value: 42 }, { key: "affixFind", value: 42 }], uniqueStats: [] },
-                    { name: "天蓋の竜鱗", type: "armor", stats: [{ key: "defenseFlat", value: 198 }, { key: "vit", value: 92 }, { key: "maxHp", value: 420 }], uniqueStats: [] },
+                    { name: "天蓋の竜鱗", type: "armor", stats: [{ key: "defenseFlat", value: 245 }, { key: "vit", value: 142 }, { key: "maxHp", value: 620 }], uniqueStats: [] },
                     { name: "天蓋の断界剣", type: "weapon", stats: [{ key: "attackFlat", value: 138 }, { key: "str", value: 58 }, { key: "critDamage", value: 34 }], uniqueStats: [] }
                 ]
             }
