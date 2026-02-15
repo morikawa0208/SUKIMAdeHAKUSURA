@@ -1463,14 +1463,18 @@
                     guardianReturnCharge: 0,
                     defenseLayers: 0,
                     ironWallUsed: false,
+                    warriorGutsUsed: false,
+                    mageBarrierTurn: -1,
+                    thiefEvasionGuardCharges: 0,
+                    rangerBarrierTurn: -1,
                     shadowFirstStrikeUsed: false,
                     lastSkill: null
                 },
                 skills: {
-                    warrior: { active: [0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
-                    mage: { active: [0,0,0,0,0,0,0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
-                    thief: { active: [0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
-                    ranger: { active: [0,0,0,0,0,0,0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
+                    warrior: { active: [0,0,0,0,0,0], passive: [0,0,0,0,0,0,0,0] },
+                    mage: { active: [0,0,0,0,0,0,0,0,0,0,0,0], passive: [0,0,0,0,0,0,0,0] },
+                    thief: { active: [0,0,0,0,0,0], passive: [0,0,0,0,0,0,0,0] },
+                    ranger: { active: [0,0,0,0,0,0,0,0,0,0,0,0], passive: [0,0,0,0,0,0,0,0] },
                     paladin: { active: [0,0,0,0,0,0,0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
                     monk: { active: [0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
                     commonPassive: { active: [], passive: [0,0,0,0,0,0,0,0,0,0,0,0,0] }
@@ -2132,7 +2136,9 @@
                     { id: 2, name: "破壊本能", desc: "与ダメ増加+2%/レベル", maxLevel: 150, apply: (d) => Game.player.damageBoost += 2 * d },
                     { id: 3, name: "武器の極意", desc: "会心ダメージ+6%/レベル", maxLevel: 150, apply: (d) => Game.player.critDamage += 6 * d },
                     { id: 4, name: "戦線維持", desc: "最大HP+20/レベル", maxLevel: 150, apply: (d) => Game.player.maxHpFlat += 20 * d },
-                    { id: 5, name: "猛進", desc: "攻撃力+2/レベル", maxLevel: 150, apply: (d) => Game.player.attackFlat += 2 * d }
+                    { id: 5, name: "猛進", desc: "攻撃力+2/レベル", maxLevel: 150, apply: (d) => Game.player.attackFlat += 2 * d },
+                    { id: 6, name: "不屈", desc: "致死ダメージ時、確率0.2%/レベルでHP1で耐える（戦闘中1回）", maxLevel: 150, apply: () => {} },
+                    { id: 7, name: "闘気吸収", desc: "吸血率+0.3%/レベル", maxLevel: 150, apply: (d) => Game.player.leechRate += 0.3 * d }
                 ]
             },
             mage: {
@@ -2157,7 +2163,9 @@
                     { id: 2, name: "瞑想", desc: "MP自動回復+2/レベル", maxLevel: 150, apply: (d) => Game.player.mpRegen += 2 * d },
                     { id: 3, name: "魔導集中", desc: "会心率+2%/レベル", maxLevel: 150, apply: (d) => Game.player.critRate += 2 * d },
                     { id: 4, name: "魔力貫通", desc: "魔法貫通+4%/レベル", maxLevel: 150, apply: (d) => Game.player.mPen += 4 * d },
-                    { id: 5, name: "秘奥強化", desc: "与ダメ増加+2%/レベル", maxLevel: 150, apply: (d) => Game.player.damageBoost += 2 * d }
+                    { id: 5, name: "秘奥強化", desc: "与ダメ増加+2%/レベル", maxLevel: 150, apply: (d) => Game.player.damageBoost += 2 * d },
+                    { id: 6, name: "緊急障壁", desc: "魔法スキル使用時、確率0.12%/レベルでバリアを展開（1ターン1回）", maxLevel: 150, apply: () => {} },
+                    { id: 7, name: "霜護", desc: "敵が凍結中、被ダメ軽減+0.06%/レベル", maxLevel: 150, apply: () => {} }
                 ]
             },
             thief: {
@@ -2182,7 +2190,9 @@
                     { id: 2, name: "目利き", desc: "ドロップ率+3%/レベル", maxLevel: 150, apply: (d) => Game.player.luck += 3 * d },
                     { id: 3, name: "幸運の女神", desc: "追加経験値+5%/レベル", maxLevel: 150, apply: (d) => Game.player.expBoost += 5 * d },
                     { id: 4, name: "急所攻撃", desc: "会心率+3%/レベル", maxLevel: 150, apply: (d) => Game.player.critRate += 3 * d },
-                    { id: 5, name: "暗殺者の心得", desc: "満タンの敵への初撃が強化", maxLevel: 150, logic: 'first_hit_boost' }
+                    { id: 5, name: "暗殺者の心得", desc: "満タンの敵への初撃が強化", maxLevel: 150, logic: 'first_hit_boost' },
+                    { id: 6, name: "煙幕離脱", desc: "回避成功時、確率0.2%/レベルで次の被ダメを0.15%/レベル軽減", maxLevel: 150, apply: () => {} },
+                    { id: 7, name: "影縫い急所", desc: "会心時、確率0.2%/レベルで敵に衰弱を付与", maxLevel: 150, apply: () => {} }
                 ]
             },
             ranger: {
@@ -2207,7 +2217,9 @@
                     { id: 2, name: "集中", desc: "与ダメ増加+2%/レベル", maxLevel: 150, apply: (d) => Game.player.damageBoost += 2 * d },
                     { id: 3, name: "野生の勘", desc: "回避率+1%/レベル", maxLevel: 150, apply: (d) => Game.player.evasionRate += 1 * d },
                     { id: 4, name: "レアハント", desc: "レアドロ率+3%/レベル", maxLevel: 150, apply: (d) => Game.player.rareFind += 3 * d },
-                    { id: 5, name: "獲物の追跡", desc: "ゴールド増加率+5%/レベル", maxLevel: 150, apply: (d) => Game.player.goldBoost += 5 * d }
+                    { id: 5, name: "獲物の追跡", desc: "ゴールド増加率+5%/レベル", maxLevel: 150, apply: (d) => Game.player.goldBoost += 5 * d },
+                    { id: 6, name: "照準障壁", desc: "命中補正付きスキル命中時、確率0.12%/レベルでバリア展開（1ターン1回）", maxLevel: 150, apply: () => {} },
+                    { id: 7, name: "追跡防護", desc: "敵に弱体系デバフがあるほど被ダメ軽減（0.04%/レベル×種類数）", maxLevel: 150, apply: () => {} }
                 ]
             },
             paladin: {
@@ -3029,64 +3041,64 @@
 
         const BossLootTables = {
             50: [
-                { name: "毒牙の短剣", type: "weapon", rarity: "epic", stats: [{ key: "attackFlat", value: 39 }, { key: "dex", value: 14 }, { key: "leechRate", value: 5 }], uniqueStats: [] },
-                { name: "毒沼のヘルム", type: "head", rarity: "epic", stats: [{ key: "defenseFlat", value: 27 }, { key: "maxHp", value: 36 }], uniqueStats: [] },
-                { name: "湿毒のローブ", type: "armor", rarity: "epic", stats: [{ key: "hpRegen", value: 6 }, { key: "maxHp", value: 60 }], uniqueStats: [] }
+                { name: "毒牙の短剣", type: "weapon", rarity: "legendary", stats: [{ key: "attackFlat", value: 39 }, { key: "dex", value: 14 }, { key: "leechRate", value: 5 }], uniqueStats: [] },
+                { name: "毒沼のヘルム", type: "head", rarity: "legendary", stats: [{ key: "defenseFlat", value: 27 }, { key: "maxHp", value: 36 }], uniqueStats: [] },
+                { name: "湿毒のローブ", type: "armor", rarity: "legendary", stats: [{ key: "hpRegen", value: 6 }, { key: "maxHp", value: 60 }], uniqueStats: [] }
             ],
             100: [
-                { name: "疾風の爪剣", type: "weapon", rarity: "epic", stats: [{ key: "attackFlat", value: 57 }, { key: "dex", value: 20 }, { key: "accuracy", value: 14 }], uniqueStats: [] },
-                { name: "風走りのブーツ", type: "feet", rarity: "epic", stats: [{ key: "accuracy", value: 15 }, { key: "dex", value: 14 }, { key: "maxHp", value: 53 }], uniqueStats: [] },
-                { name: "疾風の籠手", type: "hands", rarity: "epic", stats: [{ key: "attackFlat", value: 18 }, { key: "accuracy", value: 8 }], uniqueStats: [] }
+                { name: "疾風の爪剣", type: "weapon", rarity: "legendary", stats: [{ key: "attackFlat", value: 57 }, { key: "dex", value: 20 }, { key: "accuracy", value: 14 }], uniqueStats: [] },
+                { name: "風走りのブーツ", type: "feet", rarity: "legendary", stats: [{ key: "accuracy", value: 15 }, { key: "dex", value: 14 }, { key: "maxHp", value: 53 }], uniqueStats: [] },
+                { name: "疾風の籠手", type: "hands", rarity: "legendary", stats: [{ key: "attackFlat", value: 18 }, { key: "accuracy", value: 8 }], uniqueStats: [] }
             ],
             500: [
-                { name: "岩核の大盾", type: "armor", rarity: "epic", stats: [{ key: "defenseFlat", value: 89 }, { key: "vit", value: 26 }, { key: "maxHp", value: 72 }], uniqueStats: [] },
-                { name: "岩守りの兜", type: "head", rarity: "epic", stats: [{ key: "defenseFlat", value: 41 }, { key: "vit", value: 17 }, { key: "maxHp", value: 72 }], uniqueStats: [] },
-                { name: "岩脈の護符", type: "accessory", rarity: "epic", stats: [{ key: "maxHp", value: 54 }, { key: "hpRegen", value: 6 }], uniqueStats: [] }
+                { name: "岩核の大盾", type: "armor", rarity: "legendary", stats: [{ key: "defenseFlat", value: 89 }, { key: "vit", value: 26 }, { key: "maxHp", value: 72 }], uniqueStats: [] },
+                { name: "岩守りの兜", type: "head", rarity: "legendary", stats: [{ key: "defenseFlat", value: 41 }, { key: "vit", value: 17 }, { key: "maxHp", value: 72 }], uniqueStats: [] },
+                { name: "岩脈の護符", type: "accessory", rarity: "legendary", stats: [{ key: "maxHp", value: 54 }, { key: "hpRegen", value: 6 }], uniqueStats: [] }
             ],
             1000: [
-                { name: "氷晶の杖", type: "weapon", rarity: "epic", stats: [{ key: "attackFlat", value: 63 }, { key: "int", value: 20 }, { key: "mPen", value: 14 }], uniqueStats: [] },
-                { name: "氷牢の指輪", type: "accessory", rarity: "epic", stats: [{ key: "critRate", value: 8 }, { key: "maxMp", value: 45 }, { key: "mpRegen", value: 3 }], uniqueStats: [] },
-                { name: "凍霧の手甲", type: "hands", rarity: "epic", stats: [{ key: "int", value: 12 }, { key: "mPen", value: 8 }], uniqueStats: [] }
+                { name: "氷晶の杖", type: "weapon", rarity: "legendary", stats: [{ key: "attackFlat", value: 63 }, { key: "int", value: 20 }, { key: "mPen", value: 14 }], uniqueStats: [] },
+                { name: "氷牢の指輪", type: "accessory", rarity: "legendary", stats: [{ key: "critRate", value: 8 }, { key: "maxMp", value: 45 }, { key: "mpRegen", value: 3 }], uniqueStats: [] },
+                { name: "凍霧の手甲", type: "hands", rarity: "legendary", stats: [{ key: "int", value: 12 }, { key: "mPen", value: 8 }], uniqueStats: [] }
             ],
             1500: [
-                { name: "宵闇のマント", type: "armor", rarity: "epic", stats: [{ key: "accuracy", value: 15 }, { key: "dex", value: 18 }, { key: "damageBoost", value: 8 }], uniqueStats: [] },
-                { name: "闇狩りの短剣", type: "weapon", rarity: "epic", stats: [{ key: "attackFlat", value: 71 }, { key: "critRate", value: 11 }, { key: "dex", value: 14 }], uniqueStats: [] },
-                { name: "闇縫いの兜", type: "head", rarity: "epic", stats: [{ key: "dex", value: 14 }, { key: "critRate", value: 6 }], uniqueStats: [] },
+                { name: "宵闇のマント", type: "armor", rarity: "legendary", stats: [{ key: "accuracy", value: 15 }, { key: "dex", value: 18 }, { key: "damageBoost", value: 8 }], uniqueStats: [] },
+                { name: "闇狩りの短剣", type: "weapon", rarity: "legendary", stats: [{ key: "attackFlat", value: 71 }, { key: "critRate", value: 11 }, { key: "dex", value: 14 }], uniqueStats: [] },
+                { name: "闇縫いの兜", type: "head", rarity: "legendary", stats: [{ key: "dex", value: 14 }, { key: "critRate", value: 6 }], uniqueStats: [] },
             ],
             2000: [
-                { name: "熾火の大剣", type: "weapon", rarity: "epic", stats: [{ key: "attackFlat", value: 83 }, { key: "str", value: 20 }, { key: "critDamage", value: 20 }], uniqueStats: [] },
-                { name: "炎護の手甲", type: "hands", rarity: "epic", stats: [{ key: "attackFlat", value: 20 }, { key: "str", value: 14 }, { key: "damageBoost", value: 8 }], uniqueStats: [] },
-                { name: "灼炎の護衣", type: "armor", rarity: "epic", stats: [{ key: "defenseFlat", value: 45 }, { key: "str", value: 12 }], uniqueStats: [] },
+                { name: "熾火の大剣", type: "weapon", rarity: "legendary", stats: [{ key: "attackFlat", value: 83 }, { key: "str", value: 20 }, { key: "critDamage", value: 20 }], uniqueStats: [] },
+                { name: "炎護の手甲", type: "hands", rarity: "legendary", stats: [{ key: "attackFlat", value: 20 }, { key: "str", value: 14 }, { key: "damageBoost", value: 8 }], uniqueStats: [] },
+                { name: "灼炎の護衣", type: "armor", rarity: "legendary", stats: [{ key: "defenseFlat", value: 45 }, { key: "str", value: 12 }], uniqueStats: [] },
             ],
             2500: [
-                { name: "雷鳴の戦槌", type: "weapon", rarity: "epic", stats: [{ key: "attackFlat", value: 89 }, { key: "str", value: 24 }, { key: "accuracy", value: 14 }], uniqueStats: [] },
-                { name: "帯電の護符", type: "accessory", rarity: "epic", stats: [{ key: "critRate", value: 11 }, { key: "damageBoost", value: 11 }, { key: "maxHp", value: 80 }], uniqueStats: [] },
-                { name: "雷影の兜", type: "head", rarity: "epic", stats: [{ key: "accuracy", value: 11 }, { key: "critRate", value: 6 }], uniqueStats: [] },
+                { name: "雷鳴の戦槌", type: "weapon", rarity: "legendary", stats: [{ key: "attackFlat", value: 89 }, { key: "str", value: 24 }, { key: "accuracy", value: 14 }], uniqueStats: [] },
+                { name: "帯電の護符", type: "accessory", rarity: "legendary", stats: [{ key: "critRate", value: 11 }, { key: "damageBoost", value: 11 }, { key: "maxHp", value: 80 }], uniqueStats: [] },
+                { name: "雷影の兜", type: "head", rarity: "legendary", stats: [{ key: "accuracy", value: 11 }, { key: "critRate", value: 6 }], uniqueStats: [] },
             ],
             3000: [
-                { name: "聖紋のローブ", type: "armor", rarity: "epic", stats: [{ key: "defenseFlat", value: 72 }, { key: "int", value: 20 }, { key: "maxMp", value: 60 }], uniqueStats: [] },
-                { name: "聖祈の護符", type: "accessory", rarity: "epic", stats: [{ key: "hpRegen", value: 17 }, { key: "mpRegen", value: 5 }, { key: "maxHp", value: 90 }], uniqueStats: [] },
-                { name: "聖光の杖", type: "weapon", rarity: "epic", stats: [{ key: "attackFlat", value: 42 }, { key: "int", value: 15 }], uniqueStats: [] }
+                { name: "聖紋のローブ", type: "armor", rarity: "legendary", stats: [{ key: "defenseFlat", value: 72 }, { key: "int", value: 20 }, { key: "maxMp", value: 60 }], uniqueStats: [] },
+                { name: "聖祈の護符", type: "accessory", rarity: "legendary", stats: [{ key: "hpRegen", value: 17 }, { key: "mpRegen", value: 5 }, { key: "maxHp", value: 90 }], uniqueStats: [] },
+                { name: "聖光の杖", type: "weapon", rarity: "legendary", stats: [{ key: "attackFlat", value: 42 }, { key: "int", value: 15 }], uniqueStats: [] }
             ],
             3500: [
-                { name: "疫毒の鎌", type: "weapon", rarity: "epic", stats: [{ key: "attackFlat", value: 95 }, { key: "dex", value: 20 }, { key: "mPen", value: 14 }], uniqueStats: [] },
-                { name: "腐蝕の指輪", type: "accessory", rarity: "epic", stats: [{ key: "damageBoost", value: 11 }, { key: "leechRate", value: 8 }, { key: "maxHp", value: 80 }], uniqueStats: [] },
-                { name: "腐蝕の脚甲", type: "feet", rarity: "epic", stats: [{ key: "accuracy", value: 9 }, { key: "dex", value: 12 }], uniqueStats: [] }
+                { name: "疫毒の鎌", type: "weapon", rarity: "legendary", stats: [{ key: "attackFlat", value: 95 }, { key: "dex", value: 20 }, { key: "mPen", value: 14 }], uniqueStats: [] },
+                { name: "腐蝕の指輪", type: "accessory", rarity: "legendary", stats: [{ key: "damageBoost", value: 11 }, { key: "leechRate", value: 8 }, { key: "maxHp", value: 80 }], uniqueStats: [] },
+                { name: "腐蝕の脚甲", type: "feet", rarity: "legendary", stats: [{ key: "accuracy", value: 9 }, { key: "dex", value: 12 }], uniqueStats: [] }
             ],
             4000: [
-                { name: "鉄壁の鎧", type: "armor", rarity: "epic", stats: [{ key: "defenseFlat", value: 104 }, { key: "vit", value: 30 }, { key: "maxHp", value: 180 }], uniqueStats: [] },
-                { name: "鋼鉄のグローブ", type: "hands", rarity: "epic", stats: [{ key: "defenseFlat", value: 32 }, { key: "str", value: 18 }, { key: "maxHp", value: 60 }], uniqueStats: [] },
-                { name: "鉄壁の護符", type: "accessory", rarity: "epic", stats: [{ key: "maxHp", value: 60 }, { key: "vit", value: 12 }], uniqueStats: [] }
+                { name: "鉄壁の鎧", type: "armor", rarity: "legendary", stats: [{ key: "defenseFlat", value: 194 }, { key: "vit", value: 100 }, { key: "maxHp", value: 480 }], uniqueStats: [] },
+                { name: "鋼鉄のグローブ", type: "hands", rarity: "legendary", stats: [{ key: "defenseFlat", value: 32 }, { key: "str", value: 18 }, { key: "maxHp", value: 60 }], uniqueStats: [] },
+                { name: "鉄壁の護符", type: "accessory", rarity: "legendary", stats: [{ key: "maxHp", value: 460 }, { key: "vit", value: 112 }], uniqueStats: [] }
             ],
             4500: [
-                { name: "影刃の忍刀", type: "weapon", rarity: "epic", stats: [{ key: "attackFlat", value: 102 }, { key: "dex", value: 26 }, { key: "critRate", value: 14 }], uniqueStats: [] },
-                { name: "夜走りの足袋", type: "feet", rarity: "epic", stats: [{ key: "critRate", value: 17 }, { key: "dex", value: 18 }, { key: "accuracy", value: 14 }], uniqueStats: [] },
-                { name: "影刃の護符", type: "accessory", rarity: "epic", stats: [{ key: "critRate", value: 8 }, { key: "damageBoost", value: 6 }], uniqueStats: [] }
+                { name: "影刃の忍刀", type: "weapon", rarity: "legendary", stats: [{ key: "attackFlat", value: 102 }, { key: "dex", value: 26 }, { key: "critRate", value: 14 }], uniqueStats: [] },
+                { name: "夜走りの足袋", type: "feet", rarity: "legendary", stats: [{ key: "critRate", value: 17 }, { key: "dex", value: 18 }, { key: "accuracy", value: 14 }], uniqueStats: [] },
+                { name: "影刃の護符", type: "accessory", rarity: "legendary", stats: [{ key: "critRate", value: 8 }, { key: "damageBoost", value: 6 }], uniqueStats: [] }
             ],
             5000: [
                 { name: "終焉の竜槍", type: "weapon", rarity: "legendary", stats: [{ key: "attackFlat", value: 113 }, { key: "str", value: 29 }, { key: "damageBoost", value: 16 }], uniqueStats: [] },
                 { name: "終焉の竜杖", type: "weapon", rarity: "legendary", stats: [{ key: "attackFlat", value: 130 }, { key: "int", value: 40 }, { key: "mPen", value: 40 }], uniqueStats: [] },
-                { name: "竜鱗の護鎧", type: "armor", rarity: "legendary", stats: [{ key: "defenseFlat", value: 108 }, { key: "vit", value: 37 }, { key: "maxHp", value: 142 }], uniqueStats: [] },
+                { name: "竜鱗の護鎧", type: "armor", rarity: "legendary", stats: [{ key: "defenseFlat", value: 268 }, { key: "vit", value: 137 }, { key: "maxHp", value: 742 }], uniqueStats: [] },
                 { name: "終焉の護符", type: "accessory", rarity: "legendary", stats: [{ key: "luck", value: 49 }, { key: "rareFind", value: 46 }, { key: "affixFind", value: 43 }], uniqueStats: [] }
             ],
         };
@@ -3110,13 +3122,13 @@
             "聖祈の護符": { type: "statBonus", scaleWithDx: true, stats: [ { key: "skillPowerBoost", value: 16 } ], label: "聖祈の護符：スキル威力 +16%" },
             "疫毒の鎌": { type: "statBonus", scaleWithDx: true, stats: [ { key: "statusEffectStackBonus", value: 2 }, { key: "poisonMaxStacksBonus", value: 1 } ], label: "疫毒の鎌：状態異常付与スタック +2 / 毒上限スタック +1" },
             "腐蝕の指輪": { type: "statBonus", scaleWithDx: true, stats: [ { key: "statusEffectTurnBonus", value: 1 }, { key: "poisonMinPctBonus", value: 0.5 } ], label: "腐蝕の指輪：状態異常付与ターン +1 / 毒最低保証 +0.5%" },
-            "鉄壁の鎧": { type: "statMultiplier", scaleWithDx: true, stat: "vit", value: 18, extraType: "lethalGuard", label: "鉄壁の鎧：VIT倍率 +18%＋致死ダメージを受けるとHP1で耐える（1戦闘1回）" },
+            "鉄壁の鎧": { type: "statMultiplier", scaleWithDx: true, stat: "vit", value: 38, extraType: "lethalGuard", label: "鉄壁の鎧：VIT倍率 +38%＋致死ダメージを受けるとHP1で耐える（1戦闘1回）" },
             "鋼鉄のグローブ": { type: "statMultiplier", scaleWithDx: true, stat: "str", value: 14, label: "鋼鉄のグローブ：STR倍率 +14%" },
             "影刃の忍刀": { type: "bonusHitsChance", scaleWithDx: true, chance: 22, hits: 1, hitMultiplier: 0.7, value: 5, label: "影刃の忍刀：22%で追加ヒット+1(70%)" },
             "夜走りの足袋": { type: "statMultiplier", scaleWithDx: true, stat: "dex", value: 18, label: "夜走りの足袋：DEX倍率 +18%" },
             "終焉の竜槍": { type: "multiHitAmplifyDex", scaleWithDx: true, value: 1.7, label: "終焉の竜槍：連打の増幅：攻撃が常に多段化。DEXで分割回数が増え、最後の1発は大本命" },
             "終焉の竜杖": { type: "recastSkill", scaleWithDx: true, value: 50, label: "終焉の竜杖：50%の確率でスキル再使用（MP消費なし）" },
-            "竜鱗の護鎧": { type: "statMultiplier", scaleWithDx: true, stat: "vit", value: 25, extraType: "defenseLayers", label: "竜鱗の護鎧：VIT倍率 +25%＋被弾するたび「防御層」+1、層数ぶん次の攻撃が追撃" },
+            "竜鱗の護鎧": { type: "statMultiplier", scaleWithDx: true, stat: "vit", value: 45, extraType: "defenseLayers", label: "竜鱗の護鎧：VIT倍率 +45%＋被弾するたび「防御層」+1、層数ぶん次の攻撃が追撃" },
             "毒沼のヘルム": { type: "singleStatusRule", scaleWithDx: true, value: 2, label: "毒沼のヘルム：単一異常の掟：状態異常は1種類しか付かない代わりに、付与時に必ず2重スタック" },
             "湿毒のローブ": { type: "poisonUnlimited", scaleWithDx: true, value: 999, label: "湿毒のローブ：毒上限解放：毒スタックの上限が撤廃される" },
             "疾風の籠手": { type: "extraTurnChance", scaleWithDx: true, condition: { type: "enemyHpBelow", threshold: 0.4 }, chance: 8, hitMultiplier: 0.7, value: 5, label: "疾風の籠手：敵HP40%以下で8%で追加行動(70%)" },
@@ -3192,7 +3204,7 @@
             "氷獄の誓剣": { type: "damageBoost", scaleWithDx: true, condition: { type: "enemyStatus", status: "freeze" }, value: 60, label: "氷獄の誓剣：凍結中の敵に与ダメ+60%" },
             "終局演算の杖": { type: "scheduledRecastStun", scaleWithDx: true, value: 3, label: "終局演算の杖：3回に1回スキル再詠唱、次ターン行動不能" },
             "王域の紋章": { type: "statBonus", scaleWithDx: true, stats: [ { key: "eliteEncounter", value: 100 }, { key: "rareFind", value: 35 }, { key: "affixFind", value: 35 } ], label: "王域の紋章：エリート遭遇率+100% / レアドロ率+35% / Affix率+35%" },
-            "天蓋の竜鱗": { type: "statMultiplier", scaleWithDx: true, stat: "vit", value: 30, extraType: "defenseLayers", label: "天蓋の竜鱗：VIT倍率+30%＋被弾で防御層を蓄積" },
+            "天蓋の竜鱗": { type: "statMultiplier", scaleWithDx: true, stat: "vit", value: 50, extraType: "defenseLayers", label: "天蓋の竜鱗：VIT倍率+50%＋被弾で防御層を蓄積" },
             "天蓋の断界剣": { type: "multiHitAmplifyDex", scaleWithDx: true, value: 1.9, label: "天蓋の断界剣：断界連閃：攻撃が常に多段化。DEXで分割回数が増え、最後の1発はさらに強化" }
         };
 
@@ -3297,7 +3309,7 @@
                 items: [
                     { name: "終局演算の杖", type: "weapon", stats: [{ key: "attackFlat", value: 146 }, { key: "int", value: 84 }, { key: "skillPowerBoost", value: 28 }], uniqueStats: [] },
                     { name: "王域の紋章", type: "accessory", stats: [{ key: "eliteEncounter", value: 80 }, { key: "rareFind", value: 42 }, { key: "affixFind", value: 42 }], uniqueStats: [] },
-                    { name: "天蓋の竜鱗", type: "armor", stats: [{ key: "defenseFlat", value: 198 }, { key: "vit", value: 92 }, { key: "maxHp", value: 420 }], uniqueStats: [] },
+                    { name: "天蓋の竜鱗", type: "armor", stats: [{ key: "defenseFlat", value: 245 }, { key: "vit", value: 142 }, { key: "maxHp", value: 620 }], uniqueStats: [] },
                     { name: "天蓋の断界剣", type: "weapon", stats: [{ key: "attackFlat", value: 138 }, { key: "str", value: 58 }, { key: "critDamage", value: 34 }], uniqueStats: [] }
                 ]
             }
@@ -4593,6 +4605,10 @@
             Game.player.bossUniqueState.guardianReturnCharge = 0;
             Game.player.bossUniqueState.defenseLayers = 0;
             Game.player.bossUniqueState.ironWallUsed = false;
+            Game.player.bossUniqueState.warriorGutsUsed = false;
+            Game.player.bossUniqueState.mageBarrierTurn = -1;
+            Game.player.bossUniqueState.thiefEvasionGuardCharges = 0;
+            Game.player.bossUniqueState.rangerBarrierTurn = -1;
             Game.player.bossUniqueState.shadowFirstStrikeUsed = false;
             Game.player.bossUniqueState.lastSkill = null;
             Game.player.bossUniqueState.actionCount = 0;
@@ -5782,12 +5798,55 @@
                     Game.bossRushCarryoverDamage = Math.max(0, (Game.bossRushCarryoverDamage || 0) + spread);
                 }
             }
+            if (target === Game.player && remaining > 0) {
+                const thiefGuardLevel = getPassiveLevel('thief', 6);
+                const charges = Math.max(0, Game.player.bossUniqueState?.thiefEvasionGuardCharges || 0);
+                if (thiefGuardLevel > 0 && charges > 0) {
+                    const reduction = Math.min(25, Math.max(0, thiefGuardLevel * 0.15));
+                    remaining = Math.floor(remaining * (1 - reduction / 100));
+                    Game.player.bossUniqueState.thiefEvasionGuardCharges = Math.max(0, charges - 1);
+                    addLog("煙幕離脱で被ダメージをいなした！", "text-sky-400");
+                }
+            }
             if (target === Game.player && remaining > 0 && hasBossUniqueEffect("lethalGuard")) {
                 const bossState = Game.player.bossUniqueState;
                 if (!bossState.ironWallUsed && remaining >= target.hp) {
                     bossState.ironWallUsed = true;
                     remaining = Math.max(0, target.hp - 1);
                     addLog("鉄壁の鎧が致死ダメージを防いだ！", "text-amber-400");
+                }
+            }
+            if (target === Game.player && remaining > 0) {
+                const bossState = Game.player.bossUniqueState;
+                const warriorGutsLevel = getPassiveLevel('warrior', 6);
+                const warriorGutsChance = Math.min(95, Math.max(0, warriorGutsLevel * 0.2));
+                if (
+                    warriorGutsLevel > 0
+                    && !bossState.warriorGutsUsed
+                    && remaining >= target.hp
+                    && Math.random() * 100 < warriorGutsChance
+                ) {
+                    bossState.warriorGutsUsed = true;
+                    remaining = Math.max(0, target.hp - 1);
+                    addLog("不屈が発動！致死ダメージをこらえた！", "text-amber-400");
+                }
+            }
+            if (target === Game.player && remaining > 0) {
+                const frostGuardLevel = getPassiveLevel('mage', 7);
+                if (frostGuardLevel > 0 && getStatusEffect(Game.enemy, 'freeze')) {
+                    const reduction = Math.min(15, Math.max(0, frostGuardLevel * 0.06));
+                    remaining = Math.floor(remaining * (1 - reduction / 100));
+                }
+            }
+            if (target === Game.player && remaining > 0) {
+                const rangerGuardLevel = getPassiveLevel('ranger', 7);
+                if (rangerGuardLevel > 0 && Game.enemy) {
+                    const trackedDebuffs = ['weaken', 'attackDown', 'vulnerable', 'defenseDown'];
+                    const debuffKinds = trackedDebuffs.reduce((count, id) => count + (getStatusEffect(Game.enemy, id) ? 1 : 0), 0);
+                    if (debuffKinds > 0) {
+                        const reduction = Math.min(20, Math.max(0, rangerGuardLevel * 0.04 * debuffKinds));
+                        remaining = Math.floor(remaining * (1 - reduction / 100));
+                    }
                 }
             }
             if (remaining > 0) {
@@ -5914,6 +5973,28 @@
                 bossMods.logs.forEach((line) => addLog(line, "text-amber-400"));
             }
 
+            const mageBarrierLevel = getPassiveLevel('mage', 6);
+            if (currentSkill.isMagic && mageBarrierLevel > 0) {
+                const state = Game.player.bossUniqueState || {};
+                const triggerChance = Math.min(30, Math.max(0, mageBarrierLevel * 0.12));
+                if (state.mageBarrierTurn !== state.actionCount && Math.random() * 100 < triggerChance) {
+                    applyStatusEffect(Game.player, 'barrier', 1, 2);
+                    state.mageBarrierTurn = state.actionCount;
+                    addLog("緊急障壁が展開された！", "text-sky-400");
+                }
+            }
+
+            const rangerBarrierLevel = getPassiveLevel('ranger', 6);
+            if (rangerBarrierLevel > 0 && landedHit && (currentSkill.accuracyBonus || 0) > 0) {
+                const state = Game.player.bossUniqueState || {};
+                const triggerChance = Math.min(30, Math.max(0, rangerBarrierLevel * 0.12));
+                if (state.rangerBarrierTurn !== state.actionCount && Math.random() * 100 < triggerChance) {
+                    applyStatusEffect(Game.player, 'barrier', 1, 2);
+                    state.rangerBarrierTurn = state.actionCount;
+                    addLog("照準障壁が展開された！", "text-sky-400");
+                }
+            }
+
             if (currentSkill.type === 'heal') {
                 let amt = Math.floor(currentSkill.val + (derived.totals.int * 1.2));
                 if (derived.totals.skillPowerBoost > 0) {
@@ -5948,6 +6029,7 @@
                 let nextHitConsumed = false;
                 let storedBonusApplied = false;
                 let killRecorded = false;
+                let thiefCritDebuffApplied = false;
                 const nextHitEffect = getStatusEffect(Game.player, 'potionNextHitBoost');
                 const nextHitBoost = nextHitEffect?.bonusPct || 0;
                 const leechBoost = getStatusEffect(Game.player, 'potionLeechBoost')?.bonusPct || 0;
@@ -5990,6 +6072,15 @@
                         const state = getBossRushBuffState(Game.enemy);
                         if (state) {
                             state.defenseBoostPct = Math.min(100, (state.defenseBoostPct || 0) + BossRushBuffConfig.critDefBoost * 100);
+                        }
+                    }
+                    const thiefCritDebuffLevel = getPassiveLevel('thief', 7);
+                    if (isCrit && thiefCritDebuffLevel > 0 && !thiefCritDebuffApplied) {
+                        const debuffChance = Math.min(40, Math.max(0, thiefCritDebuffLevel * 0.2));
+                        if (Math.random() * 100 < debuffChance) {
+                            applyStatusEffect(Game.enemy, 'attackDown', 1, 2);
+                            addLog("影縫い急所で敵の攻撃が鈍った！", "text-purple-400");
+                            thiefCritDebuffApplied = true;
                         }
                     }
 
@@ -6208,6 +6299,16 @@
             return { totalDamage, landedHit, nullifiedHit };
         }
 
+        const tryGrantThiefEvasionGuard = () => {
+            const level = getPassiveLevel('thief', 6);
+            if (level <= 0) return;
+            const chance = Math.min(30, Math.max(0, level * 0.2));
+            if (Math.random() * 100 >= chance) return;
+            if (!Game.player.bossUniqueState) Game.player.bossUniqueState = {};
+            Game.player.bossUniqueState.thiefEvasionGuardCharges = 1;
+            addLog("煙幕離脱が発動！次の被ダメージを軽減", "text-sky-400");
+        };
+
         function performEnemyPhysicalAttack({ derived, label = "", damageMultiplier = 1, canMiss = true, logTone = "text-red-400" }) {
             const enemyStatusMods = getStatusModifiers(Game.enemy);
             const playerStatusMods = getStatusModifiers(Game.player);
@@ -6217,6 +6318,7 @@
                 const hitChance = calcHitChanceByRatio(baseAccuracy, evasionValue);
                 if (Math.random() * 100 > hitChance) {
                     addLog("攻撃を回避！", "text-blue-500 font-bold");
+                    tryGrantThiefEvasionGuard();
                     dmgText("MISS", false);
                     return { appliedDamage: 0, landedHit: false, isCrit: false };
                 }
@@ -7567,6 +7669,7 @@
                     const evasionValue = Math.max(0, derived.totals.evasionRate);
                     const hitChance = calcHitChanceByRatio(baseAccuracy, evasionValue);
                     if (Math.random() * 100 > hitChance) {
+                        tryGrantThiefEvasionGuard();
                         continue;
                     }
                     landedHit = true;
