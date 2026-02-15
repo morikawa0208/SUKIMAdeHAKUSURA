@@ -1332,14 +1332,24 @@
                 ボスラッシュ仕様を見る
             </button>
             <div class="mt-4">
-                <div class="text-[10px] text-slate-400 font-black mb-2">討伐済みボス</div>
-                <div id="warp-boss-empty" class="text-[10px] text-slate-400 hidden">討伐したボスがありません。</div>
-                <div id="warp-boss-buttons" class="grid grid-cols-3 gap-2"></div>
+                <button id="warp-boss-toggle" type="button" class="w-full flex items-center justify-between text-[10px] text-slate-400 font-black mb-2">
+                    <span>討伐済みボス</span>
+                    <i id="warp-boss-toggle-icon" class="fas fa-chevron-up"></i>
+                </button>
+                <div id="warp-boss-section" class="space-y-2">
+                    <div id="warp-boss-empty" class="text-[10px] text-slate-400 hidden">討伐したボスがありません。</div>
+                    <div id="warp-boss-buttons" class="grid grid-cols-3 gap-2"></div>
+                </div>
             </div>
             <div class="mt-4">
-                <div class="text-[10px] text-slate-400 font-black mb-2">討伐済みボス（5001階以降）</div>
-                <div id="warp-boss-post-empty" class="text-[10px] text-slate-400 hidden">討伐したボスがありません。</div>
-                <div id="warp-boss-post-buttons" class="grid grid-cols-3 gap-2"></div>
+                <button id="warp-boss-post-toggle" type="button" class="w-full flex items-center justify-between text-[10px] text-slate-400 font-black mb-2">
+                    <span>討伐済みボス（5001階以降）</span>
+                    <i id="warp-boss-post-toggle-icon" class="fas fa-chevron-up"></i>
+                </button>
+                <div id="warp-boss-post-section" class="space-y-2">
+                    <div id="warp-boss-post-empty" class="text-[10px] text-slate-400 hidden">討伐したボスがありません。</div>
+                    <div id="warp-boss-post-buttons" class="grid grid-cols-3 gap-2"></div>
+                </div>
             </div>
             <div class="mt-4">
                 <div class="text-[10px] text-slate-400 font-black mb-2">ボスラッシュ・マイルストーン</div>
@@ -1495,6 +1505,10 @@
             isBossRush: false,
             bossRushFloor: 1,
             maxBossRushFloor: 0,
+            warpBossSectionCollapsed: {
+                base: false,
+                post: false
+            },
             enemy: null, logs: [], dropLogs: []
         };
 
@@ -5101,6 +5115,15 @@
             if (!Array.isArray(Game.defeatedBossRushMilestones)) {
                 Game.defeatedBossRushMilestones = [];
             }
+            if (!Game.warpBossSectionCollapsed || typeof Game.warpBossSectionCollapsed !== 'object') {
+                Game.warpBossSectionCollapsed = { base: false, post: false };
+            }
+            if (typeof Game.warpBossSectionCollapsed.base !== 'boolean') {
+                Game.warpBossSectionCollapsed.base = false;
+            }
+            if (typeof Game.warpBossSectionCollapsed.post !== 'boolean') {
+                Game.warpBossSectionCollapsed.post = false;
+            }
             if (!Game.isBossRush) {
                 Game.maxFloor = Math.max(1, Game.maxFloor, Game.floor);
             }
@@ -5186,6 +5209,33 @@
             container.appendChild(button);
         };
 
+        const syncWarpBossToggleState = () => {
+            ensureWarpState();
+            const config = [
+                { key: 'base', sectionId: 'warp-boss-section', iconId: 'warp-boss-toggle-icon' },
+                { key: 'post', sectionId: 'warp-boss-post-section', iconId: 'warp-boss-post-toggle-icon' }
+            ];
+            config.forEach(({ key, sectionId, iconId }) => {
+                const isCollapsed = Game.warpBossSectionCollapsed[key];
+                const section = document.getElementById(sectionId);
+                const icon = document.getElementById(iconId);
+                if (section) {
+                    section.classList.toggle('hidden', isCollapsed);
+                }
+                if (icon) {
+                    icon.classList.toggle('fa-chevron-down', isCollapsed);
+                    icon.classList.toggle('fa-chevron-up', !isCollapsed);
+                }
+            });
+        };
+
+        const toggleWarpBossSection = (key) => {
+            ensureWarpState();
+            Game.warpBossSectionCollapsed[key] = !Game.warpBossSectionCollapsed[key];
+            syncWarpBossToggleState();
+            triggerAutosave();
+        };
+
         const syncWarpModal = () => {
             const maxFloor = getWarpMaxFloor();
             const maxFloorEl = document.getElementById('warp-max-floor');
@@ -5216,6 +5266,7 @@
             }
             renderWarpBossButtons();
             renderWarpBossRushButtons();
+            syncWarpBossToggleState();
         };
 
         const updateWarpButtonState = () => {
@@ -5300,6 +5351,8 @@
             const warpModal = document.getElementById('warp-modal');
             const warpBossRushInfo = document.getElementById('warp-bossrush-info');
             const warpBossRushEnter = document.getElementById('warp-bossrush-enter');
+            const warpBossToggle = document.getElementById('warp-boss-toggle');
+            const warpBossPostToggle = document.getElementById('warp-boss-post-toggle');
             if (warpBtn) {
                 warpBtn.addEventListener('click', openWarpModal);
             }
@@ -5335,6 +5388,12 @@
             }
             if (warpBossRushEnter) {
                 warpBossRushEnter.addEventListener('click', enterBossRush);
+            }
+            if (warpBossToggle) {
+                warpBossToggle.addEventListener('click', () => toggleWarpBossSection('base'));
+            }
+            if (warpBossPostToggle) {
+                warpBossPostToggle.addEventListener('click', () => toggleWarpBossSection('post'));
             }
         };
 
