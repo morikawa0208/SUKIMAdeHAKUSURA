@@ -1474,12 +1474,13 @@
                     defenseLayers: 0,
                     ironWallUsed: false,
                     warriorGutsUsed: false,
+                    mageBarrierTurn: -1,
                     shadowFirstStrikeUsed: false,
                     lastSkill: null
                 },
                 skills: {
                     warrior: { active: [0,0,0,0,0,0], passive: [0,0,0,0,0,0,0,0] },
-                    mage: { active: [0,0,0,0,0,0,0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
+                    mage: { active: [0,0,0,0,0,0,0,0,0,0,0,0], passive: [0,0,0,0,0,0,0,0] },
                     thief: { active: [0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
                     ranger: { active: [0,0,0,0,0,0,0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
                     paladin: { active: [0,0,0,0,0,0,0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
@@ -2174,7 +2175,9 @@
                     { id: 2, name: "瞑想", desc: "MP自動回復+2/レベル", maxLevel: 150, apply: (d) => Game.player.mpRegen += 2 * d },
                     { id: 3, name: "魔導集中", desc: "会心率+2%/レベル", maxLevel: 150, apply: (d) => Game.player.critRate += 2 * d },
                     { id: 4, name: "魔力貫通", desc: "魔法貫通+4%/レベル", maxLevel: 150, apply: (d) => Game.player.mPen += 4 * d },
-                    { id: 5, name: "秘奥強化", desc: "与ダメ増加+2%/レベル", maxLevel: 150, apply: (d) => Game.player.damageBoost += 2 * d }
+                    { id: 5, name: "秘奥強化", desc: "与ダメ増加+2%/レベル", maxLevel: 150, apply: (d) => Game.player.damageBoost += 2 * d },
+                    { id: 6, name: "緊急障壁", desc: "魔法スキル使用時、確率0.12%/レベルでバリアを展開（1ターン1回）", maxLevel: 150, apply: () => {} },
+                    { id: 7, name: "霜護", desc: "敵が凍結中、被ダメ軽減+0.06%/レベル", maxLevel: 150, apply: () => {} }
                 ]
             },
             thief: {
@@ -4611,6 +4614,7 @@
             Game.player.bossUniqueState.defenseLayers = 0;
             Game.player.bossUniqueState.ironWallUsed = false;
             Game.player.bossUniqueState.warriorGutsUsed = false;
+            Game.player.bossUniqueState.mageBarrierTurn = -1;
             Game.player.bossUniqueState.shadowFirstStrikeUsed = false;
             Game.player.bossUniqueState.lastSkill = null;
             Game.player.bossUniqueState.actionCount = 0;
@@ -5868,6 +5872,13 @@
                     addLog("不屈が発動！致死ダメージをこらえた！", "text-amber-400");
                 }
             }
+            if (target === Game.player && remaining > 0) {
+                const frostGuardLevel = getPassiveLevel('mage', 7);
+                if (frostGuardLevel > 0 && getStatusEffect(Game.enemy, 'freeze')) {
+                    const reduction = Math.min(15, Math.max(0, frostGuardLevel * 0.06));
+                    remaining = Math.floor(remaining * (1 - reduction / 100));
+                }
+            }
             if (remaining > 0) {
                 target.hp = Math.max(0, target.hp - remaining);
                 removeStatusEffect(target, 'freeze');
@@ -5990,6 +6001,17 @@
             });
             if (bossMods.logs.length) {
                 bossMods.logs.forEach((line) => addLog(line, "text-amber-400"));
+            }
+
+            const mageBarrierLevel = getPassiveLevel('mage', 6);
+            if (currentSkill.isMagic && mageBarrierLevel > 0) {
+                const state = Game.player.bossUniqueState || {};
+                const triggerChance = Math.min(30, Math.max(0, mageBarrierLevel * 0.12));
+                if (state.mageBarrierTurn !== state.actionCount && Math.random() * 100 < triggerChance) {
+                    applyStatusEffect(Game.player, 'barrier', 1, 2);
+                    state.mageBarrierTurn = state.actionCount;
+                    addLog("緊急障壁が展開された！", "text-sky-400");
+                }
             }
 
             if (currentSkill.type === 'heal') {
