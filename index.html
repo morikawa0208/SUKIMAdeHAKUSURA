@@ -3085,6 +3085,7 @@
             ],
             5000: [
                 { name: "終焉の竜槍", type: "weapon", rarity: "legendary", stats: [{ key: "attackFlat", value: 113 }, { key: "str", value: 29 }, { key: "damageBoost", value: 16 }], uniqueStats: [] },
+                { name: "終焉の竜杖", type: "weapon", rarity: "legendary", stats: [{ key: "attackFlat", value: 130 }, { key: "int", value: 40 }, { key: "mPen", value: 40 }], uniqueStats: [] },
                 { name: "竜鱗の護鎧", type: "armor", rarity: "legendary", stats: [{ key: "defenseFlat", value: 108 }, { key: "vit", value: 37 }, { key: "maxHp", value: 142 }], uniqueStats: [] },
                 { name: "終焉の護符", type: "accessory", rarity: "legendary", stats: [{ key: "luck", value: 49 }, { key: "rareFind", value: 46 }, { key: "affixFind", value: 43 }], uniqueStats: [] }
             ],
@@ -3114,6 +3115,7 @@
             "影刃の忍刀": { type: "bonusHitsChance", scaleWithDx: true, chance: 22, hits: 1, hitMultiplier: 0.7, value: 5, label: "影刃の忍刀：22%で追加ヒット+1(70%)" },
             "夜走りの足袋": { type: "statMultiplier", scaleWithDx: true, stat: "dex", value: 18, label: "夜走りの足袋：DEX倍率 +18%" },
             "終焉の竜槍": { type: "multiHitAmplifyDex", scaleWithDx: true, value: 1.7, label: "終焉の竜槍：連打の増幅：攻撃が常に多段化。DEXで分割回数が増え、最後の1発は大本命" },
+            "終焉の竜杖": { type: "recastSkill", scaleWithDx: true, value: 50, label: "終焉の竜杖：50%の確率でスキル再使用（MP消費なし）" },
             "竜鱗の護鎧": { type: "statMultiplier", scaleWithDx: true, stat: "vit", value: 25, extraType: "defenseLayers", label: "竜鱗の護鎧：VIT倍率 +25%＋被弾するたび「防御層」+1、層数ぶん次の攻撃が追撃" },
             "毒沼のヘルム": { type: "singleStatusRule", scaleWithDx: true, value: 2, label: "毒沼のヘルム：単一異常の掟：状態異常は1種類しか付かない代わりに、付与時に必ず2重スタック" },
             "湿毒のローブ": { type: "poisonUnlimited", scaleWithDx: true, value: 999, label: "湿毒のローブ：毒上限解放：毒スタックの上限が撤廃される" },
@@ -3176,8 +3178,22 @@
             "影討ちの足袋": { type: "accuracyBoost", scaleWithDx: true, condition: { type: "playerHpAbove", threshold: 0.7 }, value: 15, label: "影討ちの足袋：HP70%以上で命中+15" },
             "封印の書": { type: "statBonus", scaleWithDx: true, stats: [ { key: "skillPowerBoost", value: 20 } ], label: "封印の書：スキル威力 +20%" },
             "禁術の護符": { type: "statBonus", scaleWithDx: true, stats: [ { key: "skillPowerBoost", value: 20 }, { key: "maxMp", value: 80 } ], label: "禁術の護符：スキル威力+20% / 最大MP+80" },
-            "終末前夜の剣": { type: "riskBoost", scaleWithDx: true, condition: { type: "playerHpAbove", threshold: 0.8 }, value: 45, penalty: 20, label: "終末前夜の剣：HP80%以上で与ダメ+45%/被ダメ+20%" },
-            "刻印の護符": { type: "damageBoost", scaleWithDx: true, condition: { type: "enemyHpBelow", threshold: 0.5 }, value: 35, label: "刻印の護符：敵HP50%以下で与ダメ+35%" }
+            "終末前夜の杖": { type: "skillMpCostMultiplier", scaleWithDx: true, value: 2, stats: [ { key: "skillPowerBoost", value: 50 } ], label: "終末前夜の杖：MP消費2倍 / スキル威力+50%" },
+            "終末前夜の剣": { type: "riskBoost", scaleWithDx: true, value: 100, penalty: 30, label: "終末前夜の剣：与ダメ+100%/被ダメ+30%" },
+            "刻印の護符": { type: "statBonus", scaleWithDx: true, stats: [ { key: "eliteEncounter", value: 100 } ], label: "刻印の護符：エリート遭遇率+100%" },
+            "追刻の双刃": { type: "skillChainShift", scaleWithDx: true, value: 120, penalty: 50, label: "追刻の双刃：同スキル連打で威力半減、別スキル切替で次スキル与ダメ+120%" },
+            "反転の天球儀": { type: "parityBoost", scaleWithDx: true, value: 80, label: "反転の天球儀：奇数ターン攻撃スキル+80% / 偶数ターン補助スキル+80%" },
+            "空白の外套": { type: "periodicBlank", scaleWithDx: true, value: 3, penalty: 40, label: "空白の外套：3ターンごとに被弾無効化、ただしそのターン与ダメ-40%" },
+            "契約者の魔典": { type: "manaDebtContract", scaleWithDx: true, value: 2, stats: [ { key: "skillPowerBoost", value: 45 } ], label: "契約者の魔典：不足MP1につき最大HPの2%を支払って発動 / スキル威力+45%" },
+            "無窮の砂時計": { type: "timeRamp", scaleWithDx: true, value: 8, cap: 80, penalty: 5, label: "無窮の砂時計：毎ターン与ダメ+8%(最大+80%)、被回復量-5%" },
+            "血盟の鎖帷子": { type: "statMultiplier", scaleWithDx: true, stat: "vit", value: 20, extraType: "damageBuffer", label: "血盟の鎖帷子：VIT倍率+20%＋被ダメの一部を蓄積して次攻撃へ上乗せ" },
+            "禍律の面": { type: "singleStatusRule", scaleWithDx: true, value: 3, label: "禍律の面：状態異常は1種類のみ、付与時3重スタック" },
+            "相転移の指輪": { type: "statBonus", scaleWithDx: true, stats: [ { key: "mPen", value: 30 }, { key: "skillPowerBoost", value: 25 } ], label: "相転移の指輪：魔法貫通+30% / スキル威力+25%" },
+            "氷獄の誓剣": { type: "damageBoost", scaleWithDx: true, condition: { type: "enemyStatus", status: "freeze" }, value: 60, label: "氷獄の誓剣：凍結中の敵に与ダメ+60%" },
+            "終局演算の杖": { type: "scheduledRecastStun", scaleWithDx: true, value: 3, label: "終局演算の杖：3回に1回スキル再詠唱、次ターン行動不能" },
+            "王域の紋章": { type: "statBonus", scaleWithDx: true, stats: [ { key: "eliteEncounter", value: 100 }, { key: "rareFind", value: 35 }, { key: "affixFind", value: 35 } ], label: "王域の紋章：エリート遭遇率+100% / レアドロ率+35% / Affix率+35%" },
+            "天蓋の竜鱗": { type: "statMultiplier", scaleWithDx: true, stat: "vit", value: 30, extraType: "defenseLayers", label: "天蓋の竜鱗：VIT倍率+30%＋被弾で防御層を蓄積" },
+            "天蓋の断界剣": { type: "multiHitAmplifyDex", scaleWithDx: true, value: 1.9, label: "天蓋の断界剣：断界連閃：攻撃が常に多段化。DEXで分割回数が増え、最後の1発はさらに強化" }
         };
 
         const RoadLegendaryLootTables = [
@@ -3248,7 +3264,41 @@
                 floorStart: 901,
                 items: [
                     { name: "終末前夜の剣", type: "weapon", stats: [{ key: "attackFlat", value: 110 }, { key: "str", value: 48 }, { key: "damageBoost", value: 13 }], uniqueStats: [] },
-                    { name: "刻印の護符", type: "accessory", stats: [{ key: "damageBoost", value: 13 }, { key: "maxHp", value: 194 }, { key: "luck", value: 15 }], uniqueStats: [] }
+                    { name: "刻印の護符", type: "accessory", stats: [{ key: "affixFind", value: 15 }, { key: "maxHp", value: 194 }, { key: "rareFind", value: 15 }], uniqueStats: [] },
+                    { name: "終末前夜の杖", type: "weapon", stats: [{ key: "attackFlat", value: 120 }, { key: "int", value: 50 }, { key: "mPen", value: 30 }], uniqueStats: [] }
+                ]
+            },
+            {
+                floorStart: 1001,
+                items: [
+                    { name: "追刻の双刃", type: "weapon", stats: [{ key: "attackFlat", value: 126 }, { key: "dex", value: 60 }, { key: "critRate", value: 26 }], uniqueStats: [] },
+                    { name: "反転の天球儀", type: "accessory", stats: [{ key: "skillPowerBoost", value: 30 }, { key: "maxMp", value: 190 }, { key: "mpRegen", value: 10 }], uniqueStats: [] },
+                    { name: "空白の外套", type: "armor", stats: [{ key: "defenseFlat", value: 160 }, { key: "vit", value: 72 }, { key: "damageReduction", value: 12 }], uniqueStats: [] }
+                ]
+            },
+            {
+                floorStart: 2001,
+                items: [
+                    { name: "契約者の魔典", type: "weapon", stats: [{ key: "attackFlat", value: 132 }, { key: "int", value: 74 }, { key: "mPen", value: 36 }], uniqueStats: [] },
+                    { name: "無窮の砂時計", type: "accessory", stats: [{ key: "goldBoost", value: 22 }, { key: "damageBoost", value: 16 }, { key: "maxHp", value: 220 }], uniqueStats: [] },
+                    { name: "血盟の鎖帷子", type: "armor", stats: [{ key: "defenseFlat", value: 178 }, { key: "vit", value: 78 }, { key: "maxHp", value: 320 }], uniqueStats: [] }
+                ]
+            },
+            {
+                floorStart: 3001,
+                items: [
+                    { name: "禍律の面", type: "head", stats: [{ key: "defenseFlat", value: 142 }, { key: "dex", value: 56 }, { key: "accuracy", value: 28 }], uniqueStats: [] },
+                    { name: "相転移の指輪", type: "accessory", stats: [{ key: "mPen", value: 32 }, { key: "skillPowerBoost", value: 20 }, { key: "maxMp", value: 230 }], uniqueStats: [] },
+                    { name: "氷獄の誓剣", type: "weapon", stats: [{ key: "attackFlat", value: 138 }, { key: "str", value: 70 }, { key: "critDamage", value: 36 }], uniqueStats: [] }
+                ]
+            },
+            {
+                floorStart: 4001,
+                items: [
+                    { name: "終局演算の杖", type: "weapon", stats: [{ key: "attackFlat", value: 146 }, { key: "int", value: 84 }, { key: "skillPowerBoost", value: 28 }], uniqueStats: [] },
+                    { name: "王域の紋章", type: "accessory", stats: [{ key: "eliteEncounter", value: 80 }, { key: "rareFind", value: 42 }, { key: "affixFind", value: 42 }], uniqueStats: [] },
+                    { name: "天蓋の竜鱗", type: "armor", stats: [{ key: "defenseFlat", value: 198 }, { key: "vit", value: 92 }, { key: "maxHp", value: 420 }], uniqueStats: [] },
+                    { name: "天蓋の断界剣", type: "weapon", stats: [{ key: "attackFlat", value: 138 }, { key: "str", value: 58 }, { key: "critDamage", value: 34 }], uniqueStats: [] }
                 ]
             }
         ];
@@ -4545,13 +4595,17 @@
             Game.player.bossUniqueState.ironWallUsed = false;
             Game.player.bossUniqueState.shadowFirstStrikeUsed = false;
             Game.player.bossUniqueState.lastSkill = null;
+            Game.player.bossUniqueState.actionCount = 0;
+            Game.player.bossUniqueState.chainLastSkillName = null;
+            Game.player.bossUniqueState.scheduledRecastCount = 0;
+            Game.player.bossUniqueState.skipNextPlayerTurn = false;
         };
 
         const applyBossUniqueStatBonuses = (totals) => {
             const updated = { ...totals };
             const effects = getEquippedBossEffects();
             effects.forEach((effect) => {
-                if (effect.type === "statBonus") {
+                if (effect.type === "statBonus" || effect.type === "skillMpCostMultiplier" || effect.type === "manaDebtContract") {
                     (effect.stats || []).forEach((stat) => {
                         updated[stat.key] = (updated[stat.key] || 0) + stat.value;
                     });
@@ -4776,6 +4830,7 @@
                 bonusHits: 0,
                 bonusHitMultiplier: 1,
                 damageTakenMultiplier: 1,
+                healMultiplier: 1,
                 logs: []
             };
             const effects = getEquippedBossEffects();
@@ -4811,6 +4866,53 @@
                 }
                 if (effect.type === "critBoost") {
                     mods.critRateBonus += effect.value || 0;
+                }
+                if (effect.type === "skillChainShift") {
+                    const currentSkillName = context.currentSkill?.name;
+                    if (currentSkillName && currentSkillName !== '通常攻撃') {
+                        const lastSkillName = Game.player.bossUniqueState.chainLastSkillName;
+                        if (lastSkillName && lastSkillName === currentSkillName) {
+                            const penaltyPct = effect.penalty || 50;
+                            mods.damageMultiplier *= Math.max(0.1, 1 - penaltyPct / 100);
+                            mods.logs.push('追刻の双刃：同スキル連打で威力減衰');
+                        } else if (lastSkillName && lastSkillName !== currentSkillName) {
+                            mods.damageMultiplier *= 1 + (effect.value || 120) / 100;
+                            mods.logs.push('追刻の双刃：切替連携で威力上昇');
+                        }
+                    }
+                }
+                if (effect.type === "parityBoost") {
+                    const actionCount = Math.max(1, Game.player.bossUniqueState.actionCount || 1);
+                    const isOddTurn = actionCount % 2 === 1;
+                    const skillType = context.currentSkill?.type;
+                    const isSupportSkill = skillType === 'heal';
+                    const boost = 1 + (effect.value || 0) / 100;
+                    if (isOddTurn && !isSupportSkill) {
+                        mods.damageMultiplier *= boost;
+                    }
+                    if (!isOddTurn && isSupportSkill) {
+                        mods.healMultiplier *= boost;
+                    }
+                }
+                if (effect.type === "periodicBlank") {
+                    const cycle = Math.max(1, Math.floor(effect.value || 3));
+                    const actionCount = Math.max(1, Game.player.bossUniqueState.actionCount || 1);
+                    if (actionCount % cycle === 0) {
+                        mods.damageTakenMultiplier *= 0;
+                        mods.damageMultiplier *= Math.max(0.1, 1 - (effect.penalty || 40) / 100);
+                        mods.logs.push('空白の外套：空白化ターン');
+                    }
+                }
+                if (effect.type === "timeRamp") {
+                    const perTurn = effect.value || 0;
+                    const cap = effect.cap || 0;
+                    const actionCount = Math.max(1, Game.player.bossUniqueState.actionCount || 1);
+                    const bonus = Math.min(cap, perTurn * actionCount);
+                    if (bonus > 0) {
+                        mods.damageMultiplier *= 1 + bonus / 100;
+                    }
+                    const healPenalty = Math.max(0, effect.penalty || 0);
+                    mods.healMultiplier *= Math.max(0.1, 1 - healPenalty / 100);
                 }
                 if (effect.type === "damageTakenReduction") {
                     mods.damageTakenMultiplier *= Math.max(0, 1 - (effect.value || 0) / 100);
@@ -5801,25 +5903,28 @@
             let landedHit = false;
             let nullifiedHit = false;
 
+            const bossMods = getBossUniqueCombatModifiers({
+                player: Game.player,
+                enemy: Game.enemy,
+                derived,
+                baseHits: currentSkill.hits || 1,
+                currentSkill
+            });
+            if (bossMods.logs.length) {
+                bossMods.logs.forEach((line) => addLog(line, "text-amber-400"));
+            }
+
             if (currentSkill.type === 'heal') {
                 let amt = Math.floor(currentSkill.val + (derived.totals.int * 1.2));
                 if (derived.totals.skillPowerBoost > 0) {
                     amt = Math.floor(amt * (1 + derived.totals.skillPowerBoost / 100));
                 }
+                amt = Math.max(0, Math.floor(amt * (bossMods.healMultiplier || 1)));
                 Game.player.hp = Math.min(derived.maxHp, Game.player.hp + amt);
                 addLog(`【回復】${amt}HP`, "text-green-500");
                 dmgText(amt, true);
                 triggerBossRushHealReaction(amt, "回復反撃");
             } else {
-                const bossMods = getBossUniqueCombatModifiers({
-                    player: Game.player,
-                    enemy: Game.enemy,
-                    derived,
-                    baseHits: currentSkill.hits || 1
-                });
-                if (bossMods.logs.length) {
-                    bossMods.logs.forEach((line) => addLog(line, "text-amber-400"));
-                }
                 const baseHits = currentSkill.hits || 1;
                 let adjustedBaseHits = baseHits;
                 let amplifyFinalHit = false;
@@ -7597,6 +7702,18 @@
                 return;
             }
 
+            if (Game.player.bossUniqueState?.skipNextPlayerTurn) {
+                Game.player.bossUniqueState.skipNextPlayerTurn = false;
+                addLog("終局演算の反動で行動不能！", "text-purple-400");
+                advanceStatusEffects(Game.player, 'end');
+                applyAutoRegen();
+                setTimeout(enemyTurn, 300);
+                updateUI();
+                return;
+            }
+
+            Game.player.bossUniqueState.actionCount = Math.max(0, Game.player.bossUniqueState.actionCount || 0) + 1;
+
             const buildCombatContext = () => {
                 const derived = getDerivedStats();
                 const enemyStatusMods = getStatusModifiers(Game.enemy);
@@ -7648,15 +7765,40 @@
                         adjustedMpCost = Math.max(1, adjustedMpCost);
                     }
                 }
+                const skillMpCostMultiplierEffect = getBossUniqueEffectByType("skillMpCostMultiplier");
+                if (skillMpCostMultiplierEffect && Number.isFinite(skillMpCostMultiplierEffect.value) && skillMpCostMultiplierEffect.value > 0) {
+                    adjustedMpCost = Math.max(0, Math.floor(adjustedMpCost * skillMpCostMultiplierEffect.value));
+                    if ((currentSkill.mp || 0) > 0) {
+                        adjustedMpCost = Math.max(1, adjustedMpCost);
+                    }
+                }
             } else {
                 adjustedMpCost = 0;
             }
 
+            let hpDebtCost = 0;
             if (Game.player.mp < adjustedMpCost) {
-                addLog("MP不足！通常攻撃", "text-blue-400");
-                currentSkill = { name: '通常攻撃', mp: 0, pow: 0.9 };
-                isMagic = false;
-                adjustedMpCost = 0;
+                const manaDebtEffect = getBossUniqueEffectByType("manaDebtContract");
+                const deficit = Math.max(0, adjustedMpCost - Game.player.mp);
+                if (manaDebtEffect && currentSkill.name !== '通常攻撃' && deficit > 0) {
+                    const hpCostPerMpPct = Math.max(0, manaDebtEffect.value || 0);
+                    const requiredHp = Math.max(1, Math.floor(derived.maxHp * (hpCostPerMpPct / 100) * deficit));
+                    if (Game.player.hp - requiredHp >= 1) {
+                        hpDebtCost = requiredHp;
+                        adjustedMpCost = Game.player.mp;
+                        addLog(`契約者の魔典：不足MPをHP${requiredHp}で肩代わり`, "text-rose-400");
+                    } else {
+                        addLog("MP不足！通常攻撃", "text-blue-400");
+                        currentSkill = { name: '通常攻撃', mp: 0, pow: 0.9 };
+                        isMagic = false;
+                        adjustedMpCost = 0;
+                    }
+                } else {
+                    addLog("MP不足！通常攻撃", "text-blue-400");
+                    currentSkill = { name: '通常攻撃', mp: 0, pow: 0.9 };
+                    isMagic = false;
+                    adjustedMpCost = 0;
+                }
             }
             if (playerStatusMods.silence && currentSkill.name !== '通常攻撃') {
                 addLog("沈黙でスキル不可！通常攻撃に変更", "text-slate-400");
@@ -7680,6 +7822,9 @@
                     addLog(`HP消費 ${cost}`, "text-rose-400");
                 }
             }
+            if (hpDebtCost > 0) {
+                Game.player.hp = Math.max(1, Game.player.hp - hpDebtCost);
+            }
 
             Game.player.mp -= adjustedMpCost;
             if (adjustedMpCost > 0) {
@@ -7698,6 +7843,7 @@
             });
 
             Game.player.bossUniqueState.lastSkill = currentSkill.name !== '通常攻撃' ? { ...currentSkill } : null;
+            Game.player.bossUniqueState.chainLastSkillName = currentSkill.name !== '通常攻撃' ? currentSkill.name : null;
 
             if (currentSkill.name !== '通常攻撃') {
                 const restoreEffect = getBossUniqueEffectByType("mpRestoreAfterSkill");
@@ -7708,6 +7854,25 @@
                     const actual = Game.player.mp - beforeMp;
                     if (actual > 0) {
                         addLog(`祈りの反響でMPが${actual}回復`, "text-blue-400");
+                    }
+                }
+            }
+
+            const scheduledRecastEffect = getBossUniqueEffectByType("scheduledRecastStun");
+            if (scheduledRecastEffect && currentSkill.name !== '通常攻撃') {
+                const cycle = Math.max(1, Math.floor(scheduledRecastEffect.value || 3));
+                Game.player.bossUniqueState.scheduledRecastCount = Math.max(0, Game.player.bossUniqueState.scheduledRecastCount || 0) + 1;
+                if (Game.player.bossUniqueState.scheduledRecastCount % cycle === 0) {
+                    const scheduledContext = buildCombatContext();
+                    addLog("終局演算が発動！", "text-amber-400");
+                    performPlayerSkillAction(currentSkill, scheduledContext, { labelPrefix: "終局演算：" });
+                    Game.player.bossUniqueState.skipNextPlayerTurn = true;
+                    addLog("反動で次ターン行動不能", "text-purple-400");
+                    if (Game.enemy.hp <= 0) {
+                        victory();
+                        updateUI();
+                        triggerAutosave();
+                        return;
                     }
                 }
             }
