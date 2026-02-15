@@ -1477,6 +1477,8 @@
                     mageBarrierTurn: -1,
                     thiefEvasionGuardCharges: 0,
                     rangerBarrierTurn: -1,
+                    paladinBarrierTurn: -1,
+                    paladinGutsUsed: false,
                     shadowFirstStrikeUsed: false,
                     lastSkill: null
                 },
@@ -1485,7 +1487,7 @@
                     mage: { active: [0,0,0,0,0,0,0,0,0,0,0,0], passive: [0,0,0,0,0,0,0,0] },
                     thief: { active: [0,0,0,0,0,0], passive: [0,0,0,0,0,0,0,0] },
                     ranger: { active: [0,0,0,0,0,0,0,0,0,0,0,0], passive: [0,0,0,0,0,0,0,0] },
-                    paladin: { active: [0,0,0,0,0,0,0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
+                    paladin: { active: [0,0,0,0,0,0,0,0,0,0,0,0], passive: [0,0,0,0,0,0,0,0] },
                     monk: { active: [0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
                     commonPassive: { active: [], passive: [0,0,0,0,0,0,0,0,0,0,0,0,0] }
                 }
@@ -2258,7 +2260,9 @@
                     { id: 2, name: "聖癒力", desc: "HP自動回復+2/レベル", maxLevel: 150, apply: (d) => Game.player.hpRegen += 2 * d },
                     { id: 3, name: "敬虔", desc: "MP自動回復+1/レベル", maxLevel: 150, apply: (d) => Game.player.mpRegen += 1 * d },
                     { id: 4, name: "神罰", desc: "与ダメ増加+2%/レベル", maxLevel: 150, apply: (d) => Game.player.damageBoost += 2 * d },
-                    { id: 5, name: "守護誓約", desc: "防御力+4/レベル", maxLevel: 150, apply: (d) => Game.player.defenseFlat += 4 * d }
+                    { id: 5, name: "守護誓約", desc: "防御力+4/レベル", maxLevel: 150, apply: (d) => Game.player.defenseFlat += 4 * d },
+                    { id: 6, name: "聖盾反応", desc: "被弾時、確率0.12%/レベルでバリア展開（1ターン1回）", maxLevel: 150, apply: () => {} },
+                    { id: 7, name: "不退の誓約", desc: "致死ダメージ時、確率0.2%/レベルでHP1で耐える（戦闘中1回）", maxLevel: 150, apply: () => {} }
                 ]
             },
             monk: {
@@ -4623,6 +4627,8 @@
             Game.player.bossUniqueState.mageBarrierTurn = -1;
             Game.player.bossUniqueState.thiefEvasionGuardCharges = 0;
             Game.player.bossUniqueState.rangerBarrierTurn = -1;
+            Game.player.bossUniqueState.paladinBarrierTurn = -1;
+            Game.player.bossUniqueState.paladinGutsUsed = false;
             Game.player.bossUniqueState.shadowFirstStrikeUsed = false;
             Game.player.bossUniqueState.lastSkill = null;
             Game.player.bossUniqueState.actionCount = 0;
@@ -5891,6 +5897,21 @@
                 }
             }
             if (target === Game.player && remaining > 0) {
+                const bossState = Game.player.bossUniqueState;
+                const paladinGutsLevel = getPassiveLevel('paladin', 7);
+                const paladinGutsChance = Math.min(95, Math.max(0, paladinGutsLevel * 0.2));
+                if (
+                    paladinGutsLevel > 0
+                    && !bossState.paladinGutsUsed
+                    && remaining >= target.hp
+                    && Math.random() * 100 < paladinGutsChance
+                ) {
+                    bossState.paladinGutsUsed = true;
+                    remaining = Math.max(0, target.hp - 1);
+                    addLog("不退の誓約が発動！致死ダメージを耐えた！", "text-amber-400");
+                }
+            }
+            if (target === Game.player && remaining > 0) {
                 const frostGuardLevel = getPassiveLevel('mage', 7);
                 if (frostGuardLevel > 0 && getStatusEffect(Game.enemy, 'freeze')) {
                     const reduction = Math.min(15, Math.max(0, frostGuardLevel * 0.06));
@@ -5929,6 +5950,15 @@
                 }
                 if (hasBossUniqueEffect("defenseLayers")) {
                     bossState.defenseLayers = Math.max(0, (bossState.defenseLayers || 0) + 1);
+                }
+                const paladinBarrierLevel = getPassiveLevel('paladin', 6);
+                if (paladinBarrierLevel > 0) {
+                    const triggerChance = Math.min(30, Math.max(0, paladinBarrierLevel * 0.12));
+                    if (bossState.paladinBarrierTurn !== bossState.actionCount && Math.random() * 100 < triggerChance) {
+                        applyStatusEffect(Game.player, 'barrier', 1, 2);
+                        bossState.paladinBarrierTurn = bossState.actionCount;
+                        addLog("聖盾反応が発動！バリアを展開", "text-sky-400");
+                    }
                 }
                 const martyrEffect = getBossUniqueEffectByType("martyrLight");
                 if (martyrEffect) {
