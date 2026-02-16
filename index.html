@@ -89,6 +89,7 @@
         .rarity-rare { color: #facc15; font-weight: bold; }
         .rarity-epic { color: #a855f7; font-weight: bold; }
         .rarity-legendary { color: #a16207; font-weight: bold; text-shadow: 0 0 8px rgba(161, 98, 7, 0.35); }
+        .rarity-mythic { color: #7c3aed; font-weight: bold; text-shadow: 0 0 10px rgba(250, 204, 21, 0.55); }
 
         .drop-log-box {
             font-size: 10px;
@@ -999,6 +1000,13 @@
                     </span>
                     <span class="text-[10px] text-slate-400 font-bold">拾わない</span>
                 </label>
+                <label class="flex items-center justify-between bg-slate-50 border border-slate-100 rounded-xl px-3 py-2">
+                    <span class="flex items-center gap-2 font-bold rarity-mythic">
+                        <input type="checkbox" class="loot-filter-checkbox accent-slate-800" data-rarity="mythic">
+                        ミシック
+                    </span>
+                    <span class="text-[10px] text-slate-400 font-bold">拾わない</span>
+                </label>
             </div>
             <button id="loot-filter-close-bottom" class="mt-5 w-full bg-slate-800 text-white font-black py-3 rounded-2xl shadow-lg">閉じる</button>
         </div>
@@ -1043,6 +1051,12 @@
                     <span class="flex items-center gap-2 font-bold rarity-legendary">
                         <input type="checkbox" class="bulk-sell-checkbox accent-amber-500" data-rarity="legendary">
                         レジェンダリー
+                    </span>
+                </label>
+                <label class="flex items-center justify-between bg-slate-50 border border-slate-100 rounded-xl px-3 py-2">
+                    <span class="flex items-center gap-2 font-bold rarity-mythic">
+                        <input type="checkbox" class="bulk-sell-checkbox accent-amber-500" data-rarity="mythic">
+                        ミシック
                     </span>
                 </label>
             </div>
@@ -1354,6 +1368,22 @@
                 <div id="warp-bossrush-empty" class="text-[10px] text-slate-400 hidden">ボスラッシュのマイルストーンがありません。</div>
                 <div id="warp-bossrush-buttons" class="grid grid-cols-3 gap-2"></div>
             </div>
+            <div class="mt-4">
+                <div class="text-[10px] text-slate-400 font-black mb-2">終門の試練</div>
+                <div id="warp-endtrial-locked" class="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2">
+                    <div id="warp-endtrial-locked-text" class="text-[10px] text-slate-500 font-bold"></div>
+                </div>
+                <div id="warp-endtrial-unlocked" class="hidden space-y-2">
+                    <div class="text-[10px] text-slate-500 font-bold">門番討伐: <span id="warp-endtrial-progress">0 / 6</span></div>
+                    <button id="warp-endtrial-info" class="w-full bg-amber-100 text-amber-700 text-xs font-black py-2 rounded-xl hover:bg-amber-200 transition flex items-center justify-center gap-2">
+                        <i class="fas fa-scroll"></i> 終門の試練について
+                    </button>
+                    <div id="warp-endtrial-gatekeepers" class="grid grid-cols-2 gap-2"></div>
+                    <button id="warp-endtrial-overlord" class="w-full bg-violet-700 text-white text-xs font-black py-2 rounded-xl hover:bg-violet-600 transition flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed" disabled>
+                        <i class="fas fa-skull"></i> 最終ボスに挑戦
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1497,8 +1527,8 @@
             inventoryFilter: 'all',
             inventorySort: 'acquired',
             inventoryCounter: 0,
-            lootFilter: { normal: false, magic: false, rare: false, epic: false, legendary: false },
-            bulkSellFilter: { normal: false, magic: false, rare: false, epic: false, legendary: false },
+            lootFilter: { normal: false, magic: false, rare: false, epic: false, legendary: false, mythic: false },
+            bulkSellFilter: { normal: false, magic: false, rare: false, epic: false, legendary: false, mythic: false },
             lootQueue: [],
             pendingEquip: null,
             compareModal: null,
@@ -1509,6 +1539,15 @@
             warpBossSectionCollapsed: {
                 base: false,
                 post: false
+            },
+            endTrialState: {
+                unlocked: false,
+                gatekeepersDefeated: [],
+                currentGatekeeperId: null,
+                inBossBattle: false,
+                bossPhase: 1,
+                bossUnlocked: false,
+                bossClearedPhases: 0
             },
             enemy: null, logs: [], dropLogs: []
         };
@@ -3408,7 +3447,8 @@
             { key: "magic", name: "マジック", mul: 1.3 },
             { key: "rare", name: "レア", mul: 1.8 },
             { key: "epic", name: "エピック", mul: 3.0 },
-            { key: "legendary", name: "レジェンダリー", mul: 5.0 }
+            { key: "legendary", name: "レジェンダリー", mul: 5.0 },
+            { key: "mythic", name: "ミシック", mul: 7.2 }
         ];
         const RaritySortOrder = Object.fromEntries(RarityDefs.map((def, index) => [def.key, index]));
         const SellBasePrices = {
@@ -3416,7 +3456,8 @@
             magic: 10,
             rare: 1000,
             epic: 10000,
-            legendary: 100000
+            legendary: 100000,
+            mythic: 1000000
         };
         const AffixRankMultipliers = {
             1: 1.2,
@@ -4379,6 +4420,144 @@
             return buildRoadLegendaryItem(base);
         };
 
+        const EndTrialMythicLootPool = [
+            {
+                name: '終門断刃ノクスレイ',
+                type: 'weapon',
+                stats: [{ key: 'attackFlat', value: 184 }, { key: 'str', value: 88 }, { key: 'critDamage', value: 48 }],
+                uniqueEffects: [
+                    { type: 'damageBoost', value: 50, label: '王断の逆理：会心時、次の与ダメージ+50%（1回）' },
+                    { type: 'bonusHitsChance', chance: 20, hits: 1, hitMultiplier: 0.4, value: 0, label: '終刃の刻印：攻撃時20%で追撃(40%)' }
+                ]
+            },
+            {
+                name: '終門星杖アストラ＝ノクス',
+                type: 'weapon',
+                stats: [{ key: 'attackFlat', value: 192 }, { key: 'int', value: 96 }, { key: 'skillPowerBoost', value: 38 }],
+                uniqueEffects: [
+                    { type: 'recastSkill', value: 18, label: '星位反転：スキル使用時18%で即座に再詠唱' },
+                    { type: 'mpRestoreAfterSkill', value: 12, label: '虚空観測：スキル使用後MP+12' }
+                ]
+            },
+            {
+                name: '終門鎧ヴォイドプレート',
+                type: 'armor',
+                stats: [{ key: 'defenseFlat', value: 258 }, { key: 'vit', value: 102 }, { key: 'maxHp', value: 460 }],
+                uniqueEffects: [
+                    { type: 'lethalGuard', value: 1, label: '不沈条項：致死ダメージをHP1で耐える（戦闘1回）' },
+                    { type: 'damageBuffer', value: 1, label: '痛覚担保：被ダメージの一部を次撃へ蓄積' }
+                ]
+            },
+            {
+                name: '終門法衣エーテルヴェール',
+                type: 'armor',
+                stats: [{ key: 'defenseFlat', value: 224 }, { key: 'int', value: 92 }, { key: 'maxMp', value: 300 }],
+                uniqueEffects: [
+                    { type: 'damageTakenReduction', value: 16, label: '位相ずらし：被ダメージ-16%' },
+                    { type: 'skillPowerBoost', value: 24, label: '魔素循環炉：スキル威力+24%' }
+                ]
+            },
+            {
+                name: '終門兜ジャッジクラウン',
+                type: 'head',
+                stats: [{ key: 'defenseFlat', value: 176 }, { key: 'vit', value: 74 }, { key: 'critRate', value: 24 }],
+                uniqueEffects: [
+                    { type: 'damageReturnCharge', value: 42, label: '断罪カウンタ：被ダメージの42%を次撃に上乗せ' },
+                    { type: 'returnDoubleGuard', value: 2, label: '王権宣告：条件時に反響倍率2倍' }
+                ]
+            },
+            {
+                name: '終門冠ミラージュティアラ',
+                type: 'head',
+                stats: [{ key: 'defenseFlat', value: 162 }, { key: 'int', value: 72 }, { key: 'maxMp', value: 240 }],
+                uniqueEffects: [
+                    { type: 'recastSkill', value: 16, label: '鏡像詠唱：16%でスキル再演' },
+                    { type: 'damageTakenReduction', value: 12, label: '幻想偏光：被ダメージ-12%' }
+                ]
+            },
+            {
+                name: '終門手甲ミアズムクロー',
+                type: 'hands',
+                stats: [{ key: 'attackFlat', value: 124 }, { key: 'dex', value: 70 }, { key: 'statusEffectStackBonus', value: 4 }],
+                uniqueEffects: [
+                    { type: 'poisonStackSurge', value: 4, label: '災禍調合：毒付与時追加+4スタック' },
+                    { type: 'poisonOverload', value: 0.04, label: '狩王の解体術：毒8スタック以上で追加割合ダメージ' }
+                ]
+            },
+            {
+                name: '終門手袋ヘイズグローブ',
+                type: 'hands',
+                stats: [{ key: 'attackFlat', value: 136 }, { key: 'int', value: 82 }, { key: 'statusEffectTurnBonus', value: 2 }],
+                uniqueEffects: [
+                    { type: 'singleStatusRule', value: 1, label: '呪式接続：単一状態異常ルールを強化' },
+                    { type: 'skillPowerBoost', value: 20, label: '黒霧の署名：状態異常中の敵へスキル威力+20%' }
+                ]
+            },
+            {
+                name: '終門脚甲ヴェロクスグリーヴ',
+                type: 'feet',
+                stats: [{ key: 'accuracy', value: 34 }, { key: 'dex', value: 94 }, { key: 'critRate', value: 22 }],
+                uniqueEffects: [
+                    { type: 'bonusHitsChance', chance: 10, hits: 1, hitMultiplier: 0.35, value: 0, label: '断続機動：攻撃時10%で再攻撃(35%)' },
+                    { type: 'extraTurnChance', chance: 8, hitMultiplier: 0.7, value: 0, label: '刹那再攻：8%で追加行動' }
+                ]
+            },
+            {
+                name: '終門靴ウィンドステップ',
+                type: 'feet',
+                stats: [{ key: 'accuracy', value: 26 }, { key: 'int', value: 68 }, { key: 'maxMp', value: 180 }],
+                uniqueEffects: [
+                    { type: 'skillMpCostMultiplier', value: 0.7, label: '詠唱跳躍：スキルMP消費30%軽減' },
+                    { type: 'damageTakenReduction', value: 18, label: '潮汐歩法：回復後の次被ダメージ-18%' }
+                ]
+            },
+            {
+                name: '終門印環ノクスシール',
+                type: 'accessory',
+                stats: [{ key: 'damageBoost', value: 26 }, { key: 'maxHp', value: 280 }, { key: 'critRate', value: 20 }],
+                uniqueEffects: [
+                    { type: 'damageBoost', value: 18, label: '王命プロトコル：被弾時15%で2ターン与ダメ+18%' },
+                    { type: 'riskBoost', value: 20, penalty: 0, label: '誓約破り：HP50%未満で2ターン与ダメ+20%' }
+                ]
+            },
+            {
+                name: '終門宝珠バランスクォーツ',
+                type: 'accessory',
+                stats: [{ key: 'skillPowerBoost', value: 32 }, { key: 'maxMp', value: 260 }, { key: 'damageReduction', value: 12 }],
+                uniqueEffects: [
+                    { type: 'recastSkill', value: 18, label: '均衡演算核：スキル使用時18%で次スキル威力+15%' },
+                    { type: 'damageTakenReduction', value: 10, label: '世界律の干渉：MP50%以上で被ダメージ-10%' }
+                ]
+            }
+        ];
+
+        const buildEndTrialMythicLoot = () => {
+            const base = pickRandom(EndTrialMythicLootPool);
+            if (!base) return null;
+            const rarity = (RarityDefs.find((def) => def.key === 'mythic') || RarityDefs[RarityDefs.length - 1]);
+            const originFloor = Math.max(5001, Game.floor || 5001);
+            const baseStats = buildEquipmentBaseStats(base.stats, originFloor, rarity.mul, base.type);
+            const uniqueStats = (base.uniqueEffects || []).map((effect) => ({ key: 'bossUniqueEffect', value: 0, effect: { ...effect } }));
+            const item = {
+                name: base.name,
+                type: base.type,
+                rarity: rarity.key,
+                rarityMul: rarity.mul,
+                baseStats,
+                affixStats: [],
+                uniqueStats,
+                prefix: null,
+                suffix: null,
+                isBossDrop: false,
+                isRoadLegendary: false,
+                originFloor,
+                enhancementLevel: 0,
+                isBroken: false
+            };
+            item.name = buildDxItemName(item.name, originFloor);
+            return item;
+        };
+
         const MAX_WEAPON_ENHANCEMENT = 21;
         const WeaponEnhancementRates = {
             0: 1,
@@ -5133,6 +5312,46 @@
             if (typeof Game.warpBossSectionCollapsed.post !== 'boolean') {
                 Game.warpBossSectionCollapsed.post = false;
             }
+            if (!Game.endTrialState || typeof Game.endTrialState !== 'object') {
+                Game.endTrialState = {};
+            }
+            if (!Array.isArray(Game.endTrialState.gatekeepersDefeated)) {
+                Game.endTrialState.gatekeepersDefeated = [];
+            }
+            Game.endTrialState.gatekeepersDefeated = Game.endTrialState.gatekeepersDefeated
+                .filter((id) => typeof id === 'string');
+            const maxGatekeepers = 6;
+            if (Game.endTrialState.gatekeepersDefeated.length > maxGatekeepers) {
+                Game.endTrialState.gatekeepersDefeated = Game.endTrialState.gatekeepersDefeated.slice(0, maxGatekeepers);
+            }
+            if (typeof Game.endTrialState.unlocked !== 'boolean') {
+                Game.endTrialState.unlocked = Game.maxBossRushFloor >= 5000;
+            }
+            if (typeof Game.endTrialState.currentGatekeeperId !== 'string') {
+                Game.endTrialState.currentGatekeeperId = null;
+            }
+            if (typeof Game.endTrialState.inBossBattle !== 'boolean') {
+                Game.endTrialState.inBossBattle = false;
+            }
+            if (!Number.isFinite(Game.endTrialState.bossPhase)) {
+                Game.endTrialState.bossPhase = 1;
+            }
+            Game.endTrialState.bossPhase = Math.min(3, Math.max(1, Math.floor(Game.endTrialState.bossPhase)));
+            if (!Number.isFinite(Game.endTrialState.bossClearedPhases)) {
+                Game.endTrialState.bossClearedPhases = 0;
+            }
+            Game.endTrialState.bossClearedPhases = Math.min(3, Math.max(0, Math.floor(Game.endTrialState.bossClearedPhases)));
+            const unlockedByProgress = Game.endTrialState.gatekeepersDefeated.length >= maxGatekeepers;
+            Game.endTrialState.bossUnlocked = Boolean(Game.endTrialState.bossUnlocked || unlockedByProgress);
+            Game.endTrialState.unlocked = Boolean(Game.endTrialState.unlocked || Game.maxBossRushFloor >= 5000);
+            if (!Game.endTrialState.unlocked) {
+                Game.endTrialState.gatekeepersDefeated = [];
+                Game.endTrialState.currentGatekeeperId = null;
+                Game.endTrialState.inBossBattle = false;
+                Game.endTrialState.bossPhase = 1;
+                Game.endTrialState.bossUnlocked = false;
+                Game.endTrialState.bossClearedPhases = 0;
+            }
             if (!Game.isBossRush) {
                 Game.maxFloor = Math.max(1, Game.maxFloor, Game.floor);
             }
@@ -5154,6 +5373,165 @@
             if (Number.isNaN(parsed)) return null;
             const lowerLimit = 1;
             return Math.min(upperLimit, Math.max(lowerLimit, parsed));
+        };
+
+        const EndTrialGatekeepers = [
+            { id: 'gatekeeper_gramguard', name: '断鉄のグラムガード', icon: 'fa-shield-halved', type: 'armor' },
+            { id: 'gatekeeper_astrakia', name: '星詠みのアストラキア', icon: 'fa-wand-magic-sparkles', type: 'weapon' },
+            { id: 'gatekeeper_velox', name: '疾刃のヴェロクス', icon: 'fa-bolt', type: 'feet' },
+            { id: 'gatekeeper_miasma', name: '毒冠のミアズム卿', icon: 'fa-skull-crossbones', type: 'hands' },
+            { id: 'gatekeeper_reflectia', name: '鏡牢のリフレクティア', icon: 'fa-gem', type: 'head' },
+            { id: 'gatekeeper_justia', name: '天秤のユスティア', icon: 'fa-scale-balanced', type: 'accessory' }
+        ];
+        const EndTrialBossDef = {
+            id: 'endtrial_overlord_nox',
+            floor: 5001,
+            name: '終門王 ユグドラシル＝ノクス',
+            icon: 'fa-crown',
+            skillInterval: 3,
+            skills: [
+                {
+                    name: '王圧の一閃',
+                    pow: 1.9,
+                    effects: [
+                        { target: 'player', id: 'vulnerable', stacks: 1, turns: 2, log: '王圧で防御が揺らいだ！' }
+                    ]
+                },
+                {
+                    name: '継承破断',
+                    pow: 1.2,
+                    effects: [
+                        { target: 'player', id: 'attackDown', stacks: 1, turns: 2, log: '継承破断で攻撃が鈍った！' }
+                    ]
+                },
+                {
+                    name: '終末審判',
+                    pow: 2.6,
+                    effects: [
+                        { target: 'player', id: 'vulnerable', stacks: 2, turns: 2, log: '終末審判で致命的な隙が生まれた！' }
+                    ]
+                }
+            ]
+        };
+        const EndTrialBossPhaseScales = {
+            1: { hp: 4.5, str: 1.35, def: 1.45, acc: 1.2, eva: 1.15, exp: 3.8 },
+            2: { hp: 5.2, str: 1.55, def: 1.55, acc: 1.3, eva: 1.25, exp: 4.6 },
+            3: { hp: 6.0, str: 1.75, def: 1.7, acc: 1.4, eva: 1.35, exp: 5.6 }
+        };
+        const EndTrialBossDropChance = 0.01;
+        const EndTrialExpectedGatekeeperTurns = 16;
+        const EndTrialExpectedBossPhaseTurns = 28;
+
+        const getEndTrialGatekeeperById = (id) => EndTrialGatekeepers.find((gatekeeper) => gatekeeper.id === id) || null;
+
+        const isEndTrialUnlocked = () => {
+            ensureWarpState();
+            return Boolean(Game.endTrialState?.unlocked);
+        };
+
+        const isEndTrialBossUnlocked = () => {
+            ensureWarpState();
+            return Boolean(Game.endTrialState?.bossUnlocked);
+        };
+
+        const syncEndTrialUnlock = () => {
+            ensureWarpState();
+            if (Game.maxBossRushFloor >= 5000) {
+                Game.endTrialState.unlocked = true;
+            }
+        };
+
+        const getEndTrialBossMessage = () => {
+            const state = Game.endTrialState;
+            if (!state.bossUnlocked) return '最終ボス解放条件: 門番6体討伐';
+            if (state.bossClearedPhases >= 3) return '終門王3連戦制覇済み。再挑戦できます。';
+            return `最終ボス連戦: 第${Math.min(3, Math.max(1, state.bossPhase || 1))}形態から開始`;
+        };
+
+        const renderEndTrialWarpSection = () => {
+            ensureWarpState();
+            const locked = document.getElementById('warp-endtrial-locked');
+            const lockedText = document.getElementById('warp-endtrial-locked-text');
+            const unlocked = document.getElementById('warp-endtrial-unlocked');
+            const progress = document.getElementById('warp-endtrial-progress');
+            const gatekeepers = document.getElementById('warp-endtrial-gatekeepers');
+            const overlord = document.getElementById('warp-endtrial-overlord');
+            if (!locked || !lockedText || !unlocked || !progress || !gatekeepers || !overlord) return;
+            const unlockedState = isEndTrialUnlocked();
+            locked.classList.toggle('hidden', unlockedState);
+            unlocked.classList.toggle('hidden', !unlockedState);
+            if (!unlockedState) {
+                lockedText.textContent = '🔒 ボスラッシュ5000F到達で解放';
+                return;
+            }
+            const defeated = new Set(Game.endTrialState.gatekeepersDefeated || []);
+            progress.textContent = `${defeated.size} / ${EndTrialGatekeepers.length}`;
+            gatekeepers.innerHTML = '';
+            EndTrialGatekeepers.forEach((gatekeeper) => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                const isDefeated = defeated.has(gatekeeper.id);
+                button.className = isDefeated
+                    ? 'bg-emerald-100 text-emerald-700 text-[10px] font-black px-2 py-2 rounded-xl flex items-center justify-center gap-1 hover:bg-emerald-200 transition'
+                    : 'bg-violet-100 text-violet-700 text-[10px] font-black px-2 py-2 rounded-xl flex items-center justify-center gap-1 hover:bg-violet-200 transition';
+                button.innerHTML = `<i class="fas ${gatekeeper.icon}"></i> ${gatekeeper.name}`;
+                button.addEventListener('click', () => enterEndTrialGatekeeper(gatekeeper.id));
+                gatekeepers.appendChild(button);
+            });
+            const bossUnlocked = isEndTrialBossUnlocked();
+            overlord.disabled = !bossUnlocked;
+            overlord.title = bossUnlocked ? '' : '門番6体討伐で解放';
+        };
+
+        const openEndTrialInfoModal = () => {
+            const message = [
+                '終門の試練',
+                '・解放条件: ボスラッシュ5000F到達',
+                '・門番6体を討伐すると最終ボスが解放',
+                '・最終ボスは第1〜第3形態の連戦',
+                '・敗北時は第1形態からやり直し',
+                `・想定: 門番平均${EndTrialExpectedGatekeeperTurns}ターン / 形態平均${EndTrialExpectedBossPhaseTurns}ターン`,
+                `・最終ボス撃破時1%でミシック抽選 (${RarityDefs.find((def) => def.key === 'mythic')?.name || 'ミシック'})`
+            ].join('\n');
+            openConfirmModal(message);
+        };
+
+        const enterEndTrialGatekeeper = (gatekeeperId) => {
+            if (Game.state === 'combat') return;
+            syncEndTrialUnlock();
+            if (!isEndTrialUnlocked()) return;
+            const gatekeeper = getEndTrialGatekeeperById(gatekeeperId);
+            if (!gatekeeper) return;
+            Game.endTrialState.currentGatekeeperId = gatekeeper.id;
+            Game.endTrialState.inBossBattle = false;
+            Game.endTrialState.bossPhase = 1;
+            Game.isBossRush = false;
+            Game.floor = 5001;
+            Game.maxFloor = Math.max(Game.maxFloor, Game.floor);
+            Game.bossRushCarryoverDamage = 0;
+            closeWarpModal();
+            spawn();
+            addLog(`終門の試練：${gatekeeper.name}に挑戦！`, 'text-violet-500 font-black');
+            updateUI();
+            triggerAutosave();
+        };
+
+        const enterEndTrialBoss = () => {
+            if (Game.state === 'combat') return;
+            syncEndTrialUnlock();
+            if (!isEndTrialBossUnlocked()) return;
+            Game.endTrialState.currentGatekeeperId = null;
+            Game.endTrialState.inBossBattle = true;
+            Game.endTrialState.bossPhase = 1;
+            Game.isBossRush = false;
+            Game.floor = 5001;
+            Game.maxFloor = Math.max(Game.maxFloor, Game.floor);
+            Game.bossRushCarryoverDamage = 0;
+            closeWarpModal();
+            spawn();
+            addLog('終門王 ユグドラシル＝ノクスとの連戦開始！', 'text-violet-500 font-black');
+            updateUI();
+            triggerAutosave();
         };
 
         const renderWarpBossButtons = () => {
@@ -5268,13 +5646,17 @@
                 }
             }
             if (infoButton) {
-                infoButton.classList.toggle('hidden', maxFloor < 5000);
+                infoButton.classList.remove('hidden');
+                infoButton.textContent = maxFloor < 5000
+                    ? 'ボスラッシュ: 通常階層5000Fで解放'
+                    : 'ボスラッシュ仕様を見る';
             }
             if (bossRushEnter) {
                 bossRushEnter.classList.toggle('hidden', maxFloor < 5000);
             }
             renderWarpBossButtons();
             renderWarpBossRushButtons();
+            renderEndTrialWarpSection();
             syncWarpBossToggleState();
         };
 
@@ -5362,6 +5744,8 @@
             const warpBossRushEnter = document.getElementById('warp-bossrush-enter');
             const warpBossToggle = document.getElementById('warp-boss-toggle');
             const warpBossPostToggle = document.getElementById('warp-boss-post-toggle');
+            const warpEndTrialInfo = document.getElementById('warp-endtrial-info');
+            const warpEndTrialOverlord = document.getElementById('warp-endtrial-overlord');
             if (warpBtn) {
                 warpBtn.addEventListener('click', openWarpModal);
             }
@@ -5403,6 +5787,12 @@
             }
             if (warpBossPostToggle) {
                 warpBossPostToggle.addEventListener('click', () => toggleWarpBossSection('post'));
+            }
+            if (warpEndTrialInfo) {
+                warpEndTrialInfo.addEventListener('click', openEndTrialInfoModal);
+            }
+            if (warpEndTrialOverlord) {
+                warpEndTrialOverlord.addEventListener('click', enterEndTrialBoss);
             }
         };
 
@@ -7704,11 +8094,32 @@
         }
 
         function spawn() {
+            syncEndTrialUnlock();
             let bossDef = null;
             let bossBase = null;
             let bossScale = 1;
             const activeFloor = Game.isBossRush ? (Game.bossRushFloor || 1) : Game.floor;
-            if (Game.isBossRush) {
+            const gatekeeperId = Game.endTrialState?.currentGatekeeperId;
+            const gatekeeperDef = gatekeeperId ? getEndTrialGatekeeperById(gatekeeperId) : null;
+            const isEndTrialGatekeeperBattle = Boolean(gatekeeperDef && !Game.isBossRush);
+            const isEndTrialBossBattle = Boolean(Game.endTrialState?.inBossBattle && !Game.isBossRush);
+            if (isEndTrialBossBattle) {
+                bossDef = {
+                    ...EndTrialBossDef,
+                    floor: activeFloor,
+                    name: `${EndTrialBossDef.name} 第${Math.min(3, Math.max(1, Game.endTrialState.bossPhase || 1))}形態`
+                };
+                bossScale = 1;
+            } else if (isEndTrialGatekeeperBattle) {
+                const source = BossDefs[(EndTrialGatekeepers.indexOf(gatekeeperDef) + 1) * 500] || BossDefs[500];
+                bossDef = {
+                    ...(source || {}),
+                    floor: activeFloor,
+                    name: gatekeeperDef.name,
+                    icon: gatekeeperDef.icon
+                };
+                bossScale = getBossScale(activeFloor) * 0.9;
+            } else if (Game.isBossRush) {
                 const pool = Object.values(BossDefs);
                 const picked = pickRandom(pool);
                 bossDef = picked ? { ...picked, originFloor: picked.floor } : null;
@@ -7723,7 +8134,7 @@
                 const baseStats = bossBase || bossDef;
                 const baseBossStats = calcEnemyStatsByFloor(activeFloor, baseStats, "balanced");
                 const floorBossStats = applyBossFloorGrowth(baseBossStats, activeFloor);
-                const bossStats = Game.isBossRush
+                let bossStats = Game.isBossRush
                     ? {
                         maxHp: Math.floor(floorBossStats.maxHp * bossScale),
                         hp: Math.floor(floorBossStats.hp * bossScale),
@@ -7734,6 +8145,30 @@
                         exp: Math.floor(floorBossStats.exp * bossScale)
                     }
                     : floorBossStats;
+                if (isEndTrialGatekeeperBattle) {
+                    bossStats = {
+                        maxHp: Math.floor(floorBossStats.maxHp * bossScale),
+                        hp: Math.floor(floorBossStats.hp * bossScale),
+                        str: Math.floor(floorBossStats.str * Math.max(1, bossScale * 0.85)),
+                        def: Math.floor(floorBossStats.def * Math.max(1, bossScale * 0.9)),
+                        acc: Math.floor(floorBossStats.acc * Math.max(1, bossScale * 0.8)),
+                        eva: Math.floor(floorBossStats.eva * Math.max(1, bossScale * 0.8)),
+                        exp: Math.floor(floorBossStats.exp * Math.max(1, bossScale * 0.7))
+                    };
+                }
+                if (isEndTrialBossBattle) {
+                    const phase = Math.min(3, Math.max(1, Game.endTrialState.bossPhase || 1));
+                    const phaseScale = EndTrialBossPhaseScales[phase] || EndTrialBossPhaseScales[1];
+                    bossStats = {
+                        maxHp: Math.floor(floorBossStats.maxHp * phaseScale.hp),
+                        hp: Math.floor(floorBossStats.hp * phaseScale.hp),
+                        str: Math.floor(floorBossStats.str * phaseScale.str),
+                        def: Math.floor(floorBossStats.def * phaseScale.def),
+                        acc: Math.floor(floorBossStats.acc * phaseScale.acc),
+                        eva: Math.floor(floorBossStats.eva * phaseScale.eva),
+                        exp: Math.floor(floorBossStats.exp * phaseScale.exp)
+                    };
+                }
                 Game.enemy = {
                     ...bossDef,
                     floor: activeFloor,
@@ -7745,7 +8180,11 @@
                     critRate: 0,
                     critDamage: Math.floor(BossRushBuffConfig.baseCritMultiplier * 100),
                     bossRushBuffs: [],
-                    bossRushBuffState: null
+                    bossRushBuffState: null,
+                    isEndTrialGatekeeper: isEndTrialGatekeeperBattle,
+                    isEndTrialBoss: isEndTrialBossBattle,
+                    endTrialBossPhase: isEndTrialBossBattle ? Math.min(3, Math.max(1, Game.endTrialState.bossPhase || 1)) : 0,
+                    endTrialGatekeeperId: isEndTrialGatekeeperBattle ? gatekeeperDef.id : null
                 };
                 Game.enemy.skills = buildEnemySkillSet("balanced", Game.enemy.skills || [], { pool: BossExtraSkillPool });
                 if (!Number.isFinite(Game.enemy.skillInterval)) {
@@ -7761,7 +8200,13 @@
                 } else {
                     Game.bossRushCarryoverDamage = 0;
                 }
-                addLog(`BOSS ${bossDef.name}が出現！`, "text-amber-500 font-black");
+                if (isEndTrialGatekeeperBattle) {
+                    addLog(`終門の試練：門番 ${bossDef.name} が立ちはだかる！`, "text-violet-500 font-black");
+                } else if (isEndTrialBossBattle) {
+                    addLog(`終門王 ${bossDef.name} が出現！`, "text-violet-500 font-black");
+                } else {
+                    addLog(`BOSS ${bossDef.name}が出現！`, "text-amber-500 font-black");
+                }
             } else {
                 const basePool = getEnemyPool(Game.floor);
                 const base = pickRandom(basePool);
@@ -8330,6 +8775,40 @@ function victory() {
             if (Game.enemy?.isBoss) {
                 recordBossDefeat(Game.enemy.floor || Game.floor);
             }
+            const wasEndTrialGatekeeper = Boolean(Game.enemy?.isEndTrialGatekeeper && Game.enemy?.endTrialGatekeeperId);
+            const wasEndTrialBoss = Boolean(Game.enemy?.isEndTrialBoss);
+            if (wasEndTrialGatekeeper) {
+                const gatekeeperId = Game.enemy.endTrialGatekeeperId;
+                if (!Game.endTrialState.gatekeepersDefeated.includes(gatekeeperId)) {
+                    Game.endTrialState.gatekeepersDefeated.push(gatekeeperId);
+                    const defeatedName = getEndTrialGatekeeperById(gatekeeperId)?.name || '門番';
+                    addLog(`終門の試練：${defeatedName}を討伐した！`, "text-violet-500 font-black");
+                }
+                Game.endTrialState.currentGatekeeperId = null;
+                if (Game.endTrialState.gatekeepersDefeated.length >= EndTrialGatekeepers.length) {
+                    Game.endTrialState.bossUnlocked = true;
+                    addLog('終門王への挑戦権が解放された！', "text-violet-500 font-black");
+                }
+            }
+            if (wasEndTrialBoss) {
+                const phase = Math.min(3, Math.max(1, Game.enemy.endTrialBossPhase || Game.endTrialState.bossPhase || 1));
+                Game.endTrialState.bossClearedPhases = Math.max(Game.endTrialState.bossClearedPhases || 0, phase);
+                if (phase >= 3) {
+                    Game.endTrialState.inBossBattle = false;
+                    Game.endTrialState.bossPhase = 1;
+                    addLog('終門王3連戦を制覇した！', "text-violet-500 font-black");
+                } else {
+                    Game.endTrialState.bossPhase = phase + 1;
+                    addLog(`最終ボス第${phase + 1}形態へ移行！`, "text-violet-500 font-black");
+                }
+                if (Math.random() < EndTrialBossDropChance) {
+                    const mythicLoot = buildEndTrialMythicLoot();
+                    if (mythicLoot) {
+                        queueLoot(mythicLoot);
+                        addLog(`ミシック装備を発見: ${mythicLoot.name}`, 'text-violet-500 font-black');
+                    }
+                }
+            }
             addLog(`討伐成功！`, "text-yellow-500 font-black");
             let gain = Game.enemy.exp;
             // Exp Boost Calculation
@@ -8408,6 +8887,12 @@ function victory() {
             if (shouldOpenBossRushModal) {
                 openBossRushModal();
             }
+            if (wasEndTrialBoss && Game.endTrialState.inBossBattle) {
+                spawn();
+                updateUI();
+                triggerAutosave();
+                return;
+            }
             if (!Game.isBossRush && Game.enemy?.floor === MaxFloorLimit && !Game.endMessageShown) {
                 Game.endMessageShown = true;
                 Game.maxFloor = Math.max(Game.maxFloor, MaxFloorLimit);
@@ -8423,6 +8908,12 @@ function victory() {
             const lostExp = Game.isBossRush ? 0 : Math.floor(Game.player.next * 0.1);
             document.getElementById('lost-exp-val').innerText = lostExp;
             Game.player.exp = Math.max(0, Game.player.exp - lostExp);
+            if (Game.endTrialState?.inBossBattle || Game.endTrialState?.currentGatekeeperId) {
+                Game.endTrialState.inBossBattle = false;
+                Game.endTrialState.currentGatekeeperId = null;
+                Game.endTrialState.bossPhase = 1;
+                addLog('終門の試練は第1形態から再挑戦となる。', 'text-violet-500');
+            }
             if (Game.isBossRush) {
                 Game.isBossRush = false;
                 Game.bossRushFloor = 1;
