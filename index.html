@@ -1488,7 +1488,7 @@
                     thief: { active: [0,0,0,0,0,0], passive: [0,0,0,0,0,0,0,0] },
                     ranger: { active: [0,0,0,0,0,0,0,0,0,0,0,0], passive: [0,0,0,0,0,0,0,0] },
                     paladin: { active: [0,0,0,0,0,0,0,0,0,0,0,0], passive: [0,0,0,0,0,0,0,0] },
-                    monk: { active: [0,0,0,0,0,0], passive: [0,0,0,0,0,0] },
+                    monk: { active: [0,0,0,0,0,0], passive: [0,0,0,0,0,0,0,0] },
                     commonPassive: { active: [], passive: [0,0,0,0,0,0,0,0,0,0,0,0,0] }
                 }
             },
@@ -2287,7 +2287,9 @@
                     { id: 2, name: "内功", desc: "最大MP+3/レベル", maxLevel: 150, apply: (d) => Game.player.maxMpFlat += 3 * d },
                     { id: 3, name: "闘志", desc: "会心ダメージ+8%/レベル", maxLevel: 150, apply: (d) => Game.player.critDamage += 8 * d },
                     { id: 4, name: "霞身", desc: "回避率+2%/レベル", maxLevel: 150, apply: (d) => Game.player.evasionRate += 2 * d },
-                    { id: 5, name: "闘気吸収", desc: "吸血率+2%/レベル", maxLevel: 150, apply: (d) => Game.player.leechRate += 2 * d }
+                    { id: 5, name: "闘気吸収", desc: "吸血率+2%/レベル", maxLevel: 150, apply: (d) => Game.player.leechRate += 2 * d },
+                    { id: 6, name: "反撃体勢", desc: "反射中、被ダメ軽減+0.08%/レベル", maxLevel: 150, apply: () => {} },
+                    { id: 7, name: "連打活性", desc: "1行動で3ヒット以上命中時、最大HPの0.05%/レベルを回復", maxLevel: 150, apply: () => {} }
                 ]
             },
             commonPassive: {
@@ -5929,6 +5931,13 @@
                     }
                 }
             }
+            if (target === Game.player && remaining > 0) {
+                const monkGuardLevel = getPassiveLevel('monk', 6);
+                if (monkGuardLevel > 0 && getStatusEffect(Game.player, 'reflect')) {
+                    const reduction = Math.min(25, Math.max(0, monkGuardLevel * 0.08));
+                    remaining = Math.floor(remaining * (1 - reduction / 100));
+                }
+            }
             if (remaining > 0) {
                 target.hp = Math.max(0, target.hp - remaining);
                 removeStatusEffect(target, 'freeze');
@@ -6049,6 +6058,7 @@
             let totalDamage = 0;
             let totalLeechApplied = 0;
             let landedHit = false;
+            let landedHitsCount = 0;
             let nullifiedHit = false;
 
             const bossMods = getBossUniqueCombatModifiers({
@@ -6136,6 +6146,7 @@
                         continue;
                     }
                     landedHit = true;
+                    landedHitsCount += 1;
                     let atkBase = currentSkill.isMagic ? (derived.totals.int * 2) : derived.atk;
                     let isCrit = Math.random() * 100 < (derived.totals.critRate + (currentSkill.critBonus || 0) + bossMods.critRateBonus);
                     let forceFirstStrike = false;
@@ -6323,6 +6334,18 @@
                 if (totalLeechApplied > 0) {
                     addLog(`吸血でHPが${totalLeechApplied}回復`, "text-emerald-400");
                     triggerBossRushHealReaction(totalLeechApplied, "回復反撃");
+                }
+                const monkRegenLevel = getPassiveLevel('monk', 7);
+                if (monkRegenLevel > 0 && landedHitsCount >= 3) {
+                    const regenPct = Math.min(10, Math.max(0, monkRegenLevel * 0.05));
+                    const regenAmount = Math.max(1, Math.floor(derived.maxHp * (regenPct / 100)));
+                    const beforeHp = Game.player.hp;
+                    Game.player.hp = Math.min(derived.maxHp, Game.player.hp + regenAmount);
+                    const actual = Game.player.hp - beforeHp;
+                    if (actual > 0) {
+                        addLog(`連打活性でHPが${actual}回復`, "text-emerald-400");
+                        triggerBossRushHealReaction(actual, "回復反撃");
+                    }
                 }
                 if (currentSkill.expBonus && totalDamage > 0) {
                     let b = Math.floor(Game.player.next * (currentSkill.expBonus / 100));
