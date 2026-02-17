@@ -1920,6 +1920,7 @@
             switchJob(Game.currentJobTab || 'warrior');
             switchSkillType(Game.currentSkillType || 'active');
             updateUI();
+            setAutosaveSlot(slot);
             finishBootstrapping();
             setSaveStatus(`スロット${slot}からロードしました。`, 'text-blue-600');
             renderSaveSlots();
