@@ -1365,7 +1365,8 @@
             <div class="mt-4">
                 <div class="text-[10px] text-slate-400 font-black mb-2">ボスラッシュ・マイルストーン</div>
                 <div class="text-[10px] text-slate-400 font-bold mb-1">最高到達: <span id="warp-bossrush-max">0</span>F</div>
-                <div id="warp-bossrush-empty" class="text-[10px] text-slate-400 hidden">ボスラッシュのマイルストーンがありません。</div>
+                <div id="warp-bossrush-empty" class="text-[10px] text-slate-400 hidden">・ボスラッシュは通常階層5000F到達で解放
+<br>・終門の試練はボスラッシュ5000F到達で解放</div>
                 <div id="warp-bossrush-buttons" class="grid grid-cols-3 gap-2"></div>
             </div>
             <div class="mt-4">
@@ -5646,10 +5647,8 @@
                 }
             }
             if (infoButton) {
-                infoButton.classList.remove('hidden');
-                infoButton.textContent = maxFloor < 5000
-                    ? 'ボスラッシュ: 通常階層5000Fで解放'
-                    : 'ボスラッシュ仕様を見る';
+                infoButton.classList.toggle('hidden', maxFloor < 5000);
+                infoButton.textContent = 'ボスラッシュ仕様を見る';
             }
             if (bossRushEnter) {
                 bossRushEnter.classList.toggle('hidden', maxFloor < 5000);
