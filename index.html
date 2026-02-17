@@ -8893,7 +8893,7 @@ function victory() {
                 triggerAutosave();
                 return;
             }
-            if (!Game.isBossRush && Game.enemy?.floor === MaxFloorLimit && !Game.endMessageShown) {
+            if (!Game.isBossRush && Game.enemy?.floor === (MaxFloorLimit - 1) && !Game.endMessageShown) {
                 Game.endMessageShown = true;
                 Game.maxFloor = Math.max(Game.maxFloor, MaxFloorLimit);
                 openConfirmModal(
