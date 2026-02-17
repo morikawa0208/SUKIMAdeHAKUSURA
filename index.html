@@ -5680,8 +5680,7 @@
                 }
             }
             if (infoButton) {
-                const canShowBossRushInfoButton = Boolean(Game.bossRushInfoViewed);
-                infoButton.classList.toggle('hidden', !canShowBossRushInfoButton);
+                infoButton.classList.toggle('hidden', maxFloor < 5000);
                 infoButton.textContent = 'ボスラッシュ仕様を見る';
             }
             if (bossRushEnter) {
