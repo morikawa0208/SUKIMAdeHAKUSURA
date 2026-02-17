@@ -2565,7 +2565,7 @@
             statusGuardMax: 0.4,
             damageSpreadPct: 0.3,
             smallDamageNullifyPct: 0.02,
-            reflectPct: 0.3,
+            reflectPct: 0.2,
             leechPct: 0.2,
             reviveHpPct: 0.5,
             baseCritMultiplier: 1.5
@@ -4995,7 +4995,7 @@
                     mods.frozen = true;
                 }
                 if (def.effectType === 'reflect') {
-                    mods.reflectPct += 0.08 * stacks;
+                    mods.reflectPct += 0.06 * stacks;
                 }
                 if (def.effectType === 'taunt') {
                     mods.damageTakenMul *= 1 + 0.05 * stacks;
@@ -5009,7 +5009,7 @@
             mods.evasionMul = Math.max(0.2, mods.evasionMul);
             mods.damageDoneMul = Math.max(0.2, mods.damageDoneMul);
             mods.damageTakenMul = Math.max(0.2, mods.damageTakenMul);
-            mods.reflectPct = Math.min(0.6, mods.reflectPct);
+            mods.reflectPct = Math.min(0.5, mods.reflectPct);
             return mods;
         }
 
@@ -6393,7 +6393,7 @@
                 if (target === Game.enemy && hasBossRushBuff(target, "br_blue_reflect")) {
                     reflectPct += BossRushBuffConfig.reflectPct;
                 }
-                reflectPct = Math.min(0.8, Math.max(0, reflectPct));
+                reflectPct = Math.min(0.6, Math.max(0, reflectPct));
                 if (reflectPct > 0) {
                     const reflectDamage = Math.max(1, Math.floor(remaining * reflectPct));
                     const guardEffect = getStatusEffect(source, 'potionReflectGuard');
