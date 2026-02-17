@@ -1365,7 +1365,8 @@
             <div class="mt-4">
                 <div class="text-[10px] text-slate-400 font-black mb-2">ボスラッシュ・マイルストーン</div>
                 <div class="text-[10px] text-slate-400 font-bold mb-1">最高到達: <span id="warp-bossrush-max">0</span>F</div>
-                <div id="warp-bossrush-empty" class="text-[10px] text-slate-400 hidden">ボスラッシュのマイルストーンがありません。</div>
+                <div id="warp-bossrush-empty" class="text-[10px] text-slate-400 hidden">・ボスラッシュは通常階層5000F到達で解放
+<br>・終門の試練はボスラッシュ5000F到達で解放</div>
                 <div id="warp-bossrush-buttons" class="grid grid-cols-3 gap-2"></div>
             </div>
             <div class="mt-4">
@@ -1536,6 +1537,7 @@
             isBossRush: false,
             bossRushFloor: 1,
             maxBossRushFloor: 0,
+            bossRushInfoViewed: false,
             warpBossSectionCollapsed: {
                 base: false,
                 post: false
@@ -5295,6 +5297,9 @@
             if (!Number.isFinite(Game.maxBossRushFloor)) {
                 Game.maxBossRushFloor = Game.isBossRush ? (Game.bossRushFloor || 1) : 0;
             }
+            if (typeof Game.bossRushInfoViewed !== 'boolean') {
+                Game.bossRushInfoViewed = false;
+            }
             if (typeof Game.endMessageShown !== 'boolean') {
                 Game.endMessageShown = false;
             }
@@ -5647,10 +5652,9 @@
                 }
             }
             if (infoButton) {
-                infoButton.classList.remove('hidden');
-                infoButton.textContent = maxFloor < 5000
-                    ? 'ボスラッシュ: 通常階層5000Fで解放'
-                    : 'ボスラッシュ仕様を見る';
+                const canShowBossRushInfoButton = Boolean(Game.bossRushInfoViewed);
+                infoButton.classList.toggle('hidden', !canShowBossRushInfoButton);
+                infoButton.textContent = 'ボスラッシュ仕様を見る';
             }
             if (bossRushEnter) {
                 bossRushEnter.classList.toggle('hidden', maxFloor < 5000);
@@ -7864,6 +7868,7 @@
         };
         const openBossRushModal = () => {
             if (!bossRushModal) return;
+            Game.bossRushInfoViewed = true;
             bossRushModal.classList.remove('hidden');
             bossRushModal.classList.add('flex');
         };
