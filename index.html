@@ -4516,8 +4516,8 @@
                 type: 'accessory',
                 stats: [{ key: 'damageBoost', value: 26 }, { key: 'maxHp', value: 280 }, { key: 'critRate', value: 20 }],
                 uniqueEffects: [
-                    { type: 'damageBoost', value: 18, label: '王命プロトコル：被弾時15%で2ターン与ダメ+18%' },
-                    { type: 'riskBoost', value: 20, penalty: 0, label: '誓約破り：HP50%未満で2ターン与ダメ+20%' }
+                    { id: 'nox_protocol', type: 'damageBoost', value: 18, trigger: 'onDamaged', chance: 15, durationTurns: 2, label: '王命プロトコル：被弾時15%で2ターン与ダメ+18%' },
+                    { type: 'riskBoost', value: 20, penalty: 0, condition: { type: 'playerHpBelow', threshold: 0.5 }, label: '誓約破り：HP50%未満で与ダメ+20%' }
                 ]
             },
             {
@@ -4817,6 +4817,7 @@
             Game.player.bossUniqueState.chainLastSkillName = null;
             Game.player.bossUniqueState.scheduledRecastCount = 0;
             Game.player.bossUniqueState.skipNextPlayerTurn = false;
+            Game.player.bossUniqueState.timedEffectStates = {};
         };
 
         const applyBossUniqueStatBonuses = (totals) => {
@@ -4827,6 +4828,9 @@
                     (effect.stats || []).forEach((stat) => {
                         updated[stat.key] = (updated[stat.key] || 0) + stat.value;
                     });
+                }
+                if (effect.type === "skillPowerBoost") {
+                    updated.skillPowerBoost = (updated.skillPowerBoost || 0) + (effect.value || 0);
                 }
                 if (effect.type === "statMultiplier") {
                     const multiplierKey = `${effect.stat}Multiplier`;
@@ -5013,6 +5017,29 @@
             return mods;
         }
 
+
+        const getBossUniqueTimedEffectId = (effect) => (
+            effect?.id || effect?.label || `${effect?.type || 'effect'}:${effect?.value || 0}`
+        );
+
+        const hasActiveTimedBossEffect = (effect) => {
+            if (!effect?.durationTurns) return true;
+            const state = Game.player?.bossUniqueState?.timedEffectStates || {};
+            const expiresAtAction = state[getBossUniqueTimedEffectId(effect)] || 0;
+            const currentAction = Math.max(0, Game.player?.bossUniqueState?.actionCount || 0);
+            return expiresAtAction >= currentAction;
+        };
+
+        const activateTimedBossEffect = (effect) => {
+            if (!effect?.durationTurns) return;
+            if (!Game.player.bossUniqueState.timedEffectStates) {
+                Game.player.bossUniqueState.timedEffectStates = {};
+            }
+            const currentAction = Math.max(0, Game.player.bossUniqueState.actionCount || 0);
+            const duration = Math.max(1, Math.floor(effect.durationTurns));
+            Game.player.bossUniqueState.timedEffectStates[getBossUniqueTimedEffectId(effect)] = currentAction + duration;
+        };
+
         const checkBossUniqueCondition = (condition, context) => {
             if (!condition) return true;
             const { player, enemy, derived } = context;
@@ -5053,6 +5080,7 @@
             };
             const effects = getEquippedBossEffects();
             effects.forEach((effect) => {
+                if (!hasActiveTimedBossEffect(effect)) return;
                 if (!checkBossUniqueCondition(effect.condition, context)) return;
                 if (effect.type === "damageBoost") {
                     mods.damageMultiplier *= 1 + effect.value / 100;
@@ -6334,6 +6362,14 @@
                 removeStatusEffect(target, 'freeze');
             }
             if (target === Game.player && remaining > 0) {
+                const timedEffects = getEquippedBossEffects().filter((effect) => effect.trigger === "onDamaged");
+                timedEffects.forEach((effect) => {
+                    const chance = Math.min(100, Math.max(0, Number(effect.chance) || 100));
+                    if (Math.random() * 100 < chance) {
+                        activateTimedBossEffect(effect);
+                        if (effect.label) addLog(effect.label, "text-amber-400");
+                    }
+                });
                 const bossState = Game.player.bossUniqueState;
                 const guardEffect = getBossUniqueEffectByType("returnDoubleGuard");
                 if (guardEffect && checkBossUniqueCondition(guardEffect.condition, { player: Game.player, enemy: Game.enemy, derived: getDerivedStats() })) {
