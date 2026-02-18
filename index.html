@@ -1167,7 +1167,7 @@
                     <li>・ステータスは大幅に強化、階数を進むほど強くなります</li>
                     <li>・ボスラッシュ中はポーション効果が半減します</li>
                     <li>・ボスラッシュ開始後は100階ごとに強化バフが追加されます</li>
-                    <li>・ボスラッシュ中はドロップなしのエンドコンテンツです</li>
+                    <li>・ボスラッシュ中は経験値・ドロップなしのエンドコンテンツです</li>
                     <li>【5001階～】</li>
                     <li>・これまでの敵・ボスが新たなスキルを持ち再登場します</li>
                     <li>・DXと付いた装備品がドロップするようになります</li>
@@ -8946,6 +8946,7 @@ function victory() {
             if (Game.enemy?.elite?.rank) {
                 gain = Math.floor(gain * (1 + 0.08 * Game.enemy.elite.rank));
             }
+            if (Game.isBossRush) gain = 0;
             Game.player.exp += gain;
 
             applyLevelUps();
