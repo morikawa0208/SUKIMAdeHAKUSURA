@@ -1000,7 +1000,7 @@
                     </span>
                     <span class="text-[10px] text-slate-400 font-bold">拾わない</span>
                 </label>
-                <label class="flex items-center justify-between bg-slate-50 border border-slate-100 rounded-xl px-3 py-2">
+                <label data-endtrial-mythic class="hidden flex items-center justify-between bg-slate-50 border border-slate-100 rounded-xl px-3 py-2">
                     <span class="flex items-center gap-2 font-bold rarity-mythic">
                         <input type="checkbox" class="loot-filter-checkbox accent-slate-800" data-rarity="mythic">
                         ミシック
@@ -1053,7 +1053,7 @@
                         レジェンダリー
                     </span>
                 </label>
-                <label class="flex items-center justify-between bg-slate-50 border border-slate-100 rounded-xl px-3 py-2">
+                <label data-endtrial-mythic class="hidden flex items-center justify-between bg-slate-50 border border-slate-100 rounded-xl px-3 py-2">
                     <span class="flex items-center gap-2 font-bold rarity-mythic">
                         <input type="checkbox" class="bulk-sell-checkbox accent-amber-500" data-rarity="mythic">
                         ミシック
@@ -5505,6 +5505,9 @@
             if (Game.maxBossRushFloor >= EndTrialUnlockBossRushFloor) {
                 Game.endTrialState.unlocked = true;
             }
+            if (typeof syncEndTrialMythicVisibility === 'function') {
+                syncEndTrialMythicVisibility();
+            }
         };
 
         const getEndTrialBossMessage = () => {
@@ -7609,8 +7612,28 @@
         const lootFilterCloseBtn = document.getElementById('loot-filter-close');
         const lootFilterCloseBottomBtn = document.getElementById('loot-filter-close-bottom');
         const lootFilterCheckboxes = Array.from(document.querySelectorAll('.loot-filter-checkbox'));
+        const bulkSellCheckboxes = Array.from(document.querySelectorAll('.bulk-sell-checkbox'));
+        const endTrialMythicRows = Array.from(document.querySelectorAll('[data-endtrial-mythic]'));
+
+        const syncEndTrialMythicVisibility = () => {
+            const unlocked = isEndTrialUnlocked();
+            endTrialMythicRows.forEach((row) => {
+                row.classList.toggle('hidden', !unlocked);
+            });
+            if (!unlocked) {
+                Game.lootFilter.mythic = false;
+                Game.bulkSellFilter.mythic = false;
+                lootFilterCheckboxes.forEach((checkbox) => {
+                    if (checkbox.dataset.rarity === 'mythic') checkbox.checked = false;
+                });
+                bulkSellCheckboxes.forEach((checkbox) => {
+                    if (checkbox.dataset.rarity === 'mythic') checkbox.checked = false;
+                });
+            }
+        };
 
         const syncLootFilterUI = () => {
+            syncEndTrialMythicVisibility();
             lootFilterCheckboxes.forEach((checkbox) => {
                 const rarity = checkbox.dataset.rarity;
                 checkbox.checked = Boolean(Game.lootFilter?.[rarity]);
@@ -7646,9 +7669,9 @@
         const bulkSellCloseBtn = document.getElementById('bulk-sell-close');
         const bulkSellCloseBottomBtn = document.getElementById('bulk-sell-close-bottom');
         const bulkSellConfirmBtn = document.getElementById('bulk-sell-confirm');
-        const bulkSellCheckboxes = Array.from(document.querySelectorAll('.bulk-sell-checkbox'));
 
         const syncBulkSellUI = () => {
+            syncEndTrialMythicVisibility();
             bulkSellCheckboxes.forEach((checkbox) => {
                 const rarity = checkbox.dataset.rarity;
                 checkbox.checked = Boolean(Game.bulkSellFilter?.[rarity]);
@@ -9682,6 +9705,7 @@ console.log("[BUILD LOOT ENTRY]", { forceBossDrop: options.forceBossDrop, isBoss
 
         function updateUI() {
             ensureWarpState();
+            syncEndTrialMythicVisibility();
             const p = Game.player;
             const derived = getDerivedStats();
             const totals = derived.totals;
