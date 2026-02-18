@@ -2544,6 +2544,10 @@
         const RoadLegendaryNormalChance = 0.992;
         const BossRushEffectiveFloorStart = 5000;
         const EndTrialUnlockBossRushFloor = 1000;
+        const BossRushBaseDamageTakenMultiplier = 0.22;
+        const BossRushHpExtraBaseMultiplier = 4.5;
+        const BossRushHpExtraFloorRate = 0.003;
+        const BossRushHpExtraFloorCap = 3.0;
         
         const BossRushBaseStats = {
             hp: 561543,
@@ -2836,7 +2840,7 @@
 
         const getBossRushDamageTakenMultiplier = (enemy, player) => {
             if (!enemy || !player) return 1;
-            let multiplier = 1;
+            let multiplier = Game.isBossRush ? BossRushBaseDamageTakenMultiplier : 1;
             if (hasBossRushBuff(enemy, "br_blue_reduce_30")) multiplier *= 0.7;
             if (hasBossRushBuff(enemy, "br_blue_reduce_50")) multiplier *= 0.5;
             if (hasBossRushBuff(enemy, "br_yellow_buff_guard")) {
@@ -8297,6 +8301,11 @@
                         eva: Math.floor(floorBossStats.eva * phaseScale.eva),
                         exp: Math.floor(floorBossStats.exp * phaseScale.exp)
                     };
+                }
+                if (Game.isBossRush) {
+                    const hpScale = BossRushHpExtraBaseMultiplier + Math.min(BossRushHpExtraFloorCap, Math.max(0, activeFloor) * BossRushHpExtraFloorRate);
+                    bossStats.maxHp = Math.floor(bossStats.maxHp * hpScale);
+                    bossStats.hp = bossStats.maxHp;
                 }
                 Game.enemy = {
                     ...bossDef,
