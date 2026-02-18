@@ -1166,7 +1166,7 @@
                     <li>・出現ボスはこれまでのボスからランダム抽選</li>
                     <li>・ステータスは大幅に強化、階数を進むほど強くなります</li>
                     <li>・ボスラッシュ中はポーション効果が半減します</li>
-                    <li>・ボスラッシュ開始後は100階ごとに強化バフが追加されます</li>
+                    <li>・ボスラッシュ開始後は序盤から強化バフが段階的に追加されます</li>
                     <li>・ボスラッシュ中は経験値・ドロップなしのエンドコンテンツです</li>
                     <li>【5001階～】</li>
                     <li>・これまでの敵・ボスが新たなスキルを持ち再登場します</li>
@@ -2691,7 +2691,7 @@
             },
             {
                 id: "late",
-                minFloor: 1031,
+                minFloor: 701,
                 colorClass: "bg-red-100 text-red-600",
                 icon: "fa-skull",
                 buffs: [
@@ -2706,10 +2706,10 @@
         const getBossRushBuffCount = (floor) => {
             if (!Game.isBossRush) return 0;
             const count = Math.max(1, floor || 1);
-            if (count < 100) return 1;
-            if (count < 250) return 2;
-            if (count < 500) return 3;
-            if (count < 750) return 4;
+            if (count < 40) return 1;
+            if (count < 100) return 2;
+            if (count < 180) return 3;
+            if (count < 280) return 4;
             return 5;
         };
 
@@ -4072,13 +4072,13 @@
 
         const getBossRushScale = (floor) => {
             const count = Math.max(1, floor || 1);
-            if (count <= 200) {
-                return 1 + (count - 1) * 0.08;
+            if (count <= 120) {
+                return 1 + (count - 1) * 0.16;
             }
-            if (count <= 700) {
-                return 16.9 + (count - 200) * 0.025;
+            if (count <= 500) {
+                return 20.04 + (count - 120) * 0.055;
             }
-            return 29.4 + (count - 700) * 0.04;
+            return 40.94 + (count - 500) * 0.07;
         };
 
         const getEnemyPool = (floor) => {
